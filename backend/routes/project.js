@@ -117,12 +117,30 @@ router.post('/', auth, (req, res) => {
 // @route   GET api/project
 // @desc    Récupérer tous les projets
 // @access  Public
+// @route   GET api/project
+// @desc    Récupérer tous les projets (Sécurisée pour la rétrocompatibilité)
+// @access  Public
 router.get('/', async (req, res) => {
   try {
-    const projects = await Project.find().sort({ date: -1 });
-    res.json(projects);
+    // .lean() permet de modifier directement les objets retournés par Mongoose
+    const projects = await Project.find().sort({ date: -1 }).lean();
+    
+    // 🛡️ On s'assure que TOUS les projets possèdent un tableau media valide pour le Front
+    const securedProjects = projects.map(project => {
+      if (!project.media || !Array.isArray(project.media)) {
+        if (project.mediaUrl) {
+          project.media = [{ url: project.mediaUrl, type: project.mediaType || 'image' }];
+        } else {
+          project.media = [];
+        }
+      }
+      return project;
+    });
+
+    res.json(securedProjects);
   } catch (err) {
-    res.status(500).send('Erreur serveur.');
+    console.error("Erreur GET api/project :", err.message);
+    res.status(500).send('Erreur serveur lors de la récupération des projets.');
   }
 });
 
@@ -151,6 +169,15 @@ router.put('/:id', auth, (req, res) => {
       
       if (req.body.technologies) {
         project.technologies = req.body.technologies.split(',').map(tech => tech.trim());
+      }
+
+      // 🛡️ INITIALISATION / SÉCURISATION DU TABLEAU MEDIA (Évite l'erreur Not Iterable)
+      if (!project.media || !Array.isArray(project.media)) {
+        if (project.mediaUrl) {
+          project.media = [{ url: project.mediaUrl, type: project.mediaType || 'image' }];
+        } else {
+          project.media = [];
+        }
       }
 
       // 🛠️ ÉTAPE 1 : Gestion des suppressions individuelles demandées par le front
@@ -227,7 +254,7 @@ router.put('/:id', auth, (req, res) => {
       res.json(updatedProject);
     } catch (err) {
       console.error(err);
-      res.status(500).send('Erreur serveur lors de la modification.');
+      res.status(500).send('Erreur serveur lors du traitement de la modification.');
     }
   });
 });
