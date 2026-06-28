@@ -36,6 +36,7 @@ app.use('/api/project', require('./routes/project'));
 app.get('/', (req, res) => {
     res.send("L'API d'ITAS Connect fonctionne à merveille ! 🚀");
 });
+//const a=10;
 
 // 10. Démarrage du serveur d'écoute
 const PORT = process.env.PORT || 5000;
