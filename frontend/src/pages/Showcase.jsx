@@ -279,7 +279,17 @@ const Showcase = () => {
                         setEditTechs(project.technologies ? project.technologies.join(', ') : '');
                         setEditGithub(project.githubUrl);
                         setEditDemo(project.demoUrl);
-                        setExistingMedia(project.media || []); // 👈 On charge les médias actuels
+                        // 🛠️ LOGIQUE DE RÉCUPÉRATION CORRIGÉE :
+  if (project.media && project.media.length > 0) {
+    // Si on a déjà le nouveau format (tableau)
+    setExistingMedia(project.media);
+  } else if (project.mediaUrl) {
+    // 💡 SI C'EST UN ANCIEN PROJET (format unique string)
+    // On le transforme "à la volée" en objet pour l'éditeur
+    setExistingMedia([{ url: project.mediaUrl, type: project.mediaType || 'image' }]);
+  } else {
+    setExistingMedia([]);
+  } // 👈 On charge les médias actuels
                         setMediaToDelete([]);                  // Réinitialisation
                         setEditMediaFiles([]);
                         setEditMediaPreviews([]);
