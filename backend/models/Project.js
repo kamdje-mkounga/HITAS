@@ -1,34 +1,74 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const ProjectSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  techStack: {
-    type: [String], // Tableau de chaînes de caractères
-    default: []
-  },
-  githubLink: {
-    type: String
-  },
-  demoLink: {
-    type: String
-  },
-  // 👇 On remplace "author" par "user" pour être raccord avec le reste du projet
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+
+    user:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"user",
+        required:true
+    },
+
+    firstName:String,
+
+    lastName:String,
+
+    title:{
+        type:String,
+        required:true
+    },
+
+    description:{
+        type:String,
+        required:true
+    },
+
+    technologies:{
+        type:[String],
+        default:[]
+    },
+
+    githubUrl:{
+        type:String,
+        default:""
+    },
+
+    demoUrl:{
+        type:String,
+        default:""
+    },
+
+    media:[
+        {
+
+            url:{
+                type:String,
+                required:true
+            },
+
+            type:{
+                type:String,
+                enum:["image","video","pdf","audio"],
+                required:true
+            }
+
+        }
+    ],
+
+    mediaUrl:{
+        type:String,
+        default:""
+    },
+
+    mediaType:{
+        type:String,
+        default:null
+    },
+
+    date:{
+        type:Date,
+        default:Date.now
+    }
+
 });
 
-module.exports = mongoose.model('project', ProjectSchema);
+module.exports = mongoose.model("project",ProjectSchema);
