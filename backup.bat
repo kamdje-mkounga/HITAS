@@ -13,7 +13,7 @@ if %errorlevel%==0 (
     exit /b 0
 )
 
-git commit -m "Auto Backup"
+git commit -m "Auto Backup %date% %time%"
 
 git push origin main
 
