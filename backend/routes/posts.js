@@ -63,7 +63,7 @@ router.post('/', auth, (req, res) => {
       if (req.file) {
         mediaUrl = `/uploads/${req.file.filename}`;
         const mime = req.file.mimetype.toLowerCase();
-        const ext = path.extname(req.file.originalname).toLowerCase(); // 🛠️ Correction ici : req.file au lieu de file
+        const ext = path.extname(req.file.originalname).toLowerCase();
         
         // Détection du type de média
         if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
@@ -113,8 +113,34 @@ router.post('/', auth, (req, res) => {
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    const posts = await Post.find().sort({ date: -1 });
-    res.json(posts);
+    const posts = await Post.find().sort({ date: -1 }).lean();
+    
+    // 💡 Récupération dynamique des avatars à jour depuis la collection Profile
+    const updatedPosts = await Promise.all(posts.map(async (post) => {
+      if (post.user) {
+        const userProfile = await Profile.findOne({ user: post.user }).select('avatar');
+        if (userProfile && userProfile.avatar) {
+          post.avatar = userProfile.avatar; // Injecte la photo la plus récente
+        }
+      }
+
+      // Fait la même vérification en direct pour les commentaires !
+      if (post.comments && post.comments.length > 0) {
+        post.comments = await Promise.all(post.comments.map(async (comment) => {
+          if (comment.user) {
+            const commentProfile = await Profile.findOne({ user: comment.user }).select('avatar');
+            if (commentProfile && commentProfile.avatar) {
+              comment.avatar = commentProfile.avatar;
+            }
+          }
+          return comment;
+        }));
+      }
+
+      return post;
+    }));
+
+    res.json(updatedPosts);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Erreur serveur lors de la récupération des publications.');
@@ -136,7 +162,7 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ message: 'Utilisateur non autorisé à supprimer ce post.' });
     }
 
-    // [Optionnel] Si un média physique existe sur le serveur, on le supprime aussi
+    // Si un média physique existe sur le serveur, on le supprime aussi
     if (post.mediaUrl) {
       const pathToMedia = path.join(__dirname, '../', post.mediaUrl);
       if (fs.existsSync(pathToMedia)) {
@@ -201,6 +227,7 @@ router.post('/comment/:id', auth, async (req, res) => {
     post.comments.unshift(newComment);
     await post.save();
 
+    // Renvoie la liste complète des commentaires à jour
     res.json(post.comments);
   } catch (err) {
     console.error(err.message);
