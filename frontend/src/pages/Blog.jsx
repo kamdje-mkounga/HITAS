@@ -327,6 +327,8 @@ const Blog = () => {
           ) : (
             filteredPosts.map((post) => {
               const hasLiked = post.likes?.some(like => getUserId(like.user) === loggedInUserId);
+              // Gère l'accès à la propriété d'avatar que la route soit populée ou plate
+              const avatarPath = post.avatar || (post.user && typeof post.user === 'object' ? post.user.avatar : null);
 
               return (
                 <div 
@@ -336,9 +338,26 @@ const Blog = () => {
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-white text-black rounded-full flex items-center justify-center font-bold text-xs select-none">
-                        {post.firstName ? post.firstName[0] : 'U'}{post.lastName ? post.lastName[0] : 'P'}
+                      
+                      {/* 📸 AVATAR DYNAMIQUE OU INITIALES */}
+                      <div className="relative w-9 h-9 flex items-center justify-center">
+                        {avatarPath ? (
+                          <img 
+                            src={`${BACKEND_URL}${avatarPath}`} 
+                            alt={`${post.firstName} ${post.lastName}`} 
+                            className="absolute inset-0 w-full h-full rounded-full object-cover border border-white/10 select-none z-10"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        
+                        {/* Fallback : cercle d'initiales si pas d'image */}
+                        <div className="w-full h-full bg-white text-black rounded-full flex items-center justify-center font-bold text-xs select-none">
+                          {post.firstName ? post.firstName[0] : 'U'}{post.lastName ? post.lastName[0] : 'P'}
+                        </div>
                       </div>
+
                       <div>
                         <h3 className="font-semibold text-sm tracking-wide">{post.firstName} {post.lastName}</h3>
                         <p className="text-[10px] text-gray-500">{new Date(post.date).toLocaleDateString('fr-FR')}</p>
@@ -434,12 +453,33 @@ const Blog = () => {
                               Envoyer
                             </button>
                           </div>
-                          {post.comments && post.comments.map((comment, i) => (
-                            <div key={i} className="bg-black/30 p-2.5 rounded-lg border border-white/[0.02] text-xs">
-                              <p className="font-semibold text-gray-400 mb-0.5">{comment.firstName} {comment.lastName}</p>
-                              <p className="text-gray-200">{comment.text}</p>
-                            </div>
-                          ))}
+                          {post.comments && post.comments.map((comment, i) => {
+                            const commentAvatarPath = comment.avatar || (comment.user && typeof comment.user === 'object' ? comment.user.avatar : null);
+                            
+                            return (
+                              <div key={i} className="bg-black/30 p-2.5 rounded-lg border border-white/[0.02] text-xs flex gap-3 items-start">
+                                {/* 📸 AVATAR DANS LES COMMENTAIRES */}
+                                <div className="relative w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                                  {commentAvatarPath ? (
+                                    <img 
+                                      src={`${BACKEND_URL}${commentAvatarPath}`} 
+                                      alt="Comment Author" 
+                                      className="absolute inset-0 w-full h-full rounded-full object-cover border border-white/5 select-none z-10"
+                                      onError={(e) => { e.target.style.display = 'none'; }}
+                                    />
+                                  ) : null}
+                                  <div className="w-full h-full bg-zinc-800 text-white rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase">
+                                    {comment.firstName ? comment.firstName[0] : 'U'}
+                                  </div>
+                                </div>
+
+                                <div className="flex-1">
+                                  <p className="font-semibold text-gray-400 mb-0.5">{comment.firstName} {comment.lastName}</p>
+                                  <p className="text-gray-200">{comment.text}</p>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </>
