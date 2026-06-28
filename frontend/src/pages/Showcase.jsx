@@ -76,7 +76,7 @@ const Showcase = () => {
   }, [location]);
 
   const processFiles = (files, currentFilesCount, setFilesTarget, setPreviewsTarget) => {
-    if (files.length === 0) return;
+    if (files.length === 0) return false;
     if (files.length + currentFilesCount > 6) {
       setError('Vous pouvez téléverser un maximum de 6 fichiers par projet.');
       return false;
@@ -129,21 +129,21 @@ const Showcase = () => {
   const handleEditFileChange = (e) => {
     setError('');
     const files = Array.from(e.target.files);
-    // On calcule la limite sur la somme des fichiers restants + les nouveaux ajoutés
     processFiles(files, existingMedia.length + editMediaFiles.length, setEditMediaFiles, setEditMediaPreviews);
   };
 
   const removeSelectedFile = (index) => {
+    if (mediaPreviews[index]) URL.revokeObjectURL(mediaPreviews[index].url);
     setMediaFiles(prev => prev.filter((_, i) => i !== index));
     setMediaPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const removeEditSelectedFile = (index) => {
+    if (editMediaPreviews[index]) URL.revokeObjectURL(editMediaPreviews[index].url);
     setEditMediaFiles(prev => prev.filter((_, i) => i !== index));
     setEditMediaPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  // 🗑️ Retirer un fichier existant de l'affichage local et le marquer pour suppression
   const removeExistingMediaLocal = (mediaItem) => {
     setExistingMedia(prev => prev.filter(item => item.url !== mediaItem.url));
     setMediaToDelete(prev => [...prev, mediaItem.url]);
@@ -174,6 +174,7 @@ const Showcase = () => {
   };
 
   const handleEditSubmit = async (projectId) => {
+    setError('');
     try {
       const formData = new FormData();
       formData.append('title', editTitle);
@@ -181,11 +182,8 @@ const Showcase = () => {
       formData.append('technologies', editTechs);
       formData.append('githubUrl', editGithub);
       formData.append('demoUrl', editDemo);
-      
-      // On envoie la liste des URLs à supprimer du dossier serveur et de Mongo
       formData.append('mediaToDelete', JSON.stringify(mediaToDelete));
 
-      // On ajoute les nouveaux fichiers téléversés
       if (editMediaFiles.length > 0) {
         editMediaFiles.forEach(file => formData.append('media', file));
       }
@@ -198,6 +196,7 @@ const Showcase = () => {
       setEditMediaPreviews([]);
       setMediaToDelete([]);
       setSelectedMediaIndex(prev => ({ ...prev, [projectId]: 0 }));
+      setSuccess('Portfolio mis à jour avec succès !');
     } catch (err) {
       alert(err.response?.data?.message || 'Erreur lors de la modification.');
     }
@@ -236,14 +235,15 @@ const Showcase = () => {
             <input type="text" placeholder="Lien Démo Live" className="bg-black border border-white/10 rounded-lg p-2.5 text-xs focus:outline-none focus:border-white" value={demoUrl} onChange={(e) => setDemoUrl(e.target.value)} />
           </div>
 
+          {/* WhatsApp Style Previews - Création */}
           {mediaPreviews.length > 0 && (
-            <div className="bg-black/50 border border-white/5 rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div className="bg-black/50 border border-white/5 rounded-lg p-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
               {mediaPreviews.map((preview, index) => (
-                <div key={index} className="relative aspect-video rounded-md overflow-hidden border border-white/10 bg-black flex items-center justify-center group">
-                  <button type="button" onClick={() => removeSelectedFile(index)} className="absolute top-1 right-1 bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] z-10">✕</button>
+                <div key={index} className="relative aspect-video rounded-md overflow-hidden border border-white/10 bg-zinc-900 flex items-center justify-center group">
+                  <button type="button" onClick={() => removeSelectedFile(index)} className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] z-10 transition">✕</button>
                   {preview.type === 'image' && <img src={preview.url} alt="" className="w-full h-full object-cover" />}
-                  {preview.type === 'video' && <div className="text-[10px] text-gray-400">🎥 Vidéo</div>}
-                  {preview.type === 'pdf' && <div className="text-[10px] text-gray-400">📄 PDF : {preview.name}</div>}
+                  {preview.type === 'video' && <video src={preview.url} className="w-full h-full object-cover" />}
+                  {preview.type === 'pdf' && <div className="text-[10px] text-red-400 font-bold p-1 text-center truncate w-full">📄 PDF<br/><span className="text-[8px] text-gray-500 font-normal">{preview.name}</span></div>}
                 </div>
               ))}
             </div>
@@ -277,20 +277,17 @@ const Showcase = () => {
                         setEditTitle(project.title);
                         setEditDescription(project.description);
                         setEditTechs(project.technologies ? project.technologies.join(', ') : '');
-                        setEditGithub(project.githubUrl);
-                        setEditDemo(project.demoUrl);
-                        // 🛠️ LOGIQUE DE RÉCUPÉRATION CORRIGÉE :
-  if (project.media && project.media.length > 0) {
-    // Si on a déjà le nouveau format (tableau)
-    setExistingMedia(project.media);
-  } else if (project.mediaUrl) {
-    // 💡 SI C'EST UN ANCIEN PROJET (format unique string)
-    // On le transforme "à la volée" en objet pour l'éditeur
-    setExistingMedia([{ url: project.mediaUrl, type: project.mediaType || 'image' }]);
-  } else {
-    setExistingMedia([]);
-  } // 👈 On charge les médias actuels
-                        setMediaToDelete([]);                  // Réinitialisation
+                        setEditGithub(project.githubUrl || '');
+                        setEditDemo(project.demoUrl || '');
+                        
+                        if (project.media && project.media.length > 0) {
+                          setExistingMedia(project.media);
+                        } else if (project.mediaUrl) {
+                          setExistingMedia([{ url: project.mediaUrl, type: project.mediaType || 'image' }]);
+                        } else {
+                          setExistingMedia([]);
+                        }
+                        setMediaToDelete([]);
                         setEditMediaFiles([]);
                         setEditMediaPreviews([]);
                       }}
@@ -325,49 +322,48 @@ const Showcase = () => {
                       <input type="text" className="w-full bg-black border border-white/20 p-2 text-xs rounded text-white" value={editDemo} onChange={(e)=>setEditDemo(e.target.value)} placeholder="Démo"/>
                     </div>
 
-                    {/* 🔥 GESTION INDIVIDUELLE ET EN DIRECT DES MÉDIAS */}
+                    {/* 📁 GESTION COMPOSANTE WHATSAPP EN ÉDITION */}
                     <div className="border-t border-white/5 pt-3">
                       <label className="text-[11px] text-gray-400 block mb-2 font-medium uppercase tracking-wider">📁 Gestion Fine des Fichiers</label>
                       
-                      {/* 1. Liste des fichiers conservés / Bouton de suppression individuelle */}
+                      {/* 1. Fichiers déjà sur le serveur */}
                       <div className="mb-3 bg-zinc-950 p-3 rounded-lg border border-white/5">
-                        <p className="text-[10px] text-gray-400 mb-2">Fichiers actuellement sauvegardés (clique sur ✕ pour retirer de la galerie) :</p>
+                        <p className="text-[10px] text-gray-400 mb-2">Fichiers actuellement sauvegardés (clique sur ✕ pour retirer) :</p>
                         {existingMedia.length === 0 ? (
                           <p className="text-xs text-gray-500 italic">Aucun fichier restant dans ce portfolio.</p>
                         ) : (
                           <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                             {existingMedia.map((mediaItem, idx) => (
-                              <div key={idx} className="relative aspect-video bg-black rounded border border-white/10 overflow-hidden flex items-center justify-center group">
+                              <div key={idx} className="relative aspect-video bg-black rounded border border-white/10 overflow-hidden flex items-center justify-center">
                                 <button 
                                   type="button" 
                                   onClick={() => removeExistingMediaLocal(mediaItem)} 
-                                  className="absolute top-0.5 right-0.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-20"
-                                  title="Supprimer ce fichier"
+                                  className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-20 shadow"
                                 >
                                   ✕
                                 </button>
                                 {mediaItem.type === 'image' && <img src={`${BACKEND_URL}${mediaItem.url}`} className="w-full h-full object-cover" alt="" />}
-                                {mediaItem.type === 'video' && <span className="text-xs">🎥</span>}
-                                {mediaItem.type === 'pdf' && <span className="text-xs">📄 PDF</span>}
+                                {mediaItem.type === 'video' && <video src={`${BACKEND_URL}${mediaItem.url}`} className="w-full h-full object-cover" />}
+                                {mediaItem.type === 'pdf' && <span className="text-[10px] text-red-500 font-bold">📄 PDF</span>}
                               </div>
                             ))}
                           </div>
                         )}
                       </div>
 
-                      {/* 2. Ajout simultané de nouveaux fichiers de complétion */}
+                      {/* 2. Flux de prévisualisation instantané pour l'ajout (Style WhatsApp) */}
                       <div className="bg-black p-3 rounded-lg border border-white/10 flex flex-col gap-2">
-                        <span className="text-[10px] text-gray-400">Ajouter de nouveaux médias à ce projet :</span>
+                        <span className="text-[10px] text-gray-400">Insérer de nouveaux fichiers ou courtes vidéos :</span>
                         <input type="file" multiple accept="image/*,video/*,application/pdf" onChange={handleEditFileChange} className="text-xs text-gray-400 file:bg-zinc-900 file:text-white file:border file:border-white/10 file:px-2 file:py-1 file:rounded cursor-pointer" />
                         
                         {editMediaPreviews.length > 0 && (
-                          <div className="grid grid-cols-4 gap-2 bg-zinc-950 p-2 rounded border border-white/5">
+                          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 bg-zinc-950 p-2 rounded border border-white/5 mt-1">
                             {editMediaPreviews.map((preview, idx) => (
-                              <div key={idx} className="relative aspect-video bg-black border border-white/10 rounded overflow-hidden flex items-center justify-center">
-                                <button type="button" onClick={() => removeEditSelectedFile(idx)} className="absolute top-0.5 right-0.5 bg-black text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-10">✕</button>
+                              <div key={idx} className="relative aspect-video bg-zinc-900 border border-amber-500/40 rounded overflow-hidden flex items-center justify-center">
+                                <button type="button" onClick={() => removeEditSelectedFile(idx)} className="absolute top-1 right-1 bg-zinc-800 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-10 hover:bg-zinc-700">✕</button>
                                 {preview.type === 'image' && <img src={preview.url} className="w-full h-full object-cover" alt="" />}
-                                {preview.type === 'video' && <span className="text-[10px]">🎥</span>}
-                                {preview.type === 'pdf' && <span className="text-[10px]">📄</span>}
+                                {preview.type === 'video' && <video src={preview.url} className="w-full h-full object-cover" />}
+                                {preview.type === 'pdf' && <span className="text-[9px] text-amber-400 font-medium">📄 PDF</span>}
                               </div>
                             ))}
                           </div>
@@ -377,7 +373,7 @@ const Showcase = () => {
 
                     <div className="flex gap-2 justify-end text-xs pt-2 border-t border-white/5">
                       <button onClick={() => { setEditingId(null); setEditMediaFiles([]); setEditMediaPreviews([]); setMediaToDelete([]); }} className="px-4 py-2 bg-zinc-900 border border-white/10 text-gray-400 rounded-lg">Annuler</button>
-                      <button onClick={() => handleEditSubmit(project._id)} className="px-4 py-2 bg-white text-black font-semibold rounded-lg">Sauvegarder le Portfolio</button>
+                      <button onClick={() => handleEditSubmit(project._id)} className="px-4 py-2 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition">Sauvegarder le Portfolio</button>
                     </div>
                   </div>
                 ) : (
@@ -422,8 +418,8 @@ const Showcase = () => {
                     )}
 
                     <div className="flex gap-3 pt-2">
-                      {project.githubUrl && <a href={project.githubUrl} target="_blank" rel="noreferrer" className="flex-1 bg-white/5 border border-white/10 text-center text-xs py-2 rounded-lg text-gray-300 font-medium">📦 Code Source</a>}
-                      {project.demoUrl && <a href={project.demoUrl} target="_blank" rel="noreferrer" className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-center text-xs py-2 rounded-lg font-semibold text-white">🌐 Visiter l'application</a>}
+                      {project.githubUrl && <a href={project.githubUrl} target="_blank" rel="noreferrer" className="flex-1 bg-white/5 border border-white/10 text-center text-xs py-2 rounded-lg text-gray-300 font-medium hover:bg-white/10 transition">📦 Code Source</a>}
+                      {project.demoUrl && <a href={project.demoUrl} target="_blank" rel="noreferrer" className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-center text-xs py-2 rounded-lg font-semibold text-white hover:opacity-90 transition">🌐 Visiter l'application</a>}
                     </div>
                   </>
                 )}
