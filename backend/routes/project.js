@@ -87,7 +87,7 @@ router.post('/', auth, (req, res) => {
       }
 
       let technologies = [];
-      if (req.body.technologies) {
+      if (req.body.technologies && req.body.technologies.trim() !== '') {
         technologies = req.body.technologies.split(',').map(tech => tech.trim());
       }
 
@@ -115,17 +115,12 @@ router.post('/', auth, (req, res) => {
 });
 
 // @route   GET api/project
-// @desc    Récupérer tous les projets
-// @access  Public
-// @route   GET api/project
 // @desc    Récupérer tous les projets (Sécurisée pour la rétrocompatibilité)
 // @access  Public
 router.get('/', async (req, res) => {
   try {
-    // .lean() permet de modifier directement les objets retournés par Mongoose
     const projects = await Project.find().sort({ date: -1 }).lean();
     
-    // 🛡️ On s'assure que TOUS les projets possèdent un tableau media valide pour le Front
     const securedProjects = projects.map(project => {
       if (!project.media || !Array.isArray(project.media)) {
         if (project.mediaUrl) {
@@ -167,8 +162,13 @@ router.put('/:id', auth, (req, res) => {
       if (req.body.githubUrl !== undefined) project.githubUrl = req.body.githubUrl;
       if (req.body.demoUrl !== undefined) project.demoUrl = req.body.demoUrl;
       
-      if (req.body.technologies) {
-        project.technologies = req.body.technologies.split(',').map(tech => tech.trim());
+      // 🛠️ CORRECTIF : Gestion sécurisée du champ technologies (évite le crash si vide)
+      if (req.body.technologies !== undefined) {
+        if (typeof req.body.technologies === 'string' && req.body.technologies.trim() !== '') {
+          project.technologies = req.body.technologies.split(',').map(tech => tech.trim());
+        } else {
+          project.technologies = []; // Si vide ou effacé, on nettoie proprement le tableau
+        }
       }
 
       // 🛡️ INITIALISATION / SÉCURISATION DU TABLEAU MEDIA (Évite l'erreur Not Iterable)
@@ -183,16 +183,14 @@ router.put('/:id', auth, (req, res) => {
       // 🛠️ ÉTAPE 1 : Gestion des suppressions individuelles demandées par le front
       if (req.body.mediaToDelete) {
         try {
-          const toDelete = JSON.parse(req.body.mediaToDelete); // Contient les URLs des fichiers cochés/retirés
+          const toDelete = JSON.parse(req.body.mediaToDelete);
           if (Array.isArray(toDelete) && toDelete.length > 0) {
             toDelete.forEach(fileUrl => {
-              // On recrée le chemin serveur absolu (ex: ../uploads/filename.png)
               const filePath = path.join(__dirname, '../', fileUrl);
               if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath); // Suppression physique du stockage
+                fs.unlinkSync(filePath);
               }
             });
-            // Mise à jour de la base de données : on ne garde que les médias non listés dans mediaToDelete
             project.media = project.media.filter(item => !toDelete.includes(item.url));
           }
         } catch (parseErr) {
@@ -226,7 +224,6 @@ router.put('/:id', auth, (req, res) => {
           newFilesData.push({ url, type });
         }
 
-        // On fusionne les fichiers restants avec les nouveaux arrivants
         project.media = [...project.media, ...newFilesData];
       }
 
