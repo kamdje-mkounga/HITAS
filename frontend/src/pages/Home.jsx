@@ -20,9 +20,16 @@ const OrbitingLogo = () => {
   ];
 
   return (
-    <div className="relative flex items-center justify-center my-4 h-52 w-full overflow-hidden select-none">
+    /* 
+      ✨ LE SECRET DE LA RESPONSIVITÉ EN BAS :
+      On applique un scale global. 
+      - Par défaut (mobile) : tout le bloc est réduit à 65% de sa taille (scale-65)
+      - Sur tablette (sm) : tout passe à 85% (sm:scale-85)
+      - Sur ordinateur (md) : tout reprend sa taille d'origine à 100% (md:scale-100)
+    */
+    <div className="relative flex items-center justify-center my-2 h-40 md:h-52 w-full overflow-hidden select-none transform scale-65 sm:scale-85 md:scale-100 transition-transform duration-300">
       
-      {/* Calcul mathématique de l'ellipse pour correspondre exactement aux pointillés */}
+      {/* Calcul de l'ellipse de base (pour la taille ordinateur) */}
       <style>{`
         @keyframes ellipticOrbit {
           0% {
@@ -35,11 +42,11 @@ const OrbitingLogo = () => {
           }
           50% {
             transform: translate(-160px, 0px) scale(0.75);
-            z-index: 5; /* Passe derrière le logo */
+            z-index: 5;
           }
           75% {
             transform: translate(0px, -38px) scale(0.9);
-            z-index: 5; /* Reste derrière en haut */
+            z-index: 5;
           }
           100% {
             transform: translate(160px, 0px) scale(1);
@@ -51,7 +58,7 @@ const OrbitingLogo = () => {
         }
       `}</style>
 
-      {/* 1. Le Logo central "H" d'HITAS - Nettoyé, agrandi et sans aucun cadre */}
+      {/* 1. Le Logo central "H" d'HITAS */}
       <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
         <img 
           src={hitasLogo} 
@@ -63,7 +70,7 @@ const OrbitingLogo = () => {
       {/* 2. L'anneau d'orbite elliptique en arrière-plan */}
       <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
 
-      {/* 3. Les drapeaux en orbite synchrone sur l'ellipse */}
+      {/* 3. Les drapeaux en orbite */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {flags.map((flag) => (
           <div
@@ -94,13 +101,13 @@ function Home() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
         
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2">
             Le hub de la communauté étudiante d'HITAS
           </h1>
           
           <OrbitingLogo />
 
-          <p className="text-zinc-400 text-lg mt-4">
+          <p className="text-zinc-400 text-lg mt-4 px-4">
             Connecte-toi avec la diaspora, partage des opportunités et propulse tes projets techniques.
           </p>
         </div>

@@ -4,6 +4,8 @@ import axios from 'axios';
 
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
+  // State pour gérer la notification rouge style WhatsApp (ex: un nouveau message est arrivé)
+  const [hasNewNotification, setHasNewNotification] = useState(true);
   const navigate = useNavigate();
   const BACKEND_URL = 'http://localhost:5000';
   const token = localStorage.getItem('token');
@@ -49,7 +51,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* 🗺️ LIENS DE NAVIGATION (Avec NavLink pour gérer le statut "actif") */}
+          {/* 🗺️ LIENS DE NAVIGATION */}
           <div className="hidden md:flex items-center space-x-1">
             <NavLink 
               to="/annuaire" 
@@ -59,14 +61,29 @@ const Navbar = () => {
             >
               Annuaire
             </NavLink>
+
+            {/* Onglet Blog mis à jour avec la notification style WhatsApp */}
             <NavLink 
               to="/blog" 
+              onClick={() => setHasNewNotification(false)} // Optionnel: efface la notification quand on clique dessus
               className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive ? 'bg-indigo-500/10 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
               }`}
             >
-              Blog & Entraide
+              <span className="relative inline-block">
+                Blog & Entraide
+                
+                {hasNewNotification && (
+                  <span className="absolute -top-1 -right-2 flex h-2.5 w-2.5">
+                    {/* L'effet de halo clignotant WhatsApp */}
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    {/* Le point rouge fixe au premier plan */}
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                  </span>
+                )}
+              </span>
             </NavLink>
+
             <NavLink 
               to="/showcase" 
               className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
