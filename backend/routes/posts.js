@@ -59,28 +59,23 @@ router.post('/', auth, (req, res) => {
       let mediaUrl = '';
       let mediaType = null;
 
-      // Un seul bloc req.file propre et unifié
       if (req.file) {
         mediaUrl = `/uploads/${req.file.filename}`;
         const mime = req.file.mimetype.toLowerCase();
         const ext = path.extname(req.file.originalname).toLowerCase();
         
-        // Détection du type de média
         if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
           mediaType = 'video';
-          
-          // VÉRIFICATION DE LA DURÉE DE LA VIDÉO (Max 3 minutes / 180s)
           const pathToFile = path.join(__dirname, '../', mediaUrl);
           try {
             const duration = await getVideoDurationInSeconds(pathToFile);
             if (duration > 180) {
-              fs.unlinkSync(pathToFile); // Supprime le fichier trop long
+              fs.unlinkSync(pathToFile);
               return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
             }
           } catch (durationErr) {
             console.error("Impossible de lire la durée de la vidéo :", durationErr);
           }
-
         } else if (mime.startsWith('audio') || ['.mp3', '.wav', '.m4a', '.ogg', '.mpeg'].includes(ext)) {
           mediaType = 'audio';
         } else if (mime.startsWith('image') || ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
@@ -115,16 +110,14 @@ router.get('/', async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 }).lean();
     
-    // 💡 Récupération dynamique des avatars à jour depuis la collection Profile
     const updatedPosts = await Promise.all(posts.map(async (post) => {
       if (post.user) {
         const userProfile = await Profile.findOne({ user: post.user }).select('avatar');
         if (userProfile && userProfile.avatar) {
-          post.avatar = userProfile.avatar; // Injecte la photo la plus récente
+          post.avatar = userProfile.avatar;
         }
       }
 
-      // Fait la même vérification en direct pour les commentaires !
       if (post.comments && post.comments.length > 0) {
         post.comments = await Promise.all(post.comments.map(async (comment) => {
           if (comment.user) {
@@ -162,7 +155,6 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ message: 'Utilisateur non autorisé à supprimer ce post.' });
     }
 
-    // Si un média physique existe sur le serveur, on le supprime aussi
     if (post.mediaUrl) {
       const pathToMedia = path.join(__dirname, '../', post.mediaUrl);
       if (fs.existsSync(pathToMedia)) {
@@ -179,29 +171,90 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // @route   PUT api/posts/:id
-// @desc    Modifier une publication
+// @desc    Modifier une publication (Gestion complète texte + médias)
 // @access  Private
-router.put('/:id', auth, async (req, res) => {
-  try {
-    let post = await Post.findById(req.params.id);
-
-    if (!post) {
-      return res.status(404).json({ message: 'Publication non trouvée.' });
+router.put('/:id', auth, (req, res) => {
+  upload.single('media')(req, res, async (err) => {
+    if (err) {
+      console.error("Erreur Multer lors de la modification :", err.message);
+      return res.status(400).json({ message: err.message });
     }
 
-    if (post.user.toString() !== req.user.userId) {
-      return res.status(401).json({ message: 'Utilisateur non autorisé.' });
+    try {
+      let post = await Post.findById(req.params.id);
+
+      if (!post) {
+        return res.status(404).json({ message: 'Publication non trouvée.' });
+      }
+
+      if (post.user.toString() !== req.user.userId) {
+        return res.status(401).json({ message: 'Utilisateur non autorisé.' });
+      }
+
+      // Mise à jour des champs basiques s'ils sont fournis
+      if (req.body.text !== undefined) post.text = req.body.text;
+      if (req.body.category) post.category = req.body.category;
+
+      // Variable pour traquer si on doit supprimer un fichier physique du serveur
+      let fileToDelete = null;
+
+      // 1. Un NOUVEAU fichier a été téléversé
+      if (req.file) {
+        // On prépare la suppression de l'ancien fichier s'il existait
+        if (post.mediaUrl) {
+          fileToDelete = path.join(__dirname, '../', post.mediaUrl);
+        }
+
+        post.mediaUrl = `/uploads/${req.file.filename}`;
+        const mime = req.file.mimetype.toLowerCase();
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        
+        // Détermination du nouveau type et sécurité vidéo
+        if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
+          post.mediaType = 'video';
+          const pathToFile = path.join(__dirname, '../', post.mediaUrl);
+          try {
+            const duration = await getVideoDurationInSeconds(pathToFile);
+            if (duration > 180) {
+              fs.unlinkSync(pathToFile); // Supprime le nouveau fichier trop long
+              return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
+            }
+          } catch (durationErr) {
+            console.error("Impossible de lire la durée de la vidéo :", durationErr);
+          }
+        } else if (mime.startsWith('audio') || ['.mp3', '.wav', '.m4a', '.ogg', '.mpeg'].includes(ext)) {
+          post.mediaType = 'audio';
+        } else if (mime.startsWith('image') || ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
+          post.mediaType = 'image';
+        }
+
+      // 2. Pas de nouveau fichier, mais l'utilisateur a cliqué sur "Retirer" le média existant
+      } else if (req.body.existingMediaUrl === '') {
+        if (post.mediaUrl) {
+          fileToDelete = path.join(__dirname, '../', post.mediaUrl);
+        }
+        post.mediaUrl = '';
+        post.mediaType = null;
+      }
+
+      // Sauvegarde des modifications en base de données
+      await post.save();
+
+      // Nettoyage physique du stockage si nécessaire (seulement APRÈS une sauvegarde réussie)
+      if (fileToDelete && fs.existsSync(fileToDelete)) {
+        try {
+          fs.unlinkSync(fileToDelete);
+        } catch (unlinkErr) {
+          console.error("Erreur lors de la suppression de l'ancien média :", unlinkErr.message);
+        }
+      }
+
+      res.json(post);
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send('Erreur serveur lors de la modification.');
     }
-
-    if (req.body.text !== undefined) post.text = req.body.text;
-    if (req.body.category) post.category = req.body.category;
-
-    await post.save();
-    res.json(post);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Erreur serveur lors de la modification.');
-  }
+  });
 });
 
 // @route   POST api/posts/comment/:id
@@ -227,7 +280,6 @@ router.post('/comment/:id', auth, async (req, res) => {
     post.comments.unshift(newComment);
     await post.save();
 
-    // Renvoie la liste complète des commentaires à jour
     res.json(post.comments);
   } catch (err) {
     console.error(err.message);

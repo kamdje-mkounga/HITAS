@@ -17,10 +17,15 @@ const Blog = () => {
   const [commentTexts, setCommentTexts] = useState({});
   const [showComments, setShowComments] = useState({});
 
+  // ÉTATS POUR LA MODIFICATION (Gestion similaire à Showcase)
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [editMediaFile, setEditMediaFile] = useState(null);
+  const [editMediaPreview, setEditMediaPreview] = useState(null);
+  const [existingMediaUrl, setExistingMediaUrl] = useState(''); // Pour traquer le média déjà sauvegardé
 
   const fileInputRef = useRef(null);
+  const editFileInputRef = useRef(null); // Ref distincte pour l'édition
   const BACKEND_URL = 'http://localhost:5000';
   const loggedInUserId = localStorage.getItem('userId') || ''; 
   const location = useLocation();
@@ -45,6 +50,15 @@ const Blog = () => {
     setMediaFile(null);
     setMediaPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  // Nettoyer les médias du mode édition
+  const clearEditMedia = () => {
+    if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
+    setEditMediaFile(null);
+    setEditMediaPreview(null);
+    setExistingMediaUrl(''); // On retire aussi le média existant si l'utilisateur clique sur la croix
+    if (editFileInputRef.current) editFileInputRef.current.value = '';
   };
 
   const handleFileChange = (e) => {
@@ -73,6 +87,29 @@ const Blog = () => {
       setMediaFile(file);
       setMediaPreview(objectUrl);
     }
+  };
+
+  // Gestionnaire de fichier pour le mode édition
+  const handleEditFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
+    const objectUrl = URL.createObjectURL(file);
+
+    setExistingMediaUrl(''); // Si on choisit un nouveau fichier, ça remplace l'ancien
+    setEditMediaFile(file);
+    setEditMediaPreview(objectUrl);
+  };
+
+  // Activer le mode édition en chargeant les données existantes (Texte + Média)
+  const startEditing = (post) => {
+    setEditingId(post._id);
+    setEditText(post.text || '');
+    setExistingMediaUrl(post.mediaUrl || ''); // On stocke le média actuel du post
+    setEditMediaFile(null);
+    if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
+    setEditMediaPreview(null);
   };
 
   const handleLike = async (postId) => {
@@ -109,23 +146,11 @@ const Blog = () => {
 
   useEffect(() => {
     fetchPosts();
-    return () => { if (mediaPreview) URL.revokeObjectURL(mediaPreview); };
+    return () => { 
+      if (mediaPreview) URL.revokeObjectURL(mediaPreview); 
+      if (editMediaPreview) URL.revokeObjectURL(editMediaPreview); 
+    };
   }, []);
-
-  useEffect(() => {
-    if (posts.length > 0 && location.state?.scrollToId) {
-      setTimeout(() => {
-        const element = document.getElementById(`post-${location.state.scrollToId}`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          element.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-950/20');
-          setTimeout(() => {
-            element.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-950/20');
-          }, 3000);
-        }
-      }, 200);
-    }
-  }, [posts, location]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -149,14 +174,35 @@ const Blog = () => {
     }
   };
 
+  // ENVOI DE LA MODIFICATION VIA FORMDATA (Comme sur la page Showcase)
   const handleEditSubmit = async (postId) => {
-    if (!editText.trim()) return;
+    if (!editText.trim() && !editMediaFile && !existingMediaUrl) {
+      return alert('La publication ne peut pas être complètement vide.');
+    }
+
     try {
-      const res = await axios.put(`${BACKEND_URL}/api/posts/${postId}`, { text: editText }, getAuthHeader());
+      const formData = new FormData();
+      formData.append('text', editText);
+      formData.append('existingMediaUrl', existingMediaUrl); // On envoie une chaîne vide si supprimé, ou l'URL si conservé
+      
+      if (editMediaFile) {
+        formData.append('media', editMediaFile);
+      }
+
+      const token = localStorage.getItem('token');
+      const res = await axios.put(`${BACKEND_URL}/api/posts/${postId}`, formData, {
+        headers: { 
+          'x-auth-token': token, 
+          'Content-Type': 'multipart/form-data' 
+        }
+      });
+
       setPosts(posts.map(post => post._id === postId ? res.data : post));
       setEditingId(null);
+      clearEditMedia();
     } catch (err) {
-      alert('Erreur lors de la modification.');
+      console.error(err);
+      alert('Erreur lors de la modification de la publication.');
     }
   };
 
@@ -189,7 +235,6 @@ const Blog = () => {
   };
 
   return (
-    /* AJOUT ICI : Un conteneur plein écran avec fond sombre forcé pour bloquer le blanc du navigateur */
     <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
       <div className="max-w-3xl mx-auto px-4">
         
@@ -349,23 +394,82 @@ const Blog = () => {
                         
                         {getUserId(post.user) === loggedInUserId && (
                           <div className="flex gap-0.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-0.5 shadow-inner">
-                            <button onClick={() => { setEditingId(post._id); setEditText(post.text); }} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all">✏️</button>
+                            {/* Appel de la fonction de modification complète */}
+                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all">✏️</button>
                             <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all">🗑️</button>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    {/* Corps du Post */}
+                    {/* CORPS DU POST EN MODE ÉDITION (STYLE APERÇU SHOWCASE) */}
                     {editingId === post._id ? (
-                      <div className="mt-2 space-y-2">
+                      <div className="mt-2 space-y-4 bg-[#0d0d0e] p-4 rounded-xl border border-zinc-800">
+                        <h4 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Modifier la publication</h4>
+                        
                         <textarea
-                          className="w-full bg-[#0d0d0e] border border-zinc-700 rounded-xl p-3 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-600 resize-none"
+                          className="w-full bg-[#161618] border border-zinc-800 rounded-xl p-3 text-sm text-zinc-100 focus:outline-none focus:border-zinc-700 resize-none leading-relaxed"
+                          rows="3"
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
                         />
-                        <div className="flex gap-2 justify-end">
-                          <button onClick={() => setEditingId(null)} className="px-3 py-1.5 bg-transparent border border-zinc-800 text-xs font-semibold rounded-lg text-zinc-400 hover:text-zinc-200 transition-all">Annuler</button>
+                        
+                        {/* Gestion fine des fichiers en édition */}
+                        <div className="space-y-2">
+                          <label className="text-[11px] font-medium text-zinc-400 block">Gestion du média :</label>
+                          
+                          {/* 1. Si un média était déjà sauvegardé et n'est pas encore supprimé */}
+                          {existingMediaUrl && (
+                            <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
+                              <span className="text-xs text-zinc-400 truncate max-w-[80%]">📁 Média actuellement sauvegardé</span>
+                              <button 
+                                type="button" 
+                                onClick={() => setExistingMediaUrl('')} 
+                                className="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-1 rounded-md text-[11px] font-medium hover:bg-red-500/20 transition-all"
+                              >
+                                Retirer
+                              </button>
+                            </div>
+                          )}
+
+                          {/* 2. Si l'utilisateur est en train d'ajouter un NOUVEAU fichier */}
+                          {editMediaPreview && (
+                            <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
+                              <span className="text-xs text-indigo-400 truncate max-w-[80%]">📎 Nouveau média prêt à être injecté</span>
+                              <button 
+                                type="button" 
+                                onClick={clearEditMedia} 
+                                className="bg-zinc-800 text-zinc-300 px-2 py-1 rounded-md text-[11px] font-medium hover:bg-zinc-700 transition-all"
+                              >
+                                Annuler
+                              </button>
+                            </div>
+                          )}
+
+                          {/* 3. Bouton pour insérer un fichier si aucun n'est présent */}
+                          {!existingMediaUrl && !editMediaPreview && (
+                            <div>
+                              <button
+                                type="button"
+                                onClick={() => editFileInputRef.current?.click()}
+                                className="text-xs border border-zinc-800 bg-[#161618] text-zinc-400 px-3 py-1.5 rounded-lg hover:text-zinc-200 hover:border-zinc-700 transition-all"
+                              >
+                                ➕ Insérer un fichier ou une vidéo
+                              </button>
+                              <input 
+                                type="file" 
+                                ref={editFileInputRef}
+                                accept="image/*,video/*,audio/*" 
+                                onChange={handleEditFileChange} 
+                                className="hidden"
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Actions de l'édition */}
+                        <div className="flex gap-2 justify-end pt-2 border-t border-zinc-800/60">
+                          <button onClick={() => { setEditingId(null); clearEditMedia(); }} className="px-3 py-1.5 bg-transparent border border-zinc-800 text-xs font-semibold rounded-lg text-zinc-400 hover:text-zinc-200 transition-all">Annuler</button>
                           <button onClick={() => handleEditSubmit(post._id)} className="px-3 py-1.5 bg-zinc-100 text-zinc-950 text-xs font-bold rounded-lg hover:bg-white transition-all">Sauvegarder</button>
                         </div>
                       </div>
