@@ -20,55 +20,55 @@ const OrbitingLogo = () => {
   ];
 
   return (
-    <div className="relative flex items-center justify-center my-6 h-44 w-full overflow-hidden select-none">
+    <div className="relative flex items-center justify-center my-4 h-52 w-full overflow-hidden select-none">
       
-      {/* Injection directe des keyframes CSS pour garantir l'orbite fluide */}
+      {/* Calcul mathématique de l'ellipse pour correspondre exactement aux pointillés */}
       <style>{`
-        @keyframes customOrbit {
+        @keyframes ellipticOrbit {
           0% {
-            transform: rotate(0deg) translateX(145px) rotate(0deg) scale(1);
+            transform: translate(160px, 0px) scale(1);
             z-index: 20;
           }
           25% {
-            transform: rotate(90deg) translateX(145px) rotate(-90deg) scale(0.8);
-            z-index: 5;
-          }
-          50% {
-            transform: rotate(180deg) translateX(145px) rotate(-180deg) scale(0.7);
-            z-index: 5;
-          }
-          75% {
-            transform: rotate(270deg) translateX(145px) rotate(-270deg) scale(0.9);
+            transform: translate(0px, 38px) scale(0.9);
             z-index: 20;
           }
+          50% {
+            transform: translate(-160px, 0px) scale(0.75);
+            z-index: 5; /* Passe derrière le logo */
+          }
+          75% {
+            transform: translate(0px, -38px) scale(0.9);
+            z-index: 5; /* Reste derrière en haut */
+          }
           100% {
-            transform: rotate(360deg) translateX(145px) rotate(-360deg) scale(1);
+            transform: translate(160px, 0px) scale(1);
             z-index: 20;
           }
         }
-        .animate-custom-orbit {
-          animation: customOrbit 10s linear infinite;
+        .animate-ellipse-orbit {
+          animation: ellipticOrbit 14s linear infinite;
         }
       `}</style>
 
-      {/* 1. Le Logo central "H" d'HITAS */}
-      <div className="relative z-10 w-24 h-24 flex items-center justify-center bg-[#161618] rounded-full border border-zinc-800/80 shadow-2xl p-4">
+      {/* 1. Le Logo central "H" d'HITAS - Nettoyé, agrandi et sans aucun cadre */}
+      <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
         <img 
           src={hitasLogo} 
           alt="Logo HITAS" 
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]"
         />
       </div>
 
       {/* 2. L'anneau d'orbite elliptique en arrière-plan */}
-      <div className="absolute w-[290px] h-[75px] border border-dashed border-zinc-800/60 rounded-[50%] pointer-events-none"></div>
+      <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
 
-      {/* 3. Les drapeaux SVG en orbite autour du H */}
+      {/* 3. Les drapeaux en orbite synchrone sur l'ellipse */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {flags.map((flag) => (
           <div
             key={flag.id}
-            className="absolute w-8 h-8 rounded-full overflow-hidden border border-zinc-800 bg-[#161618] shadow-md flex items-center justify-center animate-custom-orbit"
+            className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit"
             style={{
               animationDelay: flag.delay,
             }}
@@ -76,7 +76,7 @@ const OrbitingLogo = () => {
             <img 
               src={flag.src} 
               alt={flag.label} 
-              className="w-[70%] h-[70%] object-contain"
+              className="w-full h-full object-cover"
             />
           </div>
         ))}
@@ -93,7 +93,7 @@ function Home() {
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
         
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div className="text-center max-w-2xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
             Le hub de la communauté étudiante d'HITAS
           </h1>
