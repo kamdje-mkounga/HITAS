@@ -2,20 +2,105 @@ import React from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 
+// 📦 IMPORTS DES IMAGES DEPUIS LE DOSSIER ASSETS
+import hitasLogo from '../assets/hitas_logo.svg';
+import franceFlag from '../assets/france.svg';
+import cameroonFlag from '../assets/cameroon.svg';
+import indiaFlag from '../assets/india.svg';
+import brazilFlag from '../assets/brazil.svg';
+import germanyFlag from '../assets/germany.svg';
+
+const OrbitingLogo = () => {
+  const flags = [
+    { id: 1, src: franceFlag, label: 'France', delay: '0s' },
+    { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2.4s' },
+    { id: 3, src: indiaFlag, label: 'Inde', delay: '-4.8s' },
+    { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
+    { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
+  ];
+
+  return (
+    <div className="relative flex items-center justify-center my-6 h-44 w-full overflow-hidden select-none">
+      
+      {/* Injection directe des keyframes CSS pour garantir l'orbite fluide */}
+      <style>{`
+        @keyframes customOrbit {
+          0% {
+            transform: rotate(0deg) translateX(145px) rotate(0deg) scale(1);
+            z-index: 20;
+          }
+          25% {
+            transform: rotate(90deg) translateX(145px) rotate(-90deg) scale(0.8);
+            z-index: 5;
+          }
+          50% {
+            transform: rotate(180deg) translateX(145px) rotate(-180deg) scale(0.7);
+            z-index: 5;
+          }
+          75% {
+            transform: rotate(270deg) translateX(145px) rotate(-270deg) scale(0.9);
+            z-index: 20;
+          }
+          100% {
+            transform: rotate(360deg) translateX(145px) rotate(-360deg) scale(1);
+            z-index: 20;
+          }
+        }
+        .animate-custom-orbit {
+          animation: customOrbit 10s linear infinite;
+        }
+      `}</style>
+
+      {/* 1. Le Logo central "H" d'HITAS */}
+      <div className="relative z-10 w-24 h-24 flex items-center justify-center bg-[#161618] rounded-full border border-zinc-800/80 shadow-2xl p-4">
+        <img 
+          src={hitasLogo} 
+          alt="Logo HITAS" 
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      {/* 2. L'anneau d'orbite elliptique en arrière-plan */}
+      <div className="absolute w-[290px] h-[75px] border border-dashed border-zinc-800/60 rounded-[50%] pointer-events-none"></div>
+
+      {/* 3. Les drapeaux SVG en orbite autour du H */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {flags.map((flag) => (
+          <div
+            key={flag.id}
+            className="absolute w-8 h-8 rounded-full overflow-hidden border border-zinc-800 bg-[#161618] shadow-md flex items-center justify-center animate-custom-orbit"
+            style={{
+              animationDelay: flag.delay,
+            }}
+          >
+            <img 
+              src={flag.src} 
+              alt={flag.label} 
+              className="w-[70%] h-[70%] object-contain"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// COMPOSANT PRINCIPAL HOME
 function Home() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
-      {/* Notre nouvelle barre de navigation */}
       <Navbar />
 
-      {/* Contenu Principal */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
         
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2">
             Le hub de la communauté étudiante d'HITAS
           </h1>
-          <p className="text-zinc-400 text-lg">
+          
+          <OrbitingLogo />
+
+          <p className="text-zinc-400 text-lg mt-4">
             Connecte-toi avec la diaspora, partage des opportunités et propulse tes projets techniques.
           </p>
         </div>
@@ -60,7 +145,6 @@ function Home() {
           </Link>
 
         </div>
-
       </main>
     </div>
   );
