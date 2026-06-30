@@ -24,6 +24,15 @@ function Profil() {
   const [myPosts, setMyPosts] = useState([]);
   const [myProjects, setMyProjects] = useState([]);
 
+  const BACKEND_URL = 'https://hitas.onrender.com';
+
+  // Fonction pour formater correctement l'URL des médias distants
+  const formatMediaUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   const getUserId = (userField) => {
     if (!userField) return '';
     return typeof userField === 'object' ? userField._id : userField;
@@ -58,7 +67,7 @@ function Profil() {
             
             if (response.data.avatar) {
               console.log("🔗 [F5] AVATAR TROUVÉ :", response.data.avatar);
-              setAvatarPreview(`https://hitas.onrender.com${response.data.avatar}`);
+              setAvatarPreview(formatMediaUrl(response.data.avatar));
             } else {
               console.log("⚠️ [F5] AUCUN CHAMP AVATAR DANS LE PROFIL DU BACKEND.");
               setAvatarPreview('');
@@ -139,7 +148,7 @@ function Profil() {
       console.log("📥 RÉPONSE DU SERVEUR APRÈS SAUVEGARDE :", response.data);
 
       if (response.data && response.data.avatar) {
-        setAvatarPreview(`https://hitas.onrender.com${response.data.avatar}`);
+        setAvatarPreview(formatMediaUrl(response.data.avatar));
         setAvatarFile(null); 
       }
 
