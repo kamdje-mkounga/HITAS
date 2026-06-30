@@ -232,7 +232,7 @@ const Showcase = () => {
           <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Partager un projet</h2>
         </div>
-        
+        ///
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm mb-5 font-medium">{error}</div>}
         {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl text-sm mb-5 font-medium">{success}</div>}
 
