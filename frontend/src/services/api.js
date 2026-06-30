@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. INITIALISATION DE L'API D'ABORD
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: 'https://hitas.onrender.com/api',
 });
 
 // 2. CONFIGURATION DE L'INTERCEPTEUR AUTOMATIQUE
