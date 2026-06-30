@@ -234,6 +234,13 @@ const Blog = () => {
     }
   };
 
+  // Helper pour formater l'URL complète du média distant vers l'API Render
+  const formatMediaUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   return (
     <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
       <div className="max-w-3xl mx-auto px-4">
@@ -370,7 +377,7 @@ const Blog = () => {
                         <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center shadow-md">
                           {avatarPath && (
                             <img 
-                              src={`${BACKEND_URL}${avatarPath}`} 
+                              src={formatMediaUrl(avatarPath)} 
                               alt={`${post.firstName}`} 
                               className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10"
                               onError={(e) => e.target.style.display = 'none'}
@@ -394,7 +401,6 @@ const Blog = () => {
                         
                         {getUserId(post.user) === loggedInUserId && (
                           <div className="flex gap-0.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-0.5 shadow-inner">
-                            {/* Appel de la fonction de modification complète */}
                             <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all">✏️</button>
                             <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all">🗑️</button>
                           </div>
@@ -484,11 +490,11 @@ const Blog = () => {
                         {post.mediaUrl && (
                           <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
                             {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
-                              <video src={`${BACKEND_URL}${post.mediaUrl}`} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
+                              <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
                             ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
-                              <audio src={`${BACKEND_URL}${post.mediaUrl}`} controls className="w-full max-w-md my-3 accent-indigo-500" />
+                              <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
                             ) : (
-                              <img src={`${BACKEND_URL}${post.mediaUrl}`} alt="Média" className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md" />
+                              <img src={formatMediaUrl(post.mediaUrl)} alt="Média" className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md" />
                             )}
                           </div>
                         )}
@@ -535,7 +541,7 @@ const Blog = () => {
                                   <div key={i} className="bg-[#18181b]/40 p-3 rounded-xl border border-zinc-800/30 text-xs flex gap-3 items-start transition-all hover:bg-[#18181b]/60">
                                     <div className="relative w-6 h-6 flex-shrink-0 flex items-center justify-center shadow">
                                       {commentAvatarPath && (
-                                        <img src={`${BACKEND_URL}${commentAvatarPath}`} alt="Author" className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" onError={(e) => e.target.style.display = 'none'} />
+                                        <img src={formatMediaUrl(commentAvatarPath)} alt="Author" className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" onError={(e) => e.target.style.display = 'none'} />
                                       )}
                                       <div className="w-full h-full bg-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-zinc-700">
                                         {comment.firstName?.[0]}

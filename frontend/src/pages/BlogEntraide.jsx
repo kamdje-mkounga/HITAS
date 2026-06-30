@@ -13,6 +13,13 @@ const BlogEntraide = () => {
 
   const BACKEND_URL = 'https://hitas.onrender.com';
 
+  // Fonction pour formater correctement l'URL des médias distants
+  const formatMediaUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   // Configuration du header avec le token d'authentification
   const getAuthHeader = () => {
     const token = localStorage.getItem('token'); 
@@ -175,10 +182,18 @@ const BlogEntraide = () => {
               {/* En-tête du post : Auteur + Date + Catégorie */}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  {/* Avatar minimaliste et propre */}
-                  <div className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700 shadow-md uppercase">
-                    {post.firstName?.[0]}{post.lastName?.[0]}
-                  </div>
+                  {/* Gestion de l'avatar : Image si présente, sinon initiales de secours */}
+                  {post.avatar ? (
+                    <img 
+                      src={formatMediaUrl(post.avatar)} 
+                      alt={`${post.firstName} ${post.lastName}`}
+                      className="w-10 h-10 rounded-full object-cover border border-zinc-700 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700 shadow-md uppercase">
+                      {post.firstName?.[0]}{post.lastName?.[0]}
+                    </div>
+                  )}
                   <div>
                     <h3 className="font-bold text-sm text-zinc-200 tracking-wide">{post.firstName} {post.lastName}</h3>
                     <p className="text-[11px] text-zinc-500 font-medium">
@@ -218,4 +233,3 @@ const BlogEntraide = () => {
 };
 
 export default BlogEntraide;
-// c'est la fin du 
