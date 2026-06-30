@@ -24,8 +24,6 @@ API.interceptors.request.use(
 );
 
 // 3. EXPORT DES FONCTIONS DE REQUÊTES (Encapsulation)
-// On utilise "export const" au lieu de "public const" !
-
 // Récupération du profil
 export const getProfile = async () => {
   const response = await API.get('/profile/me');
@@ -46,4 +44,3 @@ export const getProjects = async () => {
 
 // On exporte aussi l'instance de base au cas où tu en as besoin ailleurs
 export default API;
-//je suis la
