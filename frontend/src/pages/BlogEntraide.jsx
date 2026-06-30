@@ -11,7 +11,7 @@ const BlogEntraide = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const BACKEND_URL = 'http://localhost:5000';
+  const BACKEND_URL = 'https://hitas.onrender.com:5000';
 
   // Configuration du header avec le token d'authentification
   const getAuthHeader = () => {

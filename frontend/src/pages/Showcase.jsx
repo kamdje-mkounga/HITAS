@@ -35,7 +35,7 @@ const Showcase = () => {
   const [editGithub, setEditGithub] = useState('');
   const [editDemo, setEditDemo] = useState('');
 
-  const BACKEND_URL = 'http://localhost:5000';
+  const BACKEND_URL = 'https://hitas.onrender.com';
   const loggedInUserId = localStorage.getItem('userId') || '';
   const location = useLocation();
 

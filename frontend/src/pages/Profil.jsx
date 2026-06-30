@@ -58,7 +58,7 @@ function Profil() {
             
             if (response.data.avatar) {
               console.log("🔗 [F5] AVATAR TROUVÉ :", response.data.avatar);
-              setAvatarPreview(`http://localhost:5000${response.data.avatar}`);
+              setAvatarPreview(`https://hitas.onrender.com${response.data.avatar}`);
             } else {
               console.log("⚠️ [F5] AUCUN CHAMP AVATAR DANS LE PROFIL DU BACKEND.");
               setAvatarPreview('');
@@ -139,7 +139,7 @@ function Profil() {
       console.log("📥 RÉPONSE DU SERVEUR APRÈS SAUVEGARDE :", response.data);
 
       if (response.data && response.data.avatar) {
-        setAvatarPreview(`http://localhost:5000${response.data.avatar}`);
+        setAvatarPreview(`https://hitas.onrender.com${response.data.avatar}`);
         setAvatarFile(null); 
       }
 

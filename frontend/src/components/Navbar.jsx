@@ -7,7 +7,7 @@ const Navbar = () => {
   // State pour gérer la notification rouge style WhatsApp (ex: un nouveau message est arrivé)
   const [hasNewNotification, setHasNewNotification] = useState(true);
   const navigate = useNavigate();
-  const BACKEND_URL = 'http://localhost:5000';
+  const BACKEND_URL = "https://hitas.onrender.com";
   const token = localStorage.getItem('token');
 
   useEffect(() => {

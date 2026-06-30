@@ -139,7 +139,7 @@ function Annuaire() {
                         <div className="w-12 h-12 rounded-full bg-zinc-950 border border-zinc-800 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner">
                           {profile.avatar ? (
                             <img 
-                              src={`http://localhost:5000${profile.avatar}`} 
+                              src={`https://hitas.onrender.com${profile.avatar}`} 
                               alt={`${profile.firstName} ${profile.lastName}`} 
                               className="w-full h-full object-cover"
                             />
