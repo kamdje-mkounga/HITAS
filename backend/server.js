@@ -15,7 +15,8 @@ const app = express();
 
 // 5. Configuration du CORS
 app.use(cors({
-  origin: 'http://localhost:5173', 
+  origin: '*',
+  //origin: 'http://localhost:5173', 
   credentials: true
 }));
 
@@ -34,7 +35,7 @@ app.use('/api/project', require('./routes/project'));
 
 // 9. Route de test globale
 app.get('/', (req, res) => {
-    res.send("L'API d'ITAS Connect fonctionne à merveille ! 🚀");
+    res.send("L'API d'HITAS Connect fonctionne à merveille ! 🚀");
 });
 //const a=10;
 
