@@ -214,7 +214,8 @@ const Showcase = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10 text-slate-100">
+    <div className="min-h-screen bg-gradient-to-b from-[#0B0F19] via-zinc-950 to-black text-slate-100 antialiased">
+    <div className="max-w-5xl mx-auto px-4 py-10 text-slate-100 ">
       
       {/* HEADER DE PAGE */}
       <div className="mb-10 text-center sm:text-left">
@@ -232,7 +233,7 @@ const Showcase = () => {
           <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Partager un projet</h2>
         </div>
-        ///
+        
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm mb-5 font-medium">{error}</div>}
         {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl text-sm mb-5 font-medium">{success}</div>}
 
@@ -568,6 +569,7 @@ const Showcase = () => {
           })}
         </div>
       )}
+    </div>
     </div>
   );
 };
