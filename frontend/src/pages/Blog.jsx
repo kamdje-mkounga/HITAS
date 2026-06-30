@@ -17,15 +17,15 @@ const Blog = () => {
   const [commentTexts, setCommentTexts] = useState({});
   const [showComments, setShowComments] = useState({});
 
-  // ÉTATS POUR LA MODIFICATION (Gestion similaire à Showcase)
+  // ÉTATS POUR LA MODIFICATION
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
   const [editMediaFile, setEditMediaFile] = useState(null);
   const [editMediaPreview, setEditMediaPreview] = useState(null);
-  const [existingMediaUrl, setExistingMediaUrl] = useState(''); // Pour traquer le média déjà sauvegardé
+  const [existingMediaUrl, setExistingMediaUrl] = useState('');
 
   const fileInputRef = useRef(null);
-  const editFileInputRef = useRef(null); // Ref distincte pour l'édition
+  const editFileInputRef = useRef(null);
   const BACKEND_URL = 'https://hitas.onrender.com';
   const loggedInUserId = localStorage.getItem('userId') || ''; 
   const location = useLocation();
@@ -52,12 +52,11 @@ const Blog = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Nettoyer les médias du mode édition
   const clearEditMedia = () => {
     if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
     setEditMediaFile(null);
     setEditMediaPreview(null);
-    setExistingMediaUrl(''); // On retire aussi le média existant si l'utilisateur clique sur la croix
+    setExistingMediaUrl('');
     if (editFileInputRef.current) editFileInputRef.current.value = '';
   };
 
@@ -89,7 +88,6 @@ const Blog = () => {
     }
   };
 
-  // Gestionnaire de fichier pour le mode édition
   const handleEditFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -97,16 +95,15 @@ const Blog = () => {
     if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
     const objectUrl = URL.createObjectURL(file);
 
-    setExistingMediaUrl(''); // Si on choisit un nouveau fichier, ça remplace l'ancien
+    setExistingMediaUrl('');
     setEditMediaFile(file);
     setEditMediaPreview(objectUrl);
   };
 
-  // Activer le mode édition en chargeant les données existantes (Texte + Média)
   const startEditing = (post) => {
     setEditingId(post._id);
     setEditText(post.text || '');
-    setExistingMediaUrl(post.mediaUrl || ''); // On stocke le média actuel du post
+    setExistingMediaUrl(post.mediaUrl || '');
     setEditMediaFile(null);
     if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
     setEditMediaPreview(null);
@@ -174,7 +171,6 @@ const Blog = () => {
     }
   };
 
-  // ENVOI DE LA MODIFICATION VIA FORMDATA (Comme sur la page Showcase)
   const handleEditSubmit = async (postId) => {
     if (!editText.trim() && !editMediaFile && !existingMediaUrl) {
       return alert('La publication ne peut pas être complètement vide.');
@@ -183,7 +179,7 @@ const Blog = () => {
     try {
       const formData = new FormData();
       formData.append('text', editText);
-      formData.append('existingMediaUrl', existingMediaUrl); // On envoie une chaîne vide si supprimé, ou l'URL si conservé
+      formData.append('existingMediaUrl', existingMediaUrl);
       
       if (editMediaFile) {
         formData.append('media', editMediaFile);
@@ -234,7 +230,6 @@ const Blog = () => {
     }
   };
 
-  // Helper pour formater l'URL complète du média distant vers l'API Render
   const formatMediaUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -363,6 +358,8 @@ const Blog = () => {
             ) : (
               filteredPosts.map((post) => {
                 const hasLiked = post.likes?.some(like => getUserId(like.user) === loggedInUserId);
+                
+                // Récupération hautement sécurisée du chemin de l'avatar
                 const avatarPath = post.avatar || (post.user && typeof post.user === 'object' ? post.user.avatar : null);
 
                 return (
@@ -375,16 +372,19 @@ const Blog = () => {
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-3">
                         <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center shadow-md">
-                          {avatarPath && (
+                          {avatarPath ? (
                             <img 
                               src={formatMediaUrl(avatarPath)} 
                               alt={`${post.firstName}`} 
                               className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10"
-                              onError={(e) => e.target.style.display = 'none'}
+                              onError={(e) => {
+                                // En cas d'erreur réseau (ex: image supprimée sur Render), on masque l'image brisée pour laisser le fallback textuel propre
+                                e.target.style.display = 'none';
+                              }}
                             />
-                          )}
+                          ) : null}
                           <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700">
-                            {post.firstName?.[0]}{post.lastName?.[0]}
+                            {post.firstName?.[0] || 'U'}{post.lastName?.[0] || ''}
                           </div>
                         </div>
 
@@ -408,7 +408,7 @@ const Blog = () => {
                       </div>
                     </div>
 
-                    {/* CORPS DU POST EN MODE ÉDITION (STYLE APERÇU SHOWCASE) */}
+                    {/* CORPS DU POST EN MODE ÉDITION */}
                     {editingId === post._id ? (
                       <div className="mt-2 space-y-4 bg-[#0d0d0e] p-4 rounded-xl border border-zinc-800">
                         <h4 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Modifier la publication</h4>
@@ -420,11 +420,9 @@ const Blog = () => {
                           onChange={(e) => setEditText(e.target.value)}
                         />
                         
-                        {/* Gestion fine des fichiers en édition */}
                         <div className="space-y-2">
                           <label className="text-[11px] font-medium text-zinc-400 block">Gestion du média :</label>
                           
-                          {/* 1. Si un média était déjà sauvegardé et n'est pas encore supprimé */}
                           {existingMediaUrl && (
                             <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-zinc-400 truncate max-w-[80%]">📁 Média actuellement sauvegardé</span>
@@ -438,7 +436,6 @@ const Blog = () => {
                             </div>
                           )}
 
-                          {/* 2. Si l'utilisateur est en train d'ajouter un NOUVEAU fichier */}
                           {editMediaPreview && (
                             <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-indigo-400 truncate max-w-[80%]">📎 Nouveau média prêt à être injecté</span>
@@ -452,7 +449,6 @@ const Blog = () => {
                             </div>
                           )}
 
-                          {/* 3. Bouton pour insérer un fichier si aucun n'est présent */}
                           {!existingMediaUrl && !editMediaPreview && (
                             <div>
                               <button
@@ -473,7 +469,6 @@ const Blog = () => {
                           )}
                         </div>
 
-                        {/* Actions de l'édition */}
                         <div className="flex gap-2 justify-end pt-2 border-t border-zinc-800/60">
                           <button onClick={() => { setEditingId(null); clearEditMedia(); }} className="px-3 py-1.5 bg-transparent border border-zinc-800 text-xs font-semibold rounded-lg text-zinc-400 hover:text-zinc-200 transition-all">Annuler</button>
                           <button onClick={() => handleEditSubmit(post._id)} className="px-3 py-1.5 bg-zinc-100 text-zinc-950 text-xs font-bold rounded-lg hover:bg-white transition-all">Sauvegarder</button>
@@ -494,7 +489,15 @@ const Blog = () => {
                             ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
                               <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
                             ) : (
-                              <img src={formatMediaUrl(post.mediaUrl)} alt="Média" className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md" />
+                              <img 
+                                src={formatMediaUrl(post.mediaUrl)} 
+                                alt="Média" 
+                                className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
+                                onError={(e) => {
+                                  // Si l'image de la publication est morte ou introuvable sur Render, on cache la boîte cassée
+                                  e.target.parentNode.style.display = 'none';
+                                }}
+                              />
                             )}
                           </div>
                         )}
@@ -540,11 +543,16 @@ const Blog = () => {
                                 return (
                                   <div key={i} className="bg-[#18181b]/40 p-3 rounded-xl border border-zinc-800/30 text-xs flex gap-3 items-start transition-all hover:bg-[#18181b]/60">
                                     <div className="relative w-6 h-6 flex-shrink-0 flex items-center justify-center shadow">
-                                      {commentAvatarPath && (
-                                        <img src={formatMediaUrl(commentAvatarPath)} alt="Author" className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" onError={(e) => e.target.style.display = 'none'} />
-                                      )}
+                                      {commentAvatarPath ? (
+                                        <img 
+                                          src={formatMediaUrl(commentAvatarPath)} 
+                                          alt="Author" 
+                                          className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" 
+                                          onError={(e) => e.target.style.display = 'none'} 
+                                        />
+                                      ) : null}
                                       <div className="w-full h-full bg-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-zinc-700">
-                                        {comment.firstName?.[0]}
+                                        {comment.firstName?.[0] || 'U'}
                                       </div>
                                     </div>
                                     <div className="flex-1">

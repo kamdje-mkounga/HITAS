@@ -12,6 +12,15 @@ function Annuaire() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedPromotion, setSelectedPromotion] = useState('');
 
+  const BACKEND_URL = 'https://hitas.onrender.com';
+
+  // Fonction utilitaire de nettoyage des URLs
+  const formatMediaUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
@@ -26,24 +35,22 @@ function Annuaire() {
     fetchProfiles();
   }, []);
 
-  // 1. Extraction dynamique des options uniques pour les dropdowns (évite le hardcoding)
+  // Extraction dynamique des options uniques pour les dropdowns
   const uniqueSpecialties = [...new Set(profiles.map(p => p.specialty).filter(Boolean))];
   const uniquePromotions = [...new Set(profiles.map(p => p.promotion).filter(Boolean))].sort((a, b) => b - a);
 
-  // 2. Logique de filtrage combinée
+  // Logique de filtrage combinée
   const filteredProfiles = profiles.filter((profile) => {
     const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
     const specialty = (profile.specialty || '').toLowerCase();
     const location = (profile.currentLocation || '').toLowerCase();
     const search = searchTerm.toLowerCase();
 
-    // Vérification de la barre de recherche (recherche par nom, spécialité ou ville)
     const matchesSearch = 
       fullName.includes(search) || 
       specialty.includes(search) || 
       location.includes(search);
 
-    // Vérification des sélecteurs
     const matchesSpecialty = selectedSpecialty === '' || profile.specialty === selectedSpecialty;
     const matchesPromotion = selectedPromotion === '' || profile.promotion === selectedPromotion;
 
@@ -64,8 +71,6 @@ function Annuaire() {
         {/* BARRE DE RECHERCHE & FILTRES */}
         {!loading && !error && profiles.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-zinc-900/50 p-4 border border-zinc-800/80 rounded-2xl">
-            
-            {/* Recherche textuelle */}
             <div className="md:col-span-2">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Rechercher un membre</label>
               <input
@@ -77,7 +82,6 @@ function Annuaire() {
               />
             </div>
 
-            {/* Filtre Spécialité */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Spécialité</label>
               <select
@@ -92,7 +96,6 @@ function Annuaire() {
               </select>
             </div>
 
-            {/* Filtre Promotion */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Promotion</label>
               <select
@@ -106,7 +109,6 @@ function Annuaire() {
                 ))}
               </select>
             </div>
-
           </div>
         )}
 
@@ -133,15 +135,19 @@ function Annuaire() {
                 {filteredProfiles.map((profile) => (
                   <div key={profile._id} className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-sm flex flex-col justify-between hover:border-zinc-700 transition-colors group">
                     <div>
-                      
                       {/* EN-TÊTE DE LA CARTE AVEC AVATAR */}
                       <div className="flex items-start gap-4 mb-4">
                         <div className="w-12 h-12 rounded-full bg-zinc-950 border border-zinc-800 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner">
                           {profile.avatar ? (
                             <img 
-                              src={`https://hitas.onrender.com${profile.avatar}`} 
+                              src={formatMediaUrl(profile.avatar)} 
                               alt={`${profile.firstName} ${profile.lastName}`} 
                               className="w-full h-full object-cover"
+                              onError={(e) => {
+                                // Fallback si l'image distante échoue
+                                e.target.style.display = 'none';
+                                e.target.parentNode.innerHTML = `<span class="text-zinc-500 text-xs font-mono font-bold uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
+                              }}
                             />
                           ) : (
                             <span className="text-zinc-500 text-xs font-mono font-bold uppercase tracking-wider">
