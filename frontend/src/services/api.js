@@ -46,3 +46,4 @@ export const getProjects = async () => {
 
 // On exporte aussi l'instance de base au cas où tu en as besoin ailleurs
 export default API;
+//update deploy
