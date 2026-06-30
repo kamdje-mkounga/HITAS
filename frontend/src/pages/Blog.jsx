@@ -26,7 +26,7 @@ const Blog = () => {
 
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null); // Ref distincte pour l'édition
-  const BACKEND_URL = 'https://hitas.onrender.com:5000';
+  const BACKEND_URL = 'https://hitas.onrender.com';
   const loggedInUserId = localStorage.getItem('userId') || ''; 
   const location = useLocation();
 
