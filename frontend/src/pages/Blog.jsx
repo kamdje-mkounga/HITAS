@@ -483,24 +483,43 @@ const Blog = () => {
                         )}
                         
                         {post.mediaUrl && (
-                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
-                            {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
-                              <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
-                            ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
-                              <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
-                            ) : (
-                              <img 
-                                src={formatMediaUrl(post.mediaUrl)} 
-                                alt="Média" 
-                                className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
-                                onError={(e) => {
-                                  // Si l'image de la publication est morte ou introuvable sur Render, on cache la boîte cassée
-                                  e.target.parentNode.style.display = 'none';
-                                }}
-                              />
-                            )}
-                          </div>
-                        )}
+  <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
+    {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
+      <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
+    ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
+      <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
+    ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
+      /* --- BLOC AJOUTÉ POUR LES DOCUMENTS --- */
+      <div className="flex items-center gap-3 p-4 w-full bg-zinc-900/50 rounded-lg border border-zinc-800 m-2">
+        <span className="text-2xl text-indigo-400">📄</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-zinc-200 truncate">
+            {post.mediaUrl.split('/').pop()}
+          </p>
+          <a 
+            href={formatMediaUrl(post.mediaUrl)} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline inline-flex items-center gap-1 mt-0.5"
+          >
+            Ouvrir le document dans un nouvel onglet ↗
+          </a>
+        </div>
+      </div>
+    ) : (
+      /* --- BLOC IMAGE PAR DÉFAUT --- */
+      <img 
+        src={formatMediaUrl(post.mediaUrl)} 
+        alt="Média" 
+        className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
+        onError={(e) => {
+          e.target.parentNode.style.display = 'none';
+        }}
+      />
+    )}
+  </div>
+)}
+//////
 
                         {/* Actions / Boutons */}
                         <div className="flex gap-3 mt-4 pt-3 border-t border-zinc-800/40 text-xs">
