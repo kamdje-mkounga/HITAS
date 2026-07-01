@@ -11,27 +11,51 @@ const Navbar = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    const fetchNavbarProfile = async () => {
-      if (!token) return; 
 
-      try {
-        const res = await axios.get(`${BACKEND_URL}/api/profile/me`, {
-          headers: { 'x-auth-token': token }
-        });
-        
-        if (res.data && res.data.avatar) {
-          setAvatar(`${BACKEND_URL}${res.data.avatar}`);
+    const fetchNavbarProfile = async () => {
+
+        if (!token) return;
+
+        try {
+
+            const res = await axios.get(
+                `${BACKEND_URL}/api/profile/me`,
+                {
+                    headers: {
+                        'x-auth-token': token
+                    }
+                }
+            );
+
+            if (res.data?.avatar) {
+
+                if (res.data.avatar.startsWith("http")) {
+                    setAvatar(res.data.avatar);
+                } else {
+                    setAvatar(`${BACKEND_URL}${res.data.avatar}`);
+                }
+
+            }
+
+        } catch (err) {
+            console.error(err);
         }
-      } catch (err) {
-        console.error("Impossible de récupérer l'avatar de la navbar", err);
-      }
+
     };
 
     fetchNavbarProfile();
-    
-    window.addEventListener('avatarUpdated', () => fetchNavbarProfile());
-    return () => window.removeEventListener('avatarUpdated', () => fetchNavbarProfile());
-  }, [token]);
+
+    const handleAvatarUpdated = () => {
+        fetchNavbarProfile();
+    };
+
+    window.addEventListener("avatarUpdated", handleAvatarUpdated);
+
+    return () => {
+        window.removeEventListener("avatarUpdated", handleAvatarUpdated);
+    };
+
+}, [token]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
