@@ -148,4 +148,35 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
   }
 });
 
+//
+// @route    DELETE api/profile
+// @desc     Supprimer le compte de l'utilisateur, son profil et ses publications
+// @access   Private
+router.delete('/', auth, async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    // 1. Chercher et supprimer toutes les publications de l'utilisateur
+    // (Optionnel : si tu as des fichiers/médias sur Supabase pour ces posts, il faudrait aussi les supprimer avec deleteFile)
+    await Post.deleteMany({ user: userId });
+
+    // 2. Supprimer le profil de l'utilisateur
+    const profile = await Profile.findOne({ user: userId });
+    if (profile && profile.mediaPath) {
+      // Supprime l'avatar du stockage Supabase s'il existe
+      await deleteFile(profile.mediaPath);
+    }
+    await Profile.findOneAndDelete({ user: userId });
+
+    // 3. Supprimer l'utilisateur de la base de données
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: 'Compte et données supprimés avec succès.' });
+  } catch (err) {
+    console.error("Erreur lors de la suppression du compte :", err.message);
+    res.status(500).send('Erreur serveur lors de la suppression du compte.');
+  }
+});
+//
+
 module.exports = router;
