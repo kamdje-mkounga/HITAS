@@ -34,7 +34,7 @@ const PostSchema = new mongoose.Schema({
 },
   mediaType: {
     type: String,
-    enum: ['image', 'video', 'audio', null],
+    enum: ['image', 'video', 'audio','pdf', 'document', null],
     default: null
   },
   likes: [
