@@ -279,4 +279,42 @@ router.put('/like/:id', auth, async (req, res) => {
   }
 });
 
+// @route    POST api/posts/comment/:id
+// @desc     Ajouter un commentaire à une publication
+// @access   Private
+router.post('/comment/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    const profile = await Profile.findOne({ user: req.user.userId });
+
+    if (!post) {
+      return res.status(404).json({ message: 'Publication non trouvée.' });
+    }
+
+    if (!profile) {
+      return res.status(400).json({ message: 'Tu dois créer un profil avant de pouvoir commenter.' });
+    }
+
+    const newComment = {
+      user: req.user.userId,
+      text: req.body.text,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      avatar: profile.avatar || ''
+    };
+
+    // Ajouter le commentaire au début du tableau des commentaires
+    post.comments.unshift(newComment);
+
+    await post.save();
+    
+    // Renvoyer tous les commentaires mis à jour
+    res.json(post.comments);
+  } catch (err) {
+    console.error("Erreur lors de l'ajout du commentaire :", err.message);
+    res.status(500).send("Erreur serveur lors de l'ajout du commentaire.");
+  }
+});
+///
+
 module.exports = router;
