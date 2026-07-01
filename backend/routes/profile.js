@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const auth = require('../middleware/auth');
 const Profile = require('../models/Profile'); 
-
+const supabase = require('../config/supabase');
 // Force le chemin absolu pour pointer dans "backend/uploads"
 const uploadDir = path.join(__dirname, '../uploads');
 
@@ -13,8 +13,11 @@ const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
+//
+const storage = multer.memoryStorage();
 
 // Configuration Multer
+{/*
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadDir);
@@ -24,6 +27,7 @@ const storage = multer.diskStorage({
     cb(null, 'avatar-' + uniqueSuffix);
   }
 });
+*/}
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image/')) {
