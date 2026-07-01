@@ -162,10 +162,28 @@ router.delete('/', auth, async (req, res) => {
 
     // 2. Supprimer le profil de l'utilisateur
     const profile = await Profile.findOne({ user: userId });
-    if (profile && profile.mediaPath) {
-      // Supprime l'avatar du stockage Supabase s'il existe
-      await deleteFile(profile.mediaPath);
+    
+    if (profile) {
+      // 🛡️ On isole la suppression Supabase dans son propre try/catch pour ne PAS faire planter le serveur
+      try {
+        // Si tu stockes l'URL complète dans 'avatar' ou 'mediaPath' (ex: https://.../media/avatars/file.png)
+        const fileToUrl = profile.avatar || profile.mediaPath; 
+
+        if (fileToUrl && fileToUrl.includes('/media/')) {
+          // On extrait uniquement le chemin après "/media/" (ex: "avatars/file.png")
+          const relativePath = fileToUrl.split('/media/')[1];
+          await deleteFile(relativePath);
+        } else if (fileToUrl && !fileToUrl.startsWith('http')) {
+          // Si c'est déjà un chemin relatif, on l'envoie directement
+          await deleteFile(fileToUrl);
+        }
+      } catch (storageErr) {
+        // Si Supabase échoue, on log l'erreur mais on ne bloque pas la suppression du compte !
+        console.error("Échec du nettoyage du fichier sur Supabase :", storageErr.message);
+      }
     }
+
+    // On procède à la suppression en base de données quoi qu'il arrive
     await Profile.findOneAndDelete({ user: userId });
 
     // 3. Supprimer l'utilisateur de la base de données
