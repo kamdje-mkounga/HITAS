@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'react-serif'; // Note: Assure-toi que c'est bien 'axios' tout court si besoin
+import axios from 'axios';
 
 const Blog = () => {
   const [mediaFile, setMediaFile] = useState(null);
@@ -263,7 +263,6 @@ const Blog = () => {
               onChange={(e) => setText(e.target.value)}
             ></textarea>
 
-            {/* Zone de preview locale avant publication */}
             {mediaPreview && (
               <div className="rounded-xl overflow-hidden border border-zinc-800 bg-[#0d0d0e] max-h-[380px] w-full flex items-center justify-center p-2 relative group shadow-inner">
                 <button 
@@ -276,20 +275,6 @@ const Blog = () => {
                 {mediaFile?.type.startsWith('image/') && <img src={mediaPreview} alt="Aperçu" className="w-full h-auto max-h-[360px] object-contain rounded-lg" />}
                 {mediaFile?.type.startsWith('video/') && <video src={mediaPreview} controls className="w-full h-auto max-h-[360px] object-contain rounded-lg" />}
                 {mediaFile?.type.startsWith('audio/') && <audio src={mediaPreview} controls className="w-full max-w-md my-4 accent-indigo-500" />}
-                
-                {/* 🛠️ APERÇU LOCAL DES DOCUMENTS TEXTE / PDF */}
-                {(mediaFile?.type === 'application/pdf' || mediaFile?.name.endsWith('.pdf')) && (
-                  <div className="flex flex-col items-center justify-center py-6 text-zinc-400 gap-2">
-                    <span className="text-4xl">📄</span>
-                    <span className="text-xs font-medium text-center px-4 truncate max-w-xs">{mediaFile.name} (Fichier PDF prêt)</span>
-                  </div>
-                )}
-                {(mediaFile?.type.includes('msword') || mediaFile?.type.includes('officedocument') || mediaFile?.name.match(/\.(doc|docx)$/i)) && (
-                  <div className="flex flex-col items-center justify-center py-6 text-zinc-400 gap-2">
-                    <span className="text-4xl">📝</span>
-                    <span className="text-xs font-medium text-center px-4 truncate max-w-xs">{mediaFile.name} (Document Word prêt)</span>
-                  </div>
-                )}
               </div>
             )}
 
@@ -317,12 +302,10 @@ const Blog = () => {
                 >
                   📎 {mediaFile ? 'Média prêt' : 'Ajouter un média'}
                 </button>
-                
-                {/* 🛠️ FIX EXPLICITE POUR WINDOWS / MACOS : AUTORISE LES PDF ET WORD À S'AFFICHER */}
                 <input 
                   type="file" 
                   ref={fileInputRef}
-                  accept="image/*,video/*,audio/*,application/pdf,.doc,.docx" 
+                  accept="image/*,video/*,audio/*" 
                   onChange={handleFileChange} 
                   className="hidden"
                 />
@@ -375,6 +358,8 @@ const Blog = () => {
             ) : (
               filteredPosts.map((post) => {
                 const hasLiked = post.likes?.some(like => getUserId(like.user) === loggedInUserId);
+                
+                // Récupération hautement sécurisée du chemin de l'avatar
                 const avatarPath = post.avatar || (post.user && typeof post.user === 'object' ? post.user.avatar : null);
 
                 return (
@@ -391,8 +376,11 @@ const Blog = () => {
                             <img 
                               src={formatMediaUrl(avatarPath)} 
                               alt={`${post.firstName}`} 
-                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" 
-                              onError={(e) => { e.target.style.display = 'none'; }}
+                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10"
+                              onError={(e) => {
+                                // En cas d'erreur réseau (ex: image supprimée sur Render), on masque l'image brisée pour laisser le fallback textuel propre
+                                e.target.style.display = 'none';
+                              }}
                             />
                           ) : null}
                           <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700">
@@ -470,12 +458,10 @@ const Blog = () => {
                               >
                                 ➕ Insérer un fichier ou une vidéo
                               </button>
-                              
-                              {/* 🛠️ FIX SUR L'INPUT EN MODE ÉDITION AUSSI */}
                               <input 
                                 type="file" 
                                 ref={editFileInputRef}
-                                accept="image/*,video/*,audio/*,application/pdf,.doc,.docx" 
+                                accept="image/*,video/*,audio/*" 
                                 onChange={handleEditFileChange} 
                                 className="hidden"
                               />
@@ -496,46 +482,21 @@ const Blog = () => {
                           </p>
                         )}
                         
-                        {/* 🛠️ AFFICHAGE RENDU DU MÉDIA UNIQUE DEPUIS SUPABASE */}
                         {post.mediaUrl && (
-                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] min-h-[80px] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
-                            {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) || post.mediaType === 'video' ? (
+                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
+                            {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
                               <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
-                            ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) || post.mediaType === 'audio' ? (
+                            ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
                               <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
-                            ) : post.mediaUrl.match(/\.pdf$/i) || post.mediaType === 'pdf' ? (
-                              /* 🛠️ Rendu visuel propre pour un PDF stocké */
-                              <a 
-                                href={formatMediaUrl(post.mediaUrl)} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="flex items-center gap-3 bg-[#161618] border border-zinc-800 hover:border-zinc-700 px-5 py-4 rounded-xl text-zinc-200 transition-all w-full max-w-md my-2 group"
-                              >
-                                <span className="text-3xl group-hover:scale-110 transition-transform">📄</span>
-                                <div className="flex flex-col text-left truncate">
-                                  <span className="text-xs font-bold text-zinc-300">Document joint (Format PDF)</span>
-                                  <span className="text-[11px] text-indigo-400 font-medium group-hover:underline">Cliquez pour ouvrir / télécharger</span>
-                                </div>
-                              </a>
-                            ) : post.mediaUrl.match(/\.(doc|docx)$/i) || post.mediaType === 'document' ? (
-                              /* 🛠️ Rendu visuel propre pour un document Word */
-                              <a 
-                                href={formatMediaUrl(post.mediaUrl)} 
-                                download
-                                className="flex items-center gap-3 bg-[#161618] border border-zinc-800 hover:border-zinc-700 px-5 py-4 rounded-xl text-zinc-200 transition-all w-full max-w-md my-2 group"
-                              >
-                                <span className="text-3xl group-hover:scale-110 transition-transform">📝</span>
-                                <div className="flex flex-col text-left truncate">
-                                  <span className="text-xs font-bold text-zinc-300">Fichier Word attaché</span>
-                                  <span className="text-[11px] text-emerald-400 font-medium group-hover:underline">Télécharger le document</span>
-                                </div>
-                              </a>
                             ) : (
                               <img 
                                 src={formatMediaUrl(post.mediaUrl)} 
                                 alt="Média" 
                                 className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
-                                onError={(e) => { e.target.parentNode.style.display = 'none'; }}
+                                onError={(e) => {
+                                  // Si l'image de la publication est morte ou introuvable sur Render, on cache la boîte cassée
+                                  e.target.parentNode.style.display = 'none';
+                                }}
                               />
                             )}
                           </div>
