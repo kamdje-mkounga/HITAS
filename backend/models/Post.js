@@ -29,6 +29,9 @@ const PostSchema = new mongoose.Schema({
   mediaUrl: {
     type: String
   },
+  mediaPath: {
+    type: String
+},
   mediaType: {
     type: String,
     enum: ['image', 'video', 'audio', null],
