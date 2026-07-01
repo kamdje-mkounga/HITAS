@@ -18,7 +18,7 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024 // 50Mo max
   },
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg/;
+    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/;
     const ext = file.originalname.split('.').pop().toLowerCase();
     const isExtValid = filetypes.test(ext);
     const isMimeValid = filetypes.test(file.mimetype);
@@ -243,5 +243,34 @@ router.put('/:id', auth, (req, res) => {
     }
   });
 });
+
+// @route   PUT api/posts/like/:id
+// @desc    Liker ou unliker une publication
+// @access  Private
+router.put('/like/:id', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: 'Publication non trouvée.' });
+    }
+
+    const alreadyLiked = post.likes.some(like => like.user.toString() === req.user.userId);
+
+    if (alreadyLiked) {
+      post.likes = post.likes.filter(like => like.user.toString() !== req.user.userId);
+    } else {
+      post.likes.unshift({ user: req.user.userId });
+    }
+
+    await post.save();
+    res.json(post.likes);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Erreur serveur lors de la gestion du like.');
+  }
+});
+
+
 
 module.exports = router;
