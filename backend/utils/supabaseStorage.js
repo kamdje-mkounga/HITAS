@@ -31,9 +31,13 @@ const uploadFile = async (file, folder) => {
 const deleteFile = async (filePath) => {
     if (!filePath) return;
 
-    await supabase.storage
+    const { error } = await supabase.storage
         .from("media")
         .remove([filePath]);
+
+    if (error) {
+        console.error("Supabase delete error:", error.message);
+    }
 };
 
 module.exports = {

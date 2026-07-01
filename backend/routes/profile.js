@@ -8,6 +8,7 @@ const Profile = require('../models/Profile');
 const supabase = require('../config/supabase');
 // Force le chemin absolu pour pointer dans "backend/uploads"
 const uploadDir = path.join(__dirname, '../uploads');
+const { uploadFile, deleteFile } = require('../utils/supabaseStorage');
 
 // Vérification et création du dossier si inexistant
 if (!fs.existsSync(uploadDir)) {
@@ -78,9 +79,16 @@ router.get('/me', auth, async (req, res) => {
 // @desc     Créer ou modifier un profil
 // @access   Private
 router.post('/', auth, upload.single('avatar'), async (req, res) => {
-  const { firstName, lastName, promotion, specialty, currentLocation, bio, skills } = req.body;
+  const {
+    firstName,
+    lastName,
+    promotion,
+    specialty,
+    currentLocation,
+    bio,
+    skills
+  } = req.body;
 
-  // 🛠️ Correction : Remplacement de .id par .userId
   const profileFields = {
     user: req.user.userId,
     firstName,
@@ -89,39 +97,54 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
     specialty,
     currentLocation,
     bio,
-    skills: skills ? skills.split(',').map(skill => skill.trim()) : []
+    skills: skills
+      ? skills.split(',').map(skill => skill.trim())
+      : []
   };
 
   try {
-    // Recherche si un profil existe déjà pour cet utilisateur
-    let profile = await Profile.findOne({ user: req.user.userId });
 
-    if (profile) {
-      // 🔄 S'il existe et qu'une nouvelle image est envoyée, on vire l'ancien avatar du disque
-      if (req.file && profile.avatar) {
-        const oldAvatarPath = path.join(__dirname, '../', profile.avatar);
-        if (fs.existsSync(oldAvatarPath)) {
-          fs.unlinkSync(oldAvatarPath);
-        }
-      }
-    }
+    let profile = await Profile.findOne({
+      user: req.user.userId
+    });
 
-    // Si un nouveau fichier est téléversé, on l'ajoute aux champs
+    // Upload new avatar to Supabase
     if (req.file) {
-      profileFields.avatar = `/uploads/${req.file.filename}`;
+
+      // Delete previous avatar if one exists
+      if (profile && profile.avatarPath) {
+        await deleteFile(profile.avatarPath);
+      }
+
+      const uploaded = await uploadFile(req.file, "avatars");
+      console.log("File received:", req.file?.originalname);
+      console.log("Supabase upload result:", uploaded);
+
+      profileFields.avatar = uploaded.url;
+      profileFields.avatarPath = uploaded.path;
     }
 
-    // Mise à jour ou création dynamique
     profile = await Profile.findOneAndUpdate(
       { user: req.user.userId },
       { $set: profileFields },
-      { new: true, upsert: true }
+      {
+        new: true,
+        upsert: true
+      }
     );
-    
+
     res.json(profile);
+
   } catch (err) {
-    console.error("Erreur d'enregistrement Mongoose :", err.message);
-    res.status(500).send('Erreur Serveur');
+
+    console.error("PROFILE UPLOAD ERROR");
+    console.error(err);
+
+    res.status(500).json({
+      message: "Unable to save profile.",
+      error: err.message
+    });
+
   }
 });
 

@@ -1,6 +1,11 @@
 // 1. CHARGER LE .ENV EN TOUT PREMIER (Ligne 1)
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+console.log("MONGO_URI loaded:", !!process.env.MONGO_URI);
+
+if (process.env.MONGO_URI) {
+    console.log(process.env.MONGO_URI.substring(0, 60) + "...");
+}
 
 // 2. Les autres imports (maintenant ils ont accès aux variables d'environnement)
 const express = require('express');
