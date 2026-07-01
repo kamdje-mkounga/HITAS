@@ -305,7 +305,7 @@ const Blog = () => {
                 <input 
                   type="file" 
                   ref={fileInputRef}
-                  accept="image/*,video/*,audio/*" 
+                  accept="image/*,video/*,audio/*,application/pdf,.doc,.docx" 
                   onChange={handleFileChange} 
                   className="hidden"
                 />
