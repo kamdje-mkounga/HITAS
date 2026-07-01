@@ -63,22 +63,20 @@ router.post('/', auth, (req, res) => {
       let mediaType = null;
 
       if (req.file) {
-        const uploaded = await uploadFile(
-          req.file,
-          "posts"
-      );
-      
-      mediaUrl = uploaded.url;
+        const uploaded = await uploadFile(req.file, "posts");
+
+mediaUrl = uploaded.url;
+const mediaPath = uploaded.path;
         const mime = req.file.mimetype.toLowerCase();
         const ext = path.extname(req.file.originalname).toLowerCase();
         
         if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
           mediaType = 'video';
-          const pathToFile = path.join(__dirname, '../', mediaUrl);
+         
           try {
             const duration = await getVideoDurationInSeconds(pathToFile);
             if (duration > 180) {
-              await deleteFile(pathToFile);
+              await deleteFile(mediaPath);
               return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
             }
           } catch (durationErr) {
@@ -99,7 +97,8 @@ router.post('/', auth, (req, res) => {
         avatar: profile.avatar || '',
         user: req.user.userId,
         mediaUrl: mediaUrl,   
-        mediaType: mediaType  
+        mediaType: mediaType,
+        mediaPath: mediaPath  
       });
 
       const post = await newPost.save();
@@ -163,12 +162,9 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ message: 'Utilisateur non autorisé à supprimer ce post.' });
     }
 
-    if (post.mediaUrl) {
-      const pathToMedia = path.join(__dirname, '../', post.mediaUrl);
-      if (fs.existsSync(pathToMedia)) {
-        fs.unlinkSync(pathToMedia);
-      }
-    }
+    if (post.mediaPath) {
+      await deleteFile(post.mediaPath);
+  }
 
     await post.deleteOne();
     res.json({ message: 'Publication supprimée avec succès.' });
@@ -210,21 +206,25 @@ router.put('/:id', auth, (req, res) => {
       if (req.file) {
         // On prépare la suppression de l'ancien fichier s'il existait
         if (post.mediaUrl) {
-          fileToDelete = path.join(__dirname, '../', post.mediaUrl);
+          fileToDelete = post.mediaPath;
         }
 
-        post.mediaUrl = `/uploads/${req.file.filename}`;
+        const uploaded = await uploadFile(req.file, "posts");
+
+post.mediaUrl = uploaded.url;
+post.mediaPath = uploaded.path;
+//
         const mime = req.file.mimetype.toLowerCase();
         const ext = path.extname(req.file.originalname).toLowerCase();
         
         // Détermination du nouveau type et sécurité vidéo
          if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
           post.mediaType = 'video';
-          const pathToFile = path.join(__dirname, '../', post.mediaUrl);
+          const tempFile = req.file;
           try {
             const duration = await getVideoDurationInSeconds(pathToFile);
             if (duration > 180) {
-              fs.unlinkSync(pathToFile); // Supprime le nouveau fichier trop long
+              await deleteFile(post.mediaPath);
               return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
             }
           } catch (durationErr) {
@@ -250,13 +250,9 @@ router.put('/:id', auth, (req, res) => {
       await post.save();
 
       // Nettoyage physique du stockage si nécessaire (seulement APRÈS une sauvegarde réussie)
-      if (fileToDelete && fs.existsSync(fileToDelete)) {
-        try {
-          fs.unlinkSync(fileToDelete);
-        } catch (unlinkErr) {
-          console.error("Erreur lors de la suppression de l'ancien média :", unlinkErr.message);
-        }
-      }
+      if (fileToDelete) {
+        await deleteFile(fileToDelete);
+    }
 
       res.json(post);
     } catch (err) {
