@@ -7,35 +7,38 @@ const multer = require('multer');
 const { getVideoDurationInSeconds } = require('get-video-duration');
 const path = require('path');
 const fs = require('fs');
+const {
+  uploadFile,
+  deleteFile
+} = require("../utils/supabaseStorage");
 
 // Configuration du stockage de Multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const dir = './uploads/';
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir);
-    }
-    cb(null, dir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
+const storage = multer.memoryStorage();
 
 // Validation stricte et élargie des extensions acceptées
 const upload = multer({
-  storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max pour les vidéos
+  storage,
+  limits: {
+      fileSize: 50 * 1024 * 1024
+  },
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
 
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Format non supporté ! Choisissez une image (jpg, png, webp), une vidéo (mp4, mov) ou un audio.'));
-    }
+      const filetypes =
+          /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg/;
+
+      const extname =
+          filetypes.test(path.extname(file.originalname).toLowerCase());
+
+      const mimetype =
+          filetypes.test(file.mimetype);
+
+      if (mimetype && extname) {
+          return cb(null, true);
+      }
+
+      cb(new Error(
+          "Format non supporté !"
+      ));
   }
 });
 
@@ -60,7 +63,12 @@ router.post('/', auth, (req, res) => {
       let mediaType = null;
 
       if (req.file) {
-        mediaUrl = `/uploads/${req.file.filename}`;
+        const uploaded = await uploadFile(
+          req.file,
+          "posts"
+      );
+      
+      mediaUrl = uploaded.url;
         const mime = req.file.mimetype.toLowerCase();
         const ext = path.extname(req.file.originalname).toLowerCase();
         
@@ -70,7 +78,7 @@ router.post('/', auth, (req, res) => {
           try {
             const duration = await getVideoDurationInSeconds(pathToFile);
             if (duration > 180) {
-              fs.unlinkSync(pathToFile);
+              await deleteFile(pathToFile);
               return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
             }
           } catch (durationErr) {
@@ -210,7 +218,7 @@ router.put('/:id', auth, (req, res) => {
         const ext = path.extname(req.file.originalname).toLowerCase();
         
         // Détermination du nouveau type et sécurité vidéo
-        if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
+         if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
           post.mediaType = 'video';
           const pathToFile = path.join(__dirname, '../', post.mediaUrl);
           try {
@@ -236,6 +244,7 @@ router.put('/:id', auth, (req, res) => {
         post.mediaUrl = '';
         post.mediaType = null;
       }
+      
 
       // Sauvegarde des modifications en base de données
       await post.save();
