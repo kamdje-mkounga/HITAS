@@ -102,7 +102,7 @@ function Home() {
         
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2">
-            Le hub de la communauté étudiante d'HITAS
+            Le hub de la communauté étudiante de HITAS
           </h1>
           
           <OrbitingLogo />
