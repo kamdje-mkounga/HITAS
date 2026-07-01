@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+// Fonction pour nettoyer et formater les URLs absolues ou relatives
+const formatMediaUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  const backendUrl = 'https://hitas.onrender.com';
+  return `${backendUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+};
 
 const Showcase = () => {
   const [projects, setProjects] = useState([]);
@@ -492,52 +501,53 @@ const Showcase = () => {
                     )}
 
                     {/* CONTENEUR MÉDIA PRINCIPAL ASYMETRIQUE */}
-                    {currentMedia && currentMedia.url && (
-                      <div className="mb-6">
-                        <div className="rounded-xl overflow-hidden border border-slate-800/80 bg-slate-950/80 h-[260px] sm:h-[400px] w-full flex items-center justify-center relative shadow-inner">
-                          
-                          {currentMedia.type === 'video' ? (
-                            <video src={`${BACKEND_URL}${currentMedia.url}`} controls className="w-full h-full object-contain bg-slate-950" />
-                          ) : currentMedia.type === 'pdf' ? (
-                            <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950/40 p-6 text-center">
-                              <span className="text-5xl mb-4 animate-bounce">📄</span>
-                              <p className="text-xs text-slate-400 mb-4 font-medium">Document d'accompagnement ou cahier des charges PDF</p>
-                              <a 
-                                href={`${BACKEND_URL}${currentMedia.url}`} 
-                                target="_blank" 
-                                rel="noreferrer" 
-                                className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
-                              >
-                                Ouvrir le document PDF
-                              </a>
-                            </div>
-                          ) : (
-                            <img src={`${BACKEND_URL}${currentMedia.url}`} alt="" className="w-full h-full object-contain" />
-                          )}
-                        </div>
+            {/* CONTENEUR MÉDIA PRINCIPAL ASYMETRIQUE */}
+{currentMedia && currentMedia.url && (
+  <div className="mb-6">
+    <div className="rounded-xl overflow-hidden border border-slate-800/80 bg-slate-950/80 h-[260px] sm:h-[400px] w-full flex items-center justify-center relative shadow-inner">
+      
+      {currentMedia.type === 'video' ? (
+        <video src={formatMediaUrl(currentMedia.url)} controls className="w-full h-full object-contain bg-slate-950" />
+      ) : currentMedia.type === 'pdf' ? (
+        <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950/40 p-6 text-center">
+          <span className="text-5xl mb-4 animate-bounce">📄</span>
+          <p className="text-xs text-slate-400 mb-4 font-medium">Document d'accompagnement ou cahier des charges PDF</p>
+          <a 
+            href={formatMediaUrl(currentMedia.url)} 
+            target="_blank" 
+            rel="noreferrer" 
+            className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
+          >
+            Ouvrir le document PDF
+          </a>
+        </div>
+      ) : (
+        <img src={formatMediaUrl(currentMedia.url)} alt="" className="w-full h-full object-contain" />
+      )}
+    </div>
 
-                        {/* CAROUSEL WHATSAPP DE MINIATURES DES PIÈCES JOINTES */}
-                        {hasMultipleMedia && project.media.length > 1 && (
-                          <div className="flex gap-2.5 overflow-x-auto pb-2 mt-3 scrollbar-none">
-                            {project.media.map((mediaItem, index) => (
-                              <button 
-                                key={index} 
-                                onClick={() => setSelectedMediaIndex(prev => ({ ...prev, [project._id]: index }))} 
-                                className={`w-16 h-11 rounded-lg border overflow-hidden bg-slate-950 shrink-0 flex items-center justify-center transition-all ${
-                                  activeIndex === index 
-                                    ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 scale-102 shadow-md' 
-                                    : 'border-slate-800 opacity-40 hover:opacity-70'
-                                }`}
-                              >
-                                {mediaItem.type === 'image' && <img src={`${BACKEND_URL}${mediaItem.url}`} alt="" className="w-full h-full object-cover" />}
-                                {mediaItem.type === 'video' && <span className="text-xs">🎥</span>}
-                                {mediaItem.type === 'pdf' && <span className="text-xs">📄</span>}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
+    {/* CAROUSEL WHATSAPP DE MINIATURES DES PIÈCES JOINTES */}
+    {hasMultipleMedia && project.media.length > 1 && (
+      <div className="flex gap-2.5 overflow-x-auto pb-2 mt-3 scrollbar-none">
+        {project.media.map((mediaItem, index) => (
+          <button 
+            key={index} 
+            onClick={() => setSelectedMediaIndex(prev => ({ ...prev, [project._id]: index }))} 
+            className={`w-16 h-11 rounded-lg border overflow-hidden bg-slate-950 shrink-0 flex items-center justify-center transition-all ${
+              activeIndex === index 
+                ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 scale-102 shadow-md' 
+                : 'border-slate-800 opacity-40 hover:opacity-70'
+            }`}
+          >
+            {mediaItem.type === 'image' && <img src={formatMediaUrl(mediaItem.url)} alt="" className="w-full h-full object-cover" />}
+            {mediaItem.type === 'video' && <span className="text-xs">🎥</span>}
+            {mediaItem.type === 'pdf' && <span className="text-xs">📄</span>}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+)}
 
                     {/* LIENS INTERACTIFS VERS CODE ET SITES */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-2">
