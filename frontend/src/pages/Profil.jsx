@@ -159,7 +159,38 @@ function Profil() {
       setSubmitting(false);
     }
   };
+  //
+  // NOUVELLE FONCTION : Gestion de la suppression du compte
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      "🛑 Es-tu absolument sûr de vouloir supprimer ton compte ? Cette action est irréversible et effacera ton profil, tes publications et tes projets."
+    );
 
+    if (confirmDelete) {
+      try {
+        const token = localStorage.getItem('token');
+        
+        await API.delete('/profile', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'x-auth-token': token
+          }
+        });
+
+        alert("Ton compte a été supprimé avec succès.");
+        
+        // Nettoyage complet du stockage local
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        
+        // Redirection vers l'écran de connexion
+        navigate('/login');
+      } catch (err) {
+        console.error("Erreur lors de la suppression du compte :", err);
+        alert(err.response?.data?.message || "Une erreur est survenue lors de la suppression.");
+      }
+    }
+  };
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
       <Navbar />
@@ -232,74 +263,91 @@ function Profil() {
 
             {/* CONTENU DYNAMIQUE */}
             {activeTab === 'account' && (
-              <div className="max-w-2xl mx-auto p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-md">
-                {message.text && (
-                  <div className={`mb-6 p-3 border text-xs font-medium rounded-lg ${
-                    message.type === 'success' ? 'bg-emerald-950/40 border-emerald-900 text-emerald-400' : 'bg-red-950/40 border-red-900 text-red-400'
-                  }`}>
-                    {message.type === 'success' ? '🎉' : '⚠️'} {message.text}
-                  </div>
-                )}
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-md">
+                  {message.text && (
+                    <div className={`mb-6 p-3 border text-xs font-medium rounded-lg ${
+                      message.type === 'success' ? 'bg-emerald-950/40 border-emerald-900 text-emerald-400' : 'bg-red-950/40 border-red-900 text-red-400'
+                    }`}>
+                      {message.type === 'success' ? '🎉' : '⚠️'} {message.text}
+                    </div>
+                  )}
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                  <div className="flex items-center gap-5 bg-zinc-950 p-4 border border-zinc-800 rounded-xl">
-                    <div className="w-16 h-16 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center flex-shrink-0">
-                      {avatarPreview ? (
-                        <img src={avatarPreview} alt="Aperçu" className="w-full h-full object-cover" />
-                      ) : (
-                        <span className="text-2xl">👤</span>
-                      )}
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="flex items-center gap-5 bg-zinc-950 p-4 border border-zinc-800 rounded-xl">
+                      <div className="w-16 h-16 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center flex-shrink-0">
+                        {avatarPreview ? (
+                          <img src={avatarPreview} alt="Aperçu" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-2xl">👤</span>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">Photo de profil</label>
+                        <input 
+                          type="file" accept="image/*" onChange={handleFileChange}
+                          className="text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 file:cursor-pointer"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">Photo de profil</label>
-                      <input 
-                        type="file" accept="image/*" onChange={handleFileChange}
-                        className="text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 file:cursor-pointer"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Prénom</label>
-                      <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Prénom</label>
+                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Nom de famille</label>
+                        <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Nom de famille</label>
-                      <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Promotion</label>
-                      <input type="text" name="promotion" required value={formData.promotion} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Promotion</label>
+                        <input type="text" name="promotion" required value={formData.promotion} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Spécialité</label>
+                        <input type="text" name="specialty" required value={formData.specialty} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Spécialité</label>
-                      <input type="text" name="specialty" required value={formData.specialty} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
-                    </div>
-                  </div>
 
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Localisation Actuelle</label>
+                      <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Biographie</label>
+                      <textarea name="bio" rows="3" value={formData.bio} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors resize-none" />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
+                      <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                    </div>
+
+                    <button type="submit" disabled={submitting} className="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-bold text-sm rounded-xl transition-colors disabled:opacity-50">
+                      {submitting ? 'Enregistrement...' : 'Enregistrer mon profil'}
+                    </button>
+                  </form>
+                </div>
+
+                {/* ZONE DE DANGER : Suppression du compte */}
+                <div className="p-6 bg-zinc-900 border border-red-900/40 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Localisation Actuelle</label>
-                    <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                    <h4 className="text-sm font-bold text-red-400">Zone de danger</h4>
+                    <p className="text-xs text-zinc-400 mt-1">La suppression supprimera définitivement votre profil, vos posts et vos projets de la plateforme ITAS.</p>
                   </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Biographie</label>
-                    <textarea name="bio" rows="3" value={formData.bio} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors resize-none" />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
-                    <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
-                  </div>
-
-                  <button type="submit" disabled={submitting} className="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-bold text-sm rounded-xl transition-colors disabled:opacity-50">
-                    {submitting ? 'Enregistrement...' : 'Enregistrer mon profil'}
+                  <button 
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    className="w-full sm:w-auto px-4 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-400 font-semibold text-xs rounded-xl border border-red-900/60 transition-colors whitespace-nowrap"
+                  >
+                    Supprimer le compte
                   </button>
-                </form>
+                </div>
               </div>
             )}
 
