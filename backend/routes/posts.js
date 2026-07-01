@@ -11,7 +11,7 @@ const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
 // Configuration du stockage de Multer en mémoire
 const storage = multer.memoryStorage();
 
-// Validation des extensions acceptées
+// Validation des extensions acceptées (Images, Vidéos, Audio, PDF, Word)
 const upload = multer({
   storage,
   limits: {
@@ -23,7 +23,7 @@ const upload = multer({
     const isExtValid = filetypes.test(ext);
     const isMimeValid = filetypes.test(file.mimetype);
 
-    if (isMimeValid && isExtValid) {
+    if (isMimeValid || isExtValid) {
       return cb(null, true);
     }
     cb(new Error("Format non supporté !"));
@@ -53,13 +53,12 @@ router.post('/', auth, (req, res) => {
 
       if (req.file) {
         const mime = req.file.mimetype.toLowerCase();
-        const ext = req.file.originalname.split('.').pop().toLowerCase(); // 🛠️ FIX : req.file à la place de file
+        const ext = req.file.originalname.split('.').pop().toLowerCase();
         
-        // Détermination du type de média
+        // Détermination et validation complète du type de média
         if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
           mediaType = 'video';
           
-          // Vérification de la durée du fichier vidéo en mémoire buffer
           try {
             const stream = Readable.from(req.file.buffer);
             const duration = await getVideoDurationInSeconds(stream);
@@ -73,9 +72,15 @@ router.post('/', auth, (req, res) => {
           mediaType = 'audio';
         } else if (mime.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
           mediaType = 'image';
+        } else if (mime === 'application/pdf' || ext === 'pdf') {
+          mediaType = 'pdf';
+        } else if (['msword', 'vnd.openxmlformats-officedocument.wordprocessingml.document'].some(v => mime.includes(v)) || ['doc', 'docx'].includes(ext)) {
+          mediaType = 'document';
+        } else {
+          mediaType = 'file';
         }
 
-        // Upload sur Supabase après validation
+        // Upload sur Supabase après validation du type
         const uploaded = await uploadFile(req.file, "posts");
         mediaUrl = uploaded.url;
         mediaPath = uploaded.path;
@@ -152,7 +157,6 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ message: 'Utilisateur non autorisé à supprimer ce post.' });
     }
 
-    // Supprime le média de Supabase s'il existe
     if (post.mediaPath) {
       await deleteFile(post.mediaPath);
     }
@@ -190,14 +194,13 @@ router.put('/:id', auth, (req, res) => {
 
       let fileToDelete = null;
 
-      // Un nouveau fichier remplace l'ancien
       if (req.file) {
         if (post.mediaPath) {
           fileToDelete = post.mediaPath;
         }
 
         const mime = req.file.mimetype.toLowerCase();
-        const ext = req.file.originalname.split('.').pop().toLowerCase(); // 🛠️ FIX : req.file à la place de file
+        const ext = req.file.originalname.split('.').pop().toLowerCase();
         
         if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
           post.mediaType = 'video';
@@ -214,6 +217,12 @@ router.put('/:id', auth, (req, res) => {
           post.mediaType = 'audio';
         } else if (mime.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
           post.mediaType = 'image';
+        } else if (mime === 'application/pdf' || ext === 'pdf') {
+          post.mediaType = 'pdf';
+        } else if (['msword', 'vnd.openxmlformats-officedocument.wordprocessingml.document'].some(v => mime.includes(v)) || ['doc', 'docx'].includes(ext)) {
+          post.mediaType = 'document';
+        } else {
+          post.mediaType = 'file';
         }
 
         const uploaded = await uploadFile(req.file, "posts");
@@ -231,7 +240,6 @@ router.put('/:id', auth, (req, res) => {
       
       await post.save();
 
-      // Suppression de l'ancien fichier sur Supabase
       if (fileToDelete) {
         await deleteFile(fileToDelete);
       }
@@ -270,7 +278,5 @@ router.put('/like/:id', auth, async (req, res) => {
     res.status(500).send('Erreur serveur lors de la gestion du like.');
   }
 });
-
-
 
 module.exports = router;
