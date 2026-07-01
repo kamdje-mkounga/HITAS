@@ -519,7 +519,6 @@ const Blog = () => {
     )}
   </div>
 )}
-//////
 
                         {/* Actions / Boutons */}
                         <div className="flex gap-3 mt-4 pt-3 border-t border-zinc-800/40 text-xs">
