@@ -28,8 +28,8 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// 7. Servir le dossier 'uploads' de manière statique pour l'accès aux photos de profil
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// 🛠️ NETTOYAGE : L'ancien middleware app.use('/uploads', ...) a été supprimé d'ici !
+// Vos fichiers transitent désormais directement par la mémoire tampon vers Supabase.
 
 // 8. Déclaration de toutes tes routes API
 app.use('/api/auth', require('./routes/auth'));
@@ -41,7 +41,6 @@ app.use('/api/project', require('./routes/project'));
 app.get('/', (req, res) => {
     res.send("L'API d'HITAS Connect fonctionne à merveille ! 🚀");
 });
-//const a=10;
 
 // 10. Démarrage du serveur d'écoute
 const PORT = process.env.PORT || 5000;

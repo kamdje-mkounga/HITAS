@@ -5,40 +5,28 @@ const Post = require('../models/Post');
 const Profile = require('../models/Profile');
 const multer = require('multer');
 const { getVideoDurationInSeconds } = require('get-video-duration');
-const path = require('path');
-const fs = require('fs');
-const {
-  uploadFile,
-  deleteFile
-} = require("../utils/supabaseStorage");
+const { Readable } = require('stream'); // Requis pour lire la vidéo depuis la mémoire
+const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
 
-// Configuration du stockage de Multer
+// Configuration du stockage de Multer en mémoire
 const storage = multer.memoryStorage();
 
-// Validation stricte et élargie des extensions acceptées
+// Validation des extensions acceptées
 const upload = multer({
   storage,
   limits: {
-      fileSize: 50 * 1024 * 1024
+    fileSize: 50 * 1024 * 1024 // 50Mo max
   },
   fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg/;
+    const ext = file.originalname.split('.').pop().toLowerCase();
+    const isExtValid = filetypes.test(ext);
+    const isMimeValid = filetypes.test(file.mimetype);
 
-      const filetypes =
-          /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg/;
-
-      const extname =
-          filetypes.test(path.extname(file.originalname).toLowerCase());
-
-      const mimetype =
-          filetypes.test(file.mimetype);
-
-      if (mimetype && extname) {
-          return cb(null, true);
-      }
-
-      cb(new Error(
-          "Format non supporté !"
-      ));
+    if (isMimeValid && isExtValid) {
+      return cb(null, true);
+    }
+    cb(new Error("Format non supporté !"));
   }
 });
 
@@ -61,32 +49,36 @@ router.post('/', auth, (req, res) => {
 
       let mediaUrl = '';
       let mediaType = null;
+      let mediaPath = null;
 
       if (req.file) {
-        const uploaded = await uploadFile(req.file, "posts");
-
-mediaUrl = uploaded.url;
-const mediaPath = uploaded.path;
         const mime = req.file.mimetype.toLowerCase();
-        const ext = path.extname(req.file.originalname).toLowerCase();
+        const ext = file.originalname.split('.').pop().toLowerCase();
         
-        if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
+        // Détermination du type de média
+        if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
           mediaType = 'video';
-         
+          
+          // Vérification de la durée du fichier vidéo en mémoire buffer
           try {
-            const duration = await getVideoDurationInSeconds(pathToFile);
+            const stream = Readable.from(req.file.buffer);
+            const duration = await getVideoDurationInSeconds(stream);
             if (duration > 180) {
-              await deleteFile(mediaPath);
               return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
             }
           } catch (durationErr) {
             console.error("Impossible de lire la durée de la vidéo :", durationErr);
           }
-        } else if (mime.startsWith('audio') || ['.mp3', '.wav', '.m4a', '.ogg', '.mpeg'].includes(ext)) {
+        } else if (mime.startsWith('audio') || ['mp3', 'wav', 'm4a', 'ogg', 'mpeg'].includes(ext)) {
           mediaType = 'audio';
-        } else if (mime.startsWith('image') || ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
+        } else if (mime.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
           mediaType = 'image';
         }
+
+        // Upload sur Supabase après validation
+        const uploaded = await uploadFile(req.file, "posts");
+        mediaUrl = uploaded.url;
+        mediaPath = uploaded.path;
       }
 
       const newPost = new Post({
@@ -112,7 +104,6 @@ const mediaPath = uploaded.path;
 
 // @route   GET api/posts
 // @desc    Récupérer toutes les publications
-// @access  Public
 router.get('/', async (req, res) => {
   try {
     const posts = await Post.find().sort({ date: -1 }).lean();
@@ -149,7 +140,6 @@ router.get('/', async (req, res) => {
 
 // @route   DELETE api/posts/:id
 // @desc    Supprimer une publication
-// @access  Private
 router.delete('/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -162,9 +152,10 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(401).json({ message: 'Utilisateur non autorisé à supprimer ce post.' });
     }
 
+    // Supprime le média de Supabase s'il existe
     if (post.mediaPath) {
       await deleteFile(post.mediaPath);
-  }
+    }
 
     await post.deleteOne();
     res.json({ message: 'Publication supprimée avec succès.' });
@@ -175,8 +166,7 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 // @route   PUT api/posts/:id
-// @desc    Modifier une publication (Gestion complète texte + médias)
-// @access  Private
+// @desc    Modifier une publication
 router.put('/:id', auth, (req, res) => {
   upload.single('media')(req, res, async (err) => {
     if (err) {
@@ -195,64 +185,57 @@ router.put('/:id', auth, (req, res) => {
         return res.status(401).json({ message: 'Utilisateur non autorisé.' });
       }
 
-      // Mise à jour des champs basiques s'ils sont fournis
       if (req.body.text !== undefined) post.text = req.body.text;
       if (req.body.category) post.category = req.body.category;
 
-      // Variable pour traquer si on doit supprimer un fichier physique du serveur
       let fileToDelete = null;
 
-      // 1. Un NOUVEAU fichier a été téléversé
+      // Un nouveau fichier remplace l'ancien
       if (req.file) {
-        // On prépare la suppression de l'ancien fichier s'il existait
-        if (post.mediaUrl) {
+        if (post.mediaPath) {
           fileToDelete = post.mediaPath;
         }
 
-        const uploaded = await uploadFile(req.file, "posts");
-
-post.mediaUrl = uploaded.url;
-post.mediaPath = uploaded.path;
-//
         const mime = req.file.mimetype.toLowerCase();
-        const ext = path.extname(req.file.originalname).toLowerCase();
+        const ext = file.originalname.split('.').pop().toLowerCase();
         
-        // Détermination du nouveau type et sécurité vidéo
-         if (mime.startsWith('video') || ['.mp4', '.mov', '.qt', '.webm', '.m4v'].includes(ext)) {
+        if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
           post.mediaType = 'video';
-          const tempFile = req.file;
           try {
-            const duration = await getVideoDurationInSeconds(pathToFile);
+            const stream = Readable.from(req.file.buffer);
+            const duration = await getVideoDurationInSeconds(stream);
             if (duration > 180) {
-              await deleteFile(post.mediaPath);
               return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
             }
           } catch (durationErr) {
             console.error("Impossible de lire la durée de la vidéo :", durationErr);
           }
-        } else if (mime.startsWith('audio') || ['.mp3', '.wav', '.m4a', '.ogg', '.mpeg'].includes(ext)) {
+        } else if (mime.startsWith('audio') || ['mp3', 'wav', 'm4a', 'ogg', 'mpeg'].includes(ext)) {
           post.mediaType = 'audio';
-        } else if (mime.startsWith('image') || ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext)) {
+        } else if (mime.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
           post.mediaType = 'image';
         }
 
-      // 2. Pas de nouveau fichier, mais l'utilisateur a cliqué sur "Retirer" le média existant
+        const uploaded = await uploadFile(req.file, "posts");
+        post.mediaUrl = uploaded.url;
+        post.mediaPath = uploaded.path;
+
+      // L'utilisateur a cliqué sur "Retirer" le média existant
       } else if (req.body.existingMediaUrl === '') {
-        if (post.mediaUrl) {
-          fileToDelete = path.join(__dirname, '../', post.mediaUrl);
+        if (post.mediaPath) {
+          fileToDelete = post.mediaPath;
         }
         post.mediaUrl = '';
         post.mediaType = null;
+        post.mediaPath = null;
       }
       
-
-      // Sauvegarde des modifications en base de données
       await post.save();
 
-      // Nettoyage physique du stockage si nécessaire (seulement APRÈS une sauvegarde réussie)
+      // Suppression de l'ancien fichier sur Supabase
       if (fileToDelete) {
         await deleteFile(fileToDelete);
-    }
+      }
 
       res.json(post);
     } catch (err) {
@@ -263,8 +246,6 @@ post.mediaPath = uploaded.path;
 });
 
 // @route   POST api/posts/comment/:id
-// @desc    Ajouter un commentaire sur un post
-// @access  Private
 router.post('/comment/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -288,16 +269,11 @@ router.post('/comment/:id', auth, async (req, res) => {
     res.json(post.comments);
   } catch (err) {
     console.error(err.message);
-    if (err.kind === 'ObjectId') {
-      return res.status(404).json({ message: 'Publication non trouvée' });
-    }
     res.status(500).send('Erreur Serveur');
   }
 });
 
 // @route   PUT api/posts/like/:id
-// @desc    Liker ou unliker une publication
-// @access  Private
 router.put('/like/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
