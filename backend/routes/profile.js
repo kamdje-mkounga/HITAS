@@ -5,6 +5,8 @@ const path = require('path');
 const fs = require('fs');
 const auth = require('../middleware/auth');
 const Profile = require('../models/Profile'); 
+const User = require('../models/User');  // 👈 AJOUTE CECI
+const Post = require('../models/Post');  // 👈 AJOUTE CECI
 const supabase = require('../config/supabase');
 // Force le chemin absolu pour pointer dans "backend/uploads"
 const uploadDir = path.join(__dirname, '../uploads');
