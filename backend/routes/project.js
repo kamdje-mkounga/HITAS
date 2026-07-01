@@ -15,15 +15,16 @@ const upload = multer({
   storage: storage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max au total
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|pdf/;
+    // Ajout des formats doc et docx dans l'expression régulière
+    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/;
     const ext = file.originalname.split('.').pop().toLowerCase();
-    const isExtValid = filetypes.test(ext);
+    const isExtValid = filetypes.test(ext) || ['doc', 'docx'].includes(ext);
     const isMimeValid = filetypes.test(file.mimetype);
 
-    if (isMimeValid && isExtValid) {
+    if (isMimeValid || isExtValid) {
       return cb(null, true);
     } else {
-      cb(new Error('Format non supporté ! Choisissez des images, vidéos ou un document PDF.'));
+      cb(new Error('Format non supporté ! Choisissez des images, vidéos, PDF ou documents Word.'));
     }
   }
 });
