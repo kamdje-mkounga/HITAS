@@ -117,6 +117,7 @@ const Navbar = () => {
               Showcase
             </NavLink>
           </div>
+          <div id="google_translate_element"></div>
 
           {/* 🔐 ESPACE UTILISATEUR CONNECTÉ / COMPTE */}
           <div className="flex items-center space-x-4">
