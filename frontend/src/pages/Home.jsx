@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // 👈 Import pour la traduction
+
 
 // 📦 IMPORTS DES IMAGES DEPUIS LE DOSSIER ASSETS
 import hitasLogo from '../assets/hitas_logo.svg';
@@ -12,20 +12,25 @@ import brazilFlag from '../assets/brazil.svg';
 import germanyFlag from '../assets/germany.svg';
 
 const OrbitingLogo = () => {
-  const { i18n } = useTranslation(); // 👈 Permet de changer la langue au clic
-
-  // Ajout du code langue associé à chaque drapeau
   const flags = [
-    { id: 1, src: franceFlag, label: 'France', lang: 'fr', delay: '0s' },
-    { id: 2, src: cameroonFlag, label: 'Cameroun', lang: 'fr', delay: '-2.4s' },
-    { id: 3, src: indiaFlag, label: 'Inde', lang: 'en', delay: '-4.8s' },
-    { id: 4, src: brazilFlag, label: 'Brésil', lang: 'en', delay: '-7.2s' },
-    { id: 5, src: germanyFlag, label: 'Allemagne', lang: 'en', delay: '-9.6s' },
+    { id: 1, src: franceFlag, label: 'France', delay: '0s' },
+    { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2.4s' },
+    { id: 3, src: indiaFlag, label: 'Inde', delay: '-4.8s' },
+    { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
+    { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
   ];
 
   return (
+    /* 
+      ✨ LE SECRET DE LA RESPONSIVITÉ EN BAS :
+      On applique un scale global. 
+      - Par défaut (mobile) : tout le bloc est réduit à 65% de sa taille (scale-65)
+      - Sur tablette (sm) : tout passe à 85% (sm:scale-85)
+      - Sur ordinateur (md) : tout reprend sa taille d'origine à 100% (md:scale-100)
+    */
     <div className="relative flex items-center justify-center my-2 h-40 md:h-52 w-full overflow-hidden select-none transform scale-65 sm:scale-85 md:scale-100 transition-transform duration-300">
       
+      {/* Calcul de l'ellipse de base (pour la taille ordinateur) */}
       <style>{`
         @keyframes ellipticOrbit {
           0% {
@@ -66,14 +71,12 @@ const OrbitingLogo = () => {
       {/* 2. L'anneau d'orbite elliptique en arrière-plan */}
       <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
 
-      {/* 3. Les drapeaux en orbite (Rendus cliquables pour changer de langue) */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      {/* 3. Les drapeaux en orbite */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {flags.map((flag) => (
-          <button
+          <div
             key={flag.id}
-            onClick={() => i18n.changeLanguage(flag.lang)} // 👈 Change la langue à la volée !
-            title={`Changer la langue (${flag.label})`}
-            className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit cursor-pointer hover:scale-125 hover:border-violet-500 transition-transform pointer-events-auto"
+            className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit"
             style={{
               animationDelay: flag.delay,
             }}
@@ -83,7 +86,7 @@ const OrbitingLogo = () => {
               alt={flag.label} 
               className="w-full h-full object-cover"
             />
-          </button>
+          </div>
         ))}
       </div>
     </div>
@@ -92,8 +95,6 @@ const OrbitingLogo = () => {
 
 // COMPOSANT PRINCIPAL HOME
 function Home() {
-  const { t } = useTranslation(); // 👈 Hook de traduction des textes
-
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
       <Navbar />
@@ -102,13 +103,13 @@ function Home() {
         
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2">
-            {t('home.title')} {/* 👈 Traduction du titre */}
+            Le hub de la communauté étudiante de HITAS
           </h1>
           
           <OrbitingLogo />
 
           <p className="text-zinc-400 text-lg mt-4 px-4">
-            {t('home.subtitle')} {/* 👈 Traduction du sous-titre */}
+            Connecte-toi avec la diaspora, partage des opportunités et propulse tes projets techniques.
           </p>
         </div>
 
@@ -119,15 +120,11 @@ function Home() {
           <Link to="/annuaire" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">👤</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">
-                {t('home.modules.annuaire.title')}
-              </h3>
-              <p className="text-zinc-400 text-sm">
-                {t('home.modules.annuaire.desc')}
-              </p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Annuaire</h3>
+              <p className="text-zinc-400 text-sm">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
             </div>
             <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
-              {t('home.modules.annuaire.link')} →
+              Explorer l'annuaire →
             </span>
           </Link>
 
@@ -135,15 +132,11 @@ function Home() {
           <Link to="/blog" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">📝</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">
-                {t('home.modules.blog.title')}
-              </h3>
-              <p className="text-zinc-400 text-sm">
-                {t('home.modules.blog.desc')}
-              </p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Blog d'Entraide</h3>
+              <p className="text-zinc-400 text-sm">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
             </div>
             <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
-              {t('home.modules.blog.link')} →
+              Lire les articles →
             </span>
           </Link>
 
@@ -151,15 +144,11 @@ function Home() {
           <Link to="/showcase" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
             <div>
               <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">🚀</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">
-                {t('home.modules.showcase.title')}
-              </h3>
-              <p className="text-zinc-400 text-sm">
-                {t('home.modules.showcase.desc')}
-              </p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Showcase</h3>
+              <p className="text-zinc-400 text-sm">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
             </div>
             <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
-              {t('home.modules.showcase.link')} →
+              Voir les projets →
             </span>
           </Link>
 
