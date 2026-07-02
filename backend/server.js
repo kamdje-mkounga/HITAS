@@ -9,6 +9,8 @@ if (process.env.MONGO_URI) {
 
 // 2. Les autres imports (maintenant ils ont accès aux variables d'environnement)
 const express = require('express');
+const http = require('http'); // 🌐 AJOUTÉ : Requis pour lier Socket.io à Express
+const { Server } = require('socket.io'); // 🌐 AJOUTÉ : Le moteur temps réel
 const cors = require('cors'); 
 const connectDB = require('./config/db'); 
 
@@ -18,7 +20,31 @@ connectDB();
 // 4. Initialisation de l'application Express
 const app = express();
 
-// 5. Configuration du CORS
+// 🌐 AJOUTÉ : Création du serveur HTTP natif enveloppant Express
+const server = http.createServer(app);
+
+// 🌐 AJOUTÉ : Initialisation de Socket.io avec support CORS
+const io = new Server(server, {
+  cors: {
+    origin: '*', // Aligné sur ta configuration CORS actuelle
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }
+});
+
+// 🌐 AJOUTÉ : On attache 'io' à l'instance 'app' pour qu'il soit accessible dans tes fichiers de routes
+app.set('io', io);
+
+// 🌐 AJOUTÉ : Suivi basique des connexions (Utile pour tes logs de debug)
+io.on('connection', (socket) => {
+  console.log(`Un utilisateur s'est connecté au live (ID: ${socket.id})`);
+  
+  socket.on('disconnect', () => {
+    console.log(`Un utilisateur a quitté le live`);
+  });
+});
+
+// 5. Configuration du CORS pour Express
 app.use(cors({
   origin: '*',
   credentials: true
@@ -42,8 +68,8 @@ app.get('/', (req, res) => {
     res.send("L'API d'HITAS Connect fonctionne à merveille ! 🚀");
 });
 
-// 10. Démarrage du serveur d'écoute
+// 10. Démarrage du serveur d'écoute (⚠️ Modifié app.listen par server.listen)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-    console.log(`Le serveur a démarré sur le port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Le serveur a démarré sur le port ${PORT} avec support Temps Réel WebSockets.`);
 });
