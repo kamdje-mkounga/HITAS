@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { io } from 'socket-io-client'; // 🌐 AJOUTÉ : Importation du client socket
+import { io } from 'socket.io-client'; // 🌐 AJOUTÉ : Importation du client socket
 
 const Blog = () => {
   const [mediaFile, setMediaFile] = useState(null);
