@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Import du modèle
+const User = require('../models/User');
 
 // @route   POST api/auth/register
 // @desc    Inscrire un nouvel étudiant / alumni
@@ -30,9 +30,13 @@ router.post('/register', async (req, res) => {
         // 4. Sauvegarder dans MongoDB
         await user.save();
 
-        // 5. Optionnel pour le moment : Générer un token JWT (pour maintenir la connexion)
+        // 5. Générer un token JWT valide pour 24h (1 jour)
         const payload = { userId: user.id, role: user.role };
-        const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret_temporaire', { expiresIn: '1d' });
+        const token = jwt.sign(
+            payload, 
+            process.env.JWT_SECRET || 'secret_temporaire', 
+            { expiresIn: '24h' }
+        );
 
         res.status(201).json({
             message: "Utilisateur créé avec succès ! 🎉",
@@ -46,8 +50,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-
-///// @route   POST api/auth/login
+// @route   POST api/auth/login
 // @desc    Connecter un étudiant / alumni & obtenir le token
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -65,12 +68,12 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: "Identifiants invalides." });
         }
 
-        // 3. Générer un nouveau token JWT
+        // 3. Générer un nouveau token JWT valide pour 24h
         const payload = { userId: user.id, role: user.role };
         const token = jwt.sign(
             payload, 
             process.env.JWT_SECRET || 'secret_temporaire', 
-            { expiresIn: '1d' }
+            { expiresIn: '24h' }
         );
 
         res.json({
@@ -84,7 +87,5 @@ router.post('/login', async (req, res) => {
         res.status(500).send("Erreur serveur lors de la connexion.");
     }
 });
-
-///
 
 module.exports = router;

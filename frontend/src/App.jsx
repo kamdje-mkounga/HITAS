@@ -6,7 +6,8 @@ import Home from './pages/Home';
 import Annuaire from './pages/Annuaire';
 import Blog from './pages/Blog';
 import Showcase from './pages/Showcase'; 
-import Profil from './pages/Profil'; // 👈 ON GARDE UNIQUEMENT CELUI-CI (SANS "E")
+import Profil from './pages/Profil'; 
+import AutoLogout from './components/AutoLogout'; // 👈 On importe le composant de déconnexion automatique
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -16,29 +17,31 @@ const PrivateRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} /> 
-        
-        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-        <Route path="/annuaire" element={<PrivateRoute><Annuaire /></PrivateRoute>} />
-        <Route path="/blog" element={<PrivateRoute><Blog /></PrivateRoute>} />
-        
-        <Route path="/showcase" element={
-          <PrivateRoute>
-            <Showcase />
-          </PrivateRoute>
-        } />
+      {/* 🔒 AutoLogout enveloppe toutes les routes pour suivre l'activité sur tout le site */}
+      <AutoLogout>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} /> 
+          
+          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/annuaire" element={<PrivateRoute><Annuaire /></PrivateRoute>} />
+          <Route path="/blog" element={<PrivateRoute><Blog /></PrivateRoute>} />
+          
+          <Route path="/showcase" element={
+            <PrivateRoute>
+              <Showcase />
+            </PrivateRoute>
+          } />
 
-        {/* 🚀 LA ROUTE CORRIGÉE ICI AVEC <Profil /> */}
-        <Route path="/profil" element={
-          <PrivateRoute>
-            <Profil /> 
-          </PrivateRoute>
-        } />
-        
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+          <Route path="/profil" element={
+            <PrivateRoute>
+              <Profil /> 
+            </PrivateRoute>
+          } />
+          
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </AutoLogout>
     </Router>
   );
 }
