@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { io } from 'socket-io-client'; // 🌐 AJOUTÉ : Importation du client socket
 
 const Blog = () => {
   const [mediaFile, setMediaFile] = useState(null);
@@ -109,27 +110,7 @@ const Blog = () => {
     setEditMediaPreview(null);
   };
 
-  const handleLike = async (postId) => {
-    try {
-      const response = await axios.put(`${BACKEND_URL}/api/posts/like/${postId}`, {}, getAuthHeader());
-      setPosts(posts.map(post => post._id === postId ? { ...post, likes: response.data } : post));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const handleAddComment = async (postId) => {
-    const text = commentTexts[postId];
-    if (!text || !text.trim()) return;
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/posts/comment/${postId}`, { text }, getAuthHeader());
-      setPosts(posts.map(post => post._id === postId ? { ...post, comments: response.data } : post));
-      setCommentTexts({ ...commentTexts, [postId]: '' });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+  // 1. Charger tous les posts au démarrage
   const fetchPosts = async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/posts`);
@@ -149,6 +130,66 @@ const Blog = () => {
     };
   }, []);
 
+  // 🌐 INTERCEPTION TEMPS RÉEL (Socket.io)
+  useEffect(() => {
+    const socket = io(BACKEND_URL);
+
+    // Événement A : Création d'un post
+    socket.on('posts_created', (newPost) => {
+      setPosts((prevPosts) => {
+        if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
+        return [newPost, ...prevPosts];
+      });
+    });
+
+    // Événement B : Suppression d'un post
+    socket.on('posts_deleted', (deletedPostId) => {
+      setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
+    });
+
+    // Événement C : Modification globale d'un post (texte, médias...)
+    socket.on('posts_updated', (updatedPost) => {
+      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    });
+
+    // Événement D : Interactions en direct (Likes et Commentaires)
+    socket.on('posts_updated_interactions', (updatedPost) => {
+      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [BACKEND_URL]);
+
+  // 2. Aimer / Liker une publication
+  const handleLike = async (postId) => {
+    try {
+      // 💡 Optimisation Socket : Le backend renvoie généralement l'objet post mis à jour ou le tableau de likes.
+      // S'il renvoie tout le post mis à jour sur l'événement "posts_updated_interactions", 
+      // la ligne ci-dessous met à jour l'UI locale immédiatement en attendant le socket.
+      const response = await axios.put(`${BACKEND_URL}/api/posts/like/${postId}`, {}, getAuthHeader());
+      // On conserve une mise à jour optimiste ou on laisse le socket agir selon la structure de ta réponse API
+      setPosts(posts.map(post => post._id === postId ? { ...post, likes: response.data?.likes || response.data } : post));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 3. Ajouter un commentaire
+  const handleAddComment = async (postId) => {
+    const textComment = commentTexts[postId];
+    if (!textComment || !textComment.trim()) return;
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/posts/comment/${postId}`, { text: textComment }, getAuthHeader());
+      setPosts(posts.map(post => post._id === postId ? { ...post, comments: response.data?.comments || response.data } : post));
+      setCommentTexts({ ...commentTexts, [postId]: '' });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // 4. Soumission d'une nouvelle publication
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(''); setSuccess('');
@@ -159,10 +200,12 @@ const Blog = () => {
       formData.append('category', category);
       if (mediaFile) formData.append('media', mediaFile);
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${BACKEND_URL}/api/posts`, formData, {
+      
+      await axios.post(`${BACKEND_URL}/api/posts`, formData, {
         headers: { 'x-auth-token': token, 'Content-Type': 'multipart/form-data' }
       });
-      setPosts([res.data, ...posts]);
+      
+      // 💡 Retrait de setPosts([res.data, ...posts]) car intercepté directement par le socket
       setText(''); clearMedia();
       setSuccess('Publication partagée avec succès !');
       setTimeout(() => setSuccess(''), 3000);
@@ -171,6 +214,7 @@ const Blog = () => {
     }
   };
 
+  // 5. Enregistrer les modifications d'un post
   const handleEditSubmit = async (postId) => {
     if (!editText.trim() && !editMediaFile && !existingMediaUrl) {
       return alert('La publication ne peut pas être complètement vide.');
@@ -186,14 +230,14 @@ const Blog = () => {
       }
 
       const token = localStorage.getItem('token');
-      const res = await axios.put(`${BACKEND_URL}/api/posts/${postId}`, formData, {
+      await axios.put(`${BACKEND_URL}/api/posts/${postId}`, formData, {
         headers: { 
           'x-auth-token': token, 
           'Content-Type': 'multipart/form-data' 
         }
       });
 
-      setPosts(posts.map(post => post._id === postId ? res.data : post));
+      // Le socket met à jour le post modifié pour tout le monde en arrière-plan.
       setEditingId(null);
       clearEditMedia();
     } catch (err) {
@@ -202,11 +246,12 @@ const Blog = () => {
     }
   };
 
+  // 6. Supprimer un post
   const handleDelete = async (postId) => {
     if (window.confirm('Es-tu sûr de vouloir supprimer cette publication ?')) {
       try {
         await axios.delete(`${BACKEND_URL}/api/posts/${postId}`, getAuthHeader());
-        setPosts(posts.filter(post => post._id !== postId));
+        // Filtrage automatique géré par l'écouteur socket local et distant
       } catch (err) {
         alert('Erreur lors de la suppression.');
       }
@@ -358,8 +403,6 @@ const Blog = () => {
             ) : (
               filteredPosts.map((post) => {
                 const hasLiked = post.likes?.some(like => getUserId(like.user) === loggedInUserId);
-                
-                // Récupération hautement sécurisée du chemin de l'avatar
                 const avatarPath = post.avatar || (post.user && typeof post.user === 'object' ? post.user.avatar : null);
 
                 return (
@@ -376,11 +419,8 @@ const Blog = () => {
                             <img 
                               src={formatMediaUrl(avatarPath)} 
                               alt={`${post.firstName}`} 
-                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10"
-                              onError={(e) => {
-                                // En cas d'erreur réseau (ex: image supprimée sur Render), on masque l'image brisée pour laisser le fallback textuel propre
-                                e.target.style.display = 'none';
-                              }}
+                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" 
+                              onError={(e) => { e.target.style.display = 'none'; }}
                             />
                           ) : null}
                           <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700">
@@ -423,7 +463,7 @@ const Blog = () => {
                         <div className="space-y-2">
                           <label className="text-[11px] font-medium text-zinc-400 block">Gestion du média :</label>
                           
-                          {existingMediaUrl && (
+                          ={existingMediaUrl && (
                             <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-zinc-400 truncate max-w-[80%]">📁 Média actuellement sauvegardé</span>
                               <button 
@@ -483,42 +523,38 @@ const Blog = () => {
                         )}
                         
                         {post.mediaUrl && (
-  <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
-    {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
-      <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
-    ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
-      <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
-    ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
-      /* --- BLOC AJOUTÉ POUR LES DOCUMENTS --- */
-      <div className="flex items-center gap-3 p-4 w-full bg-zinc-900/50 rounded-lg border border-zinc-800 m-2">
-        <span className="text-2xl text-indigo-400">📄</span>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-zinc-200 truncate">
-            {post.mediaUrl.split('/').pop()}
-          </p>
-          <a 
-            href={formatMediaUrl(post.mediaUrl)} 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline inline-flex items-center gap-1 mt-0.5"
-          >
-            Ouvrir le document dans un nouvel onglet ↗
-          </a>
-        </div>
-      </div>
-    ) : (
-      /* --- BLOC IMAGE PAR DÉFAUT --- */
-      <img 
-        src={formatMediaUrl(post.mediaUrl)} 
-        alt="Média" 
-        className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
-        onError={(e) => {
-          e.target.parentNode.style.display = 'none';
-        }}
-      />
-    )}
-  </div>
-)}
+                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
+                            {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
+                              <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
+                            ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
+                              <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
+                            ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
+                              <div className="flex items-center gap-3 p-4 w-full bg-zinc-900/50 rounded-lg border border-zinc-800 m-2">
+                                <span className="text-2xl text-indigo-400">📄</span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-zinc-200 truncate">
+                                    {post.mediaUrl.split('/').pop()}
+                                  </p>
+                                  <a 
+                                    href={formatMediaUrl(post.mediaUrl)} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline inline-flex items-center gap-1 mt-0.5"
+                                  >
+                                    Ouvrir le document dans un nouvel onglet ↗
+                                  </a>
+                                </div>
+                              </div>
+                            ) : (
+                              <img 
+                                src={formatMediaUrl(post.mediaUrl)} 
+                                alt="Média" 
+                                className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
+                                onError={(e) => { e.target.parentNode.style.display = 'none'; }}
+                              />
+                            )}
+                          </div>
+                        )}
 
                         {/* Actions / Boutons */}
                         <div className="flex gap-3 mt-4 pt-3 border-t border-zinc-800/40 text-xs">
@@ -566,7 +602,7 @@ const Blog = () => {
                                           src={formatMediaUrl(commentAvatarPath)} 
                                           alt="Author" 
                                           className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" 
-                                          onError={(e) => e.target.style.display = 'none'} 
+                                          onError={(e) => { e.target.style.display = 'none'; }} 
                                         />
                                       ) : null}
                                       <div className="w-full h-full bg-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-zinc-700">

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { io } from 'socket-io-client'; // 🌐 AJOUTÉ : Importation du client socket
 
 const BlogEntraide = () => {
   // États pour les posts et le formulaire
@@ -43,6 +44,41 @@ const BlogEntraide = () => {
     fetchPosts();
   }, []);
 
+  // 🌐 INTERCEPTION TEMPS RÉEL (Socket.io)
+  useEffect(() => {
+    // Connexion automatique au serveur socket
+    const socket = io(BACKEND_URL);
+
+    // Événement A : Quelqu'un (toi ou un autre) a créé un post
+    socket.on('posts_created', (newPost) => {
+      setPosts((prevPosts) => {
+        // Sécurité anti-doublon au cas où
+        if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
+        return [newPost, ...prevPosts];
+      });
+    });
+
+    // Événement B : Quelqu'un a supprimé un post
+    socket.on('posts_deleted', (deletedPostId) => {
+      setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
+    });
+
+    // Événement C : Quelqu'un a modifié le contenu d'un post
+    socket.on('posts_updated', (updatedPost) => {
+      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    });
+
+    // Événement D : Un utilisateur a mis un Like ou un Commentaire
+    socket.on('posts_updated_interactions', (updatedPost) => {
+      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    });
+
+    // Nettoyage de la connexion socket lors du démontage du composant
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   // 2. Soumission d'un nouveau post
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,13 +90,14 @@ const BlogEntraide = () => {
     }
 
     try {
-      const res = await axios.post(
+      await axios.post(
         `${BACKEND_URL}/api/posts`,
         { text, category },
         getAuthHeader()
       );
 
-      setPosts([res.data, ...posts]);
+      // 💡 NETTOYAGE ACCÉLÉRÉ : On supprime setPosts([res.data, ...posts]) ici, 
+      // car le socket.on('posts_created') va le capter et l'ajouter proprement pour tout le monde.
       setText(''); 
       setSuccess('Publication partagée avec succès !');
       
@@ -76,7 +113,7 @@ const BlogEntraide = () => {
     if (window.confirm('Es-tu sûr de vouloir supprimer cette publication ?')) {
       try {
         await axios.delete(`${BACKEND_URL}/api/posts/${postId}`, getAuthHeader());
-        setPosts(posts.filter(post => post._id !== postId));
+        // Même logique, le socket se charge de filtrer localement pour tout le monde instantanément.
       } catch (err) {
         console.error(err);
         alert('Erreur lors de la suppression ou non autorisé.');
