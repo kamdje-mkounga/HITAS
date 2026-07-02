@@ -99,6 +99,14 @@ router.post('/', auth, (req, res) => {
       });
 
       const post = await newPost.save();
+      
+      // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
+      const postWithLean = post.toObject();
+
+      // 🌐 TEMPS RÉEL : Émettre le nouveau post créé à tout le monde
+      const io = req.app.get('io');
+      if (io) io.emit('posts_created', postWithLean);
+
       res.json(post);
     } catch (dbErr) {
       console.error("Erreur lors de la création en BDD :", dbErr.message);
@@ -161,7 +169,13 @@ router.delete('/:id', auth, async (req, res) => {
       await deleteFile(post.mediaPath);
     }
 
+    const postId = post._id;
     await post.deleteOne();
+
+    // 🌐 TEMPS RÉEL : Notifier tout le monde de supprimer ce post de leur écran
+    const io = req.app.get('io');
+    if (io) io.emit('posts_deleted', postId);
+
     res.json({ message: 'Publication supprimée avec succès.' });
   } catch (err) {
     console.error(err.message);
@@ -244,6 +258,17 @@ router.put('/:id', auth, (req, res) => {
         await deleteFile(fileToDelete);
       }
 
+      // Synchroniser l'avatar le plus récent avant l'émission temps réel
+      const postObj = post.toObject();
+      if (postObj.user) {
+        const userProfile = await Profile.findOne({ user: postObj.user }).select('avatar');
+        if (userProfile && userProfile.avatar) postObj.avatar = userProfile.avatar;
+      }
+
+      // 🌐 TEMPS RÉEL : Notifier de la modification du contenu du post
+      const io = req.app.get('io');
+      if (io) io.emit('posts_updated', postObj);
+
       res.json(post);
     } catch (err) {
       console.error(err.message);
@@ -272,6 +297,29 @@ router.put('/like/:id', auth, async (req, res) => {
     }
 
     await post.save();
+
+    // Renvoyer et diffuser le post complet mis à jour pour rafraîchir les compteurs de likes chez tout le monde
+    const updatedPost = await Post.findById(req.params.id).lean();
+    if (updatedPost.user) {
+      const userProfile = await Profile.findOne({ user: updatedPost.user }).select('avatar');
+      if (userProfile && userProfile.avatar) updatedPost.avatar = userProfile.avatar;
+    }
+    
+    // Récupérer les avatars des commentaires
+    if (updatedPost.comments && updatedPost.comments.length > 0) {
+      updatedPost.comments = await Promise.all(updatedPost.comments.map(async (comment) => {
+        if (comment.user) {
+          const commentProfile = await Profile.findOne({ user: comment.user }).select('avatar');
+          if (commentProfile && commentProfile.avatar) comment.avatar = commentProfile.avatar;
+        }
+        return comment;
+      }));
+    }
+
+    // 🌐 TEMPS RÉEL : Diffuser la mise à jour des interactions (Likes)
+    const io = req.app.get('io');
+    if (io) io.emit('posts_updated_interactions', updatedPost);
+
     res.json(post.likes);
   } catch (err) {
     console.error(err.message);
@@ -308,14 +356,32 @@ router.post('/comment/:id', auth, async (req, res) => {
 
     await post.save();
     
-    // Renvoyer tous les commentaires mis à jour
-    res.json(post.comments);
+    // Récupérer la structure complète nettoyée avec les avatars synchronisés pour le live
+    const updatedPost = await Post.findById(req.params.id).lean();
+    if (updatedPost.user) {
+      const userProfile = await Profile.findOne({ user: updatedPost.user }).select('avatar');
+      if (userProfile && userProfile.avatar) updatedPost.avatar = userProfile.avatar;
+    }
+
+    if (updatedPost.comments && updatedPost.comments.length > 0) {
+      updatedPost.comments = await Promise.all(updatedPost.comments.map(async (comment) => {
+        if (comment.user) {
+          const commentProfile = await Profile.findOne({ user: comment.user }).select('avatar');
+          if (commentProfile && commentProfile.avatar) comment.avatar = commentProfile.avatar;
+        }
+        return comment;
+      }));
+    }
+
+    // 🌐 TEMPS RÉEL : Diffuser le post mis à jour avec le nouveau commentaire inclus
+    const io = req.app.get('io');
+    if (io) io.emit('posts_updated_interactions', updatedPost);
+
+    res.json(updatedPost.comments);
   } catch (err) {
     console.error("Erreur lors de l'ajout du commentaire :", err.message);
     res.status(500).send("Erreur serveur lors de l'ajout du commentaire.");
   }
 });
-///
-
 
 module.exports = router;
