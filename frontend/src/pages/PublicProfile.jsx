@@ -210,27 +210,47 @@ const PublicProfile = () => {
                 {userProjects.map((project) => (
                   <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
                     
-                    {/* Remplace la section {project.media && (...)} par celle-ci : */}
-{project.media && (
-  <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0">
-    {(() => {
-      // On extrait l'URL sous forme de chaîne de caractères, peu importe la structure
-      const mediaUrl = typeof project.media === 'object' ? project.media.url : project.media;
-      
-      if (!mediaUrl || typeof mediaUrl !== 'string') return null;
+                    {/* Conteneur média cliquable et adaptatif */}
+                    {project.media && (
+                      <a 
+                        href={formatMediaUrl(typeof project.media === 'object' ? project.media.url : project.media)}
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        title="Cliquez pour ouvrir le média"
+                        className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 hover:border-indigo-500/50 transition-all flex-shrink-0 flex items-center justify-center group relative cursor-pointer"
+                      >
+                        {(() => {
+                          const mediaUrl = typeof project.media === 'object' ? project.media.url : project.media;
+                          
+                          if (!mediaUrl || typeof mediaUrl !== 'string') return null;
 
-      const isVideo = mediaUrl.toLowerCase().endsWith('.mp4') || 
-                      mediaUrl.toLowerCase().endsWith('.webm') || 
-                      mediaUrl.toLowerCase().endsWith('.mov');
+                          const urlLower = mediaUrl.toLowerCase();
+                          const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
+                          const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
 
-      return isVideo ? (
-        <video src={formatMediaUrl(mediaUrl)} controls className="w-full h-full object-cover" />
-      ) : (
-        <img src={formatMediaUrl(mediaUrl)} alt={project.title} className="w-full h-full object-cover" />
-      );
-    })()}
-  </div>
-)}
+                          if (isVideo) {
+                            return <video src={formatMediaUrl(mediaUrl)} className="w-full h-full object-cover" />;
+                          } 
+                          
+                          if (isImage) {
+                            return <img src={formatMediaUrl(mediaUrl)} alt={project.title} className="w-full h-full object-cover" />;
+                          }
+
+                          // Fallback si c'est un format de document (ex: PDF, ZIP)
+                          return (
+                            <div className="text-center p-4 flex flex-col items-center gap-1">
+                              <span className="text-2xl">📄</span>
+                              <span className="text-[10px] text-zinc-400 font-medium group-hover:text-indigo-400 transition-colors">Voir le document</span>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Effet Overlay au survol */}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold backdrop-blur-[2px]">
+                          Ouvrir ↗
+                        </div>
+                      </a>
+                    )}
 
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
