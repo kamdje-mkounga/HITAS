@@ -33,7 +33,8 @@ const PublicProfile = () => {
         };
 
         // 1. Récupérer les infos du profil ciblé (Correction de la route 404)
-        const profileRes = await API.get(`/profile/${id}`, headers);
+       // Remplace cette ligne dans le useEffect de PublicProfile.jsx :
+const profileRes = await API.get(`/api/profile/${id}`, headers);
         setUserProfile(profileRes.data);
 
         // 2. Récupérer uniquement les projets Showcase de cet utilisateur
