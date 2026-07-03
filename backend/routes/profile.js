@@ -197,6 +197,29 @@ router.delete('/', auth, async (req, res) => {
     res.status(500).send('Erreur serveur lors de la suppression du compte.');
   }
 });
+
+//
+// @route    GET api/profile/:id
+// @desc     Obtenir le profil public d'un étudiant par son ID
+// @access   Public (ou Private si tu préfères ajouter le middleware 'auth')
+router.get('/:id', async (req, res) => {
+  try {
+    // On cherche le profil grâce à l'ID de l'utilisateur
+    const profile = await Profile.findOne({ user: req.params.id }).populate('user', ['email']);
+    
+    if (!profile) {
+      return res.status(404).json({ message: "Le profil de cet étudiant n'existe pas." });
+    }
+    
+    res.json(profile);
+  } catch (err) {
+    console.error("Erreur récupération profil public :", err.message);
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ message: "Format d'identifiant invalide." });
+    }
+    res.status(500).send('Erreur Serveur');
+  }
+});
 //
 
 module.exports = router;
