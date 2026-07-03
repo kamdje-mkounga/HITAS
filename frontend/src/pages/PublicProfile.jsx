@@ -210,15 +210,27 @@ const PublicProfile = () => {
                 {userProjects.map((project) => (
                   <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
                     
-                    {project.media && (
-                      <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0">
-                        {project.media.endsWith('.mp4') || project.media.endsWith('.webm') ? (
-                          <video src={formatMediaUrl(project.media)} controls className="w-full h-full object-cover" />
-                        ) : (
-                          <img src={formatMediaUrl(project.media)} alt={project.title} className="w-full h-full object-cover" />
-                        )}
-                      </div>
-                    )}
+                    {/* Remplace la section {project.media && (...)} par celle-ci : */}
+{project.media && (
+  <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0">
+    {(() => {
+      // On extrait l'URL sous forme de chaîne de caractères, peu importe la structure
+      const mediaUrl = typeof project.media === 'object' ? project.media.url : project.media;
+      
+      if (!mediaUrl || typeof mediaUrl !== 'string') return null;
+
+      const isVideo = mediaUrl.toLowerCase().endsWith('.mp4') || 
+                      mediaUrl.toLowerCase().endsWith('.webm') || 
+                      mediaUrl.toLowerCase().endsWith('.mov');
+
+      return isVideo ? (
+        <video src={formatMediaUrl(mediaUrl)} controls className="w-full h-full object-cover" />
+      ) : (
+        <img src={formatMediaUrl(mediaUrl)} alt={project.title} className="w-full h-full object-cover" />
+      );
+    })()}
+  </div>
+)}
 
                     <div className="flex-1 flex flex-col justify-between">
                       <div>
