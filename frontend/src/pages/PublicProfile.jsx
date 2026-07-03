@@ -11,6 +11,9 @@ const PublicProfile = () => {
   const [error, setError] = useState('');
   
   const [activeTab, setActiveTab] = useState('compte');
+  
+  // État pour gérer le projet sélectionné pour la vue approfondie
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const BACKEND_URL = 'https://hitas.onrender.com';
 
@@ -87,13 +90,14 @@ const PublicProfile = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 antialiased py-12">
+    <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 antialiased py-12 relative">
       <div className="max-w-4xl mx-auto px-4">
         
         <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition-all">
           ← Retour
         </button>
 
+        {/* En-tête du Profil */}
         <div className="bg-[#161618] p-8 rounded-2xl border border-zinc-800/80 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
           <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
             {userProfile.avatar ? (
@@ -116,7 +120,6 @@ const PublicProfile = () => {
             <p className="text-indigo-400 text-xs font-medium mt-1">
               ✨ {userProfile.specialty || 'computer science'} • Promo {userProfile.promotion || 'Non renseignée'}
             </p>
-            
             <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
               <span className="bg-[#0d0d0e] border border-zinc-800 text-zinc-400 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
                 🚀 {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
@@ -125,6 +128,7 @@ const PublicProfile = () => {
           </div>
         </div>
 
+        {/* Navigation Onglets */}
         <div className="flex border-b border-zinc-800 mb-6 gap-6 text-xs font-bold tracking-wide">
           <button 
             type="button"
@@ -142,11 +146,11 @@ const PublicProfile = () => {
           </button>
         </div>
 
+        {/* Onglet 1 : Infos Générales */}
         {activeTab === 'compte' && (
           <div className="space-y-6">
             <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
               <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
-              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
                 <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Prénom</span>
@@ -165,140 +169,61 @@ const PublicProfile = () => {
                   <span className="text-zinc-200 font-medium text-sm">{userProfile.specialty || '-'}</span>
                 </div>
               </div>
-
               <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs mb-4">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Localisation Actuelle</span>
                 <span className="text-zinc-200 font-medium text-sm">{userProfile.currentLocation || 'Non renseignée'}</span>
               </div>
-
               <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs mb-4">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Biographie</span>
-                <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line">
-                  {userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}
-                </p>
+                <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
               </div>
-
               <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Compétences</span>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {renderSkills() || (
-                    <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>
-                  )}
+                  {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
                 </div>
               </div>
-
             </div>
           </div>
         )}
 
+        {/* Onglet 2 : Liste des Projets Cliquables */}
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
               <p className="text-zinc-500 text-xs italic bg-[#161618] border border-zinc-800/60 p-8 rounded-xl text-center">
-                Cet étudiant n'a pas encore publié de projet dans son espace Showcase.
+                Cet étudiant n'a pas encore publié de projet.
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
                 {userProjects.map((project) => {
                   const mediaRawUrl = project.media ? (typeof project.media === 'object' ? project.media.url : project.media) : '';
-                  const fullMediaUrl = formatMediaUrl(mediaRawUrl);
-
+                  
                   return (
-                    <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
-                      
-                      {/* L'encadré est maintenant TOUJOURS rendu visible à gauche */}
-                      <a 
-                        href={fullMediaUrl || '#'}
-                        target={fullMediaUrl ? "_blank" : "_self"} 
-                        rel="noopener noreferrer"
-                        title={fullMediaUrl ? "Cliquez pour ouvrir le média" : "Aucun fichier associé"}
-                        className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 hover:border-indigo-500/50 transition-all flex-shrink-0 flex items-center justify-center group relative cursor-pointer"
-                      >
-                        {(() => {
-                          if (!mediaRawUrl) {
-                            return (
-                              <div className="text-center p-4 flex flex-col items-center gap-1">
-                                <span className="text-2xl">📁</span>
-                                <span className="text-[10px] text-zinc-500 font-medium">Fichier</span>
-                              </div>
-                            );
-                          }
-
-                          const urlLower = mediaRawUrl.toLowerCase();
-                          const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
-                          const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
-
-                          if (isVideo) {
-                            return <video src={fullMediaUrl} className="w-full h-full object-cover" muted />;
-                          } 
-                          
-                          if (isImage || urlLower.includes('/uploads/')) {
-                            return (
-                              <img 
-                                src={fullMediaUrl} 
-                                alt={project.title} 
-                                className="w-full h-full object-cover" 
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  const fallback = e.target.scale || e.target.parentElement.querySelector('.fallback-box');
-                                  if (fallback) fallback.style.display = 'flex';
-                                }}
-                              />
-                            );
-                          }
-
-                          return (
-                            <div className="text-center p-4 flex flex-col items-center gap-1">
-                              <span className="text-2xl">📄</span>
-                              <span className="text-[10px] text-zinc-400 font-medium">Voir le document</span>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Fallback en cas d'erreur de chargement (ex: écran noir d'image brisée) */}
-                        <div className="fallback-box hidden absolute inset-0 bg-[#0d0d0e] flex-col items-center justify-center text-center p-4">
-                          <span className="text-xl">🔗</span>
-                          <span className="text-[10px] text-zinc-400 font-medium">Ouvrir le fichier</span>
-                        </div>
-
-                        {/* Effet Overlay au survol */}
-                        {fullMediaUrl && (
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold backdrop-blur-[2px]">
-                            Ouvrir ↗
-                          </div>
-                        )}
-                      </a>
+                    <div 
+                      key={project._id} 
+                      onClick={() => setSelectedProject(project)}
+                      className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group"
+                    >
+                      {/* Icône de gauche comme sur l'image_dd0f04.png */}
+                      <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl border border-zinc-800 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:bg-[#111113] transition-colors">
+                        <span className="text-3xl text-amber-500">📁</span>
+                        <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">Fichier</span>
+                      </div>
 
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
-                          <h3 className="font-extrabold text-base text-zinc-100 mb-1.5">{project.title}</h3>
-                          <p className="text-zinc-400 text-xs leading-relaxed mb-4 whitespace-pre-line">{project.description}</p>
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide">{project.title}</h3>
+                            <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold">Voir détails →</span>
+                          </div>
+                          <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2">{project.description}</p>
                         </div>
                         
-                        <div className="flex flex-wrap gap-2 pt-2">
-                          {project.githubLink && (
-                            <a 
-                              href={project.githubLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              className="text-[11px] font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 px-3 py-1.5 rounded-xl hover:bg-zinc-800 transition-colors"
-                            >
-                              📦 GitHub ↗
-                            </a>
-                          )}
-                          {project.demoLink && (
-                            <a 
-                              href={project.demoLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer" 
-                              className="text-[11px] font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-xl hover:bg-indigo-500 transition-colors"
-                            >
-                              🌐 Visiter le projet ↗
-                            </a>
-                          )}
+                        <div className="text-[11px] text-zinc-500 font-medium mt-4">
+                          Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
                         </div>
                       </div>
-
                     </div>
                   );
                 })}
@@ -308,6 +233,127 @@ const PublicProfile = () => {
         )}
 
       </div>
+
+      {/* FENÊTRE MODALE : VUE APPROFONDIE DU PROJET SÉLECTIONNÉ */}
+      {selectedProject && (() => {
+        const mediaRawUrl = selectedProject.media ? (typeof selectedProject.media === 'object' ? selectedProject.media.url : selectedProject.media) : '';
+        const fullMediaUrl = formatMediaUrl(mediaRawUrl);
+        const urlLower = mediaRawUrl.toLowerCase();
+        const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
+        const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
+
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+            <div className="bg-[#161618] border border-zinc-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl">
+              
+              {/* En-tête Modale */}
+              <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-[#111113]">
+                <div>
+                  <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails Approfondis</span>
+                  <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide">{selectedProject.title}</h2>
+                </div>
+                <button 
+                  onClick={() => setSelectedProject(null)} 
+                  className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Contenu de la Modale */}
+              <div className="p-6 space-y-6">
+                
+                {/* Description complète */}
+                <div>
+                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète du projet</h4>
+                  <div className="bg-[#0d0d0e] border border-zinc-800/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
+                    {selectedProject.description || "Aucune description fournie."}
+                  </div>
+                </div>
+
+                {/* Section Fichiers Insérés */}
+                <div>
+                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Fichiers insérés par le profil</h4>
+                  
+                  {mediaRawUrl ? (
+                    <div className="bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4">
+                      
+                      {/* Visualiseur multimédia intelligent intégré */}
+                      <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden mb-4 flex items-center justify-center min-h-[160px] max-h-[320px]">
+                        {isVideo ? (
+                          <video src={fullMediaUrl} className="w-full max-h-[320px] object-contain" controls />
+                        ) : isImage || urlLower.includes('/uploads/') ? (
+                          <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[320px] object-contain" />
+                        ) : (
+                          <div className="text-center p-6 flex flex-col items-center gap-2">
+                            <span className="text-4xl">📄</span>
+                            <span className="text-xs text-zinc-300 font-semibold">Document inséré (Format brut)</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bouton d'accès direct sécurisé pour télécharger ou voir en grand */}
+                      <a 
+                        href={fullMediaUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/80 text-zinc-200 text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+                      >
+                        📥 Ouvrir et télécharger le fichier inséré ↗
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="bg-[#0d0d0e] border border-zinc-800/40 rounded-xl p-4 text-center text-xs text-zinc-500 italic">
+                      Aucun fichier ou média n'a été inséré pour ce projet.
+                    </div>
+                  )}
+                </div>
+
+                {/* Liens annexes (GitHub / Live Demo) */}
+                {(selectedProject.githubLink || selectedProject.demoLink) && (
+                  <div>
+                    <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Liens d'accès externes</h4>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      {selectedProject.githubLink && (
+                        <a 
+                          href={selectedProject.githubLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="flex-1 text-center text-xs font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
+                        >
+                          📦 Dépot de code GitHub ↗
+                        </a>
+                      )}
+                      {selectedProject.demoLink && (
+                        <a 
+                          href={selectedProject.demoLink} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="flex-1 text-center text-xs font-bold bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-500 transition-colors"
+                        >
+                          🌐 Déploiement en ligne (Live Demo) ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Pied Modale */}
+              <div className="p-4 border-t border-zinc-800/80 bg-[#111113] text-right">
+                <button 
+                  onClick={() => setSelectedProject(null)} 
+                  className="bg-zinc-100 text-zinc-950 text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-200 transition-all"
+                >
+                  Fermer
+                </button>
+              </div>
+
+            </div>
+          </div>
+        );
+      })()}
+
     </div>
   );
 };
