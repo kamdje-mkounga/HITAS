@@ -74,6 +74,20 @@ const PublicProfile = () => {
     );
   }
 
+  // Analyse sécurisée des compétences
+  const renderSkills = () => {
+    if (!userProfile.skills) return null;
+    const skillsArray = Array.isArray(userProfile.skills) 
+      ? userProfile.skills 
+      : userProfile.skills.split(',').map(s => s.trim());
+    
+    return skillsArray.filter(Boolean).map((skill, index) => (
+      <span key={index} className="bg-zinc-900 text-zinc-300 border border-zinc-800 px-2.5 py-1 rounded-lg text-[11px]">
+        {skill}
+      </span>
+    ));
+  };
+
   return (
     <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 antialiased py-12">
       <div className="max-w-4xl mx-auto px-4">
@@ -83,7 +97,7 @@ const PublicProfile = () => {
           ← Retour
         </button>
 
-        {/* En-tête du Profil Principal (Identique à ton screenshot original) */}
+        {/* En-tête du Profil Principal */}
         <div className="bg-[#161618] p-8 rounded-2xl border border-zinc-800/80 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
           <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
             {userProfile.avatar ? (
@@ -116,25 +130,27 @@ const PublicProfile = () => {
           </div>
         </div>
 
-        {/* Système d'onglets (Tabs) - Sans l'onglet Publications */}
+        {/* Système d'onglets (Tabs) */}
         <div className="flex border-b border-zinc-800 mb-6 gap-6 text-xs font-bold tracking-wide">
           <button 
+            type="button"
             onClick={() => setActiveTab('compte')}
-            className={`pb-3 flex items-center gap-1.5 transition-all ${activeTab === 'compte' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`pb-3 flex items-center gap-1.5 transition-all cursor-pointer ${activeTab === 'compte' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             👤 L'Étudiant
           </button>
           <button 
+            type="button"
             onClick={() => setActiveTab('projets')}
-            className={`pb-3 flex items-center gap-1.5 transition-all ${activeTab === 'projets' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`pb-3 flex items-center gap-1.5 transition-all cursor-pointer ${activeTab === 'projets' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             🚀 Ses Projets ({userProjects.length})
           </button>
         </div>
 
-        {/* Contenu Onglet 1 : Informations Générales en lecture seule */}
+        {/* Contenu Onglet 1 : Informations Générales */}
         {activeTab === 'compte' && (
-          <div className="space-y-6 animate-fadeIn">
+          <div className="space-y-6">
             <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
               <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
               
@@ -172,12 +188,7 @@ const PublicProfile = () => {
               <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Compétences</span>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {userProfile.skills && (Array.isArray(userProfile.skills) ? userProfile.skills : userProfile.skills.split(',')).map((skill, index) => (
-                    <span key={index} className="bg-zinc-900 text-zinc-300 border border-zinc-800 px-2.5 py-1 rounded-lg text-[11px]">
-                      {skill.trim()}
-                    </span>
-                  ))}
-                  {(!userProfile.skills || userProfile.skills.length === 0) && (
+                  {renderSkills() || (
                     <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>
                   )}
                 </div>
@@ -187,9 +198,9 @@ const PublicProfile = () => {
           </div>
         )}
 
-        {/* Contenu Onglet 2 : Liste des Projets Showcase (Avec intégration des fichiers et visuels) */}
+        {/* Contenu Onglet 2 : Liste des Projets Showcase */}
         {activeTab === 'projets' && (
-          <div className="space-y-4 animate-fadeIn">
+          <div className="space-y-4">
             {userProjects.length === 0 ? (
               <p className="text-zinc-500 text-xs italic bg-[#161618] border border-zinc-800/60 p-8 rounded-xl text-center">
                 Cet étudiant n'a pas encore publié de projet dans son espace Showcase.
@@ -199,7 +210,6 @@ const PublicProfile = () => {
                 {userProjects.map((project) => (
                   <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
                     
-                    {/* Gestion du fichier média s'il existe dans le projet */}
                     {project.media && (
                       <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0">
                         {project.media.endsWith('.mp4') || project.media.endsWith('.webm') ? (
@@ -216,7 +226,6 @@ const PublicProfile = () => {
                         <p className="text-zinc-400 text-xs leading-relaxed mb-4 whitespace-pre-line">{project.description}</p>
                       </div>
                       
-                      {/* Liens externes vers GitHub ou Démo en ligne */}
                       <div className="flex flex-wrap gap-2 pt-2">
                         {project.githubLink && (
                           <a 
