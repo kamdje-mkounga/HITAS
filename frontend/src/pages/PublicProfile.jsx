@@ -1,30 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import API from '../services/api'; // On utilise ton instance configurée
+import API from '../services/api';
 
 const PublicProfile = () => {
-  const { id } = useParams(); // Récupère l'ID de l'étudiant depuis l'URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [userProfile, setUserProfile] = useState(null);
   const [userProjects, setUserProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Gestion de l'onglet actif : 'compte' ou 'projets'
+  const [activeTab, setActiveTab] = useState('compte');
 
   const BACKEND_URL = 'https://hitas.onrender.com';
-  const loggedInUserId = localStorage.getItem('userId') || '';
 
   useEffect(() => {
-    // Si l'utilisateur clique sur son propre profil public, on peut le rediriger vers son espace perso éditable
-    if (id === loggedInUserId) {
-      // navigate('/profile'); 
-    }
-
     const fetchPublicData = async () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        
-        // Configuration des en-têtes (à conserver si ton instance API ne les injecte pas par défaut)
         const headers = { 
           headers: { 
             'Authorization': `Bearer ${token}`,
@@ -32,16 +27,13 @@ const PublicProfile = () => {
           } 
         };
 
-        // 1. Récupérer les infos du profil ciblé (Correction de la route 404)
-       // Remplace cette ligne dans le useEffect de PublicProfile.jsx :
-const profileRes = await API.get(`/profile/${id}`, headers);
+        // 1. Récupérer les infos du profil ciblé
+        const profileRes = await API.get(`/profile/${id}`, headers);
         setUserProfile(profileRes.data);
 
-        // 2. Récupérer uniquement les projets Showcase de cet utilisateur
+        // 2. Récupérer les projets et filtrer par utilisateur
         try {
           const projectsRes = await API.get(`/project`, headers);
-          // Si ton backend n'a pas de route filtrée par utilisateur (/project/user/:id),
-          // on filtre les projets côté front en comparant l'ID utilisateur.
           const filteredProjects = projectsRes.data.filter(
             project => (typeof project.user === 'object' ? project.user._id : project.user) === id
           );
@@ -59,7 +51,7 @@ const profileRes = await API.get(`/profile/${id}`, headers);
     };
 
     if (id) fetchPublicData();
-  }, [id, loggedInUserId]);
+  }, [id]);
 
   const formatMediaUrl = (url) => {
     if (!url) return '';
@@ -84,16 +76,16 @@ const profileRes = await API.get(`/profile/${id}`, headers);
 
   return (
     <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 antialiased py-12">
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4">
         
         {/* Bouton Retour */}
         <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition-all">
           ← Retour
         </button>
 
-        {/* En-tête du Profil Public */}
-        <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-2xl mb-8 flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-24 h-24 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
+        {/* En-tête du Profil Principal (Identique à ton screenshot original) */}
+        <div className="bg-[#161618] p-8 rounded-2xl border border-zinc-800/80 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
+          <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
             {userProfile.avatar ? (
               <img 
                 src={formatMediaUrl(userProfile.avatar)} 
@@ -101,90 +93,160 @@ const profileRes = await API.get(`/profile/${id}`, headers);
                 className="w-full h-full object-cover" 
               />
             ) : (
-              <span>
-                {userProfile.firstName ? userProfile.firstName[0] : 'M'}
-                {userProfile.lastName ? userProfile.lastName[0] : 'P'}
-              </span>
+              <div className="w-full h-full bg-gradient-to-tr from-zinc-700 to-zinc-800 flex items-center justify-center">
+                {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
+              </div>
             )}
           </div>
 
           <div className="text-center sm:text-left flex-1">
-            <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">
-              {userProfile.firstName || 'Étudiant'} {userProfile.lastName || 'ITAS'}
+            <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
+              {userProfile.firstName} {userProfile.lastName}
             </h1>
-            <p className="text-indigo-400 text-sm font-medium mt-1">
-              ✨ {userProfile.specialty || 'Étudiant ITAS'} {userProfile.promotion && `• Promo ${userProfile.promotion}`}
+            <p className="text-indigo-400 text-xs font-medium mt-1">
+              ✨ {userProfile.specialty || 'computer science'} • Promo {userProfile.promotion || 'Non renseignée'}
             </p>
             
-            {userProfile.bio && (
-              <p className="text-zinc-300 text-xs bg-[#0d0d0e] border border-zinc-800 p-3 rounded-xl max-w-xl leading-relaxed mt-3">
-                {userProfile.bio}
-              </p>
-            )}
+            {/* Badges Compteurs */}
+            <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
+              <span className="bg-[#0d0d0e] border border-zinc-800 text-zinc-400 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+                🚀 {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Section Informations Complémentaires */}
-        <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg mb-8">
-          <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-            <div className="bg-[#0d0d0e] p-3 rounded-xl border border-zinc-800/40">
-              <span className="text-zinc-500 block mb-0.5">Localisation</span>
-              <span className="text-zinc-200 font-medium">{userProfile.currentLocation || 'Non renseignée'}</span>
+        {/* Système d'onglets (Tabs) - Sans l'onglet Publications */}
+        <div className="flex border-b border-zinc-800 mb-6 gap-6 text-xs font-bold tracking-wide">
+          <button 
+            onClick={() => setActiveTab('compte')}
+            className={`pb-3 flex items-center gap-1.5 transition-all ${activeTab === 'compte' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            👤 L'Étudiant
+          </button>
+          <button 
+            onClick={() => setActiveTab('projets')}
+            className={`pb-3 flex items-center gap-1.5 transition-all ${activeTab === 'projets' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            🚀 Ses Projets ({userProjects.length})
+          </button>
+        </div>
+
+        {/* Contenu Onglet 1 : Informations Générales en lecture seule */}
+        {activeTab === 'compte' && (
+          <div className="space-y-6 animate-fadeIn">
+            <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
+              <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
+                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Prénom</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.firstName || '-'}</span>
+                </div>
+                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Nom de famille</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.lastName || '-'}</span>
+                </div>
+                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Promotion</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.promotion || '-'}</span>
+                </div>
+                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Spécialité</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.specialty || '-'}</span>
+                </div>
+              </div>
+
+              <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs mb-4">
+                <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Localisation Actuelle</span>
+                <span className="text-zinc-200 font-medium text-sm">{userProfile.currentLocation || 'Non renseignée'}</span>
+              </div>
+
+              <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs mb-4">
+                <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Biographie</span>
+                <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line">
+                  {userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}
+                </p>
+              </div>
+
+              <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs">
+                <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Compétences</span>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {userProfile.skills && (Array.isArray(userProfile.skills) ? userProfile.skills : userProfile.skills.split(',')).map((skill, index) => (
+                    <span key={index} className="bg-zinc-900 text-zinc-300 border border-zinc-800 px-2.5 py-1 rounded-lg text-[11px]">
+                      {skill.trim()}
+                    </span>
+                  ))}
+                  {(!userProfile.skills || userProfile.skills.length === 0) && (
+                    <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>
+                  )}
+                </div>
+              </div>
+
             </div>
-            {userProfile.skills && (
-              <div className="bg-[#0d0d0e] p-3 rounded-xl border border-zinc-800/40">
-                <span className="text-zinc-500 block mb-0.5">Compétences</span>
-                <span className="text-zinc-200 font-medium">
-                  {Array.isArray(userProfile.skills) ? userProfile.skills.join(', ') : userProfile.skills}
-                </span>
+          </div>
+        )}
+
+        {/* Contenu Onglet 2 : Liste des Projets Showcase (Avec intégration des fichiers et visuels) */}
+        {activeTab === 'projets' && (
+          <div className="space-y-4 animate-fadeIn">
+            {userProjects.length === 0 ? (
+              <p className="text-zinc-500 text-xs italic bg-[#161618] border border-zinc-800/60 p-8 rounded-xl text-center">
+                Cet étudiant n'a pas encore publié de projet dans son espace Showcase.
+              </p>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {userProjects.map((project) => (
+                  <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
+                    
+                    {/* Gestion du fichier média s'il existe dans le projet */}
+                    {project.media && (
+                      <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 flex-shrink-0">
+                        {project.media.endsWith('.mp4') || project.media.endsWith('.webm') ? (
+                          <video src={formatMediaUrl(project.media)} controls className="w-full h-full object-cover" />
+                        ) : (
+                          <img src={formatMediaUrl(project.media)} alt={project.title} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-extrabold text-base text-zinc-100 mb-1.5">{project.title}</h3>
+                        <p className="text-zinc-400 text-xs leading-relaxed mb-4 whitespace-pre-line">{project.description}</p>
+                      </div>
+                      
+                      {/* Liens externes vers GitHub ou Démo en ligne */}
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {project.githubLink && (
+                          <a 
+                            href={project.githubLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-[11px] font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 px-3 py-1.5 rounded-xl hover:bg-zinc-800 transition-colors"
+                          >
+                            📦 GitHub ↗
+                          </a>
+                        )}
+                        {project.demoLink && (
+                          <a 
+                            href={project.demoLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className="text-[11px] font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-xl hover:bg-indigo-500 transition-colors"
+                          >
+                            🌐 Visiter le projet ↗
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                ))}
               </div>
             )}
           </div>
-        </div>
-
-        {/* Section Showcase (Projets) */}
-        <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
-          <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Projets réalisés (Showcase)</h2>
-          
-          {userProjects.length === 0 ? (
-            <p className="text-zinc-500 text-xs italic bg-[#0d0d0e] border border-zinc-800/40 p-4 rounded-xl text-center">
-              Cet étudiant n'a pas encore publié de projet dans le Showcase.
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {userProjects.map((project) => (
-                <div key={project._id} className="bg-[#0d0d0e] p-4 rounded-xl border border-zinc-800 hover:border-zinc-700 transition-all">
-                  <h3 className="font-bold text-sm text-zinc-200 mb-1">{project.title}</h3>
-                  <p className="text-zinc-400 text-xs leading-relaxed mb-3">{project.description}</p>
-                  
-                  <div className="flex gap-2">
-                    {project.githubLink && (
-                      <a 
-                        href={project.githubLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-[11px] bg-zinc-900 border border-zinc-800 text-zinc-300 px-3 py-1 rounded-lg hover:bg-zinc-800 transition-colors"
-                      >
-                        📦 GitHub ↗
-                      </a>
-                    )}
-                    {project.demoLink && (
-                      <a 
-                        href={project.demoLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="text-[11px] bg-indigo-600 text-white px-3 py-1 rounded-lg hover:bg-indigo-500 transition-colors"
-                      >
-                        🌐 Démo ↗
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
 
       </div>
     </div>
