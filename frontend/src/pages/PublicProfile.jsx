@@ -51,12 +51,39 @@ const PublicProfile = () => {
     if (id) fetchPublicData();
   }, [id]);
 
-  const formatMediaUrl = (url) => {
-    if (!url) return '';
-    const cleanUrl = typeof url === 'object' ? url.url : url;
+  // Fonction de formatage d'URL adaptative et tolérante aux structures complexes
+  const formatMediaUrl = (urlData) => {
+    if (!urlData) return '';
+    
+    let cleanUrl = '';
+    
+    // Si c'est un tableau, on extrait le premier élément
+    if (Array.isArray(urlData) && urlData.length > 0) {
+      return formatMediaUrl(urlData[0]);
+    }
+    
+    // Si c'est un objet, on cherche les propriétés classiques (url, path, secure_url)
+    if (typeof urlData === 'object' && urlData !== null) {
+      cleanUrl = urlData.url || urlData.path || urlData.secure_url || '';
+    } else if (typeof urlData === 'string') {
+      cleanUrl = urlData;
+    }
+
     if (!cleanUrl || typeof cleanUrl !== 'string') return '';
     if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) return cleanUrl;
     return `${BACKEND_URL}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
+  };
+
+  // Fonction pour extraire intelligemment n'importe quelle source de média du projet
+  const extractMediaRaw = (project) => {
+    if (!project) return '';
+    // On inspecte toutes les clés potentielles utilisées dans le modèle de données
+    const potentialMedia = project.media || project.file || project.pdf || project.image || project.attachments;
+    
+    if (Array.isArray(potentialMedia) && potentialMedia.length > 0) {
+      return potentialMedia[0];
+    }
+    return potentialMedia || '';
   };
 
   if (loading) {
@@ -226,15 +253,20 @@ const PublicProfile = () => {
 
       </div>
 
-      {/* FENÊTRE MODALE TOTALEMENT SÉCURISÉE CONTRE LES CRASHS */}
+      {/* MODALE REVISEE ET MULTI-MEDIA DETECTEUR */}
       {selectedProject && (() => {
-        const mediaRawUrl = selectedProject.media ? (typeof selectedProject.media === 'object' ? selectedProject.media.url : selectedProject.media) : '';
-        const fullMediaUrl = formatMediaUrl(mediaRawUrl);
+        // Extraction intelligente depuis n'importe quelle structure possible (media, file, pdf, image)
+        const rawMedia = extractMediaRaw(selectedProject);
+        const fullMediaUrl = formatMediaUrl(rawMedia);
         
-        // Sécurisation des méthodes de chaînes de caractères
-        const urlLower = typeof mediaRawUrl === 'string' ? mediaRawUrl.toLowerCase() : '';
+        // Extraction du nom de fichier propre ou de l'URL brute textuelle
+        const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
+        const urlLower = mediaStringUrl.toLowerCase();
+        
+        // Catégorisation poussée des types de fichiers pour affichage adapté
         const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
-        const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp'));
+        const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp') || urlLower.includes('/uploads/'));
+        const isPdf = urlLower && urlLower.endsWith('.pdf');
 
         return (
           <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -264,17 +296,28 @@ const PublicProfile = () => {
                 <div>
                   <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Fichiers insérés par le profil</h4>
                   
-                  {mediaRawUrl ? (
+                  {fullMediaUrl ? (
                     <div className="bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4">
-                      <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden mb-4 flex items-center justify-center min-h-[160px] max-h-[320px]">
-                        {isVideo ? (
-                          <video src={fullMediaUrl} className="w-full max-h-[320px] object-contain" controls />
-                        ) : isImage || urlLower.includes('/uploads/') ? (
-                          <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[320px] object-contain" />
+                      <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden mb-4 flex items-center justify-center min-h-[180px] max-h-[350px]">
+                        
+                        {/* 1. Traitement des Images */}
+                        {isImage ? (
+                          <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[350px] object-contain" />
+                        
+                        // 2. Traitement des Vidéos
+                        ) : isVideo ? (
+                          <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls />
+                        
+                        // 3. Traitement des PDF (Iframe de visualisation intégrée)
+                        ) : isPdf ? (
+                          <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="Visualiseur PDF" />
+                        
+                        // 4. Autre type de document (Fichier Word, Zip, Code, etc.)
                         ) : (
                           <div className="text-center p-6 flex flex-col items-center gap-2">
                             <span className="text-4xl">📄</span>
-                            <span className="text-xs text-zinc-300 font-semibold">Document inséré (Format brut)</span>
+                            <span className="text-xs text-zinc-200 font-semibold uppercase tracking-wider">Document Associé</span>
+                            <span className="text-[10px] text-zinc-500 truncate max-w-[250px]">{mediaStringUrl.split('/').pop() || 'Fichier joint'}</span>
                           </div>
                         )}
                       </div>
@@ -283,9 +326,9 @@ const PublicProfile = () => {
                         href={fullMediaUrl} 
                         target="_blank" 
                         rel="noopener noreferrer" 
-                        className="w-full bg-zinc-900 border border-zinc-800 hover:bg-zinc-800/80 text-zinc-200 text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all"
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md"
                       >
-                        📥 Ouvrir et télécharger le fichier inséré ↗
+                        📥 Télécharger / Ouvrir le document joint ↗
                       </a>
                     </div>
                   ) : (
@@ -314,7 +357,7 @@ const PublicProfile = () => {
                           href={selectedProject.demoLink} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="flex-1 text-center text-xs font-bold bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-500 transition-colors"
+                          className="flex-1 text-center text-xs font-bold bg-[#111113] border border-zinc-800 text-indigo-400 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
                         >
                           🌐 Déploiement en ligne (Live Demo) ↗
                         </a>
