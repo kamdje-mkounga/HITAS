@@ -55,8 +55,10 @@ const PublicProfile = () => {
 
   const formatMediaUrl = (url) => {
     if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+    const cleanUrl = typeof url === 'object' ? url.url : url;
+    if (!cleanUrl || typeof cleanUrl !== 'string') return '';
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) return cleanUrl;
+    return `${BACKEND_URL}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
   };
 
   if (loading) {
@@ -207,83 +209,96 @@ const PublicProfile = () => {
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
-                {userProjects.map((project) => (
-                  <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
-                    
-                    {/* Conteneur média cliquable et adaptatif */}
-                    {project.media && (
-                      <a 
-                        href={formatMediaUrl(typeof project.media === 'object' ? project.media.url : project.media)}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        title="Cliquez pour ouvrir le média"
-                        className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 hover:border-indigo-500/50 transition-all flex-shrink-0 flex items-center justify-center group relative cursor-pointer"
-                      >
-                        {(() => {
-                          const mediaUrl = typeof project.media === 'object' ? project.media.url : project.media;
-                          
-                          if (!mediaUrl || typeof mediaUrl !== 'string') return null;
+                {userProjects.map((project) => {
+                  const mediaRawUrl = project.media ? (typeof project.media === 'object' ? project.media.url : project.media) : '';
+                  const fullMediaUrl = formatMediaUrl(mediaRawUrl);
 
-                          const urlLower = mediaUrl.toLowerCase();
-                          const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
-                          const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
-
-                          if (isVideo) {
-                            return <video src={formatMediaUrl(mediaUrl)} className="w-full h-full object-cover" />;
-                          } 
-                          
-                          if (isImage) {
-                            return <img src={formatMediaUrl(mediaUrl)} alt={project.title} className="w-full h-full object-cover" />;
-                          }
-
-                          // Fallback si c'est un format de document (ex: PDF, ZIP)
-                          return (
-                            <div className="text-center p-4 flex flex-col items-center gap-1">
-                              <span className="text-2xl">📄</span>
-                              <span className="text-[10px] text-zinc-400 font-medium group-hover:text-indigo-400 transition-colors">Voir le document</span>
-                            </div>
-                          );
-                        })()}
-
-                        {/* Effet Overlay au survol */}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold backdrop-blur-[2px]">
-                          Ouvrir ↗
-                        </div>
-                      </a>
-                    )}
-
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-extrabold text-base text-zinc-100 mb-1.5">{project.title}</h3>
-                        <p className="text-zinc-400 text-xs leading-relaxed mb-4 whitespace-pre-line">{project.description}</p>
-                      </div>
+                  return (
+                    <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
                       
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {project.githubLink && (
-                          <a 
-                            href={project.githubLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-[11px] font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 px-3 py-1.5 rounded-xl hover:bg-zinc-800 transition-colors"
-                          >
-                            📦 GitHub ↗
-                          </a>
-                        )}
-                        {project.demoLink && (
-                          <a 
-                            href={project.demoLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className="text-[11px] font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-xl hover:bg-indigo-500 transition-colors"
-                          >
-                            🌐 Visiter le projet ↗
-                          </a>
-                        )}
-                      </div>
-                    </div>
+                      {/* Conteneur média corrigé */}
+                      {mediaRawUrl && (
+                        <a 
+                          href={fullMediaUrl}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          title="Cliquez pour ouvrir le média"
+                          className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 hover:border-indigo-500/50 transition-all flex-shrink-0 flex items-center justify-center group relative cursor-pointer"
+                        >
+                          {(() => {
+                            const urlLower = mediaRawUrl.toLowerCase();
+                            const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
+                            
+                            // On vérifie s'il y a une extension image, sinon par défaut on met un aperçu ou une icône générique
+                            const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
 
-                  </div>
-                ))}
+                            if (isVideo) {
+                              return <video src={fullMediaUrl} className="w-full h-full object-cover" muted />;
+                            } 
+                            
+                            if (isImage || urlLower.includes('/uploads/')) {
+                              // Par précaution, si ça vient de ton dossier uploads et qu'on ne sait pas trop, on tente l'image
+                              return <img src={fullMediaUrl} alt={project.title} className="w-full h-full object-cover" onError={(e) => {
+                                // Si l'image crash, on remplace par une jolie icône
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}/>;
+                            }
+
+                            return (
+                              <div className="text-center p-4 flex flex-col items-center gap-1">
+                                <span className="text-2xl">📁</span>
+                                <span className="text-[10px] text-zinc-400 font-medium group-hover:text-indigo-400 transition-colors">Voir le fichier</span>
+                              </div>
+                            );
+                          })()}
+
+                          {/* Fallback caché au cas où l'image fail au chargement */}
+                          <div style={{display: 'none'}} className="text-center p-4 flex flex-col items-center gap-1 absolute inset-0 bg-[#0d0d0e] justify-center">
+                            <span className="text-2xl">🔗</span>
+                            <span className="text-[10px] text-zinc-400 font-medium">Ouvrir le lien</span>
+                          </div>
+
+                          {/* Effet Overlay au survol */}
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold backdrop-blur-[2px]">
+                            Ouvrir ↗
+                          </div>
+                        </a>
+                      )}
+
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-extrabold text-base text-zinc-100 mb-1.5">{project.title}</h3>
+                          <p className="text-zinc-400 text-xs leading-relaxed mb-4 whitespace-pre-line">{project.description}</p>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-2 pt-2">
+                          {project.githubLink && (
+                            <a 
+                              href={project.githubLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-[11px] font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 px-3 py-1.5 rounded-xl hover:bg-zinc-800 transition-colors"
+                            >
+                              📦 GitHub ↗
+                            </a>
+                          )}
+                          {project.demoLink && (
+                            <a 
+                              href={project.demoLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="text-[11px] font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-xl hover:bg-indigo-500 transition-colors"
+                            >
+                              🌐 Visiter le projet ↗
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
