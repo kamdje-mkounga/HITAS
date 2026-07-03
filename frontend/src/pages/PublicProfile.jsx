@@ -10,7 +10,6 @@ const PublicProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Gestion de l'onglet actif : 'compte' ou 'projets'
   const [activeTab, setActiveTab] = useState('compte');
 
   const BACKEND_URL = 'https://hitas.onrender.com';
@@ -27,11 +26,9 @@ const PublicProfile = () => {
           } 
         };
 
-        // 1. Récupérer les infos du profil ciblé
         const profileRes = await API.get(`/profile/${id}`, headers);
         setUserProfile(profileRes.data);
 
-        // 2. Récupérer les projets et filtrer par utilisateur
         try {
           const projectsRes = await API.get(`/project`, headers);
           const filteredProjects = projectsRes.data.filter(
@@ -76,7 +73,6 @@ const PublicProfile = () => {
     );
   }
 
-  // Analyse sécurisée des compétences
   const renderSkills = () => {
     if (!userProfile.skills) return null;
     const skillsArray = Array.isArray(userProfile.skills) 
@@ -94,12 +90,10 @@ const PublicProfile = () => {
     <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 antialiased py-12">
       <div className="max-w-4xl mx-auto px-4">
         
-        {/* Bouton Retour */}
         <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition-all">
           ← Retour
         </button>
 
-        {/* En-tête du Profil Principal */}
         <div className="bg-[#161618] p-8 rounded-2xl border border-zinc-800/80 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
           <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
             {userProfile.avatar ? (
@@ -123,7 +117,6 @@ const PublicProfile = () => {
               ✨ {userProfile.specialty || 'computer science'} • Promo {userProfile.promotion || 'Non renseignée'}
             </p>
             
-            {/* Badges Compteurs */}
             <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
               <span className="bg-[#0d0d0e] border border-zinc-800 text-zinc-400 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
                 🚀 {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
@@ -132,7 +125,6 @@ const PublicProfile = () => {
           </div>
         </div>
 
-        {/* Système d'onglets (Tabs) */}
         <div className="flex border-b border-zinc-800 mb-6 gap-6 text-xs font-bold tracking-wide">
           <button 
             type="button"
@@ -150,7 +142,6 @@ const PublicProfile = () => {
           </button>
         </div>
 
-        {/* Contenu Onglet 1 : Informations Générales */}
         {activeTab === 'compte' && (
           <div className="space-y-6">
             <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
@@ -200,7 +191,6 @@ const PublicProfile = () => {
           </div>
         )}
 
-        {/* Contenu Onglet 2 : Liste des Projets Showcase */}
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
@@ -216,55 +206,68 @@ const PublicProfile = () => {
                   return (
                     <div key={project._id} className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-zinc-700/80 transition-all flex flex-col md:flex-row gap-6">
                       
-                      {/* Conteneur média corrigé */}
-                      {mediaRawUrl && (
-                        <a 
-                          href={fullMediaUrl}
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          title="Cliquez pour ouvrir le média"
-                          className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 hover:border-indigo-500/50 transition-all flex-shrink-0 flex items-center justify-center group relative cursor-pointer"
-                        >
-                          {(() => {
-                            const urlLower = mediaRawUrl.toLowerCase();
-                            const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
-                            
-                            // On vérifie s'il y a une extension image, sinon par défaut on met un aperçu ou une icône générique
-                            const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
-
-                            if (isVideo) {
-                              return <video src={fullMediaUrl} className="w-full h-full object-cover" muted />;
-                            } 
-                            
-                            if (isImage || urlLower.includes('/uploads/')) {
-                              // Par précaution, si ça vient de ton dossier uploads et qu'on ne sait pas trop, on tente l'image
-                              return <img src={fullMediaUrl} alt={project.title} className="w-full h-full object-cover" onError={(e) => {
-                                // Si l'image crash, on remplace par une jolie icône
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}/>;
-                            }
-
+                      {/* L'encadré est maintenant TOUJOURS rendu visible à gauche */}
+                      <a 
+                        href={fullMediaUrl || '#'}
+                        target={fullMediaUrl ? "_blank" : "_self"} 
+                        rel="noopener noreferrer"
+                        title={fullMediaUrl ? "Cliquez pour ouvrir le média" : "Aucun fichier associé"}
+                        className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl overflow-hidden border border-zinc-800 hover:border-indigo-500/50 transition-all flex-shrink-0 flex items-center justify-center group relative cursor-pointer"
+                      >
+                        {(() => {
+                          if (!mediaRawUrl) {
                             return (
                               <div className="text-center p-4 flex flex-col items-center gap-1">
                                 <span className="text-2xl">📁</span>
-                                <span className="text-[10px] text-zinc-400 font-medium group-hover:text-indigo-400 transition-colors">Voir le fichier</span>
+                                <span className="text-[10px] text-zinc-500 font-medium">Fichier</span>
                               </div>
                             );
-                          })()}
+                          }
 
-                          {/* Fallback caché au cas où l'image fail au chargement */}
-                          <div style={{display: 'none'}} className="text-center p-4 flex flex-col items-center gap-1 absolute inset-0 bg-[#0d0d0e] justify-center">
-                            <span className="text-2xl">🔗</span>
-                            <span className="text-[10px] text-zinc-400 font-medium">Ouvrir le lien</span>
-                          </div>
+                          const urlLower = mediaRawUrl.toLowerCase();
+                          const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
+                          const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
 
-                          {/* Effet Overlay au survol */}
+                          if (isVideo) {
+                            return <video src={fullMediaUrl} className="w-full h-full object-cover" muted />;
+                          } 
+                          
+                          if (isImage || urlLower.includes('/uploads/')) {
+                            return (
+                              <img 
+                                src={fullMediaUrl} 
+                                alt={project.title} 
+                                className="w-full h-full object-cover" 
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  const fallback = e.target.scale || e.target.parentElement.querySelector('.fallback-box');
+                                  if (fallback) fallback.style.display = 'flex';
+                                }}
+                              />
+                            );
+                          }
+
+                          return (
+                            <div className="text-center p-4 flex flex-col items-center gap-1">
+                              <span className="text-2xl">📄</span>
+                              <span className="text-[10px] text-zinc-400 font-medium">Voir le document</span>
+                            </div>
+                          );
+                        })()}
+
+                        {/* Fallback en cas d'erreur de chargement (ex: écran noir d'image brisée) */}
+                        <div className="fallback-box hidden absolute inset-0 bg-[#0d0d0e] flex-col items-center justify-center text-center p-4">
+                          <span className="text-xl">🔗</span>
+                          <span className="text-[10px] text-zinc-400 font-medium">Ouvrir le fichier</span>
+                        </div>
+
+                        {/* Effet Overlay au survol */}
+                        {fullMediaUrl && (
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[11px] font-bold backdrop-blur-[2px]">
                             Ouvrir ↗
                           </div>
-                        </a>
-                      )}
+                        )}
+                      </a>
 
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
