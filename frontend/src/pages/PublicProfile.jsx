@@ -11,8 +11,6 @@ const PublicProfile = () => {
   const [error, setError] = useState('');
   
   const [activeTab, setActiveTab] = useState('compte');
-  
-  // État pour gérer le projet sélectionné pour la vue approfondie
   const [selectedProject, setSelectedProject] = useState(null);
 
   const BACKEND_URL = 'https://hitas.onrender.com';
@@ -39,11 +37,11 @@ const PublicProfile = () => {
           );
           setUserProjects(filteredProjects);
         } catch (pErr) {
-          console.error("Impossible de charger les projets de cet utilisateur", pErr);
+          console.error("Impossible de charger les projets", pErr);
         }
 
       } catch (err) {
-        console.error("Erreur lors du chargement du profil public :", err);
+        console.error("Erreur lors du chargement :", err);
         setError("Impossible de charger le profil de cet étudiant.");
       } finally {
         setLoading(false);
@@ -97,7 +95,7 @@ const PublicProfile = () => {
           ← Retour
         </button>
 
-        {/* En-tête du Profil */}
+        {/* Profil Header */}
         <div className="bg-[#161618] p-8 rounded-2xl border border-zinc-800/80 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
           <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
             {userProfile.avatar ? (
@@ -146,7 +144,7 @@ const PublicProfile = () => {
           </button>
         </div>
 
-        {/* Onglet 1 : Infos Générales */}
+        {/* Onglet Compte */}
         {activeTab === 'compte' && (
           <div className="space-y-6">
             <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
@@ -187,7 +185,7 @@ const PublicProfile = () => {
           </div>
         )}
 
-        {/* Onglet 2 : Liste des Projets Cliquables */}
+        {/* Onglet Projets */}
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
@@ -196,37 +194,31 @@ const PublicProfile = () => {
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
-                {userProjects.map((project) => {
-                  const mediaRawUrl = project.media ? (typeof project.media === 'object' ? project.media.url : project.media) : '';
-                  
-                  return (
-                    <div 
-                      key={project._id} 
-                      onClick={() => setSelectedProject(project)}
-                      className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group"
-                    >
-                      {/* Icône de gauche comme sur l'image_dd0f04.png */}
-                      <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl border border-zinc-800 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:bg-[#111113] transition-colors">
-                        <span className="text-3xl text-amber-500">📁</span>
-                        <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">Fichier</span>
-                      </div>
+                {userProjects.map((project) => (
+                  <div 
+                    key={project._id} 
+                    onClick={() => setSelectedProject(project)}
+                    className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group"
+                  >
+                    <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl border border-zinc-800 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:bg-[#111113] transition-colors">
+                      <span className="text-3xl text-amber-500">📁</span>
+                      <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">Fichier</span>
+                    </div>
 
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide">{project.title}</h3>
-                            <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold">Voir détails →</span>
-                          </div>
-                          <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2">{project.description}</p>
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start">
+                          <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide">{project.title}</h3>
+                          <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold">Voir détails →</span>
                         </div>
-                        
-                        <div className="text-[11px] text-zinc-500 font-medium mt-4">
-                          Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
-                        </div>
+                        <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2">{project.description}</p>
+                      </div>
+                      <div className="text-[11px] text-zinc-500 font-medium mt-4">
+                        Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -234,19 +226,20 @@ const PublicProfile = () => {
 
       </div>
 
-      {/* FENÊTRE MODALE : VUE APPROFONDIE DU PROJET SÉLECTIONNÉ */}
+      {/* FENÊTRE MODALE TOTALEMENT SÉCURISÉE CONTRE LES CRASHS */}
       {selectedProject && (() => {
         const mediaRawUrl = selectedProject.media ? (typeof selectedProject.media === 'object' ? selectedProject.media.url : selectedProject.media) : '';
         const fullMediaUrl = formatMediaUrl(mediaRawUrl);
-        const urlLower = mediaRawUrl.toLowerCase();
-        const isVideo = urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov');
-        const isImage = urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp');
+        
+        // Sécurisation des méthodes de chaînes de caractères
+        const urlLower = typeof mediaRawUrl === 'string' ? mediaRawUrl.toLowerCase() : '';
+        const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
+        const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp'));
 
         return (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
-            <div className="bg-[#161618] border border-zinc-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl">
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <div className="bg-[#161618] border border-zinc-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
               
-              {/* En-tête Modale */}
               <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-[#111113]">
                 <div>
                   <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails Approfondis</span>
@@ -260,10 +253,7 @@ const PublicProfile = () => {
                 </button>
               </div>
 
-              {/* Contenu de la Modale */}
               <div className="p-6 space-y-6">
-                
-                {/* Description complète */}
                 <div>
                   <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète du projet</h4>
                   <div className="bg-[#0d0d0e] border border-zinc-800/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
@@ -271,14 +261,11 @@ const PublicProfile = () => {
                   </div>
                 </div>
 
-                {/* Section Fichiers Insérés */}
                 <div>
                   <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Fichiers insérés par le profil</h4>
                   
                   {mediaRawUrl ? (
                     <div className="bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4">
-                      
-                      {/* Visualiseur multimédia intelligent intégré */}
                       <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden mb-4 flex items-center justify-center min-h-[160px] max-h-[320px]">
                         {isVideo ? (
                           <video src={fullMediaUrl} className="w-full max-h-[320px] object-contain" controls />
@@ -292,7 +279,6 @@ const PublicProfile = () => {
                         )}
                       </div>
 
-                      {/* Bouton d'accès direct sécurisé pour télécharger ou voir en grand */}
                       <a 
                         href={fullMediaUrl} 
                         target="_blank" 
@@ -309,7 +295,6 @@ const PublicProfile = () => {
                   )}
                 </div>
 
-                {/* Liens annexes (GitHub / Live Demo) */}
                 {(selectedProject.githubLink || selectedProject.demoLink) && (
                   <div>
                     <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Liens d'accès externes</h4>
@@ -339,7 +324,6 @@ const PublicProfile = () => {
                 )}
               </div>
 
-              {/* Pied Modale */}
               <div className="p-4 border-t border-zinc-800/80 bg-[#111113] text-right">
                 <button 
                   onClick={() => setSelectedProject(null)} 
