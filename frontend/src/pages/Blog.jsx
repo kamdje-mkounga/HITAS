@@ -406,26 +406,32 @@ const Blog = () => {
                   >
                     {/* Post Header */}
                     <div className="flex justify-between items-start mb-4">
-                      <div className="flex items-center gap-3">
+                      {/* En-tête de l'auteur rendu entièrement cliquable grâce à React Router Link */}
+                      <Link 
+                        to={`/profile/${getUserId(post.user)}`} 
+                        className="flex items-center gap-3 group/author cursor-pointer"
+                      >
                         <div className="relative w-10 h-10 flex-shrink-0 flex items-center justify-center shadow-md">
                           {avatarPath ? (
                             <img 
                               src={formatMediaUrl(avatarPath)} 
                               alt={`${post.firstName}`} 
-                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" 
+                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10 group-hover/author:border-zinc-600 transition-all" 
                               onError={(e) => { e.target.style.display = 'none'; }}
                             />
                           ) : null}
-                          <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700">
+                          <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700 group-hover/author:border-zinc-600 transition-all">
                             {post.firstName?.[0] || 'U'}{post.lastName?.[0] || ''}
                           </div>
                         </div>
 
                         <div>
-                          <h3 className="font-bold text-sm text-zinc-200 tracking-wide">{post.firstName} {post.lastName}</h3>
+                          <h3 className="font-bold text-sm text-zinc-200 tracking-wide group-hover/author:text-white group-hover/author:underline transition-all">
+                            {post.firstName} {post.lastName}
+                          </h3>
                           <p className="text-[11px] text-zinc-500 font-medium">{new Date(post.date).toLocaleDateString('fr-FR')}</p>
                         </div>
-                      </div>
+                      </Link>
                       
                       <div className="flex items-center gap-2">
                         <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-lg border ${getBadgeColor(post.category)}`}>
@@ -588,25 +594,32 @@ const Blog = () => {
                               {post.comments?.map((comment, i) => {
                                 const commentAvatarPath = comment.avatar || (comment.user && typeof comment.user === 'object' ? comment.user.avatar : null);
                                 return (
-                                  <div key={i} className="bg-[#18181b]/40 p-3 rounded-xl border border-zinc-800/30 text-xs flex gap-3 items-start transition-all hover:bg-[#18181b]/60">
+                                  /* Bloc commentaire enveloppé dans un Link pour aller sur le profil de l'auteur du commentaire */
+                                  <Link 
+                                    key={i} 
+                                    to={`/profile/${getUserId(comment.user)}`} 
+                                    className="bg-[#18181b]/40 p-3 rounded-xl border border-zinc-800/30 text-xs flex gap-3 items-start transition-all hover:bg-[#18181b]/60 group/comment-author w-full text-left cursor-pointer block"
+                                  >
                                     <div className="relative w-6 h-6 flex-shrink-0 flex items-center justify-center shadow">
                                       {commentAvatarPath ? (
                                         <img 
                                           src={formatMediaUrl(commentAvatarPath)} 
                                           alt="Author" 
-                                          className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10" 
+                                          className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10 group-hover/comment-author:border-zinc-600 transition-all" 
                                           onError={(e) => { e.target.style.display = 'none'; }} 
                                         />
                                       ) : null}
-                                      <div className="w-full h-full bg-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-zinc-700">
+                                      <div className="w-full h-full bg-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-zinc-700 group-hover/comment-author:border-zinc-600 transition-all">
                                         {comment.firstName?.[0] || 'U'}
                                       </div>
                                     </div>
                                     <div className="flex-1">
-                                      <p className="font-bold text-zinc-400 mb-0.5">{comment.firstName} {comment.lastName}</p>
+                                      <p className="font-bold text-zinc-400 mb-0.5 group-hover/comment-author:text-white group-hover/comment-author:underline transition-all">
+                                        {comment.firstName} {comment.lastName}
+                                      </p>
                                       <p className="text-zinc-300 leading-relaxed">{comment.text}</p>
                                     </div>
-                                  </div>
+                                  </Link>
                                 );
                               })}
                             </div>
