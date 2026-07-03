@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
 import { useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
-import { io } from 'socket.io-client'; // 🌐 AJOUTÉ : Importation du client socket
+import { io } from 'socket.io-client'; // 🌐 Importation du client socket
 
 const Blog = () => {
   const [mediaFile, setMediaFile] = useState(null);
@@ -166,11 +165,7 @@ const Blog = () => {
   // 2. Aimer / Liker une publication
   const handleLike = async (postId) => {
     try {
-      // 💡 Optimisation Socket : Le backend renvoie généralement l'objet post mis à jour ou le tableau de likes.
-      // S'il renvoie tout le post mis à jour sur l'événement "posts_updated_interactions", 
-      // la ligne ci-dessous met à jour l'UI locale immédiatement en attendant le socket.
       const response = await axios.put(`${BACKEND_URL}/api/posts/like/${postId}`, {}, getAuthHeader());
-      // On conserve une mise à jour optimiste ou on laisse le socket agir selon la structure de ta réponse API
       setPosts(posts.map(post => post._id === postId ? { ...post, likes: response.data?.likes || response.data } : post));
     } catch (err) {
       console.error(err);
@@ -206,7 +201,6 @@ const Blog = () => {
         headers: { 'x-auth-token': token, 'Content-Type': 'multipart/form-data' }
       });
       
-      // 💡 Retrait de setPosts([res.data, ...posts]) car intercepté directement par le socket
       setText(''); clearMedia();
       setSuccess('Publication partagée avec succès !');
       setTimeout(() => setSuccess(''), 3000);
@@ -238,7 +232,6 @@ const Blog = () => {
         }
       });
 
-      // Le socket met à jour le post modifié pour tout le monde en arrière-plan.
       setEditingId(null);
       clearEditMedia();
     } catch (err) {
@@ -252,7 +245,6 @@ const Blog = () => {
     if (window.confirm('Es-tu sûr de vouloir supprimer cette publication ?')) {
       try {
         await axios.delete(`${BACKEND_URL}/api/posts/${postId}`, getAuthHeader());
-        // Filtrage automatique géré par l'écouteur socket local et distant
       } catch (err) {
         alert('Erreur lors de la suppression.');
       }
@@ -464,7 +456,7 @@ const Blog = () => {
                         <div className="space-y-2">
                           <label className="text-[11px] font-medium text-zinc-400 block">Gestion du média :</label>
                           
-                          ={existingMediaUrl && (
+                          {existingMediaUrl && (
                             <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-zinc-400 truncate max-w-[80%]">📁 Média actuellement sauvegardé</span>
                               <button 
@@ -612,7 +604,7 @@ const Blog = () => {
                                     </div>
                                     <div className="flex-1">
                                       <p className="font-bold text-zinc-400 mb-0.5">{comment.firstName} {comment.lastName}</p>
-                                      <p className="text-zinc-200 leading-relaxed font-light">{comment.text}</p>
+                                      <p className="text-zinc-300 leading-relaxed">{comment.text}</p>
                                     </div>
                                   </div>
                                 );
