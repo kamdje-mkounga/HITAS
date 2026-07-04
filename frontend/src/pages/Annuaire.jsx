@@ -137,7 +137,7 @@ function Annuaire() {
                 {filteredProfiles.map((profile) => (
                   <div 
                     key={profile._id} 
-                    onClick={() => navigate(`/profile/${profile._id}`)} // Redirection dynamique sur toute la boîte
+                    onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)} // Redirection dynamique sur toute la boîte
                     className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-sm flex flex-col justify-between hover:border-indigo-500/50 cursor-pointer transition-all group"
                   >
                     <div>
