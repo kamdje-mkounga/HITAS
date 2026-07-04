@@ -1,4 +1,6 @@
 // 1. CHARGER LE .ENV EN TOUT PREMIER (Ligne 1)
+import { io } from 'socket.io-client';
+const socket = io('http://localhost:5000'); // Remplace par l'URL de ton serveur (ou laisse vide si même domaine)
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 console.log("MONGO_URI loaded:", !!process.env.MONGO_URI);
@@ -34,6 +36,17 @@ const io = new Server(server, {
 
 // 🌐 AJOUTÉ : On attache 'io' à l'instance 'app' pour qu'il soit accessible dans tes fichiers de routes
 app.set('io', io);
+//
+// Exemple dans ton fichier de route ou contrôleur d'articles :
+const newArticle = await Article.create(req.body);
+
+// 🚀 On prévient tous les clients connectés qu'un nouvel article est disponible
+if (req.io) {
+  req.io.emit('article_published', newArticle);
+} else if (global.io) {
+  global.io.emit('article_published', newArticle);
+}
+//
 
 // 🌐 AJOUTÉ : Suivi basique des connexions (Utile pour tes logs de debug)
 io.on('connection', (socket) => {
