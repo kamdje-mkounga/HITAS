@@ -103,9 +103,12 @@ router.post('/', auth, (req, res) => {
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
       const postWithLean = post.toObject();
 
-      // 🌐 TEMPS RÉEL : Émettre le nouveau post créé à tout le monde
+      // 🌐 TEMPS RÉEL : On émet sur les deux canaux pour mettre à jour le flux ET la page d'accueil
       const io = req.app.get('io');
-      if (io) io.emit('posts_created', postWithLean);
+      if (io) {
+        io.emit('article_published', postWithLean); // Pour la bulle de notification rouge sur Home.jsx
+        io.emit('posts_created', postWithLean);      // Pour l'affichage en direct dans le flux (Blog/Feed)
+      }
 
       res.json(post);
     } catch (dbErr) {
