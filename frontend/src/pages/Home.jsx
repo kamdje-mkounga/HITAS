@@ -75,6 +75,7 @@ function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   // --- CHARGEMENT INITIAL DES ARTICLES DEPUIS RENDER ---
+  // --- CHARGEMENT INITIAL & GESTION DU BOUTON RETOUR MOBILE ---
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
@@ -100,7 +101,20 @@ function Home() {
       }
     };
   
+    // 1. Exécution immédiate au montage du composant
     fetchArticlesAndCalculateUnread();
+
+    // 2. 📱 Forcer le recalcul si l'utilisateur revient en arrière (Mobile Back-Forward Cache)
+    const handlePageShow = (event) => {
+      // Regénère le calcul, même si la page sort du cache historique du téléphone
+      fetchArticlesAndCalculateUnread();
+    };
+
+    window.addEventListener('pageshow', handlePageShow);
+  
+    return () => {
+      window.removeEventListener('pageshow', handlePageShow);
+    };
   }, []);
 
   // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
