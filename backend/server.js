@@ -23,13 +23,30 @@ const app = express();
 // 🌐 Création du serveur HTTP natif enveloppant Express
 const server = http.createServer(app);
 
-// 🌐 Initialisation de Socket.io avec support CORS
+// 🛠️ Configuration CORS sécurisée pour lier Vercel et Render sans blocage
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://ronaldokamdje-9589s-projects.vercel.app' // Ton application Vercel
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permet les requêtes sans origine (comme Postman ou requêtes internes)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Bloqué par CORS : Origine non autorisée.'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+};
+
+// 🌐 Initialisation de Socket.io avec les options CORS définies
 const io = new Server(server, {
-  cors: {
-    origin: '*', // Aligné sur ta configuration CORS actuelle
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
-  }
+  cors: corsOptions
 });
 
 // 🌐 On attache 'io' à l'instance 'app' pour qu'il soit accessible dans tes fichiers de routes
@@ -45,10 +62,7 @@ io.on('connection', (socket) => {
 });
 
 // 5. Configuration du CORS pour Express
-app.use(cors({
-  origin: '*',
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
 // 6. Middlewares globaux pour parser le JSON
 app.use(express.json({ limit: '50mb' }));
@@ -62,7 +76,7 @@ app.use('/api/project', require('./routes/project'));
 
 // 9. Route de test globale
 app.get('/', (req, res) => {
-    res.send("L'API d'HITAS Connect fonctionne à merveille ! 🚀");
+    res.send("L'API d'HITAS Connect fonctionne à merveille sur Render ! 🚀");
 });
 
 // 10. Démarrage du serveur d'écoute
