@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import de useNavigate pour la redirection
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 
 function Annuaire() {
+  const navigate = useNavigate(); // Initialisation du hook de navigation
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -133,7 +135,11 @@ function Annuaire() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProfiles.map((profile) => (
-                  <div key={profile._id} className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-sm flex flex-col justify-between hover:border-zinc-700 transition-colors group">
+                  <div 
+                    key={profile._id} 
+                    onClick={() => navigate(`/profile/${profile._id}`)} // Redirection dynamique sur toute la boîte
+                    className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-sm flex flex-col justify-between hover:border-indigo-500/50 cursor-pointer transition-all group"
+                  >
                     <div>
                       {/* EN-TÊTE DE LA CARTE AVEC AVATAR */}
                       <div className="flex items-start gap-4 mb-4">
@@ -156,14 +162,15 @@ function Annuaire() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h2 className="text-lg font-bold text-zinc-100 group-hover:text-white transition-colors truncate leading-snug">
+                          {/* Le titre passe en violet/indigo subtil au survol global de la carte */}
+                          <h2 className="text-lg font-bold text-zinc-100 group-hover:text-indigo-400 transition-colors truncate leading-snug">
                             {profile.firstName} {profile.lastName}
                           </h2>
                           <p className="text-zinc-400 text-xs font-medium truncate mt-0.5">
-                            🎓 {profile.specialty} — Promo {profile.promotion}
+                            🎓 {profile.specialty || 'computer science'} — Promo {profile.promotion || 'Non renseignée'}
                           </p>
                           <p className="text-zinc-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
-                            📍 {profile.currentLocation}
+                            📍 {profile.currentLocation || 'Non renseignée'}
                           </p>
                         </div>
                       </div>
