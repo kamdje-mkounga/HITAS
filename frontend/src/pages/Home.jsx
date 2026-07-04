@@ -9,28 +9,72 @@ const BACKEND_URL = window.location.hostname === 'localhost'
   ? 'http://localhost:5000' 
   : 'https://hitas.onrender.com'; 
 
-// Initialisation du socket connecté au serveur Render
+// Initialisation unique du socket connecté à ton serveur distant Render
 const socket = io(BACKEND_URL, {
   transports: ['websocket', 'polling'],
   withCredentials: true
 });
 
-// --- COMPOSANT ORBITING LOGO ---
-function OrbitingLogo() {
+// 📦 IMPORTS DES IMAGES DEPUIS LE DOSSIER ASSETS
+import hitasLogo from '../assets/hitas_logo.svg';
+import franceFlag from '../assets/france.svg';
+import cameroonFlag from '../assets/cameroon.svg';
+import indiaFlag from '../assets/india.svg';
+import brazilFlag from '../assets/brazil.svg';
+import germanyFlag from '../assets/germany.svg';
+
+const OrbitingLogo = () => {
+  const flags = [
+    { id: 1, src: franceFlag, label: 'France', delay: '0s' },
+    { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2.4s' },
+    { id: 3, src: indiaFlag, label: 'Inde', delay: '-4.8s' },
+    { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
+    { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
+  ];
+
   return (
-    <div className="relative w-32 h-32 mx-auto my-6 flex items-center justify-center">
-      {/* Tu peux replacer ici le code SVG ou l'image exacte de ton logo animé */}
-      <div className="w-16 h-16 bg-zinc-800 border border-zinc-700 rounded-full flex items-center justify-center text-xl font-bold text-zinc-200">
-        HITAS
+    <div className="relative flex items-center justify-center my-2 h-40 md:h-52 w-full overflow-hidden select-none transform scale-65 sm:scale-85 md:scale-100 transition-transform duration-300">
+      <style>{`
+        @keyframes ellipticOrbit {
+          0% { transform: translate(160px, 0px) scale(1); z-index: 20; }
+          25% { transform: translate(0px, 38px) scale(0.9); z-index: 20; }
+          50% { transform: translate(-160px, 0px) scale(0.75); z-index: 5; }
+          75% { transform: translate(0px, -38px) scale(0.9); z-index: 5; }
+          100% { transform: translate(160px, 0px) scale(1); z-index: 20; }
+        }
+        .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
+      `}</style>
+
+      <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
+        <img 
+          src={hitasLogo} 
+          alt="Logo HITAS" 
+          className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]"
+        />
+      </div>
+
+      <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
+
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        {flags.map((flag) => (
+          <div
+            key={flag.id}
+            className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit"
+            style={{ animationDelay: flag.delay }}
+          >
+            <img src={flag.src} alt={flag.label} className="w-full h-full object-cover" />
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
 
+// COMPOSANT PRINCIPAL HOME
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // --- 1. CHARGEMENT INITIAL DES COMPTEURS ---
+  // --- CHARGEMENT INITIAL DES ARTICLES DEPUIS RENDER ---
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
@@ -42,27 +86,27 @@ function Home() {
           setUnreadCount(articles.length);
           return;
         }
-
+  
         const lastViewedDate = new Date(lastViewedBlog);
         const unreadArticles = articles.filter(article => {
           if (!article.date) return false;
           const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
-
+  
         setUnreadCount(unreadArticles.length);
       } catch (error) {
         console.error("Erreur initialisation des notifications:", error);
       }
     };
-
+  
     fetchArticlesAndCalculateUnread();
   }, []);
 
-  // --- 2. ÉCOUTE DES ÉVÉNEMENTS EN TEMPS RÉEL ---
+  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
-      console.log("Notification reçue en direct du serveur Render :", newArticle);
+      console.log("Flux direct reçu du serveur Render :", newArticle);
       const lastViewedBlog = localStorage.getItem('last_viewed_blog');
       
       if (!lastViewedBlog) {
@@ -83,7 +127,6 @@ function Home() {
     };
   }, []);
 
-  // --- 3. SÉCURISATION DU CLIC ET RESET ---
   const handleBlogClick = () => {
     localStorage.setItem('last_viewed_blog', new Date().toISOString());
     setUnreadCount(0);
