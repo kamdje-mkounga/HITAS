@@ -62,34 +62,65 @@ const OrbitingLogo = () => {
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
 
-  useEffect(() => {
-    const fetchArticlesAndCalculateUnread = async () => {
-      try {
-        const response = await axios.get('/api/articles'); 
-        const articles = response.data || [];
+  // 1. Assure-toi d'importer ton instance socket (ex: import socket from '../socket';)
+// Si tu n'as pas de fichier d'initialisation global, importe la bibliothèque :
+// import { io } from 'socket.io-client';
 
-        const lastViewedBlog = localStorage.getItem('last_viewed_blog');
-        
-        if (!lastViewedBlog) {
-          setUnreadCount(articles.length);
-          return;
-        }
-
-        const lastViewedDate = new Date(lastViewedBlog);
-
-        const unreadArticles = articles.filter(article => {
-          const articleDate = new Date(article.createdAt || article.updatedAt);
-          return articleDate > lastViewedDate;
-        });
-
-        setUnreadCount(unreadArticles.length);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des articles pour les notifications:", error);
+useEffect(() => {
+  // --- CHARGEMENT INITIAL ---
+  const fetchArticlesAndCalculateUnread = async () => {
+    try {
+      const response = await axios.get('/api/articles'); 
+      const articles = response.data || [];
+      const lastViewedBlog = localStorage.getItem('last_viewed_blog');
+      
+      if (!lastViewedBlog) {
+        setUnreadCount(articles.length);
+        return;
       }
-    };
 
-    fetchArticlesAndCalculateUnread();
-  }, []);
+      const lastViewedDate = new Date(lastViewedBlog);
+      const unreadArticles = articles.filter(article => {
+        const articleDate = new Date(article.createdAt || article.updatedAt);
+        return articleDate > lastViewedDate;
+      });
+
+      setUnreadCount(unreadArticles.length);
+    } catch (error) {
+      console.error("Erreur initialisation des notifications:", error);
+    }
+  };
+
+  fetchArticlesAndCalculateUnread();
+}, []);
+
+useEffect(() => {
+  // --- ÉCOUTE TEMPS RÉEL (SOCKET.IO) ---
+  // Si tu utilises une instance globale, remplace 'socket' par ton instance (ex: const socket = io('http://localhost:5000'))
+  
+  socket.on('article_published', (newArticle) => {
+    const lastViewedBlog = localStorage.getItem('last_viewed_blog');
+    
+    if (!lastViewedBlog) {
+      // Si l'utilisateur n'a jamais cliqué sur le blog, on incrémente d'office
+      setUnreadCount(prev => prev + 1);
+      return;
+    }
+
+    const lastViewedDate = new Date(lastViewedBlog);
+    const articleDate = new Date(newArticle.createdAt || newArticle.updatedAt);
+
+    // Si le nouvel article est plus récent que la dernière visite, on fait grimper la bulle WhatsApp !
+    if (articleDate > lastViewedDate) {
+      setUnreadCount(prev => prev + 1);
+    }
+  });
+
+  // Nettoyage de l'écouteur au démontage du composant
+  return () => {
+    socket.off('article_published');
+  };
+}, []);
 
   const handleBlogClick = () => {
     localStorage.setItem('last_viewed_blog', new Date().toISOString());
