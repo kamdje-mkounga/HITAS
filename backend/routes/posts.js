@@ -5,17 +5,15 @@ const Post = require('../models/Post');
 const Profile = require('../models/Profile');
 const multer = require('multer');
 const { getVideoDurationInSeconds } = require('get-video-duration');
-const { Readable } = require('stream'); // Requis pour lire la vidéo depuis la mémoire
+const { Readable } = require('stream'); 
 const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
 
-// Configuration du stockage de Multer en mémoire
 const storage = multer.memoryStorage();
 
-// Validation des extensions acceptées (Images, Vidéos, Audio, PDF, Word)
 const upload = multer({
   storage,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50Mo max
+    fileSize: 50 * 1024 * 1024 
   },
   fileFilter: (req, file, cb) => {
     const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/;
@@ -55,7 +53,6 @@ router.post('/', auth, (req, res) => {
         const mime = req.file.mimetype.toLowerCase();
         const ext = req.file.originalname.split('.').pop().toLowerCase();
         
-        // Détermination et validation complète du type de média
         if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
           mediaType = 'video';
           
@@ -80,7 +77,6 @@ router.post('/', auth, (req, res) => {
           mediaType = 'file';
         }
 
-        // Upload sur Supabase après validation du type
         const uploaded = await uploadFile(req.file, "posts");
         mediaUrl = uploaded.url;
         mediaPath = uploaded.path;
@@ -99,15 +95,27 @@ router.post('/', auth, (req, res) => {
       });
 
       const post = await newPost.save();
-      
-      // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
       const postWithLean = post.toObject();
 
-      // 🌐 TEMPS RÉEL : On émet sur les deux canaux pour mettre à jour le flux ET la page d'accueil
+      // 🌐 TEMPS RÉEL OPTIMISÉ POUR ÉVITER LES AUTO-NOTIFICATIONS
       const io = req.app.get('io');
       if (io) {
-        io.emit('article_published', postWithLean); // Pour la bulle de notification rouge sur Home.jsx
-        io.emit('posts_created', postWithLean);      // Pour l'affichage en direct dans le flux (Blog/Feed)
+        // 1. Récupérer toutes les sockets connectées à ton serveur Render
+        const connectedSockets = Object.values(io.sockets.sockets || io.of("/").sockets);
+        
+        // 2. Trouver la socket spécifique de l'utilisateur qui vient de poster l'article via son userId stocké à la connexion
+        const authorSocket = connectedSockets.find(s => s.userId === req.user.userId || s.handshake?.auth?.userId === req.user.userId);
+
+        if (authorSocket) {
+          // Si on trouve ta socket active (sur ton téléphone), on envoie la notification à TOUS LES AUTRES sauf toi
+          authorSocket.broadcast.emit('article_published', postWithLean);
+        } else {
+          // Si la socket n'est pas trouvée (ex: déconnexion temporaire), fallback sécurisé sur io.emit
+          io.emit('article_published', postWithLean);
+        }
+
+        // Le flux de messages (Feed) continue d'être envoyé partout pour mettre à jour l'affichage dynamique
+        io.emit('posts_created', postWithLean); 
       }
 
       res.json(post);
@@ -175,7 +183,6 @@ router.delete('/:id', auth, async (req, res) => {
     const postId = post._id;
     await post.deleteOne();
 
-    // 🌐 TEMPS RÉEL : Notifier tout le monde de supprimer ce post de leur écran
     const io = req.app.get('io');
     if (io) io.emit('posts_deleted', postId);
 
@@ -261,14 +268,12 @@ router.put('/:id', auth, (req, res) => {
         await deleteFile(fileToDelete);
       }
 
-      // Synchroniser l'avatar le plus récent avant l'émission temps réel
       const postObj = post.toObject();
       if (postObj.user) {
         const userProfile = await Profile.findOne({ user: postObj.user }).select('avatar');
         if (userProfile && userProfile.avatar) postObj.avatar = userProfile.avatar;
       }
 
-      // 🌐 TEMPS RÉEL : Notifier de la modification du contenu du post
       const io = req.app.get('io');
       if (io) io.emit('posts_updated', postObj);
 
@@ -282,7 +287,6 @@ router.put('/:id', auth, (req, res) => {
 
 // @route   PUT api/posts/like/:id
 // @desc    Liker ou unliker une publication
-// @access  Private
 router.put('/like/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -301,14 +305,12 @@ router.put('/like/:id', auth, async (req, res) => {
 
     await post.save();
 
-    // Renvoyer et diffuser le post complet mis à jour pour rafraîchir les compteurs de likes chez tout le monde
     const updatedPost = await Post.findById(req.params.id).lean();
     if (updatedPost.user) {
       const userProfile = await Profile.findOne({ user: updatedPost.user }).select('avatar');
       if (userProfile && userProfile.avatar) updatedPost.avatar = userProfile.avatar;
     }
     
-    // Récupérer les avatars des commentaires
     if (updatedPost.comments && updatedPost.comments.length > 0) {
       updatedPost.comments = await Promise.all(updatedPost.comments.map(async (comment) => {
         if (comment.user) {
@@ -319,7 +321,6 @@ router.put('/like/:id', auth, async (req, res) => {
       }));
     }
 
-    // 🌐 TEMPS RÉEL : Diffuser la mise à jour des interactions (Likes)
     const io = req.app.get('io');
     if (io) io.emit('posts_updated_interactions', updatedPost);
 
@@ -332,7 +333,6 @@ router.put('/like/:id', auth, async (req, res) => {
 
 // @route    POST api/posts/comment/:id
 // @desc     Ajouter un commentaire à une publication
-// @access   Private
 router.post('/comment/:id', auth, async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -354,12 +354,9 @@ router.post('/comment/:id', auth, async (req, res) => {
       avatar: profile.avatar || ''
     };
 
-    // Ajouter le commentaire au début du tableau des commentaires
     post.comments.unshift(newComment);
-
     await post.save();
     
-    // Récupérer la structure complète nettoyée avec les avatars synchronisés pour le live
     const updatedPost = await Post.findById(req.params.id).lean();
     if (updatedPost.user) {
       const userProfile = await Profile.findOne({ user: updatedPost.user }).select('avatar');
@@ -376,7 +373,6 @@ router.post('/comment/:id', auth, async (req, res) => {
       }));
     }
 
-    // 🌐 TEMPS RÉEL : Diffuser le post mis à jour avec le nouveau commentaire inclus
     const io = req.app.get('io');
     if (io) io.emit('posts_updated_interactions', updatedPost);
 
