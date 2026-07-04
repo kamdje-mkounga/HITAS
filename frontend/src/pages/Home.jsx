@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
-
+import axios from 'axios'; // Ou remplace par ton instance 'API' personnalisée si tu en as une
 
 // 📦 IMPORTS DES IMAGES DEPUIS LE DOSSIER ASSETS
 import hitasLogo from '../assets/hitas_logo.svg';
@@ -21,45 +21,18 @@ const OrbitingLogo = () => {
   ];
 
   return (
-    /* 
-      ✨ LE SECRET DE LA RESPONSIVITÉ EN BAS :
-      On applique un scale global. 
-      - Par défaut (mobile) : tout le bloc est réduit à 65% de sa taille (scale-65)
-      - Sur tablette (sm) : tout passe à 85% (sm:scale-85)
-      - Sur ordinateur (md) : tout reprend sa taille d'origine à 100% (md:scale-100)
-    */
     <div className="relative flex items-center justify-center my-2 h-40 md:h-52 w-full overflow-hidden select-none transform scale-65 sm:scale-85 md:scale-100 transition-transform duration-300">
-      
-      {/* Calcul de l'ellipse de base (pour la taille ordinateur) */}
       <style>{`
         @keyframes ellipticOrbit {
-          0% {
-            transform: translate(160px, 0px) scale(1);
-            z-index: 20;
-          }
-          25% {
-            transform: translate(0px, 38px) scale(0.9);
-            z-index: 20;
-          }
-          50% {
-            transform: translate(-160px, 0px) scale(0.75);
-            z-index: 5;
-          }
-          75% {
-            transform: translate(0px, -38px) scale(0.9);
-            z-index: 5;
-          }
-          100% {
-            transform: translate(160px, 0px) scale(1);
-            z-index: 20;
-          }
+          0% { transform: translate(160px, 0px) scale(1); z-index: 20; }
+          25% { transform: translate(0px, 38px) scale(0.9); z-index: 20; }
+          50% { transform: translate(-160px, 0px) scale(0.75); z-index: 5; }
+          75% { transform: translate(0px, -38px) scale(0.9); z-index: 5; }
+          100% { transform: translate(160px, 0px) scale(1); z-index: 20; }
         }
-        .animate-ellipse-orbit {
-          animation: ellipticOrbit 14s linear infinite;
-        }
+        .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
       `}</style>
 
-      {/* 1. Le Logo central "H" d'HITAS */}
       <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
         <img 
           src={hitasLogo} 
@@ -68,24 +41,16 @@ const OrbitingLogo = () => {
         />
       </div>
 
-      {/* 2. L'anneau d'orbite elliptique en arrière-plan */}
       <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
 
-      {/* 3. Les drapeaux en orbite */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {flags.map((flag) => (
           <div
             key={flag.id}
             className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit"
-            style={{
-              animationDelay: flag.delay,
-            }}
+            style={{ animationDelay: flag.delay }}
           >
-            <img 
-              src={flag.src} 
-              alt={flag.label} 
-              className="w-full h-full object-cover"
-            />
+            <img src={flag.src} alt={flag.label} className="w-full h-full object-cover" />
           </div>
         ))}
       </div>
@@ -94,7 +59,47 @@ const OrbitingLogo = () => {
 };
 
 // COMPOSANT PRINCIPAL HOME
-function Home() {
+void function Home() {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchArticlesAndCalculateUnread = async () => {
+      try {
+        // Ajuste l'URL selon la configuration de ton serveur backend
+        const response = await axios.get('/api/articles'); 
+        const articles = response.data || [];
+
+        const lastViewedBlog = localStorage.getItem('last_viewed_blog');
+        
+        if (!lastViewedBlog) {
+          // Si l'utilisateur n'a jamais visité le blog, on considère tous les articles existants comme "non lus"
+          setUnreadCount(articles.length);
+          return;
+        }
+
+        const lastViewedDate = new Date(lastViewedBlog);
+
+        // Compter uniquement les articles créés ou mis à jour après la dernière visite
+        const unreadArticles = articles.filter(article => {
+          const articleDate = new Date(article.createdAt || article.updatedAt);
+          return articleDate > lastViewedDate;
+        });
+
+        setUnreadCount(unreadArticles.length);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des articles pour les notifications:", error);
+      }
+    };
+
+    fetchArticlesAndCalculateUnread();
+  }, []);
+
+  // Remet le compteur à 0 dès que l'utilisateur clique sur la carte du Blog
+  const handleBlogClick = () => {
+    localStorage.setItem('last_viewed_blog', new Date().toISOString());
+    setUnreadCount(0);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
       <Navbar />
@@ -128,10 +133,27 @@ function Home() {
             </span>
           </Link>
 
-          {/* Carte Blog */}
-          <Link to="/blog" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
+          {/* Carte Blog d'Entraide (Modifiée avec système de Badge WhatsApp) */}
+          <Link 
+            to="/blog" 
+            onClick={handleBlogClick}
+            className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between"
+          >
             <div>
-              <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">📝</div>
+              {/* Conteneur de l'icône gérant la position absolue du badge */}
+              <div className="relative w-12 h-12 mb-4">
+                <div className="w-full h-full text-3xl bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800">
+                  📝
+                </div>
+                
+                {/* Badge rouge de notification style WhatsApp */}
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white animate-pulse shadow-md border-2 border-zinc-900">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+
               <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Blog d'Entraide</h3>
               <p className="text-zinc-400 text-sm">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
             </div>
