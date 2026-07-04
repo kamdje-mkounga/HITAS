@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; // Ou remplace par ton instance 'API' personnalisée si tu en as une
+import axios from 'axios'; 
 
 // 📦 IMPORTS DES IMAGES DEPUIS LE DOSSIER ASSETS
 import hitasLogo from '../assets/hitas_logo.svg';
@@ -58,28 +58,25 @@ const OrbitingLogo = () => {
   );
 };
 
-// COMPOSANT PRINCIPAL HOME
-void function Home() {
+// COMPOSANT PRINCIPAL HOME (CORRIGÉ)
+function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
-        // Ajuste l'URL selon la configuration de ton serveur backend
         const response = await axios.get('/api/articles'); 
         const articles = response.data || [];
 
         const lastViewedBlog = localStorage.getItem('last_viewed_blog');
         
         if (!lastViewedBlog) {
-          // Si l'utilisateur n'a jamais visité le blog, on considère tous les articles existants comme "non lus"
           setUnreadCount(articles.length);
           return;
         }
 
         const lastViewedDate = new Date(lastViewedBlog);
 
-        // Compter uniquement les articles créés ou mis à jour après la dernière visite
         const unreadArticles = articles.filter(article => {
           const articleDate = new Date(article.createdAt || article.updatedAt);
           return articleDate > lastViewedDate;
@@ -94,7 +91,6 @@ void function Home() {
     fetchArticlesAndCalculateUnread();
   }, []);
 
-  // Remet le compteur à 0 dès que l'utilisateur clique sur la carte du Blog
   const handleBlogClick = () => {
     localStorage.setItem('last_viewed_blog', new Date().toISOString());
     setUnreadCount(0);
@@ -118,7 +114,6 @@ void function Home() {
           </p>
         </div>
 
-        {/* Grille des modules principaux */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Carte Annuaire */}
@@ -133,20 +128,18 @@ void function Home() {
             </span>
           </Link>
 
-          {/* Carte Blog d'Entraide (Modifiée avec système de Badge WhatsApp) */}
+          {/* Carte Blog d'Entraide */}
           <Link 
             to="/blog" 
             onClick={handleBlogClick}
             className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between"
           >
             <div>
-              {/* Conteneur de l'icône gérant la position absolue du badge */}
               <div className="relative w-12 h-12 mb-4">
                 <div className="w-full h-full text-3xl bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800">
                   📝
                 </div>
                 
-                {/* Badge rouge de notification style WhatsApp */}
                 {unreadCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white animate-pulse shadow-md border-2 border-zinc-900">
                     {unreadCount}
