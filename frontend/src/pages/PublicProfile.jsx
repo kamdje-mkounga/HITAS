@@ -9,6 +9,7 @@ const PublicProfile = () => {
   const [userProjects, setUserProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
   
   const [activeTab, setActiveTab] = useState('compte');
   const [selectedProject, setSelectedProject] = useState(null);
@@ -254,133 +255,161 @@ const PublicProfile = () => {
       </div>
 
       {/* MODALE REVISEE ET MULTI-MEDIA DETECTEUR */}
-      {selectedProject && (() => {
-        // Extraction intelligente depuis n'importe quelle structure possible (media, file, pdf, image)
-        const rawMedia = extractMediaRaw(selectedProject);
-        const fullMediaUrl = formatMediaUrl(rawMedia);
+    {/* MODALE REVISEE AVEC MULTI-MEDIA ET ONGLES DE SELECTION */}
+{selectedProject && (() => {
+  // 1. Récupération de la liste brute de tous les médias potentiels
+  const potentialMedia = selectedProject.media || selectedProject.file || selectedProject.pdf || selectedProject.image || selectedProject.attachments;
+  
+  // 2. Normalisation en tableau pour gérer un ou plusieurs fichiers de manière identique
+  const mediaList = Array.isArray(potentialMedia) 
+    ? potentialMedia 
+    : (potentialMedia ? [potentialMedia] : []);
+
+  // 3. Extraction du média actuellement sélectionné par l'utilisateur
+  const rawMedia = mediaList[currentFileIndex] || '';
+  const fullMediaUrl = formatMediaUrl(rawMedia);
+  
+  const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
+  const urlLower = mediaStringUrl.toLowerCase();
+  
+  const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
+  const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp') || urlLower.includes('/uploads/'));
+  const isPdf = urlLower && urlLower.endsWith('.pdf');
+
+  return (
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-[#161618] border border-zinc-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
         
-        // Extraction du nom de fichier propre ou de l'URL brute textuelle
-        const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
-        const urlLower = mediaStringUrl.toLowerCase();
-        
-        // Catégorisation poussée des types de fichiers pour affichage adapté
-        const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
-        const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp') || urlLower.includes('/uploads/'));
-        const isPdf = urlLower && urlLower.endsWith('.pdf');
+        <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-[#111113]">
+          <div>
+            <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails Approfondis</span>
+            <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide">{selectedProject.title}</h2>
+          </div>
+          <button 
+            onClick={() => setSelectedProject(null)} 
+            className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors"
+          >
+            ✕
+          </button>
+        </div>
 
-        return (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-            <div className="bg-[#161618] border border-zinc-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              
-              <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-[#111113]">
-                <div>
-                  <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails Approfondis</span>
-                  <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide">{selectedProject.title}</h2>
-                </div>
-                <button 
-                  onClick={() => setSelectedProject(null)} 
-                  className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors"
-                >
-                  ✕
-                </button>
-              </div>
+        <div className="p-6 space-y-6">
+          <div>
+            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète du projet</h4>
+            <div className="bg-[#0d0d0e] border border-zinc-800/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
+              {selectedProject.description || "Aucune description fournie."}
+            </div>
+          </div>
 
-              <div className="p-6 space-y-6">
-                <div>
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète du projet</h4>
-                  <div className="bg-[#0d0d0e] border border-zinc-800/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
-                    {selectedProject.description || "Aucune description fournie."}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Fichiers insérés par le profil</h4>
+          <div>
+            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
+              Fichiers insérés par le profil {mediaList.length > 1 && `(${currentFileIndex + 1}/${mediaList.length})`}
+            </h4>
+            
+            {fullMediaUrl ? (
+              <div className="bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4 space-y-4">
+                <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden flex items-center justify-center min-h-[180px] max-h-[350px]">
                   
-                  {fullMediaUrl ? (
-                    <div className="bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4">
-                      <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden mb-4 flex items-center justify-center min-h-[180px] max-h-[350px]">
-                        
-                        {/* 1. Traitement des Images */}
-                        {isImage ? (
-                          <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[350px] object-contain" />
-                        
-                        // 2. Traitement des Vidéos
-                        ) : isVideo ? (
-                          <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls />
-                        
-                        // 3. Traitement des PDF (Iframe de visualisation intégrée)
-                        ) : isPdf ? (
-                          <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="Visualiseur PDF" />
-                        
-                        // 4. Autre type de document (Fichier Word, Zip, Code, etc.)
-                        ) : (
-                          <div className="text-center p-6 flex flex-col items-center gap-2">
-                            <span className="text-4xl">📄</span>
-                            <span className="text-xs text-zinc-200 font-semibold uppercase tracking-wider">Document Associé</span>
-                            <span className="text-[10px] text-zinc-500 truncate max-w-[250px]">{mediaStringUrl.split('/').pop() || 'Fichier joint'}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <a 
-                        href={fullMediaUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md"
-                      >
-                        📥 Télécharger / Ouvrir le document joint ↗
-                      </a>
-                    </div>
+                  {/* 1. Traitement des Images */}
+                  {isImage ? (
+                    <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[350px] object-contain" />
+                  
+                  // 2. Traitement des Vidéos
+                  ) : isVideo ? (
+                    <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls />
+                  
+                  // 3. Traitement des PDF
+                  ) : isPdf ? (
+                    <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="Visualiseur PDF" />
+                  
+                  // 4. Autre type de document
                   ) : (
-                    <div className="bg-[#0d0d0e] border border-zinc-800/40 rounded-xl p-4 text-center text-xs text-zinc-500 italic">
-                      Aucun fichier ou média n'a été inséré pour ce projet.
+                    <div className="text-center p-6 flex flex-col items-center gap-2">
+                      <span className="text-4xl">📄</span>
+                      <span className="text-xs text-zinc-200 font-semibold uppercase tracking-wider">Document Associé</span>
+                      <span className="text-[10px] text-zinc-500 truncate max-w-[250px]">{mediaStringUrl.split('/').pop() || 'Fichier joint'}</span>
                     </div>
                   )}
                 </div>
 
-                {(selectedProject.githubLink || selectedProject.demoLink) && (
-                  <div>
-                    <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Liens d'accès externes</h4>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      {selectedProject.githubLink && (
-                        <a 
-                          href={selectedProject.githubLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="flex-1 text-center text-xs font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
-                        >
-                          📦 Dépot de code GitHub ↗
-                        </a>
-                      )}
-                      {selectedProject.demoLink && (
-                        <a 
-                          href={selectedProject.demoLink} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
-                          className="flex-1 text-center text-xs font-bold bg-[#111113] border border-zinc-800 text-indigo-400 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
-                        >
-                          🌐 Déploiement en ligne (Live Demo) ↗
-                        </a>
-                      )}
-                    </div>
+                {/* SÉLECTEUR MULTI-FICHIERS (Apparaît uniquement s'il y a plus d'un fichier) */}
+                {mediaList.length > 1 && (
+                  <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-800/40">
+                    {mediaList.map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => setCurrentFileIndex(idx)}
+                        className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${
+                          currentFileIndex === idx 
+                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' 
+                            : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
+                        }`}
+                      >
+                        📄 Fichier {idx + 1}
+                      </button>
+                    ))}
                   </div>
                 )}
-              </div>
 
-              <div className="p-4 border-t border-zinc-800/80 bg-[#111113] text-right">
-                <button 
-                  onClick={() => setSelectedProject(null)} 
-                  className="bg-zinc-100 text-zinc-950 text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-200 transition-all"
+                <a 
+                  href={fullMediaUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md"
                 >
-                  Fermer
-                </button>
+                  📥 Télécharger / Ouvrir le document joint {mediaList.length > 1 && `#${currentFileIndex + 1}`} ↗
+                </a>
               </div>
-
-            </div>
+            ) : (
+              <div className="bg-[#0d0d0e] border border-zinc-800/40 rounded-xl p-4 text-center text-xs text-zinc-500 italic">
+                Aucun fichier ou média n'a été inséré pour ce projet.
+              </div>
+            )}
           </div>
-        );
-      })()}
 
+          {(selectedProject.githubLink || selectedProject.demoLink) && (
+            <div>
+              <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Liens d'accès externes</h4>
+              <div className="flex flex-col sm:flex-row gap-3">
+                {selectedProject.githubLink && (
+                  <a 
+                    href={selectedProject.githubLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex-1 text-center text-xs font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
+                  >
+                    📦 Dépôt de code GitHub ↗
+                  </a>
+                )}
+                {selectedProject.demoLink && (
+                  <a 
+                    href={selectedProject.demoLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex-1 text-center text-xs font-bold bg-[#111113] border border-zinc-800 text-indigo-400 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
+                  >
+                    🌐 Déploiement en ligne (Live Demo) ↗
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="p-4 border-t border-zinc-800/80 bg-[#111113] text-right">
+          <button 
+            onClick={() => setSelectedProject(null)} 
+            className="bg-zinc-100 text-zinc-950 text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-200 transition-all"
+          >
+            Fermer
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+})()}
     </div>
   );
 };
