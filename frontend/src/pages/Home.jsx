@@ -4,106 +4,58 @@ import { Link } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client';
 
-// 🔌 Initialisation de l'instance Socket.io (laisse vide si même domaine, ou adapte l'URL)
-const socket = io(window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/');
+// 🌐 CONFIGURATION D'ACCÈS AU BACKEND (Local vs Render)
+const BACKEND_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000' 
+  : 'https://hitas.onrender.com'; 
 
-// 📦 IMPORTS DES IMAGES DEPUIS LE DOSSIER ASSETS
-import hitasLogo from '../assets/hitas_logo.svg';
-import franceFlag from '../assets/france.svg';
-import cameroonFlag from '../assets/cameroon.svg';
-import indiaFlag from '../assets/india.svg';
-import brazilFlag from '../assets/brazil.svg';
-import germanyFlag from '../assets/germany.svg';
+// Initialisation unique du socket connecté à ton serveur Render
+const socket = io(BACKEND_URL, {
+  transports: ['websocket', 'polling'],
+  withCredentials: true
+});
 
-const OrbitingLogo = () => {
-  const flags = [
-    { id: 1, src: franceFlag, label: 'France', delay: '0s' },
-    { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2.4s' },
-    { id: 3, src: indiaFlag, label: 'Inde', delay: '-4.8s' },
-    { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
-    { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
-  ];
-
-  return (
-    <div className="relative flex items-center justify-center my-2 h-40 md:h-52 w-full overflow-hidden select-none transform scale-65 sm:scale-85 md:scale-100 transition-transform duration-300">
-      <style>{`
-        @keyframes ellipticOrbit {
-          0% { transform: translate(160px, 0px) scale(1); z-index: 20; }
-          25% { transform: translate(0px, 38px) scale(0.9); z-index: 20; }
-          50% { transform: translate(-160px, 0px) scale(0.75); z-index: 5; }
-          75% { transform: translate(0px, -38px) scale(0.9); z-index: 5; }
-          100% { transform: translate(160px, 0px) scale(1); z-index: 20; }
-        }
-        .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
-      `}</style>
-
-      <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
-        <img 
-          src={hitasLogo} 
-          alt="Logo HITAS" 
-          className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]"
-        />
-      </div>
-
-      <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
-
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        {flags.map((flag) => (
-          <div
-            key={flag.id}
-            className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit"
-            style={{ animationDelay: flag.delay }}
-          >
-            <img src={flag.src} alt={flag.label} className="w-full h-full object-cover" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// COMPOSANT PRINCIPAL HOME
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // --- CHARGEMENT INITIAL DES ARTICLES ---
+  // --- 1. CHARGEMENT INITIAL DES COMPTEURS ---
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
-        const response = await axios.get('/api/posts'); 
+        // Requête HTTP directe sur l'API de ton serveur Render
+        const response = await axios.get(`${BACKEND_URL}/api/posts`); 
         const articles = response.data || [];
         const lastViewedBlog = localStorage.getItem('last_viewed_blog');
         
+        // Si l'utilisateur n'a jamais cliqué sur le blog, on affiche le total global
         if (!lastViewedBlog) {
           setUnreadCount(articles.length);
           return;
         }
-  
+
         const lastViewedDate = new Date(lastViewedBlog);
+        
+        // Filtrer les articles plus récents que la date stockée
         const unreadArticles = articles.filter(article => {
+          if (!article.date) return false;
           const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
-  
+
         setUnreadCount(unreadArticles.length);
       } catch (error) {
-        console.error("Erreur initialisation des notifications:", error);
+        console.error("Erreur lors de l'initialisation des notifications:", error);
       }
     };
-  
-    // Exécuter immédiatement au chargement
+
     fetchArticlesAndCalculateUnread();
-  
-    // 🔄 RECHERCHE AUTOMATIQUE SUR VERCEL (Toutes les 30 secondes)
-    const interval = setInterval(fetchArticlesAndCalculateUnread, 30000);
-  
-    // Nettoyer l'intervalle si le composant est démonté
-    return () => clearInterval(interval);
   }, []);
 
-  // --- ÉCOUTE DES EVENEMENTS TEMPS REEL ---
+  // --- 2. ÉCOUTE DE L'ÉVÉNEMENT TEMPS RÉEL (SOCKET.IO) ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
+      console.log("Notification reçue en direct du serveur Render :", newArticle);
+      
       const lastViewedBlog = localStorage.getItem('last_viewed_blog');
       
       if (!lastViewedBlog) {
@@ -112,19 +64,21 @@ function Home() {
       }
 
       const lastViewedDate = new Date(lastViewedBlog);
-      // 🛠️ CORRECTION : On utilise newArticle.date ici aussi
       const articleDate = new Date(newArticle.date);
 
+      // Si le nouvel article est plus récent que la dernière visite, on incrémente le badge
       if (articleDate > lastViewedDate) {
         setUnreadCount(prev => prev + 1);
       }
     });
 
+    // Nettoyage de l'écouteur à la fermeture du composant
     return () => {
       socket.off('article_published');
     };
   }, []);
 
+  // --- 3. CLIC SUR LE BOUTON : RÉINITIALISATION ---
   const handleBlogClick = () => {
     localStorage.setItem('last_viewed_blog', new Date().toISOString());
     setUnreadCount(0);
@@ -133,72 +87,70 @@ function Home() {
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
       <Navbar />
-
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
+      
+      {/* Conteneur principal */}
+      <main className="flex-1 flex flex-col items-center justify-center px-4 py-12 max-w-4xl mx-auto text-center">
         
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2">
-            Le hub de la communauté étudiante de HITAS
-          </h1>
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
+          Le hub de la communauté <br />
+          <span className="text-indigo-500">étudiante de HITAS</span>
+        </h1>
+        
+        <p className="text-zinc-400 text-lg md:text-xl max-w-2xl mb-12">
+          Connecte-toi avec la diaspora, partage des opportunités et profite des ressources techniques.
+        </p>
+
+        {/* Section des Grilles de navigation */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
           
-          <OrbitingLogo />
-
-          <p className="text-zinc-400 text-lg mt-4 px-4">
-            Connecte-toi avec la diaspora, partage des opportunités et propulse tes projets techniques.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Carte Annuaire */}
-          <Link to="/annuaire" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">👤</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Annuaire</h3>
-              <p className="text-zinc-400 text-sm">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
-            </div>
-            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
-              Explorer l'annuaire →
-            </span>
-          </Link>
-
-          {/* Carte Blog d'Entraide */}
+          {/* Carte Blog d'Entraide avec sa bulle de notification */}
           <Link 
             to="/blog" 
             onClick={handleBlogClick}
-            className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between"
+            className="group relative bg-zinc-900 border border-zinc-800 hover:border-indigo-500/50 rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 flex flex-col justify-between"
           >
-            <div>
-              <div className="relative w-12 h-12 mb-4">
-                <div className="w-full h-full text-3xl bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800">
-                  📝
-                </div>
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-zinc-800 rounded-xl group-hover:bg-indigo-600/10 transition-colors duration-300 relative">
+                {/* Icône Document de notification */}
+                <span className="text-2xl" role="img" aria-label="blog">📝</span>
                 
+                {/* Bulle de notification dynamique */}
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white animate-pulse shadow-md border-2 border-zinc-900">
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse shadow-md shadow-red-500/50">
                     {unreadCount}
                   </span>
                 )}
               </div>
-
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Blog d'Entraide</h3>
-              <p className="text-zinc-400 text-sm">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
             </div>
-            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
-              Lire les articles →
-            </span>
+            
+            <div>
+              <h3 className="text-xl font-bold mb-2 group-hover:text-indigo-400 transition-colors duration-300">
+                Blog d'Entraide
+              </h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Découvre les guides partagés, pose tes questions et trouve des astuces pour les cours.
+              </p>
+            </div>
           </Link>
 
-          {/* Carte Showcase */}
-          <Link to="/showcase" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">🚀</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Showcase</h3>
-              <p className="text-zinc-400 text-sm">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
+          {/* Exemple d'une deuxième carte (ex: Projets ou Profil) */}
+          <Link 
+            to="/projects" 
+            className="group bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 rounded-2xl p-6 text-left transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/5 flex flex-col justify-between"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-3 bg-zinc-800 rounded-xl group-hover:bg-emerald-600/10 transition-colors duration-300">
+                <span className="text-2xl" role="img" aria-label="projects">🚀</span>
+              </div>
             </div>
-            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
-              Voir les projets →
-            </span>
+            <div>
+              <h3 className="text-xl font-bold mb-2 group-hover:text-emerald-400 transition-colors duration-300">
+                Projets Étudiants
+              </h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Explore les créations de la communauté et rejoins des équipes de développement.
+              </p>
+            </div>
           </Link>
 
         </div>
