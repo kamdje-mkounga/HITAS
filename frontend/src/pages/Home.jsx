@@ -107,8 +107,18 @@ function Home() {
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
       console.log("Flux direct reçu du serveur Render :", newArticle);
+
+      // 🛠️ 1. RÉCUPÉRER L'ID DE L'UTILISATEUR CONNECTÉ (depuis ton stockage de session/auth)
+      // Adapte 'user' ou 'userId' selon la façon dont tu stockes les infos de la personne connectée
+      const currentUser = JSON.parse(localStorage.getItem('user')); 
+      const currentUserId = currentUser?._id || currentUser?.id;
+
+      // 🛠️ 2. SI C'EST MOI QUI AI ÉCRIT L'ARTICLE, ON NE MET PAS DE NOTIFICATION
+      if (currentUserId && newArticle.author === currentUserId) {
+        return; // On stoppe ici, pas de pastille rouge pour l'auteur !
+      }
+
       const lastViewedBlog = localStorage.getItem('last_viewed_blog');
-      
       if (!lastViewedBlog) {
         setUnreadCount(prev => prev + 1);
         return;
@@ -117,7 +127,8 @@ function Home() {
       const lastViewedDate = new Date(lastViewedBlog);
       const articleDate = new Date(newArticle.date);
 
-      if (articleDate > lastViewedDate) {
+      // On ajoute une marge de sécurité de 5 secondes (5000ms) pour les écarts d'horloge entre appareils
+      if (articleDate.getTime() - 5000 > lastViewedDate.getTime()) {
         setUnreadCount(prev => prev + 1);
       }
     });
