@@ -78,21 +78,27 @@ function Home() {
           setUnreadCount(articles.length);
           return;
         }
-
+  
         const lastViewedDate = new Date(lastViewedBlog);
         const unreadArticles = articles.filter(article => {
-          // 🛠️ CORRECTION : On utilise article.date au lieu de createdAt
           const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
-
+  
         setUnreadCount(unreadArticles.length);
       } catch (error) {
         console.error("Erreur initialisation des notifications:", error);
       }
     };
-
+  
+    // Exécuter immédiatement au chargement
     fetchArticlesAndCalculateUnread();
+  
+    // 🔄 RECHERCHE AUTOMATIQUE SUR VERCEL (Toutes les 30 secondes)
+    const interval = setInterval(fetchArticlesAndCalculateUnread, 30000);
+  
+    // Nettoyer l'intervalle si le composant est démonté
+    return () => clearInterval(interval);
   }, []);
 
   // --- ÉCOUTE DES EVENEMENTS TEMPS REEL ---
