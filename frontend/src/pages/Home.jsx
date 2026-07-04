@@ -70,7 +70,7 @@ function Home() {
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
-        const response = await axios.get('/api/posts'); // Aligné sur ta route /api/posts vue dans server.js
+        const response = await axios.get('/api/posts'); 
         const articles = response.data || [];
         const lastViewedBlog = localStorage.getItem('last_viewed_blog');
         
@@ -81,7 +81,8 @@ function Home() {
 
         const lastViewedDate = new Date(lastViewedBlog);
         const unreadArticles = articles.filter(article => {
-          const articleDate = new Date(article.createdAt || article.updatedAt);
+          // 🛠️ CORRECTION : On utilise article.date au lieu de createdAt
+          const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
 
@@ -105,7 +106,8 @@ function Home() {
       }
 
       const lastViewedDate = new Date(lastViewedBlog);
-      const articleDate = new Date(newArticle.createdAt || newArticle.updatedAt);
+      // 🛠️ CORRECTION : On utilise newArticle.date ici aussi
+      const articleDate = new Date(newArticle.date);
 
       if (articleDate > lastViewedDate) {
         setUnreadCount(prev => prev + 1);
