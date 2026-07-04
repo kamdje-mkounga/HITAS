@@ -103,11 +103,9 @@ router.post('/', auth, (req, res) => {
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
       const postWithLean = post.toObject();
 
-      // 🌐 TEMPS RÉEL : Aligné sur l'événement attendu par Home.jsx pour le badge de notification
+      // 🌐 TEMPS RÉEL : Émettre le nouveau post créé à tout le monde
       const io = req.app.get('io');
-      if (io) {
-        io.emit('article_published', postWithLean);
-      }
+      if (io) io.emit('posts_created', postWithLean);
 
       res.json(post);
     } catch (dbErr) {
