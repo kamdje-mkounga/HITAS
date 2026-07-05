@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { io } from 'socket-io-client'; // 🌐 AJOUTÉ : Importation du client socket
+import { io } from 'socket.io-client'; // 🌐 Attention, c'est socket.io-client (avec un point)
 
 const BlogEntraide = () => {
   // États pour les posts et le formulaire
@@ -11,6 +11,9 @@ const BlogEntraide = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  // 🟢 AJOUT : Référence pour stocker le socket et l'utiliser lors du clic sur "Publier"
+  const socketRef = useRef(null);
 
   const BACKEND_URL = 'https://hitas.onrender.com';
 
@@ -46,8 +49,12 @@ const BlogEntraide = () => {
 
   // 🌐 INTERCEPTION TEMPS RÉEL (Socket.io)
   useEffect(() => {
-    // Connexion automatique au serveur socket
-    const socket = io(BACKEND_URL);
+    // 🟢 On stocke le socket dans la référence
+    socketRef.current = io(BACKEND_URL, {
+      transports: ['websocket', 'polling'], // Meilleure stabilité mobile
+    });
+    
+    const socket = socketRef.current;
 
     // Événement A : Quelqu'un (toi ou un autre) a créé un post
     socket.on('posts_created', (newPost) => {
@@ -92,12 +99,15 @@ const BlogEntraide = () => {
     try {
       await axios.post(
         `${BACKEND_URL}/api/posts`,
-        { text, category },
+        { 
+          text, 
+          category,
+          socketId: socketRef.current?.id // 🟢 LE SECRET EST ICI : On envoie notre identité au serveur !
+        },
         getAuthHeader()
       );
 
-      // 💡 NETTOYAGE ACCÉLÉRÉ : On supprime setPosts([res.data, ...posts]) ici, 
-      // car le socket.on('posts_created') va le capter et l'ajouter proprement pour tout le monde.
+      // 💡 NETTOYAGE ACCÉLÉRÉ
       setText(''); 
       setSuccess('Publication partagée avec succès !');
       
@@ -113,7 +123,6 @@ const BlogEntraide = () => {
     if (window.confirm('Es-tu sûr de vouloir supprimer cette publication ?')) {
       try {
         await axios.delete(`${BACKEND_URL}/api/posts/${postId}`, getAuthHeader());
-        // Même logique, le socket se charge de filtrer localement pour tout le monde instantanément.
       } catch (err) {
         console.error(err);
         alert('Erreur lors de la suppression ou non autorisé.');
