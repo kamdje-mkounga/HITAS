@@ -73,8 +73,8 @@ const OrbitingLogo = () => {
 // COMPOSANT PRINCIPAL HOME
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
+  const currentUserId = localStorage.getItem('userId'); // 🟢 Remplacé : on utilise userId pour être cohérent !
 
-  // --- CHARGEMENT INITIAL DES ARTICLES DEPUIS RENDER ---
   // --- CHARGEMENT INITIAL & GESTION DU BOUTON RETOUR MOBILE ---
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
@@ -84,13 +84,26 @@ function Home() {
         const lastViewedBlog = localStorage.getItem('last_viewed_blog');
         
         if (!lastViewedBlog) {
-          setUnreadCount(articles.length);
+          // Si jamais visité, on compte tous les articles SAUF les nôtres
+          const othersArticles = articles.filter(article => {
+            const authorId = typeof article.user === 'object' ? article.user._id : article.user;
+            return String(authorId).trim() !== String(currentUserId).trim();
+          });
+          setUnreadCount(othersArticles.length);
           return;
         }
   
         const lastViewedDate = new Date(lastViewedBlog);
+        
         const unreadArticles = articles.filter(article => {
           if (!article.date) return false;
+          
+          // 🛡️ FILTRE MAGIQUE 1 : Si c'est mon post, je ne le compte PAS comme non lu !
+          const authorId = typeof article.user === 'object' ? article.user._id : article.user;
+          if (String(authorId).trim() === String(currentUserId).trim()) {
+            return false;
+          }
+
           const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
@@ -106,7 +119,6 @@ function Home() {
 
     // 2. 📱 Forcer le recalcul si l'utilisateur revient en arrière (Mobile Back-Forward Cache)
     const handlePageShow = (event) => {
-      // Regénère le calcul, même si la page sort du cache historique du téléphone
       fetchArticlesAndCalculateUnread();
     };
 
@@ -115,28 +127,18 @@ function Home() {
     return () => {
       window.removeEventListener('pageshow', handlePageShow);
     };
-  }, []);
+  }, [currentUserId]);
 
-  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
       console.log("Flux direct reçu du serveur Render :", newArticle);
       
-      // 🛠️ SÉCURITÉ ULTRA-FIABLE : Récupérer le profil local pour comparer
-      const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
-      const currentUserId = currentUser?._id || currentUser?.id;
+      // 🛡️ FILTRE MAGIQUE 2 : On vérifie l'auteur proprement en forçant en String
+      const authorId = typeof newArticle.user === 'object' ? newArticle.user._id : newArticle.user;
       
-      // On récupère aussi le prénom/nom pour un double filtrage au cas où les IDs diffèrent
-      const localProfile = localStorage.getItem('profile') ? JSON.parse(localStorage.getItem('profile')) : null;
-      const localFirstName = localProfile?.firstName || '';
-      const localLastName = localProfile?.lastName || '';
-
-      // 🛑 SI LE MESSAGE VIENT DE MOI (par ID, ou par Nom/Prénom identiques), ON ARRÊTE TOUT
-      if (
-        (currentUserId && newArticle.user === currentUserId) || 
-        (newArticle.firstName === localFirstName && newArticle.lastName === localLastName && localFirstName !== '')
-      ) {
+      // 🛑 SI LE MESSAGE VIENT DE MOI, ON ARRÊTE TOUT
+      if (String(authorId).trim() === String(currentUserId).trim()) {
         console.log("Bloqué : C'est ma propre publication.");
         return; 
       }
@@ -151,7 +153,7 @@ function Home() {
       const lastViewedDate = new Date(lastViewedBlog);
       const articleDate = new Date(newArticle.date);
 
-      // On ajoute une marge de 10 secondes pour pallier le délai d'écriture / retour arrière
+      // On ajoute une marge de 10 secondes
       if (articleDate.getTime() - 10000 > lastViewedDate.getTime()) {
         setUnreadCount(prev => prev + 1);
       }
@@ -160,7 +162,7 @@ function Home() {
     return () => {
       socket.off('article_published');
     };
-  }, []);
+  }, [currentUserId]);
 
   const handleBlogClick = () => {
     localStorage.setItem('last_viewed_blog', new Date().toISOString());
