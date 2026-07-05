@@ -118,20 +118,30 @@ function Home() {
   }, []);
 
   // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
+  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
       console.log("Flux direct reçu du serveur Render :", newArticle);
-
-      // 🛠️ 1. RÉCUPÉRER L'ID DE L'UTILISATEUR CONNECTÉ (depuis ton stockage de session/auth)
-      // Adapte 'user' ou 'userId' selon la façon dont tu stockes les infos de la personne connectée
-      const currentUser = JSON.parse(localStorage.getItem('user')); 
+      
+      // 🛠️ SÉCURITÉ ULTRA-FIABLE : Récupérer le profil local pour comparer
+      const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
       const currentUserId = currentUser?._id || currentUser?.id;
+      
+      // On récupère aussi le prénom/nom pour un double filtrage au cas où les IDs diffèrent
+      const localProfile = localStorage.getItem('profile') ? JSON.parse(localStorage.getItem('profile')) : null;
+      const localFirstName = localProfile?.firstName || '';
+      const localLastName = localProfile?.lastName || '';
 
-      // 🛠️ 2. SI C'EST MOI QUI AI ÉCRIT L'ARTICLE, ON NE MET PAS DE NOTIFICATION
-      if (currentUserId && newArticle.author === currentUserId) {
-        return; // On stoppe ici, pas de pastille rouge pour l'auteur !
+      // 🛑 SI LE MESSAGE VIENT DE MOI (par ID, ou par Nom/Prénom identiques), ON ARRÊTE TOUT
+      if (
+        (currentUserId && newArticle.user === currentUserId) || 
+        (newArticle.firstName === localFirstName && newArticle.lastName === localLastName && localFirstName !== '')
+      ) {
+        console.log("Bloqué : C'est ma propre publication.");
+        return; 
       }
 
+      // ⏱️ GESTION DU TEMPS DE LECTURE
       const lastViewedBlog = localStorage.getItem('last_viewed_blog');
       if (!lastViewedBlog) {
         setUnreadCount(prev => prev + 1);
@@ -141,8 +151,8 @@ function Home() {
       const lastViewedDate = new Date(lastViewedBlog);
       const articleDate = new Date(newArticle.date);
 
-      // On ajoute une marge de sécurité de 5 secondes (5000ms) pour les écarts d'horloge entre appareils
-      if (articleDate.getTime() - 5000 > lastViewedDate.getTime()) {
+      // On ajoute une marge de 10 secondes pour pallier le délai d'écriture / retour arrière
+      if (articleDate.getTime() - 10000 > lastViewedDate.getTime()) {
         setUnreadCount(prev => prev + 1);
       }
     });
