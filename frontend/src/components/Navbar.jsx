@@ -47,28 +47,41 @@ const Navbar = () => {
   }, [token]);
 
   // 🌐 3. ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL
-  useEffect(() => {
-    if (!token) return; // Inutile de se connecter si on n'est pas loggé
+ // 🌐 ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL
+ useEffect(() => {
+  if (!token || !loggedInUserId) return; // Sécurité supplémentaire
 
-    const socket = io(BACKEND_URL, {
-      transports: ['websocket', 'polling'],
-    });
+  const socket = io(BACKEND_URL, {
+    transports: ['websocket', 'polling'],
+  });
 
-    socket.on('article_published', (newPost) => {
-      // 🛡️ LE FILTRE : On vérifie l'ID de l'auteur du post
-      const postAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
-      
-      // Si ce n'est PAS ton propre post, on allume la notification
-      if (postAuthorId !== loggedInUserId) {
-        setHasNewNotification(true);
-      }
-    });
+  socket.on('article_published', (newPost) => {
+    if (!newPost || !newPost.user) return;
 
-    return () => {
-      socket.off('article_published');
-      socket.disconnect();
-    };
-  }, [token, loggedInUserId]);
+    // 1. On extrait l'ID proprement, qu'il soit un objet peuplé ou un ID direct
+    const rawAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
+    
+    // 2. 🛡️ LE FILTRE BLINDÉ : On force tout en texte (String) et on enlève les espaces invisibles (trim)
+    const postAuthorId = String(rawAuthorId).trim();
+    const myId = String(loggedInUserId).trim();
+
+    console.log(`Comparaison - Auteur du post: ${postAuthorId} | Mon ID: ${myId}`);
+
+    // 3. Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie !
+    if (postAuthorId !== myId) {
+      setHasNewNotification(true); 
+      // Si tu as un state de compteur (ex: setCount(prev => prev + 1)), c'est ici qu'il faut le mettre.
+    } else {
+      // C'est mon post, je l'ignore silencieusement 🥷
+      console.log("C'est mon post, on bloque la notification !");
+    }
+  });
+
+  return () => {
+    socket.off('article_published');
+    socket.disconnect();
+  };
+}, [token, loggedInUserId]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
