@@ -74,6 +74,7 @@ const OrbitingLogo = () => {
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // --- CHARGEMENT INITIAL DES ARTICLES DEPUIS RENDER ---
   // --- CHARGEMENT INITIAL & GESTION DU BOUTON RETOUR MOBILE ---
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
@@ -100,9 +101,12 @@ function Home() {
       }
     };
   
+    // 1. Exécution immédiate au montage du composant
     fetchArticlesAndCalculateUnread();
 
+    // 2. 📱 Forcer le recalcul si l'utilisateur revient en arrière (Mobile Back-Forward Cache)
     const handlePageShow = (event) => {
+      // Regénère le calcul, même si la page sort du cache historique du téléphone
       fetchArticlesAndCalculateUnread();
     };
 
@@ -114,65 +118,30 @@ function Home() {
   }, []);
 
   // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
+  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
       console.log("Flux direct reçu du serveur Render :", newArticle);
       
-      // 🕵️ EXTRACTION BLINDÉE DE TOUTES LES SOURCES D'ID POSSIBLES (User et Profile)
-      const rawUser = localStorage.getItem('user');
-      const rawProfile = localStorage.getItem('profile');
+      // 🛠️ SÉCURITÉ ULTRA-FIABLE : Récupérer le profil local pour comparer
+      const currentUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+      const currentUserId = currentUser?._id || currentUser?.id;
       
-      let localIds = [];
-      let localNames = [];
+      // On récupère aussi le prénom/nom pour un double filtrage au cas où les IDs diffèrent
+      const localProfile = localStorage.getItem('profile') ? JSON.parse(localStorage.getItem('profile')) : null;
+      const localFirstName = localProfile?.firstName || '';
+      const localLastName = localProfile?.lastName || '';
 
-      if (rawUser) {
-        try {
-          const parsedUser = JSON.parse(rawUser);
-          if (typeof parsedUser === 'object') {
-            if (parsedUser._id) localIds.push(parsedUser._id.toString());
-            if (parsedUser.id) localIds.push(parsedUser.id.toString());
-            if (parsedUser.userId) localIds.push(parsedUser.userId.toString());
-          } else {
-            localIds.push(parsedUser.toString()); // Au cas où l'ID est stocké en string pur
-          }
-        } catch(e) {}
+      // 🛑 SI LE MESSAGE VIENT DE MOI (par ID, ou par Nom/Prénom identiques), ON ARRÊTE TOUT
+      if (
+        (currentUserId && newArticle.user === currentUserId) || 
+        (newArticle.firstName === localFirstName && newArticle.lastName === localLastName && localFirstName !== '')
+      ) {
+        console.log("Bloqué : C'est ma propre publication.");
+        return; 
       }
 
-      if (rawProfile) {
-        try {
-          const parsedProfile = JSON.parse(rawProfile);
-          if (parsedProfile.user) localIds.push(parsedProfile.user.toString());
-          if (parsedProfile._id) localIds.push(parsedProfile._id.toString());
-          if (parsedProfile.firstName) localNames.push(parsedProfile.firstName.toLowerCase().trim());
-          if (parsedProfile.lastName) localNames.push(parsedProfile.lastName.toLowerCase().trim());
-        } catch(e) {}
-      }
-
-      // 🛑 1. FILTRE PAR ID MULTIPLE
-      const articleUserStr = newArticle.user ? newArticle.user.toString() : '';
-      if (articleUserStr && localIds.includes(articleUserStr)) {
-        console.log("Ignoré (Filtre ID) : C'est mon propre post.");
-        return;
-      }
-
-      // 🛑 2. FILTRE PAR NOM/PRÉNOM DE SÉCURITÉ
-      const artFirst = newArticle.firstName ? newArticle.firstName.toLowerCase().trim() : '';
-      const artLast = newArticle.lastName ? newArticle.lastName.toLowerCase().trim() : '';
-      if (localNames.length > 0 && localNames.includes(artFirst) && localNames.includes(artLast)) {
-        console.log("Ignoré (Filtre Nom) : C'est mon propre post.");
-        return;
-      }
-
-      // 🛑 3. ANTI-NOTIF TEMPORAIRE (Si l'article a été créé il y a moins de 8 secondes par cet appareil)
-      const timeSinceCreation = Date.now() - new Date(newArticle.date).getTime();
-      if (timeSinceCreation < 8000) {
-        // Si l'article vient d'apparaître instantanément au moment où tu cliques sur retour, 
-        // c'est forcément une action liée à ton propre envoi réseau. On bloque la notification.
-        console.log("Ignoré (Filtre Anti-écho instantané).");
-        return;
-      }
-
-      // ⏱️ LOGIQUE STANDARD DE COMPTAGE DES MESSAGES TIERS
+      // ⏱️ GESTION DU TEMPS DE LECTURE
       const lastViewedBlog = localStorage.getItem('last_viewed_blog');
       if (!lastViewedBlog) {
         setUnreadCount(prev => prev + 1);
@@ -182,8 +151,8 @@ function Home() {
       const lastViewedDate = new Date(lastViewedBlog);
       const articleDate = new Date(newArticle.date);
 
-      // Marge de sécurité de 15 secondes pour les téléphones en 4G/5G instable
-      if (articleDate.getTime() - 15000 > lastViewedDate.getTime()) {
+      // On ajoute une marge de 10 secondes pour pallier le délai d'écriture / retour arrière
+      if (articleDate.getTime() - 10000 > lastViewedDate.getTime()) {
         setUnreadCount(prev => prev + 1);
       }
     });
