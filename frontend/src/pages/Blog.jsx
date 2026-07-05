@@ -131,32 +131,47 @@ const Blog = () => {
   }, []);
 
   // 🌐 INTERCEPTION TEMPS RÉEL (Socket.io)
-  useEffect(() => {
-    const socket = io(BACKEND_URL);
+  // 🌐 INTERCEPTION TEMPS RÉEL STABILISÉE (PC & MOBILE)
+useEffect(() => {
+  const socket = io(BACKEND_URL, {
+    transports: ['websocket', 'polling'], // Assure une meilleure compatibilité mobile
+    closeOnBeforeunload: true
+  });
 
-    socket.on('posts_created', (newPost) => {
-      setPosts((prevPosts) => {
-        if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
-        return [newPost, ...prevPosts];
-      });
+  const handleCreated = (newPost) => {
+    setPosts((prevPosts) => {
+      if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
+      return [newPost, ...prevPosts];
     });
+  };
 
-    socket.on('posts_deleted', (deletedPostId) => {
-      setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
-    });
+  const handleDeleted = (deletedPostId) => {
+    setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
+  };
 
-    socket.on('posts_updated', (updatedPost) => {
-      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
-    });
+  const handleUpdated = (updatedPost) => {
+    setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+  };
 
-    socket.on('posts_updated_interactions', (updatedPost) => {
-      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
-    });
+  const handleInteractions = (updatedPost) => {
+    setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+  };
 
-    return () => {
-      socket.disconnect();
-    };
-  }, [BACKEND_URL]);
+  // 1. On attache les écouteurs
+  socket.on('posts_created', handleCreated);
+  socket.on('posts_deleted', handleDeleted);
+  socket.on('posts_updated', handleUpdated);
+  socket.on('posts_updated_interactions', handleInteractions);
+
+  // 2. Nettoyage STRICT quand on quitte la page / le composant démonte
+  return () => {
+    socket.off('posts_created', handleCreated);
+    socket.off('posts_deleted', handleDeleted);
+    socket.off('posts_updated', handleUpdated);
+    socket.off('posts_updated_interactions', handleInteractions);
+    socket.disconnect();
+  };
+}, [BACKEND_URL]);
 
   // 2. Aimer / Liker une publication
   const handleLike = async (postId) => {
