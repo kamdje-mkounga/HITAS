@@ -104,21 +104,12 @@ router.post('/', auth, (req, res) => {
       const postWithLean = post.toObject();
 
       // 🌐 TEMPS RÉEL OPTIMISÉ POUR EXCLURE L'AUTEUR DE LA NOTIFICATION
+      // 🌐 TEMPS RÉEL : On diffuse à tout le monde ! 
+      // Le filtrage (pour ne pas s'auto-notifier) est désormais géré à 100% par le Frontend.
       const io = req.app.get('io');
       if (io) {
-        const senderSocketId = req.body.socketId; // ⚠️ Frontend doit append('socketId', socket.id) en premier dans le FormData
-
-        if (senderSocketId) {
-          // 1. On met à jour le flux global de tout le monde (y compris toi pour voir ton message apparaître)
-          io.emit('posts_created', postWithLean); 
-
-          // 2. On envoie la bulle rouge de notification à TOUT LE MONDE SAUF à toi
-          io.except(senderSocketId).emit('article_published', postWithLean);
-        } else {
-          // Fallback de secours si le socketId n'est pas encore arrivé au serveur
-          io.emit('article_published', postWithLean);
-          io.emit('posts_created', postWithLean);
-        }
+        io.emit('posts_created', postWithLean);
+        io.emit('article_published', postWithLean);
       }
 
       res.json(post);
