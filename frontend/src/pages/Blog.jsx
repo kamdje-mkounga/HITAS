@@ -115,7 +115,7 @@ const Blog = () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/posts`);
       setPosts(res.data);
-      setLoading(false);
+      loading && setLoading(false);
     } catch (err) {
       setError('Impossible de charger les publications.');
       setLoading(false);
@@ -134,7 +134,6 @@ const Blog = () => {
   useEffect(() => {
     const socket = io(BACKEND_URL);
 
-    // Événement A : Création d'un post
     socket.on('posts_created', (newPost) => {
       setPosts((prevPosts) => {
         if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
@@ -142,17 +141,14 @@ const Blog = () => {
       });
     });
 
-    // Événement B : Suppression d'un post
     socket.on('posts_deleted', (deletedPostId) => {
       setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
     });
 
-    // Événement C : Modification globale d'un post (texte, médias...)
     socket.on('posts_updated', (updatedPost) => {
       setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
     });
 
-    // Événement D : Interactions en direct (Likes et Commentaires)
     socket.on('posts_updated_interactions', (updatedPost) => {
       setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
     });
@@ -219,10 +215,7 @@ const Blog = () => {
       const formData = new FormData();
       formData.append('text', editText);
       formData.append('existingMediaUrl', existingMediaUrl);
-      
-      if (editMediaFile) {
-        formData.append('media', editMediaFile);
-      }
+      if (editMediaFile) formData.append('media', editMediaFile);
 
       const token = localStorage.getItem('token');
       await axios.put(`${BACKEND_URL}/api/posts/${postId}`, formData, {

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const PostSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', 
+    ref: 'user', // Vérifie bien si c't'un 'user' ou 'User' dans ton projet
     required: true
   },
   firstName: {
@@ -31,10 +31,11 @@ const PostSchema = new mongoose.Schema({
   },
   mediaPath: {
     type: String
-},
+  },
   mediaType: {
     type: String,
-    enum: ['image', 'video', 'audio','pdf', 'document', null],
+    // 📢 Nettoyage : On retire null de l'enum pour éviter les bugs Mongoose
+    enum: ['image', 'video', 'audio', 'pdf', 'document'],
     default: null
   },
   likes: [
