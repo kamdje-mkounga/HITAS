@@ -1,61 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
 import axios from 'axios';
+import { io } from 'socket.io-client'; // 🌐 1. On importe Socket.IO
 
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
-  // State pour gérer la notification rouge style WhatsApp (ex: un nouveau message est arrivé)
-  const [hasNewNotification, setHasNewNotification] = useState(true);
+  
+  // 🔴 2. On initialise à FALSE pour ne pas avoir de fausse notification au démarrage
+  const [hasNewNotification, setHasNewNotification] = useState(false); 
+  
   const navigate = useNavigate();
   const BACKEND_URL = "https://hitas.onrender.com";
   const token = localStorage.getItem('token');
+  const loggedInUserId = localStorage.getItem('userId'); // On récupère ton ID
 
   useEffect(() => {
-
     const fetchNavbarProfile = async () => {
-
-        if (!token) return;
-
-        try {
-
-            const res = await axios.get(
-                `${BACKEND_URL}/api/profile/me`,
-                {
-                    headers: {
-                        'x-auth-token': token
-                    }
-                }
-            );
-
-            if (res.data?.avatar) {
-
-                if (res.data.avatar.startsWith("http")) {
-                    setAvatar(res.data.avatar);
-                } else {
-                    setAvatar(`${BACKEND_URL}${res.data.avatar}`);
-                }
-
-            }
-
-        } catch (err) {
-            console.error(err);
+      if (!token) return;
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/profile/me`, {
+          headers: { 'x-auth-token': token }
+        });
+        if (res.data?.avatar) {
+          if (res.data.avatar.startsWith("http")) {
+            setAvatar(res.data.avatar);
+          } else {
+            setAvatar(`${BACKEND_URL}${res.data.avatar}`);
+          }
         }
-
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     fetchNavbarProfile();
 
     const handleAvatarUpdated = () => {
-        fetchNavbarProfile();
+      fetchNavbarProfile();
     };
 
     window.addEventListener("avatarUpdated", handleAvatarUpdated);
 
     return () => {
-        window.removeEventListener("avatarUpdated", handleAvatarUpdated);
+      window.removeEventListener("avatarUpdated", handleAvatarUpdated);
     };
+  }, [token]);
 
-}, [token]);
+  // 🌐 3. ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL
+  useEffect(() => {
+    if (!token) return; // Inutile de se connecter si on n'est pas loggé
+
+    const socket = io(BACKEND_URL, {
+      transports: ['websocket', 'polling'],
+    });
+
+    socket.on('article_published', (newPost) => {
+      // 🛡️ LE FILTRE : On vérifie l'ID de l'auteur du post
+      const postAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
+      
+      // Si ce n'est PAS ton propre post, on allume la notification
+      if (postAuthorId !== loggedInUserId) {
+        setHasNewNotification(true);
+      }
+    });
+
+    return () => {
+      socket.off('article_published');
+      socket.disconnect();
+    };
+  }, [token, loggedInUserId]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -89,7 +102,7 @@ const Navbar = () => {
             {/* Onglet Blog mis à jour avec la notification style WhatsApp */}
             <NavLink 
               to="/blog" 
-              onClick={() => setHasNewNotification(false)} // Optionnel: efface la notification quand on clique dessus
+              onClick={() => setHasNewNotification(false)} // Efface la notif quand on clique
               className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive ? 'bg-indigo-500/10 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
               }`}
@@ -118,7 +131,6 @@ const Navbar = () => {
             </NavLink>
           </div>
           
-
           {/* 🔐 ESPACE UTILISATEUR CONNECTÉ / COMPTE */}
           <div className="flex items-center space-x-4">
             {token ? (
