@@ -106,9 +106,8 @@ router.post('/', auth, (req, res) => {
       // 🌐 TEMPS RÉEL OPTIMISÉ POUR EXCLURE L'AUTEUR DE LA NOTIFICATION
       const io = req.app.get('io');
       if (io) {
-        const senderSocketId = req.body.socketId;
+        const senderSocketId = req.body.socketId; // ⚠️ Frontend doit append('socketId', socket.id) en premier dans le FormData
 
-        // Si le frontend a bien envoyé le socketId de ton téléphone, on l'exclut
         if (senderSocketId) {
           // 1. On met à jour le flux global de tout le monde (y compris toi pour voir ton message apparaître)
           io.emit('posts_created', postWithLean); 
@@ -273,7 +272,6 @@ router.put('/:id', auth, (req, res) => {
         await deleteFile(fileToDelete);
       }
 
-      // Synchroniser l'avatar le plus récent avant l'émission temps réel
       const postObj = post.toObject();
       if (postObj.user) {
         const userProfile = await Profile.findOne({ user: postObj.user }).select('avatar');
@@ -282,7 +280,14 @@ router.put('/:id', auth, (req, res) => {
 
       // 🌐 TEMPS RÉEL : Notifier de la modification du contenu du post
       const io = req.app.get('io');
-      if (io) io.emit('posts_updated', postObj);
+      if (io) {
+        const senderSocketId = req.body.socketId;
+        if (senderSocketId) {
+            io.except(senderSocketId).emit('posts_updated', postObj);
+        } else {
+            io.emit('posts_updated', postObj);
+        }
+      }
 
       res.json(post);
     } catch (err) {
@@ -313,14 +318,12 @@ router.put('/like/:id', auth, async (req, res) => {
 
     await post.save();
 
-    // Renvoyer et diffuser le post complet mis à jour pour rafraîchir les compteurs de likes chez tout le monde
     const updatedPost = await Post.findById(req.params.id).lean();
     if (updatedPost.user) {
       const userProfile = await Profile.findOne({ user: updatedPost.user }).select('avatar');
       if (userProfile && userProfile.avatar) updatedPost.avatar = userProfile.avatar;
     }
     
-    // Récupérer les avatars des commentaires
     if (updatedPost.comments && updatedPost.comments.length > 0) {
       updatedPost.comments = await Promise.all(updatedPost.comments.map(async (comment) => {
         if (comment.user) {
@@ -333,7 +336,14 @@ router.put('/like/:id', auth, async (req, res) => {
 
     // 🌐 TEMPS RÉEL : Diffuser la mise à jour des interactions (Likes)
     const io = req.app.get('io');
-    if (io) io.emit('posts_updated_interactions', updatedPost);
+    if (io) {
+      const senderSocketId = req.body.socketId; // ⚠️ Frontend : axios.put(..., { socketId: socket.id })
+      if (senderSocketId) {
+        io.except(senderSocketId).emit('posts_updated_interactions', updatedPost);
+      } else {
+        io.emit('posts_updated_interactions', updatedPost);
+      }
+    }
 
     res.json(post.likes);
   } catch (err) {
@@ -366,12 +376,10 @@ router.post('/comment/:id', auth, async (req, res) => {
       avatar: profile.avatar || ''
     };
 
-    // Ajouter le commentaire au début du tableau des commentaires
     post.comments.unshift(newComment);
 
     await post.save();
     
-    // Récupérer la structure complète nettoyée avec les avatars synchronisés pour le live
     const updatedPost = await Post.findById(req.params.id).lean();
     if (updatedPost.user) {
       const userProfile = await Profile.findOne({ user: updatedPost.user }).select('avatar');
@@ -388,9 +396,16 @@ router.post('/comment/:id', auth, async (req, res) => {
       }));
     }
 
-    // 🌐 TEMPS RÉEL : Diffuser le post mis à jour avec le nouveau commentaire inclus
+    // 🌐 TEMPS RÉEL : Diffuser le post mis à jour avec le nouveau commentaire
     const io = req.app.get('io');
-    if (io) io.emit('posts_updated_interactions', updatedPost);
+    if (io) {
+      const senderSocketId = req.body.socketId; // ⚠️ Frontend : axios.post(..., { text: "...", socketId: socket.id })
+      if (senderSocketId) {
+        io.except(senderSocketId).emit('posts_updated_interactions', updatedPost);
+      } else {
+        io.emit('posts_updated_interactions', updatedPost);
+      }
+    }
 
     res.json(updatedPost.comments);
   } catch (err) {

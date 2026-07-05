@@ -27,6 +27,10 @@ const Blog = () => {
 
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
+  
+  // 🟢 NOUVEAU : On stocke le socket dans une référence pour y accéder partout
+  const socketRef = useRef(null); 
+
   const BACKEND_URL = 'https://hitas.onrender.com';
   const loggedInUserId = localStorage.getItem('userId') || ''; 
   const location = useLocation();
@@ -130,53 +134,58 @@ const Blog = () => {
     };
   }, []);
 
-  // 🌐 INTERCEPTION TEMPS RÉEL (Socket.io)
   // 🌐 INTERCEPTION TEMPS RÉEL STABILISÉE (PC & MOBILE)
-useEffect(() => {
-  const socket = io(BACKEND_URL, {
-    transports: ['websocket', 'polling'], // Assure une meilleure compatibilité mobile
-    closeOnBeforeunload: true
-  });
-
-  const handleCreated = (newPost) => {
-    setPosts((prevPosts) => {
-      if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
-      return [newPost, ...prevPosts];
+  useEffect(() => {
+    // 🟢 ASSIGNATION DU SOCKET À LA RÉFÉRENCE
+    socketRef.current = io(BACKEND_URL, {
+      transports: ['websocket', 'polling'], // Assure une meilleure compatibilité mobile
+      closeOnBeforeunload: true
     });
-  };
 
-  const handleDeleted = (deletedPostId) => {
-    setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
-  };
+    const socket = socketRef.current;
 
-  const handleUpdated = (updatedPost) => {
-    setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
-  };
+    const handleCreated = (newPost) => {
+      setPosts((prevPosts) => {
+        if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
+        return [newPost, ...prevPosts];
+      });
+    };
 
-  const handleInteractions = (updatedPost) => {
-    setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
-  };
+    const handleDeleted = (deletedPostId) => {
+      setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
+    };
 
-  // 1. On attache les écouteurs
-  socket.on('posts_created', handleCreated);
-  socket.on('posts_deleted', handleDeleted);
-  socket.on('posts_updated', handleUpdated);
-  socket.on('posts_updated_interactions', handleInteractions);
+    const handleUpdated = (updatedPost) => {
+      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    };
 
-  // 2. Nettoyage STRICT quand on quitte la page / le composant démonte
-  return () => {
-    socket.off('posts_created', handleCreated);
-    socket.off('posts_deleted', handleDeleted);
-    socket.off('posts_updated', handleUpdated);
-    socket.off('posts_updated_interactions', handleInteractions);
-    socket.disconnect();
-  };
-}, [BACKEND_URL]);
+    const handleInteractions = (updatedPost) => {
+      setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
+    };
+
+    // 1. On attache les écouteurs
+    socket.on('posts_created', handleCreated);
+    socket.on('posts_deleted', handleDeleted);
+    socket.on('posts_updated', handleUpdated);
+    socket.on('posts_updated_interactions', handleInteractions);
+
+    // 2. Nettoyage STRICT quand on quitte la page / le composant démonte
+    return () => {
+      socket.off('posts_created', handleCreated);
+      socket.off('posts_deleted', handleDeleted);
+      socket.off('posts_updated', handleUpdated);
+      socket.off('posts_updated_interactions', handleInteractions);
+      socket.disconnect();
+    };
+  }, [BACKEND_URL]);
 
   // 2. Aimer / Liker une publication
   const handleLike = async (postId) => {
     try {
-      const response = await axios.put(`${BACKEND_URL}/api/posts/like/${postId}`, {}, getAuthHeader());
+      // 🟢 AJOUT DU SOCKET ID
+      const response = await axios.put(`${BACKEND_URL}/api/posts/like/${postId}`, {
+        socketId: socketRef.current?.id
+      }, getAuthHeader());
       setPosts(posts.map(post => post._id === postId ? { ...post, likes: response.data?.likes || response.data } : post));
     } catch (err) {
       console.error(err);
@@ -188,7 +197,12 @@ useEffect(() => {
     const textComment = commentTexts[postId];
     if (!textComment || !textComment.trim()) return;
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/posts/comment/${postId}`, { text: textComment }, getAuthHeader());
+      // 🟢 AJOUT DU SOCKET ID
+      const response = await axios.post(`${BACKEND_URL}/api/posts/comment/${postId}`, { 
+        text: textComment,
+        socketId: socketRef.current?.id
+      }, getAuthHeader());
+      
       setPosts(posts.map(post => post._id === postId ? { ...post, comments: response.data?.comments || response.data } : post));
       setCommentTexts({ ...commentTexts, [postId]: '' });
     } catch (err) {
@@ -203,6 +217,12 @@ useEffect(() => {
     if (!text.trim() && !mediaFile) return setError('Le corps du message ne peut pas être vide ou doit contenir un média.');
     try {
       const formData = new FormData();
+      
+      // 🟢 AJOUT DU SOCKET ID EN PREMIER DANS LE FORMDATA (Très important pour Multer)
+      if (socketRef.current?.id) {
+        formData.append('socketId', socketRef.current.id);
+      }
+      
       formData.append('text', text);
       formData.append('category', category);
       if (mediaFile) formData.append('media', mediaFile);
@@ -228,6 +248,12 @@ useEffect(() => {
 
     try {
       const formData = new FormData();
+      
+      // 🟢 AJOUT DU SOCKET ID EN PREMIER DANS LE FORMDATA
+      if (socketRef.current?.id) {
+        formData.append('socketId', socketRef.current.id);
+      }
+
       formData.append('text', editText);
       formData.append('existingMediaUrl', existingMediaUrl);
       if (editMediaFile) formData.append('media', editMediaFile);
