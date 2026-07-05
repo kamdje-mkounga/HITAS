@@ -130,33 +130,24 @@ function Home() {
   }, [currentUserId]);
 
   // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
+  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
-      console.log("Flux direct reçu du serveur Render :", newArticle);
+      console.log("⚡ Flux direct reçu sur l'ordinateur :", newArticle);
       
-      // 🛡️ FILTRE MAGIQUE 2 : On vérifie l'auteur proprement en forçant en String
+      // 1. On vérifie l'auteur proprement en forçant en String
       const authorId = typeof newArticle.user === 'object' ? newArticle.user._id : newArticle.user;
       
-      // 🛑 SI LE MESSAGE VIENT DE MOI, ON ARRÊTE TOUT
+      // 2. 🛑 SI LE MESSAGE VIENT DE MOI, ON ARRÊTE TOUT
       if (String(authorId).trim() === String(currentUserId).trim()) {
-        console.log("Bloqué : C'est ma propre publication.");
+        console.log("🥷 Bloqué : C'est ma propre publication.");
         return; 
       }
 
-      // ⏱️ GESTION DU TEMPS DE LECTURE
-      const lastViewedBlog = localStorage.getItem('last_viewed_blog');
-      if (!lastViewedBlog) {
-        setUnreadCount(prev => prev + 1);
-        return;
-      }
-
-      const lastViewedDate = new Date(lastViewedBlog);
-      const articleDate = new Date(newArticle.date);
-
-      // On ajoute une marge de 10 secondes
-      if (articleDate.getTime() - 10000 > lastViewedDate.getTime()) {
-        setUnreadCount(prev => prev + 1);
-      }
+      // 3. 🚀 SI CE N'EST PAS MOI : C'est du temps réel, donc c'est forcément NOUVEAU ! 
+      // On incrémente directement sans comparer avec l'heure du PC !
+      console.log("🔔 Nouveau post d'un autre utilisateur ! +1 notification.");
+      setUnreadCount(prev => prev + 1);
     });
 
     return () => {
