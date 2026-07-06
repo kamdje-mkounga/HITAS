@@ -229,10 +229,10 @@ const Showcase = () => {
       {/* HEADER DE PAGE */}
       <div className="mb-10 text-center sm:text-left">
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-slate-50 via-indigo-200 to-purple-400 bg-clip-text text-transparent">
-          Showcase des Projets
+          Showcase des Projets et Expériences
         </h1>
         <p className="text-slate-400 mt-2 text-sm max-w-2xl">
-          Découvrez et gérez les créations et applications codées par les étudiants ITAS.
+          Découvrez et gérez les créations et applications codées par les étudiants de HITAS.
         </p>
       </div>
 
@@ -250,14 +250,14 @@ const Showcase = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <input 
               type="text" 
-              placeholder="Nom du projet" 
+              placeholder="Nom du projet ou de l'expérience" 
               className="bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-500 text-slate-200" 
               value={title} 
               onChange={(e) => setTitle(e.target.value)} 
             />
             <input 
               type="text" 
-              placeholder="Technologies (ex: React, Node, Tailwind)" 
+              placeholder="Technologies (ex: React, Node, Tailwind), Outils," 
               className="bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-500 text-slate-200" 
               value={technologies} 
               onChange={(e) => setTechnologies(e.target.value)} 
@@ -266,7 +266,7 @@ const Showcase = () => {
           
           <textarea 
             rows="3" 
-            placeholder="Décrivez votre application, vos objectifs et vos accomplissements..." 
+            placeholder="Décrivez votre application, vos objectifs et votre accomplissement..." 
             className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-500 text-slate-200 resize-none leading-relaxed" 
             value={description} 
             onChange={(e) => setDescription(e.target.value)}
