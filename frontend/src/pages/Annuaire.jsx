@@ -67,7 +67,7 @@ function Annuaire() {
         {/* En-tête */}
         <div className="mb-8 border-b border-zinc-800 pb-4">
           <h1 className="text-3xl font-black tracking-tight mb-2">Annuaire de la Diaspora</h1>
-          <p className="text-zinc-400">Connecte-toi avec les étudiants d'HITAS à travers le monde.</p>
+          <p className="text-zinc-400">Connecte-toi avec les étudiants de HITAS à travers le monde.</p>
         </div>
 
         {/* BARRE DE RECHERCHE & FILTRES */}
