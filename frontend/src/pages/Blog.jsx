@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client'; // 🌐 Importation du client socket
+import { Search, Paperclip, Send, Layers, Heart, MessageSquare, Pencil, Trash2, X } from 'lucide-react';
 
 const Blog = () => {
   const [mediaFile, setMediaFile] = useState(null);
