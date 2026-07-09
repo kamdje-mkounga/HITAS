@@ -2,7 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client'; // 🌐 Importation du client socket
-
+import {
+  Paperclip,
+  Search,
+  Pencil,
+  Trash2,
+  Heart,
+  MessageCircle,
+  Plus,
+  FileText,
+  X,
+  Send,
+  Megaphone,
+  Briefcase
+} from "lucide-react";
 
 const Blog = () => {
   const [mediaFile, setMediaFile] = useState(null);
@@ -373,7 +386,7 @@ const Blog = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all duration-200 ${mediaFile ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' : 'border-zinc-800 bg-[#0d0d0e] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'}`}
                 >
-                  📎 {mediaFile ? 'Média prêt' : 'Ajouter un média'}
+                  <Paperclip size={16} /> {mediaFile ? 'Média prêt' : 'Ajouter un média'}
                 </button>
                 <input 
                   type="file" 
@@ -394,7 +407,7 @@ const Blog = () => {
         {/* RECHERCHE */}
         <div className="mb-6">
           <div className="relative">
-            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 text-sm">🔍</span>
+            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 text-sm"><Search size={16} /></span>
             <input
               type="text"
               placeholder="Rechercher un mot-clé, un sujet, un étudiant..."
@@ -414,7 +427,7 @@ const Blog = () => {
               onClick={() => setSelectedFilter(cat)}
               className={`px-4 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 ${selectedFilter === cat ? 'bg-zinc-100 text-zinc-900 border-zinc-100 shadow-md' : 'bg-[#161618] text-zinc-400 border-zinc-800/60 hover:border-zinc-700 hover:text-zinc-200'}`}
             >
-              {cat === 'Tous' ? '📢 Tous' : cat === 'Stage/Emploi' ? '💼 Stage / Emploi' : cat}
+              {cat === 'Tous' ? '<Megaphone size={14} /> Tous' : cat === 'Stage/Emploi' ? '<Briefcase size={14} /> Stage / Emploi' : cat}
             </button>
           ))}
         </div>
@@ -475,8 +488,8 @@ const Blog = () => {
                         
                         {getUserId(post.user) === loggedInUserId && (
                           <div className="flex gap-0.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-0.5 shadow-inner">
-                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all">✏️</button>
-                            <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all">🗑️</button>
+                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all"><Pencil size={15} /></button>
+                            <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all"><Trash2 size={15} /></button>
                           </div>
                         )}
                       </div>
@@ -530,7 +543,7 @@ const Blog = () => {
                                 onClick={() => editFileInputRef.current?.click()}
                                 className="text-xs border border-zinc-800 bg-[#161618] text-zinc-400 px-3 py-1.5 rounded-lg hover:text-zinc-200 hover:border-zinc-700 transition-all"
                               >
-                                ➕ Insérer un fichier ou une vidéo
+                                <Plus size={16} /> Insérer un fichier ou une vidéo
                               </button>
                               <input 
                                 type="file" 
@@ -564,7 +577,7 @@ const Blog = () => {
                               <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
                             ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
                               <div className="flex items-center gap-3 p-4 w-full bg-zinc-900/50 rounded-lg border border-zinc-800 m-2">
-                                <span className="text-2xl text-indigo-400">📄</span>
+                                <span className="text-2xl text-indigo-400"><FileText size={28} className="text-indigo-400" /></span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-zinc-200 truncate">
                                     {post.mediaUrl.split('/').pop()}
@@ -596,13 +609,13 @@ const Blog = () => {
                             onClick={() => handleLike(post._id)} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${hasLiked ? 'border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-bold hover:text-indigo-300 hover:border-indigo-500/40' : ''}`}
                           >
-                            💙 <span className="text-[11px]">{post.likes?.length || 0}</span>
+                           <Heart size={16} className={hasLiked ? "fill-current" : ""} /> <span className="text-[11px]">{post.likes?.length || 0}</span>
                           </button>
                           <button 
                             onClick={() => setShowComments({ ...showComments, [post._id]: !showComments[post._id] })} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${showComments[post._id] ? 'bg-zinc-800/50 text-zinc-200 border-zinc-700' : ''}`}
                           >
-                            💬 <span className="text-[11px]">{post.comments?.length || 0}</span>
+                           <MessageCircle size={16} /> <span className="text-[11px]">{post.comments?.length || 0}</span>
                           </button>
                         </div>
 
