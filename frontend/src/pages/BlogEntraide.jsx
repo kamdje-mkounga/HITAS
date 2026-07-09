@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { io } from 'socket.io-client'; // 🌐 Attention, c'est socket.io-client (avec un point)
+import { io } from 'socket.io-client';
+// 🛠️ Importation des icônes modernes
+import { Trash2, Send, Layers } from 'lucide-react';
 
 const BlogEntraide = () => {
   // États pour les posts et le formulaire
@@ -12,7 +14,7 @@ const BlogEntraide = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 🟢 AJOUT : Référence pour stocker le socket et l'utiliser lors du clic sur "Publier"
+  // Référence pour stocker le socket et l'utiliser lors du clic sur "Publier"
   const socketRef = useRef(null);
 
   const BACKEND_URL = 'https://hitas.onrender.com';
@@ -49,38 +51,31 @@ const BlogEntraide = () => {
 
   // 🌐 INTERCEPTION TEMPS RÉEL (Socket.io)
   useEffect(() => {
-    // 🟢 On stocke le socket dans la référence
     socketRef.current = io(BACKEND_URL, {
-      transports: ['websocket', 'polling'], // Meilleure stabilité mobile
+      transports: ['websocket', 'polling'],
     });
     
     const socket = socketRef.current;
 
-    // Événement A : Quelqu'un (toi ou un autre) a créé un post
     socket.on('posts_created', (newPost) => {
       setPosts((prevPosts) => {
-        // Sécurité anti-doublon au cas où
         if (prevPosts.some(post => post._id === newPost._id)) return prevPosts;
         return [newPost, ...prevPosts];
       });
     });
 
-    // Événement B : Quelqu'un a supprimé un post
     socket.on('posts_deleted', (deletedPostId) => {
       setPosts((prevPosts) => prevPosts.filter(post => post._id !== deletedPostId));
     });
 
-    // Événement C : Quelqu'un a modifié le contenu d'un post
     socket.on('posts_updated', (updatedPost) => {
       setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
     });
 
-    // Événement D : Un utilisateur a mis un Like ou un Commentaire
     socket.on('posts_updated_interactions', (updatedPost) => {
       setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
     });
 
-    // Nettoyage de la connexion socket lors du démontage du composant
     return () => {
       socket.disconnect();
     };
@@ -102,12 +97,11 @@ const BlogEntraide = () => {
         { 
           text, 
           category,
-          socketId: socketRef.current?.id // 🟢 LE SECRET EST ICI : On envoie notre identité au serveur !
+          socketId: socketRef.current?.id 
         },
         getAuthHeader()
       );
 
-      // 💡 NETTOYAGE ACCÉLÉRÉ
       setText(''); 
       setSuccess('Publication partagée avec succès !');
       
@@ -138,10 +132,10 @@ const BlogEntraide = () => {
   // Fonction utilitaire pour la couleur des badges de catégorie
   const getBadgeColor = (cat) => {
     switch(cat) {
-      case 'Entraide': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'Entraide': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
       case 'Stage/Emploi': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
       case 'Logement': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      default: return 'bg-zinc-800 text-zinc-300 border-zinc-700';
+      default: return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'; // Style rafraîchi pour 'General'
     }
   };
 
@@ -173,9 +167,10 @@ const BlogEntraide = () => {
 
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 pt-2">
             <div className="flex items-center gap-2 bg-[#0d0d0e] border border-zinc-800 px-3 py-1.5 rounded-xl">
+              <Layers className="h-3.5 w-3.5 text-zinc-500" />
               <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Catégorie :</label>
               <select
-                className="bg-transparent text-xs font-semibold text-zinc-200 focus:outline-none cursor-pointer"
+                className="bg-transparent text-xs font-semibold text-zinc-200 focus:outline-none cursor-pointer pr-1"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -188,9 +183,10 @@ const BlogEntraide = () => {
 
             <button
               type="submit"
-              className="bg-zinc-100 hover:bg-white text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98]"
+              className="bg-zinc-100 hover:bg-white text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
             >
-              Publier
+              <span>Publier</span>
+              <Send className="h-3 w-3" />
             </button>
           </div>
         </form>
@@ -223,12 +219,11 @@ const BlogEntraide = () => {
       ) : (
         <div className="space-y-5">
           {filteredPosts.map((post) => (
-            <div key={post._id} className="bg-[#161618] p-5 rounded-2xl border border-zinc-800/50 transition-all duration-300 hover:border-zinc-800 shadow-lg">
+            <div key={post._id} className="bg-[#161618] p-5 rounded-2xl border border-zinc-800/50 transition-all duration-300 hover:border-zinc-700/60 shadow-lg">
               
               {/* En-tête du post : Auteur + Date + Catégorie */}
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  {/* Gestion de l'avatar : Image si présente, sinon initiales de secours */}
                   {post.avatar ? (
                     <img 
                       src={formatMediaUrl(post.avatar)} 
@@ -257,10 +252,10 @@ const BlogEntraide = () => {
                   
                   <button 
                     onClick={() => handleDelete(post._id)}
-                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all"
+                    className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl text-xs transition-all flex items-center justify-center border border-transparent hover:border-red-500/10"
                     title="Supprimer la publication"
                   >
-                    🗑️
+                    <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>
