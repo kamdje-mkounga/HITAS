@@ -3,6 +3,8 @@ import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client';
+// 🛠️ Import des icônes vectorielles modernes
+import { Users, MessageSquareText, Rocket } from 'lucide-react';
 
 // 🌐 CONFIGURATION DE L'URL DU BACKEND (Local vs Render)
 const BACKEND_URL = window.location.hostname === 'localhost' 
@@ -45,11 +47,12 @@ const OrbitingLogo = () => {
         .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
       `}</style>
 
+      {/* 🔮 Ajout d'une lueur indigo plus diffuse derrière le logo pour mieux l'ancrer dans le design sombre */}
       <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
         <img 
           src={hitasLogo} 
           alt="Logo HITAS" 
-          className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(139,92,246,0.15)]"
+          className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(99,102,241,0.25)]"
         />
       </div>
 
@@ -73,7 +76,7 @@ const OrbitingLogo = () => {
 // COMPOSANT PRINCIPAL HOME
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
-  const currentUserId = localStorage.getItem('userId'); // 🟢 Remplacé : on utilise userId pour être cohérent !
+  const currentUserId = localStorage.getItem('userId'); 
 
   // --- CHARGEMENT INITIAL & GESTION DU BOUTON RETOUR MOBILE ---
   useEffect(() => {
@@ -84,7 +87,6 @@ function Home() {
         const lastViewedBlog = localStorage.getItem('last_viewed_blog');
         
         if (!lastViewedBlog) {
-          // Si jamais visité, on compte tous les articles SAUF les nôtres
           const othersArticles = articles.filter(article => {
             const authorId = typeof article.user === 'object' ? article.user._id : article.user;
             return String(authorId).trim() !== String(currentUserId).trim();
@@ -98,7 +100,6 @@ function Home() {
         const unreadArticles = articles.filter(article => {
           if (!article.date) return false;
           
-          // 🛡️ FILTRE MAGIQUE 1 : Si c'est mon post, je ne le compte PAS comme non lu !
           const authorId = typeof article.user === 'object' ? article.user._id : article.user;
           if (String(authorId).trim() === String(currentUserId).trim()) {
             return false;
@@ -114,10 +115,8 @@ function Home() {
       }
     };
   
-    // 1. Exécution immédiate au montage du composant
     fetchArticlesAndCalculateUnread();
 
-    // 2. 📱 Forcer le recalcul si l'utilisateur revient en arrière (Mobile Back-Forward Cache)
     const handlePageShow = (event) => {
       fetchArticlesAndCalculateUnread();
     };
@@ -130,22 +129,17 @@ function Home() {
   }, [currentUserId]);
 
   // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
-  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
       console.log("⚡ Flux direct reçu sur l'ordinateur :", newArticle);
       
-      // 1. On vérifie l'auteur proprement en forçant en String
       const authorId = typeof newArticle.user === 'object' ? newArticle.user._id : newArticle.user;
       
-      // 2. 🛑 SI LE MESSAGE VIENT DE MOI, ON ARRÊTE TOUT
       if (String(authorId).trim() === String(currentUserId).trim()) {
         console.log("🥷 Bloqué : C'est ma propre publication.");
         return; 
       }
 
-      // 3. 🚀 SI CE N'EST PAS MOI : C'est du temps réel, donc c'est forcément NOUVEAU ! 
-      // On incrémente directement sans comparer avec l'heure du PC !
       console.log("🔔 Nouveau post d'un autre utilisateur ! +1 notification.");
       setUnreadCount(prev => prev + 1);
     });
@@ -178,16 +172,19 @@ function Home() {
           </p>
         </div>
 
+        {/* 🎨 Section des cartes redessinée avec Lucide Icons et animations de survol fines */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Carte Annuaire */}
-          <Link to="/annuaire" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
+          <Link to="/annuaire" className="group p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 hover:border-indigo-500/40 rounded-2xl transition-all duration-300 shadow-xl shadow-black/10 flex flex-col justify-between">
             <div>
-              <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">👤</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Annuaire</h3>
-              <p className="text-zinc-400 text-sm">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
+              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4 group-hover:bg-indigo-500/20 transition-colors duration-300">
+                <Users className="h-5 w-5 text-indigo-400" />
+              </div>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-indigo-400 transition-colors duration-300">Annuaire</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
             </div>
-            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
+            <span className="text-xs font-semibold text-indigo-400/80 group-hover:text-indigo-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Explorer l'annuaire →
             </span>
           </Link>
@@ -196,12 +193,12 @@ function Home() {
           <Link 
             to="/blog" 
             onClick={handleBlogClick}
-            className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between"
+            className="group p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 hover:border-purple-500/40 rounded-2xl transition-all duration-300 shadow-xl shadow-black/10 flex flex-col justify-between"
           >
             <div>
               <div className="relative w-12 h-12 mb-4">
-                <div className="w-full h-full text-3xl bg-zinc-950 flex items-center justify-center rounded-xl border border-zinc-800">
-                  📝
+                <div className="w-full h-full rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors duration-300">
+                  <MessageSquareText className="h-5 w-5 text-purple-400" />
                 </div>
                 
                 {unreadCount > 0 && (
@@ -211,22 +208,24 @@ function Home() {
                 )}
               </div>
 
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Blog d'Entraide</h3>
-              <p className="text-zinc-400 text-sm">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-purple-400 transition-colors duration-300">Blog d'Entraide</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
             </div>
-            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
+            <span className="text-xs font-semibold text-purple-400/80 group-hover:text-purple-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Lire les articles →
             </span>
           </Link>
 
           {/* Carte Showcase */}
-          <Link to="/showcase" className="group p-6 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-2xl transition-all shadow-sm flex flex-col justify-between">
+          <Link to="/showcase" className="group p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 hover:border-pink-500/40 rounded-2xl transition-all duration-300 shadow-xl shadow-black/10 flex flex-col justify-between">
             <div>
-              <div className="text-3xl mb-4 bg-zinc-950 w-12 h-12 flex items-center justify-center rounded-xl border border-zinc-800">🚀</div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-white transition-colors">Showcase</h3>
-              <p className="text-zinc-400 text-sm">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
+              <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-4 group-hover:bg-pink-500/20 transition-colors duration-300">
+                <Rocket className="h-5 w-5 text-pink-400" />
+              </div>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-pink-400 transition-colors duration-300">Showcase</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
             </div>
-            <span className="text-xs font-semibold text-zinc-500 group-hover:text-zinc-300 mt-6 flex items-center gap-1 transition-colors">
+            <span className="text-xs font-semibold text-pink-400/80 group-hover:text-pink-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Voir les projets →
             </span>
           </Link>
