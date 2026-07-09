@@ -61,7 +61,9 @@ const Showcase = () => {
   const fetchProjects = async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/project`);
-      setProjects(res.data);
+      // 🛠️ Filtrer pour ne garder que les projets de l'utilisateur connecté
+      const userProjects = res.data.filter(project => project.user === loggedInUserId);
+      setProjects(userProjects);
       setLoading(false);
     } catch (err) {
       setError('Erreur lors du chargement des projets.');
