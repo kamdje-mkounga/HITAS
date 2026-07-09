@@ -459,7 +459,7 @@ const Blog = () => {
                             {post.firstName?.[0] || 'U'}{post.lastName?.[0] || ''}
                           </div>
                         </div>
-
+                
                         <div>
                           <h3 className="font-bold text-sm text-zinc-200 tracking-wide group-hover/author:text-white group-hover/author:underline transition-all">
                             {post.firstName} {post.lastName}
@@ -481,7 +481,7 @@ const Blog = () => {
                         )}
                       </div>
                     </div>
-
+                
                     {/* CORPS DU POST EN MODE ÉDITION */}
                     {editingId === post._id ? (
                       <div className="mt-2 space-y-4 bg-[#0d0d0e] p-4 rounded-xl border border-zinc-800">
@@ -509,7 +509,7 @@ const Blog = () => {
                               </button>
                             </div>
                           )}
-
+                
                           {editMediaPreview && (
                             <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-indigo-400 truncate max-w-[80%]">📎 Nouveau média prêt à être injecté</span>
@@ -522,7 +522,7 @@ const Blog = () => {
                               </button>
                             </div>
                           )}
-
+                
                           {!existingMediaUrl && !editMediaPreview && (
                             <div>
                               <button
@@ -542,7 +542,7 @@ const Blog = () => {
                             </div>
                           )}
                         </div>
-
+                
                         <div className="flex gap-2 justify-end pt-2 border-t border-zinc-800/60">
                           <button onClick={() => { setEditingId(null); clearEditMedia(); }} className="px-3 py-1.5 bg-transparent border border-zinc-800 text-xs font-semibold rounded-lg text-zinc-400 hover:text-zinc-200 transition-all">Annuler</button>
                           <button onClick={() => handleEditSubmit(post._id)} className="px-3 py-1.5 bg-zinc-100 text-zinc-950 text-xs font-bold rounded-lg hover:bg-white transition-all">Sauvegarder</button>
@@ -589,7 +589,7 @@ const Blog = () => {
                             )}
                           </div>
                         )}
-
+                
                         {/* Actions / Boutons */}
                         <div className="flex gap-3 mt-4 pt-3 border-t border-zinc-800/40 text-xs">
                           <button 
@@ -605,7 +605,7 @@ const Blog = () => {
                             💬 <span className="text-[11px]">{post.comments?.length || 0}</span>
                           </button>
                         </div>
-
+                
                         {/* Zone Commentaires */}
                         {showComments[post._id] && (
                           <div className="mt-4 pt-4 border-t border-zinc-800/60 space-y-3 bg-[#111112]/50 -mx-5 -mb-5 p-5 rounded-b-2xl">
@@ -624,12 +624,11 @@ const Blog = () => {
                                 Envoyer
                               </button>
                             </div>
-
+                
                             <div className="space-y-2.5 max-h-[280px] overflow-y-auto pr-1">
                               {post.comments?.map((comment, i) => {
                                 const commentAvatarPath = comment.avatar || (comment.user && typeof comment.user === 'object' ? comment.user.avatar : null);
                                 return (
-                                  /* Bloc commentaire enveloppé dans un Link pour aller sur le profil de l'auteur du commentaire */
                                   <Link 
                                     key={i} 
                                     to={`/profile/${getUserId(comment.user)}`} 
