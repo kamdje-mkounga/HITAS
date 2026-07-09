@@ -120,7 +120,7 @@ const Blog = () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/posts`);
       setPosts(res.data);
-      loading && setLoading(false);
+      if (loading) setLoading(false);
     } catch (err) {
       setError('Impossible de charger les publications.');
       setLoading(false);
@@ -308,6 +308,9 @@ const Blog = () => {
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
     return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
   };
+
+  // Reste de l'affichage à partir d'ici (les variables calculées pour l'auteur de chaque post...)
+  const avatarPath = null; // Note : Assurez-vous que la boucle map redéfinit dynamiquement cette variable par post.
 
   return (
     <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
