@@ -323,34 +323,34 @@ const Blog = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
+    <div className="w-full min-h-screen bg-[#030014] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
       <div className="max-w-3xl mx-auto px-4">
         
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
-          <h1 className="text-4xl font-extrabold mb-2 tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-extrabold mb-2 tracking-tight bg-gradient-to-r from-white via-indigo-200 to-purple-400 bg-clip-text text-transparent">
             Espace Entraide & Blog
           </h1>
           <p className="text-zinc-400 text-sm max-w-xl">Partages d'expériences, guides et aperçus de vos stages au quotidien.</p>
         </div>
 
         {/* Formulaire de création */}
-        <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-2xl mb-8 transition-all duration-300 hover:border-zinc-800">
-          <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Créer une nouvelle publication</h2>
+        <div className="bg-[#0b081e]/50 backdrop-blur-md p-6 rounded-2xl border border-indigo-950/60 shadow-2xl mb-8 transition-all duration-300 hover:border-indigo-900/50">
+          <h2 className="text-xs font-bold mb-4 text-indigo-400/80 uppercase tracking-widest">Créer une nouvelle publication</h2>
           {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-4 text-xs font-medium">{error}</div>}
           {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl mb-4 text-xs font-medium">{success}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <textarea
               rows="3"
-              className="w-full bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring-4 focus:ring-zinc-800/40 transition-all resize-none text-sm leading-relaxed"
+              className="w-full bg-[#030014]/60 border border-indigo-950/80 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none text-sm leading-relaxed"
               placeholder="Un truc cool à l'école ou en stage ? Raconte ou ajoute un média..."
               value={text}
               onChange={(e) => setText(e.target.value)}
             ></textarea>
 
             {mediaPreview && (
-              <div className="rounded-xl overflow-hidden border border-zinc-800 bg-[#0d0d0e] max-h-[380px] w-full flex items-center justify-center p-2 relative group shadow-inner">
+              <div className="rounded-xl overflow-hidden border border-indigo-950 bg-[#030014] max-h-[380px] w-full flex items-center justify-center p-2 relative group shadow-inner">
                 <button 
                   type="button"
                   onClick={clearMedia}
@@ -366,7 +366,7 @@ const Blog = () => {
 
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 pt-2">
               <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 bg-[#0d0d0e] border border-zinc-800 px-3 py-1.5 rounded-xl">
+                <div className="flex items-center gap-2 bg-[#030014] border border-indigo-950 px-3 py-1.5 rounded-xl">
                   <label htmlFor="category-select" className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Catégorie :</label>
                   <select
                     id="category-select"
@@ -374,17 +374,17 @@ const Blog = () => {
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                   >
-                    <option value="General" className="bg-[#0d0d0e]">Général</option>
-                    <option value="Entraide" className="bg-[#0d0d0e]">Entraide</option>
-                    <option value="Stage/Emploi" className="bg-[#0d0d0e]">Stage / Emploi</option>
-                    <option value="Logement" className="bg-[#0d0d0e]">Logement</option>
+                    <option value="General" className="bg-[#030014]">Général</option>
+                    <option value="Entraide" className="bg-[#030014]">Entraide</option>
+                    <option value="Stage/Emploi" className="bg-[#030014]">Stage / Emploi</option>
+                    <option value="Logement" className="bg-[#030014]">Logement</option>
                   </select>
                 </div>
                 
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all duration-200 ${mediaFile ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' : 'border-zinc-800 bg-[#0d0d0e] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all duration-200 ${mediaFile ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' : 'border-indigo-950 bg-[#030014] text-zinc-400 hover:text-zinc-200 hover:border-indigo-800'}`}
                 >
                   <Paperclip size={16} className="text-indigo-400" />
                   {mediaFile ? 'Média prêt' : 'Ajouter un média'}
@@ -400,10 +400,10 @@ const Blog = () => {
 
               <button 
                 type="submit" 
-                className="bg-zinc-100 hover:bg-white text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-indigo-500/20 active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <span>Publier</span>
-                <Send size={14} className="text-zinc-800" />
+                <Send size={14} className="text-white" />
               </button>
             </div>
           </form>
@@ -420,19 +420,19 @@ const Blog = () => {
               placeholder="Rechercher un mot-clé, un sujet, un étudiant..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#161618] border border-zinc-800/60 rounded-xl pl-10 pr-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring-4 focus:ring-zinc-800/30 transition-all"
+              className="w-full bg-[#0b081e]/40 border border-indigo-950/60 rounded-xl pl-10 pr-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all"
             />
           </div>
         </div>
 
         {/* FILTRES CATÉGORIES */}
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-zinc-800/40 pb-5">
+        <div className="flex flex-wrap gap-2 mb-8 border-b border-indigo-950/40 pb-5">
           {['Tous', 'General', 'Entraide', 'Stage/Emploi', 'Logement'].map((cat) => (
             <button
               key={cat}
               type="button"
               onClick={() => setSelectedFilter(cat)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 flex items-center gap-1.5 ${selectedFilter === cat ? 'bg-zinc-100 text-zinc-900 border-zinc-100 shadow-md' : 'bg-[#161618] text-zinc-400 border-zinc-800/60 hover:border-zinc-700 hover:text-zinc-200'}`}
+              className={`px-4 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 flex items-center gap-1.5 ${selectedFilter === cat ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md shadow-indigo-500/10' : 'bg-[#0b081e]/40 text-zinc-400 border-indigo-950/60 hover:border-indigo-800 hover:text-zinc-200'}`}
             >
               {cat === 'Tous' && <Megaphone size={14} />}
               {cat === 'Stage/Emploi' && <Briefcase size={14} />}
@@ -447,7 +447,7 @@ const Blog = () => {
         ) : (
           <div className="space-y-5">
             {filteredPosts.length === 0 ? (
-              <div className="text-center text-zinc-500 py-16 bg-[#161618] border border-zinc-800/40 rounded-2xl text-sm">
+              <div className="text-center text-zinc-500 py-16 bg-[#0b081e]/30 border border-indigo-950/40 rounded-2xl text-sm">
                 Aucune publication ne correspond à ta recherche.
               </div>
             ) : (
@@ -459,11 +459,10 @@ const Blog = () => {
                   <div 
                     key={post._id} 
                     id={`post-${post._id}`}
-                    className="bg-[#161618] p-5 rounded-2xl border border-zinc-800/50 transition-all duration-300 hover:border-zinc-800 shadow-lg"
+                    className="bg-[#0b081e]/40 p-5 rounded-2xl border border-indigo-950/50 transition-all duration-300 hover:border-indigo-900/40 shadow-lg"
                   >
                     {/* Post Header */}
                     <div className="flex justify-between items-start mb-4">
-                      {/* En-tête de l'auteur rendu entièrement cliquable grâce à React Router Link */}
                       <Link 
                         to={`/profile/${getUserId(post.user)}`} 
                         className="flex items-center gap-3 group/author cursor-pointer"
@@ -473,11 +472,11 @@ const Blog = () => {
                             <img 
                               src={formatMediaUrl(avatarPath)} 
                               alt={`${post.firstName}`} 
-                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10 group-hover/author:border-zinc-600 transition-all" 
+                              className="absolute inset-0 w-full h-full rounded-full object-cover border border-indigo-950 z-10 group-hover/author:border-indigo-700 transition-all" 
                               onError={(e) => { e.target.style.display = 'none'; }}
                             />
                           ) : null}
-                          <div className="w-full h-full bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700 group-hover/author:border-zinc-600 transition-all">
+                          <div className="w-full h-full bg-gradient-to-br from-indigo-950 to-slate-900 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-indigo-900 group-hover/author:border-indigo-700 transition-all">
                             {post.firstName?.[0] || 'U'}{post.lastName?.[0] || ''}
                           </div>
                         </div>
@@ -496,7 +495,7 @@ const Blog = () => {
                         </span>
                         
                         {getUserId(post.user) === loggedInUserId && (
-                          <div className="flex gap-1.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-1 shadow-inner items-center">
+                          <div className="flex gap-1.5 bg-[#030014] border border-indigo-950 rounded-lg p-1 shadow-inner items-center">
                             <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 p-1 rounded-md text-xs transition-all">
                               <Pencil size={15} className="text-amber-400" />
                             </button>
@@ -510,11 +509,11 @@ const Blog = () => {
 
                     {/* CORPS DU POST EN MODE ÉDITION */}
                     {editingId === post._id ? (
-                      <div className="mt-2 space-y-4 bg-[#0d0d0e] p-4 rounded-xl border border-zinc-800">
+                      <div className="mt-2 space-y-4 bg-[#030014] p-4 rounded-xl border border-indigo-950">
                         <h4 className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Modifier la publication</h4>
                         
                         <textarea
-                          className="w-full bg-[#161618] border border-zinc-800 rounded-xl p-3 text-sm text-zinc-100 focus:outline-none focus:border-zinc-700 resize-none leading-relaxed"
+                          className="w-full bg-[#0b081e]/40 border border-indigo-950 rounded-xl p-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-800 resize-none leading-relaxed"
                           rows="3"
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
@@ -524,7 +523,7 @@ const Blog = () => {
                           <label className="text-[11px] font-medium text-zinc-400 block">Gestion du média :</label>
                           
                           {existingMediaUrl && (
-                            <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
+                            <div className="relative rounded-lg overflow-hidden border border-indigo-950 bg-[#0b081e]/40 p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-zinc-400 truncate max-w-[80%]">📁 Média actuellement sauvegardé</span>
                               <button 
                                 type="button" 
@@ -537,7 +536,7 @@ const Blog = () => {
                           )}
 
                           {editMediaPreview && (
-                            <div className="relative rounded-lg overflow-hidden border border-zinc-800 bg-[#161618] p-2 max-h-[180px] flex items-center justify-between">
+                            <div className="relative rounded-lg overflow-hidden border border-indigo-950 bg-[#0b081e]/40 p-2 max-h-[180px] flex items-center justify-between">
                               <span className="text-xs text-indigo-400 truncate max-w-[80%]">📎 Nouveau média prêt à être injecté</span>
                               <button 
                                 type="button" 
@@ -554,7 +553,7 @@ const Blog = () => {
                               <button
                                 type="button"
                                 onClick={() => editFileInputRef.current?.click()}
-                                className="text-xs border border-zinc-800 bg-[#161618] text-zinc-400 px-3 py-1.5 rounded-lg hover:text-zinc-200 hover:border-zinc-700 transition-all flex items-center gap-1.5"
+                                className="text-xs border border-indigo-950 bg-[#0b081e]/40 text-zinc-400 px-3 py-1.5 rounded-lg hover:text-zinc-200 hover:border-indigo-800 transition-all flex items-center gap-1.5"
                               >
                                 <Plus size={16} /> Insérer un fichier ou une vidéo
                               </button>
@@ -569,8 +568,8 @@ const Blog = () => {
                           )}
                         </div>
 
-                        <div className="flex gap-2 justify-end pt-2 border-t border-zinc-800/60">
-                          <button onClick={() => { setEditingId(null); clearEditMedia(); }} className="px-3 py-1.5 bg-transparent border border-zinc-800 text-xs font-semibold rounded-lg text-zinc-400 hover:text-zinc-200 transition-all">Annuler</button>
+                        <div className="flex gap-2 justify-end pt-2 border-t border-indigo-950/60">
+                          <button onClick={() => { setEditingId(null); clearEditMedia(); }} className="px-3 py-1.5 bg-transparent border border-indigo-950 text-xs font-semibold rounded-lg text-zinc-400 hover:text-zinc-200 transition-all">Annuler</button>
                           <button onClick={() => handleEditSubmit(post._id)} className="px-3 py-1.5 bg-zinc-100 text-zinc-950 text-xs font-bold rounded-lg hover:bg-white transition-all">Sauvegarder</button>
                         </div>
                       </div>
@@ -583,13 +582,13 @@ const Blog = () => {
                         )}
                         
                         {post.mediaUrl && (
-                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-zinc-800/60 bg-[#0d0d0e] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
+                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-indigo-950/60 bg-[#030014] max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
                             {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
                               <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
                             ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
                               <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
                             ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
-                              <div className="flex items-center gap-3 p-4 w-full bg-zinc-900/50 rounded-lg border border-zinc-800 m-2">
+                              <div className="flex items-center gap-3 p-4 w-full bg-indigo-950/20 rounded-lg border border-indigo-950 m-2">
                                 <span className="text-2xl text-indigo-400"><FileText size={28} className="text-indigo-400" /></span>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-medium text-zinc-200 truncate">
@@ -617,10 +616,10 @@ const Blog = () => {
                         )}
 
                         {/* Actions / Boutons */}
-                        <div className="flex gap-3 mt-4 pt-3 border-t border-zinc-800/40 text-xs">
+                        <div className="flex gap-3 mt-4 pt-3 border-t border-indigo-950/40 text-xs">
                           <button 
                             onClick={() => handleLike(post._id)} 
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${hasLiked ? 'border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-bold hover:text-indigo-300 hover:border-indigo-500/40' : ''}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-indigo-950/60 hover:border-indigo-800 hover:bg-indigo-950/30 text-zinc-400 hover:text-zinc-200 transition-all ${hasLiked ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400 font-bold hover:text-indigo-300 hover:border-indigo-500/50' : ''}`}
                           >
                             <Heart
                               size={15}
@@ -630,7 +629,7 @@ const Blog = () => {
                           </button>
                           <button 
                             onClick={() => setShowComments({ ...showComments, [post._id]: !showComments[post._id] })} 
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${showComments[post._id] ? 'bg-zinc-800/50 text-zinc-200 border-zinc-700' : ''}`}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-indigo-950/60 hover:border-indigo-800 hover:bg-indigo-950/30 text-zinc-400 hover:text-zinc-200 transition-all ${showComments[post._id] ? 'bg-indigo-950/40 text-zinc-200 border-indigo-900/50' : ''}`}
                           >
                             <MessageCircle size={15} className="text-purple-400" />
                             <span className="text-[11px]">{post.comments?.length || 0}</span>
@@ -639,18 +638,18 @@ const Blog = () => {
 
                         {/* Zone Commentaires */}
                         {showComments[post._id] && (
-                          <div className="mt-4 pt-4 border-t border-zinc-800/60 space-y-3 bg-[#111112]/50 -mx-5 -mb-5 p-5 rounded-b-2xl">
+                          <div className="mt-4 pt-4 border-t border-indigo-950/40 space-y-3 bg-[#0b081e]/30 -mx-5 -mb-5 p-5 rounded-b-2xl">
                             <div className="flex gap-2">
                               <input 
                                 type="text" 
                                 placeholder="Écrire un commentaire..."
                                 value={commentTexts[post._id] || ''}
                                 onChange={(e) => setCommentTexts({ ...commentTexts, [post._id]: e.target.value })}
-                                className="w-full bg-[#0d0d0e] border border-zinc-800 rounded-xl p-2.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700"
+                                className="w-full bg-[#030014] border border-indigo-950/80 rounded-xl p-2.5 text-xs text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50"
                               />
                               <button 
                                 onClick={() => handleAddComment(post._id)}
-                                className="bg-zinc-200 text-zinc-950 px-4 rounded-xl text-xs font-bold hover:bg-white active:scale-[0.97] transition-all"
+                                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 rounded-xl text-xs font-bold hover:from-indigo-500 hover:to-purple-500 active:scale-[0.97] transition-all"
                               >
                                 Envoyer
                               </button>
@@ -663,18 +662,18 @@ const Blog = () => {
                                   <Link 
                                     key={i} 
                                     to={`/profile/${getUserId(comment.user)}`} 
-                                    className="bg-[#18181b]/40 p-3 rounded-xl border border-zinc-800/30 text-xs flex gap-3 items-start transition-all hover:bg-[#18181b]/60 group/comment-author w-full text-left cursor-pointer block"
+                                    className="bg-[#0b081e]/20 p-3 rounded-xl border border-indigo-950/40 text-xs flex gap-3 items-start transition-all hover:bg-[#0b081e]/40 group/comment-author w-full text-left cursor-pointer block"
                                   >
                                     <div className="relative w-6 h-6 flex-shrink-0 flex items-center justify-center shadow">
                                       {commentAvatarPath ? (
                                         <img 
                                           src={formatMediaUrl(commentAvatarPath)} 
                                           alt="Author" 
-                                          className="absolute inset-0 w-full h-full rounded-full object-cover border border-zinc-800 z-10 group-hover/comment-author:border-zinc-600 transition-all" 
+                                          className="absolute inset-0 w-full h-full rounded-full object-cover border border-indigo-950 z-10 group-hover/comment-author:border-indigo-700 transition-all" 
                                           onError={(e) => { e.target.style.display = 'none'; }} 
                                         />
                                       ) : null}
-                                      <div className="w-full h-full bg-zinc-800 text-zinc-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-zinc-700 group-hover/comment-author:border-zinc-600 transition-all">
+                                      <div className="w-full h-full bg-indigo-950 text-indigo-400 rounded-full flex items-center justify-center font-bold text-[9px] select-none uppercase border border-indigo-900 group-hover/comment-author:border-indigo-700 transition-all">
                                         {comment.firstName?.[0] || 'U'}
                                       </div>
                                     </div>
