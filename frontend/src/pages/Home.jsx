@@ -22,6 +22,7 @@ import cameroonFlag from '../assets/cameroon.svg';
 import indiaFlag from '../assets/india.svg';
 import brazilFlag from '../assets/brazil.svg';
 import germanyFlag from '../assets/germany.svg';
+import uk from '../assets/uk.svg';
 
 const OrbitingLogo = () => {
   const flags = [
@@ -30,6 +31,7 @@ const OrbitingLogo = () => {
     { id: 3, src: indiaFlag, label: 'Inde', delay: '-4.8s' },
     { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
     { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
+    { id: 6, src: uk, label: 'uk', delay: '-12s' },
   ];
 
   return (
