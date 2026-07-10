@@ -404,7 +404,9 @@ const Blog = () => {
                 className="bg-zinc-100 hover:bg-white text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <span>Publier</span>
-                <Send size={12} />
+                <div className="w-6 h-6 rounded-lg bg-zinc-900/10 border border-zinc-700 flex items-center justify-center">
+    <Send size={13} className="text-zinc-800" />
+</div>
               </button>
             </div>
           </form>
@@ -625,13 +627,20 @@ const Blog = () => {
                             onClick={() => handleLike(post._id)} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${hasLiked ? 'border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-bold hover:text-indigo-300 hover:border-indigo-500/40' : ''}`}
                           >
-                            <Heart size={16} className={hasLiked ? "fill-current" : ""} /> <span className="text-[11px]">{post.likes?.length || 0}</span>
+                            <div className="w-7 h-7 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center">
+    <Heart
+        size={14}
+        className={`${hasLiked ? "fill-current" : ""} text-pink-400`}
+    />
+</div> <span className="text-[11px]">{post.likes?.length || 0}</span>
                           </button>
                           <button 
                             onClick={() => setShowComments({ ...showComments, [post._id]: !showComments[post._id] })} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${showComments[post._id] ? 'bg-zinc-800/50 text-zinc-200 border-zinc-700' : ''}`}
                           >
-                            <MessageCircle size={16} /> <span className="text-[11px]">{post.comments?.length || 0}</span>
+                            <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+    <MessageCircle size={14} className="text-purple-400" />
+</div> <span className="text-[11px]">{post.comments?.length || 0}</span>
                           </button>
                         </div>
 
