@@ -23,6 +23,7 @@ import indiaFlag from '../assets/india.svg';
 import brazilFlag from '../assets/brazil.svg';
 import germanyFlag from '../assets/germany.svg';
 import uk from '../assets/uk.svg';
+import italia from '../assets/italia.svg';
 
 const OrbitingLogo = () => {
   const flags = [
