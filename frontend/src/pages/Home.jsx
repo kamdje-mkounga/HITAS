@@ -3,15 +3,13 @@ import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client';
-// 🛠️ Import des icônes vectorielles modernes
 import { Users, MessageSquareText, Rocket } from 'lucide-react';
 
-// 🌐 CONFIGURATION DE L'URL DU BACKEND (Local vs Render)
+// 🌐 CONFIGURATION DE L'URL DU BACKEND
 const BACKEND_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5000' 
   : 'https://hitas.onrender.com'; 
 
-// Initialisation unique du socket connecté à ton serveur distant Render
 const socket = io(BACKEND_URL, {
   transports: ['websocket', 'polling'],
   withCredentials: true
@@ -47,22 +45,22 @@ const OrbitingLogo = () => {
         .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
       `}</style>
 
-      {/* 🔮 Ajout d'une lueur indigo plus diffuse derrière le logo pour mieux l'ancrer dans le design sombre */}
+      {/* 🔮 Lueur indigo diffuse harmonisée */}
       <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
         <img 
           src={hitasLogo} 
           alt="Logo HITAS" 
-          className="w-full h-full object-contain filter drop-shadow-[0_0_20px_rgba(99,102,241,0.25)]"
+          className="w-full h-full object-contain filter drop-shadow-[0_0_25px_rgba(99,102,241,0.35)]"
         />
       </div>
 
-      <div className="absolute w-[320px] h-[76px] border border-dashed border-zinc-800/80 rounded-[50%] pointer-events-none"></div>
+      <div className="absolute w-[320px] h-[76px] border border-dashed border-indigo-950/60 rounded-[50%] pointer-events-none"></div>
 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {flags.map((flag) => (
           <div
             key={flag.id}
-            className="absolute w-7 h-7 rounded-full overflow-hidden border border-zinc-800/50 bg-zinc-900 shadow-lg flex items-center justify-center animate-ellipse-orbit"
+            className="absolute w-7 h-7 rounded-full overflow-hidden border border-indigo-950 bg-[#0b081e] shadow-lg flex items-center justify-center animate-ellipse-orbit"
             style={{ animationDelay: flag.delay }}
           >
             <img src={flag.src} alt={flag.label} className="w-full h-full object-cover" />
@@ -73,12 +71,10 @@ const OrbitingLogo = () => {
   );
 };
 
-// COMPOSANT PRINCIPAL HOME
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
   const currentUserId = localStorage.getItem('userId'); 
 
-  // --- CHARGEMENT INITIAL & GESTION DU BOUTON RETOUR MOBILE ---
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
@@ -128,19 +124,10 @@ function Home() {
     };
   }, [currentUserId]);
 
-  // --- ÉCOUTE TEMPS RÉEL VIA SOCKET.IO DISTANT ---
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
-      console.log("⚡ Flux direct reçu sur l'ordinateur :", newArticle);
-      
       const authorId = typeof newArticle.user === 'object' ? newArticle.user._id : newArticle.user;
-      
-      if (String(authorId).trim() === String(currentUserId).trim()) {
-        console.log("🥷 Bloqué : C'est ma propre publication.");
-        return; 
-      }
-
-      console.log("🔔 Nouveau post d'un autre utilisateur ! +1 notification.");
+      if (String(authorId).trim() === String(currentUserId).trim()) return; 
       setUnreadCount(prev => prev + 1);
     });
 
@@ -155,34 +142,49 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
+    <div className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+          to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
+      
       <Navbar />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
         
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2">
+        {/* En-tête principal animé */}
+        <div className="text-center max-w-2xl mx-auto mb-14 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2 bg-gradient-to-r from-white via-indigo-100 to-purple-300 bg-clip-text text-transparent leading-tight">
             Le hub de la communauté étudiante de HITAS
           </h1>
           
           <OrbitingLogo />
 
-          <p className="text-zinc-400 text-lg mt-4 px-4">
+          <p className="text-zinc-400 text-base md:text-lg mt-4 px-4 max-w-xl mx-auto font-normal leading-relaxed">
             Connecte-toi avec la diaspora, partage des opportunités et propulse tes projets techniques.
           </p>
         </div>
 
-        {/* 🎨 Section des cartes redessinée avec Lucide Icons et animations de survol fines */}
+        {/* Grille des fonctionnalités principales avec chargement différé et progressif */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Carte Annuaire */}
-          <Link to="/annuaire" className="group p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 hover:border-indigo-500/40 rounded-2xl transition-all duration-300 shadow-xl shadow-black/10 flex flex-col justify-between">
+          <Link 
+            to="/annuaire" 
+            className="group p-6 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 hover:border-indigo-500/30 rounded-2xl transition-all duration-300 shadow-2xl shadow-black/30 flex flex-col justify-between opacity-0 animate-fade-in-up hover:shadow-indigo-500/5"
+            style={{ animationDelay: '0.2s' }}
+          >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4 group-hover:bg-indigo-500/20 transition-colors duration-300">
+              <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-5 group-hover:bg-indigo-500/20 transition-all duration-300">
                 <Users className="h-5 w-5 text-indigo-400" />
               </div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-indigo-400 transition-colors duration-300">Annuaire</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1.5 group-hover:text-indigo-400 transition-colors duration-300">Annuaire</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed font-normal">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
             </div>
             <span className="text-xs font-semibold text-indigo-400/80 group-hover:text-indigo-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Explorer l'annuaire →
@@ -193,23 +195,24 @@ function Home() {
           <Link 
             to="/blog" 
             onClick={handleBlogClick}
-            className="group p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 hover:border-purple-500/40 rounded-2xl transition-all duration-300 shadow-xl shadow-black/10 flex flex-col justify-between"
+            className="group p-6 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 hover:border-purple-500/30 rounded-2xl transition-all duration-300 shadow-2xl shadow-black/30 flex flex-col justify-between opacity-0 animate-fade-in-up hover:shadow-purple-500/5"
+            style={{ animationDelay: '0.3s' }}
           >
             <div>
-              <div className="relative w-12 h-12 mb-4">
-                <div className="w-full h-full rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors duration-300">
+              <div className="relative w-12 h-12 mb-5">
+                <div className="w-full h-full rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 transition-all duration-300">
                   <MessageSquareText className="h-5 w-5 text-purple-400" />
                 </div>
                 
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white animate-pulse shadow-md border-2 border-zinc-900">
+                  <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white animate-pulse shadow-md border-2 border-[#030014]">
                     {unreadCount}
                   </span>
                 )}
               </div>
 
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-purple-400 transition-colors duration-300">Blog d'Entraide</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1.5 group-hover:text-purple-400 transition-colors duration-300">Blog d'Entraide</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed font-normal">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
             </div>
             <span className="text-xs font-semibold text-purple-400/80 group-hover:text-purple-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Lire les articles →
@@ -217,13 +220,17 @@ function Home() {
           </Link>
 
           {/* Carte Showcase */}
-          <Link to="/showcase" className="group p-6 bg-zinc-900/40 backdrop-blur-md border border-zinc-800/80 hover:border-pink-500/40 rounded-2xl transition-all duration-300 shadow-xl shadow-black/10 flex flex-col justify-between">
+          <Link 
+            to="/showcase" 
+            className="group p-6 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 hover:border-pink-500/30 rounded-2xl transition-all duration-300 shadow-2xl shadow-black/30 flex flex-col justify-between opacity-0 animate-fade-in-up hover:shadow-pink-500/5"
+            style={{ animationDelay: '0.4s' }}
+          >
             <div>
-              <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-4 group-hover:bg-pink-500/20 transition-colors duration-300">
+              <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center mb-5 group-hover:bg-pink-500/20 transition-all duration-300">
                 <Rocket className="h-5 w-5 text-pink-400" />
               </div>
-              <h3 className="font-bold text-zinc-100 text-lg mb-1 group-hover:text-pink-400 transition-colors duration-300">Showcase</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
+              <h3 className="font-bold text-zinc-100 text-lg mb-1.5 group-hover:text-pink-400 transition-colors duration-300">Showcase</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed font-normal">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
             </div>
             <span className="text-xs font-semibold text-pink-400/80 group-hover:text-pink-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Voir les projets →
