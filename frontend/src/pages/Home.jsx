@@ -28,12 +28,12 @@ import italia from '../assets/italia.svg';
 const OrbitingLogo = () => {
   const flags = [
     { id: 1, src: franceFlag, label: 'France', delay: '0s' },
-    { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2.4s' },
-    { id: 3, src: indiaFlag, label: 'Inde', delay: '-4.8s' },
-    { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
-    { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
-    { id: 6, src: uk, label: 'uk', delay: '-12s' },
-    { id: 7, src: italia, label: 'italia', delay: '-14.4s' },
+    { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2s' },
+    { id: 3, src: indiaFlag, label: 'Inde', delay: '-4s' },
+    { id: 4, src: brazilFlag, label: 'Brésil', delay: '-6s' },
+    { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-8s' },
+    { id: 6, src: uk, label: 'uk', delay: '-10s' },
+    { id: 7, src: italia, label: 'italia', delay: '-12s' },
   ];
 
   return (
