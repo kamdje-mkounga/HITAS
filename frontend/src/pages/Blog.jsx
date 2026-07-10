@@ -386,9 +386,8 @@ const Blog = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all duration-200 ${mediaFile ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' : 'border-zinc-800 bg-[#0d0d0e] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'}`}
                 >
-                  <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-    <Paperclip size={14} className="text-indigo-400" />
-</div> {mediaFile ? 'Média prêt' : 'Ajouter un média'}
+                  <Paperclip size={16} className="text-indigo-400" />
+                  {mediaFile ? 'Média prêt' : 'Ajouter un média'}
                 </button>
                 <input 
                   type="file" 
@@ -404,9 +403,7 @@ const Blog = () => {
                 className="bg-zinc-100 hover:bg-white text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <span>Publier</span>
-                <div className="w-6 h-6 rounded-lg bg-zinc-900/10 border border-zinc-700 flex items-center justify-center">
-    <Send size={13} className="text-zinc-800" />
-</div>
+                <Send size={14} className="text-zinc-800" />
               </button>
             </div>
           </form>
@@ -415,17 +412,15 @@ const Blog = () => {
         {/* RECHERCHE */}
         <div className="mb-6">
           <div className="relative">
-          <span className="absolute inset-y-0 left-3 flex items-center justify-center">
-    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
-        <Search size={15} className="text-indigo-400" />
-    </div>
-</span>
+            <span className="absolute inset-y-0 left-3 flex items-center justify-center">
+              <Search size={16} className="text-indigo-400" />
+            </span>
             <input
               type="text"
               placeholder="Rechercher un mot-clé, un sujet, un étudiant..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#161618] border border-zinc-800/60 rounded-xl pl-11 pr-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring-4 focus:ring-zinc-800/30 transition-all"
+              className="w-full bg-[#161618] border border-zinc-800/60 rounded-xl pl-10 pr-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring-4 focus:ring-zinc-800/30 transition-all"
             />
           </div>
         </div>
@@ -501,13 +496,13 @@ const Blog = () => {
                         </span>
                         
                         {getUserId(post.user) === loggedInUserId && (
-                          <div className="flex gap-0.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-0.5 shadow-inner">
-                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all"><div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-    <Pencil size={14} className="text-amber-400" />
-</div></button>
-                            <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all"><div className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-    <Trash2 size={14} className="text-red-400" />
-</div></button>
+                          <div className="flex gap-1.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-1 shadow-inner items-center">
+                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 p-1 rounded-md text-xs transition-all">
+                              <Pencil size={15} className="text-amber-400" />
+                            </button>
+                            <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 p-1 rounded-md text-xs transition-all">
+                              <Trash2 size={15} className="text-red-400" />
+                            </button>
                           </div>
                         )}
                       </div>
@@ -627,20 +622,18 @@ const Blog = () => {
                             onClick={() => handleLike(post._id)} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${hasLiked ? 'border-indigo-500/20 bg-indigo-500/5 text-indigo-400 font-bold hover:text-indigo-300 hover:border-indigo-500/40' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center">
-    <Heart
-        size={14}
-        className={`${hasLiked ? "fill-current" : ""} text-pink-400`}
-    />
-</div> <span className="text-[11px]">{post.likes?.length || 0}</span>
+                            <Heart
+                              size={15}
+                              className={`${hasLiked ? "fill-current" : ""} text-pink-400`}
+                            />
+                            <span className="text-[11px]">{post.likes?.length || 0}</span>
                           </button>
                           <button 
                             onClick={() => setShowComments({ ...showComments, [post._id]: !showComments[post._id] })} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-800/30 text-zinc-400 hover:text-zinc-200 transition-all ${showComments[post._id] ? 'bg-zinc-800/50 text-zinc-200 border-zinc-700' : ''}`}
                           >
-                            <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-    <MessageCircle size={14} className="text-purple-400" />
-</div> <span className="text-[11px]">{post.comments?.length || 0}</span>
+                            <MessageCircle size={15} className="text-purple-400" />
+                            <span className="text-[11px]">{post.comments?.length || 0}</span>
                           </button>
                         </div>
 
