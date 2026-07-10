@@ -32,6 +32,7 @@ const OrbitingLogo = () => {
     { id: 4, src: brazilFlag, label: 'Brésil', delay: '-7.2s' },
     { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-9.6s' },
     { id: 6, src: uk, label: 'uk', delay: '-12s' },
+    { id: 7, src: italia, label: 'italia', delay: '-14.4s' },
   ];
 
   return (
@@ -186,7 +187,7 @@ function Home() {
                 <Users className="h-5 w-5 text-indigo-400" />
               </div>
               <h3 className="font-bold text-zinc-100 text-lg mb-1.5 group-hover:text-indigo-400 transition-colors duration-300">Annuaire</h3>
-              <p className="text-zinc-400 text-sm leading-relaxed font-normal">Trouve et contacte les étudiants basés en Inde, en France ou au Cameroun.</p>
+              <p className="text-zinc-400 text-sm leading-relaxed font-normal">Trouve et contacte les étudiants basés en Inde, en France et encore plus.</p>
             </div>
             <span className="text-xs font-semibold text-indigo-400/80 group-hover:text-indigo-300 mt-6 flex items-center gap-1 transition-colors duration-300">
               Explorer l'annuaire →

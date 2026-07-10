@@ -242,7 +242,7 @@ const Showcase = () => {
       <div className="bg-slate-900/40 backdrop-blur-md p-6 sm:p-8 rounded-2xl border border-slate-800/80 shadow-xl shadow-black/30 mb-12">
         <div className="flex items-center gap-2.5 mb-6">
           <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Partager un projet</h2>
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Partager un projet ou une experience</h2>
         </div>
         
         {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-sm mb-5 font-medium">{error}</div>}
@@ -259,7 +259,7 @@ const Showcase = () => {
             />
             <input 
               type="text" 
-              placeholder="Technologies (ex: React, Node, Tailwind), Outils," 
+              placeholder="Technologies , Outils , poste, etc... " 
               className="bg-slate-950/60 border border-slate-800 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-500 text-slate-200" 
               value={technologies} 
               onChange={(e) => setTechnologies(e.target.value)} 
