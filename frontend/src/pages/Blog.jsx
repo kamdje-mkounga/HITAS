@@ -386,7 +386,9 @@ const Blog = () => {
                   onClick={() => fileInputRef.current?.click()}
                   className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all duration-200 ${mediaFile ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' : 'border-zinc-800 bg-[#0d0d0e] text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'}`}
                 >
-                  <Paperclip size={16} /> {mediaFile ? 'Média prêt' : 'Ajouter un média'}
+                  <div className="w-7 h-7 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+    <Paperclip size={14} className="text-indigo-400" />
+</div> {mediaFile ? 'Média prêt' : 'Ajouter un média'}
                 </button>
                 <input 
                   type="file" 
@@ -411,7 +413,11 @@ const Blog = () => {
         {/* RECHERCHE */}
         <div className="mb-6">
           <div className="relative">
-            <span className="absolute inset-y-0 left-4 flex items-center text-zinc-500 text-sm"><Search size={16} /></span>
+          <span className="absolute inset-y-0 left-3 flex items-center justify-center">
+    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+        <Search size={15} className="text-indigo-400" />
+    </div>
+</span>
             <input
               type="text"
               placeholder="Rechercher un mot-clé, un sujet, un étudiant..."
@@ -494,8 +500,12 @@ const Blog = () => {
                         
                         {getUserId(post.user) === loggedInUserId && (
                           <div className="flex gap-0.5 bg-[#0d0d0e] border border-zinc-800 rounded-lg p-0.5 shadow-inner">
-                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all"><Pencil size={15} /></button>
-                            <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all"><Trash2 size={15} /></button>
+                            <button onClick={() => startEditing(post)} className="text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800 p-1.5 rounded-md text-xs transition-all"><div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+    <Pencil size={14} className="text-amber-400" />
+</div></button>
+                            <button onClick={() => handleDelete(post._id)} className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-1.5 rounded-md text-xs transition-all"><div className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+    <Trash2 size={14} className="text-red-400" />
+</div></button>
                           </div>
                         )}
                       </div>
