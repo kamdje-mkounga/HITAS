@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client';
 import { Users, MessageSquareText, Rocket } from 'lucide-react';
+import tradPattern from '../assets/traditional.jpg';
 
 // 🌐 CONFIGURATION DE L'URL DU BACKEND
 const BACKEND_URL = window.location.hostname === 'localhost' 
@@ -146,7 +147,14 @@ function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <div 
+      className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.88), rgba(3, 0, 20, 0.96)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
@@ -159,7 +167,7 @@ function Home() {
       
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center">
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center relative z-10">
         
         {/* En-tête principal animé */}
         <div className="text-center max-w-2xl mx-auto mb-14 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
