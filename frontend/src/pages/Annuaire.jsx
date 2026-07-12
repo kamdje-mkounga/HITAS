@@ -152,68 +152,67 @@ function Annuaire() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProfiles.map((profile, index) => (
-                <div 
-                  key={profile._id} 
-                  onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
-                  {/* MODIFICATION ICI : bg à 50% d'opacité, flou moyen (md), et léger changement au survol */}
-                  className="p-6 bg-[#0b081e]/50 backdrop-blur-md border border-indigo-900/50 rounded-2xl shadow-lg shadow-black/30 flex flex-col justify-between hover:bg-[#0b081e]/70 hover:border-indigo-600/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <div>
-                    {/* EN-TÊTE DE LA CARTE AVEC AVATAR */}
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-[#030014]/80 border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner group-hover:border-indigo-400/60 transition-colors backdrop-blur-sm">
-                        {profile.avatar ? (
-                          <img 
-                            src={formatMediaUrl(profile.avatar)} 
-                            alt={`${profile.firstName} ${profile.lastName}`} 
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.parentNode.innerHTML = `<span class="text-indigo-300 text-xs font-bold uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
-                            }}
-                          />
-                        ) : (
-                          <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider">
-                            {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
-                          </span>
-                        )}
+                {filteredProfiles.map((profile, index) => (
+                  <div 
+                    key={profile._id} 
+                    onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
+                    className="p-6 bg-[#0b081e]/50 backdrop-blur-md border border-indigo-900/50 rounded-2xl shadow-lg shadow-black/30 flex flex-col justify-between hover:bg-[#0b081e]/70 hover:border-indigo-600/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div>
+                      {/* EN-TÊTE DE LA CARTE AVEC AVATAR */}
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-full bg-[#030014]/80 border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner group-hover:border-indigo-400/60 transition-colors backdrop-blur-sm">
+                          {profile.avatar ? (
+                            <img 
+                              src={formatMediaUrl(profile.avatar)} 
+                              alt={`${profile.firstName} ${profile.lastName}`} 
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentNode.innerHTML = `<span class="text-indigo-300 text-xs font-bold uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
+                              }}
+                            />
+                          ) : (
+                            <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                              {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h2 className="text-base font-bold text-zinc-100 group-hover:text-indigo-300 transition-colors truncate leading-snug">
+                            {profile.firstName} {profile.lastName}
+                          </h2>
+                          <p className="text-zinc-300 text-xs font-medium truncate mt-0.5">
+                            🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'Non renseignée'}
+                          </p>
+                          <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                            📍 {profile.currentLocation || 'Non renseignée'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h2 className="text-base font-bold text-zinc-100 group-hover:text-indigo-300 transition-colors truncate leading-snug">
-                          {profile.firstName} {profile.lastName}
-                        </h2>
-                        <p className="text-zinc-300 text-xs font-medium truncate mt-0.5">
-                          🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'Non renseignée'}
+
+                      {/* BIOGRAPHIE */}
+                      {profile.bio && (
+                        <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/40 p-3 rounded-xl border border-indigo-900/30 font-normal shadow-inner">
+                          {profile.bio}
                         </p>
-                        <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1">
-                          📍 {profile.currentLocation || 'Non renseignée'}
-                        </p>
-                      </div>
+                      )}
                     </div>
 
-                    {/* BIOGRAPHIE */}
-                    {profile.bio && (
-                      <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/40 p-3 rounded-xl border border-indigo-900/30 font-normal shadow-inner">
-                        {profile.bio}
-                      </p>
+                    {/* COMPÉTENCES */}
+                    {profile.skills && profile.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/30 mt-auto">
+                        {profile.skills.map((skill, index) => (
+                          <span key={index} className="px-2 py-0.5 bg-[#030014]/60 text-zinc-300 text-[11px] font-mono rounded border border-indigo-900/40 shadow-sm group-hover:border-indigo-600/40 transition-colors">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
-
-                  {/* COMPÉTENCES */}
-                  {profile.skills && profile.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/30 mt-auto">
-                      {profile.skills.map((skill, index) => (
-                        <span key={index} className="px-2 py-0.5 bg-[#030014]/60 text-zinc-300 text-[11px] font-mono rounded border border-indigo-900/40 shadow-sm group-hover:border-indigo-600/40 transition-colors">
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
             )}
           </div>
         )}
