@@ -43,7 +43,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex items-center justify-center px-4 font-sans antialiased">
+    <div className="min-h-[100dvh] bg-zinc-950 text-zinc-50 flex items-center justify-center px-4 font-sans antialiased">
       <div className="w-full max-w-md p-8 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl">
         
         {/* En-tête */}
