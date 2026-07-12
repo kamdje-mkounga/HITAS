@@ -322,12 +322,10 @@ const Blog = () => {
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
     return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
   };
+
   return (
-    <div 
-      className="w-full min-h-screen text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12 bg-cover bg-center bg-no-repeat relative"
-      style={{ backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.92), rgba(3, 0, 20, 0.95)), url('/traditional.jpg')` }}
-    >
-      <div className="max-w-3xl mx-auto px-4 relative z-10">
+    <div className="w-full min-h-screen bg-[#030014] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
+      <div className="max-w-3xl mx-auto px-4">
         
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
