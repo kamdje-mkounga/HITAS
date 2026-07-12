@@ -150,7 +150,7 @@ function Home() {
     <div 
       className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.88), rgba(3, 0, 20, 0.96)), url(${tradPattern})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
