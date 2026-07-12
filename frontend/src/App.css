@@ -1,3 +1,20 @@
+/* --- CORRECTION DU DÉBORDEMENT MOBILE --- */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #030014;
+}
+
+#root {
+  width: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* --- TON STYLE EXISTANT --- */
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -135,11 +152,6 @@
       width: 18px;
     }
   }
-
-  /*
-max-w-2xl mx-auto p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-md
-  */
-
 
   @media (max-width: 1024px) {
     margin-top: 20px;
