@@ -117,7 +117,14 @@ const PublicProfile = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#0d0d0e] text-zinc-100 antialiased py-12 relative">
+    <div 
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
       <div className="max-w-4xl mx-auto px-4">
         
         <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition-all">
@@ -125,8 +132,8 @@ const PublicProfile = () => {
         </button>
 
         {/* Profil Header */}
-        <div className="bg-[#161618] p-8 rounded-2xl border border-zinc-800/80 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
+        <div className="bg-[#0b081e]/85 backdrop-blur-xl p-8 rounded-2xl border border-indigo-900/60 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
+          <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-indigo-900/50 flex-shrink-0">
             {userProfile.avatar ? (
               <img 
                 src={formatMediaUrl(userProfile.avatar)} 
@@ -134,7 +141,7 @@ const PublicProfile = () => {
                 className="w-full h-full object-cover" 
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-tr from-zinc-700 to-zinc-800 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-tr from-indigo-950 to-zinc-800 flex items-center justify-center">
                 {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
               </div>
             )}
@@ -148,7 +155,7 @@ const PublicProfile = () => {
               ✨ {userProfile.specialty || 'computer science'} • Promo {userProfile.promotion || 'Non renseignée'}
             </p>
             <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
-              <span className="bg-[#0d0d0e] border border-zinc-800 text-zinc-400 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
+              <span className="bg-[#030014]/60 border border-indigo-900/40 text-zinc-400 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
                 🚀 {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
               </span>
             </div>
@@ -156,7 +163,7 @@ const PublicProfile = () => {
         </div>
 
         {/* Navigation Onglets */}
-        <div className="flex border-b border-zinc-800 mb-6 gap-6 text-xs font-bold tracking-wide">
+        <div className="flex border-b border-indigo-900/40 mb-6 gap-6 text-xs font-bold tracking-wide">
           <button 
             type="button"
             onClick={() => setActiveTab('compte')}
@@ -176,35 +183,35 @@ const PublicProfile = () => {
         {/* Onglet Compte */}
         {activeTab === 'compte' && (
           <div className="space-y-6">
-            <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-lg">
+            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-lg">
               <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Prénom</span>
                   <span className="text-zinc-200 font-medium text-sm">{userProfile.firstName || '-'}</span>
                 </div>
-                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Nom de famille</span>
                   <span className="text-zinc-200 font-medium text-sm">{userProfile.lastName || '-'}</span>
                 </div>
-                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Promotion</span>
                   <span className="text-zinc-200 font-medium text-sm">{userProfile.promotion || '-'}</span>
                 </div>
-                <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Spécialité</span>
                   <span className="text-zinc-200 font-medium text-sm">{userProfile.specialty || '-'}</span>
                 </div>
               </div>
-              <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs mb-4">
+              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs mb-4">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Localisation Actuelle</span>
                 <span className="text-zinc-200 font-medium text-sm">{userProfile.currentLocation || 'Non renseignée'}</span>
               </div>
-              <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs mb-4">
+              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs mb-4">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Biographie</span>
                 <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
               </div>
-              <div className="bg-[#0d0d0e] p-3.5 rounded-xl border border-zinc-800/60 text-xs">
+              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Compétences</span>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
@@ -218,7 +225,7 @@ const PublicProfile = () => {
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
-              <p className="text-zinc-500 text-xs italic bg-[#161618] border border-zinc-800/60 p-8 rounded-xl text-center">
+              <p className="text-zinc-500 text-xs italic bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 p-8 rounded-2xl text-center">
                 Cet étudiant n'a pas encore publié de projet.
               </p>
             ) : (
@@ -227,9 +234,9 @@ const PublicProfile = () => {
                   <div 
                     key={project._id} 
                     onClick={() => setSelectedProject(project)}
-                    className="bg-[#161618] p-6 rounded-2xl border border-zinc-800 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group"
+                    className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group shadow-lg"
                   >
-                    <div className="w-full md:w-48 h-32 bg-[#0d0d0e] rounded-xl border border-zinc-800 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:bg-[#111113] transition-colors">
+                    <div className="w-full md:w-48 h-32 bg-[#030014]/60 rounded-xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 transition-colors">
                       <span className="text-3xl text-amber-500">📁</span>
                       <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">Fichier</span>
                     </div>
@@ -256,110 +263,64 @@ const PublicProfile = () => {
       </div>
 
       {/* MODALE REVISEE ET MULTI-MEDIA DETECTEUR */}
-    {/* MODALE REVISEE AVEC MULTI-MEDIA ET ONGLES DE SELECTION */}
-{selectedProject && (() => {
-  // 1. Récupération de la liste brute de tous les médias potentiels
-  const potentialMedia = selectedProject.media || selectedProject.file || selectedProject.pdf || selectedProject.image || selectedProject.attachments;
-  
-  // 2. Normalisation en tableau pour gérer un ou plusieurs fichiers de manière identique
-  const mediaList = Array.isArray(potentialMedia) 
-    ? potentialMedia 
-    : (potentialMedia ? [potentialMedia] : []);
+      {selectedProject && (() => {
+        const potentialMedia = selectedProject.media || selectedProject.file || selectedProject.pdf || selectedProject.image || selectedProject.attachments;
+        const mediaList = Array.isArray(potentialMedia) ? potentialMedia : (potentialMedia ? [potentialMedia] : []);
+        const rawMedia = mediaList[currentFileIndex] || '';
+        const fullMediaUrl = formatMediaUrl(rawMedia);
+        const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
+        const urlLower = mediaStringUrl.toLowerCase();
+        const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
+        const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp') || urlLower.includes('/uploads/'));
+        const isPdf = urlLower && urlLower.endsWith('.pdf');
 
-  // 3. Extraction du média actuellement sélectionné par l'utilisateur
-  const rawMedia = mediaList[currentFileIndex] || '';
-  const fullMediaUrl = formatMediaUrl(rawMedia);
-  
-  const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
-  const urlLower = mediaStringUrl.toLowerCase();
-  
-  const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
-  const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp') || urlLower.includes('/uploads/'));
-  const isPdf = urlLower && urlLower.endsWith('.pdf');
+        return (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={() => setSelectedProject(null)}>
+            <div className="bg-[#0b081e] border border-indigo-900/60 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              
+              <div className="p-6 border-b border-indigo-900/80 flex justify-between items-center bg-[#0b081e]">
+                <div>
+                  <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails</span>
+                  <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide">{selectedProject.title}</h2>
+                </div>
+                <button onClick={() => setSelectedProject(null)} className="w-8 h-8 rounded-full bg-[#030014] border border-indigo-900 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors">✕</button>
+              </div>
 
-  return (
-    <div 
-      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative"
-      style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'repeat',
-      }}
-    >
-      <div className="max-w-4xl mx-auto px-4">
-        
-        <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-white flex items-center gap-1 transition-all">
-          ← Retour
-        </button>
+              <div className="p-6 space-y-6">
+                <div>
+                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète</h4>
+                  <div className="bg-[#030014]/60 border border-indigo-900/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
+                    {selectedProject.description || "Aucune description fournie."}
+                  </div>
+                </div>
 
-        {/* Profil Header avec Bannière et Avatar superposé */}
-        <div className="bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl overflow-hidden shadow-2xl shadow-black/40 mb-8">
-          <div className="h-32 bg-gradient-to-r from-indigo-900/40 to-[#030014] border-b border-indigo-900/50"></div>
-          
-          <div className="px-8 pb-8 relative">
-            <div className="absolute -top-16 w-32 h-32 rounded-full bg-[#030014] border-4 border-[#0b081e] flex items-center justify-center text-3xl font-bold uppercase shadow-xl overflow-hidden text-indigo-300">
-              {userProfile.avatar ? (
-                <img src={formatMediaUrl(userProfile.avatar)} alt="Avatar" className="w-full h-full object-cover" />
-              ) : (
-                <span>{userProfile.firstName?.[0]}{userProfile.lastName?.[0]}</span>
-              )}
-            </div>
-            
-            <div className="pt-20">
-              <h1 className="text-3xl font-black text-white">{userProfile.firstName} {userProfile.lastName}</h1>
-              <p className="text-indigo-400 text-sm font-medium mt-1">
-                🎓 {userProfile.specialty || 'Étudiant ITAS'} • Promo {userProfile.promotion || 'Non renseignée'}
-              </p>
-              <p className="text-zinc-400 text-[11px] font-semibold mt-1">📍 {userProfile.currentLocation || 'Localisation non renseignée'}</p>
-            </div>
-          </div>
-        </div>
+                <div>
+                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Fichiers</h4>
+                  {fullMediaUrl ? (
+                    <div className="bg-[#030014]/60 border border-indigo-900/60 rounded-xl p-4 space-y-4">
+                      <div className="w-full bg-[#030014] rounded-lg border border-indigo-900/60 overflow-hidden flex items-center justify-center min-h-[180px] max-h-[350px]">
+                        {isImage ? <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[350px] object-contain" /> : 
+                         isVideo ? <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls /> : 
+                         isPdf ? <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="PDF" /> : 
+                         <div className="text-center p-6"><span className="text-4xl">📄</span></div>}
+                      </div>
+                      <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all">
+                        📥 Télécharger ↗
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="bg-[#030014]/60 border border-indigo-900/60 rounded-xl p-4 text-center text-xs text-zinc-500 italic">Aucun fichier joint.</div>
+                  )}
+                </div>
+              </div>
 
-        {/* Navigation Onglets */}
-        <div className="flex border-b border-indigo-900/40 mb-8 gap-8 text-xs font-bold tracking-widest uppercase">
-          <button onClick={() => setActiveTab('compte')} className={`pb-3 transition-all border-b-2 ${activeTab === 'compte' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>
-            👤 Profil
-          </button>
-          <button onClick={() => setActiveTab('projets')} className={`pb-3 transition-all border-b-2 ${activeTab === 'projets' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>
-            🚀 Projets ({userProjects.length})
-          </button>
-        </div>
-
-        {/* Contenu */}
-        {activeTab === 'compte' && (
-          <div className="space-y-6">
-            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-xl">
-              <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Biographie</h2>
-              <p className="text-zinc-300 text-sm leading-relaxed italic bg-[#030014]/60 p-4 rounded-xl border border-indigo-900/30">
-                {userProfile.bio || "Aucune biographie disponible."}
-              </p>
-            </div>
-            
-            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-xl">
-              <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Compétences</h2>
-              <div className="flex flex-wrap gap-2">
-                {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
+              <div className="p-4 border-t border-indigo-900/80 bg-[#0b081e] text-right">
+                <button onClick={() => setSelectedProject(null)} className="bg-zinc-100 text-zinc-950 text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-200 transition-all">Fermer</button>
               </div>
             </div>
           </div>
-        )}
-
-        {activeTab === 'projets' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {userProjects.map((project) => (
-              <div key={project._id} onClick={() => setSelectedProject(project)} className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group">
-                <h3 className="font-bold text-white mb-2 group-hover:text-indigo-400">{project.title}</h3>
-                <p className="text-zinc-400 text-xs line-clamp-2">{project.description}</p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-      
-      {/* (Garde ta logique de Modal ici, elle est très bien faite !) */}
-    </div>
-  );
-})()}
+        );
+      })()}
     </div>
   );
 };
