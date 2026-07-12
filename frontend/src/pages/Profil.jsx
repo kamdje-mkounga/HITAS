@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api'; // On utilise uniquement ton instance API configurée
+import tradPattern from '../assets/traditional.jpg';
 
 function Profil() {
   const [formData, setFormData] = useState({
@@ -192,60 +193,91 @@ function Profil() {
     }
   };
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex flex-col font-sans antialiased">
+    <div 
+      className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-8">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10">
         {loading ? (
-          <p className="text-zinc-500 animate-pulse text-center py-20">Chargement de tes données...</p>
+          <p className="text-zinc-400 font-bold tracking-widest uppercase text-xs animate-pulse text-center py-20 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl border border-indigo-900/60 shadow-xl">
+            Chargement de tes données...
+          </p>
         ) : (
           <div>
-            {/* CARTE D'EN-TÊTE */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row items-center gap-6 shadow-xl">
-              <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-zinc-700 flex-shrink-0">
-                {avatarPreview ? (
-                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span>
-                    {formData.firstName ? formData.firstName[0] : 'M'}
-                    {formData.lastName ? formData.lastName[0] : 'P'}
-                  </span>
-                )}
+            {/* CARTE D'EN-TÊTE PRINCIPALE (STYLE BANNIÈRE) */}
+            <div className="bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl overflow-hidden shadow-2xl shadow-black/50 mb-10 mt-8">
+              
+              {/* Bannière décorative */}
+              <div className="h-32 sm:h-40 bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-[#030014] border-b border-indigo-900/50 relative">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
               </div>
-              <div className="text-center sm:text-left flex-1">
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  {formData.firstName || 'Mon'} {formData.lastName || 'Profil'}
-                </h1>
-                <p className="text-indigo-400 text-sm font-medium mt-1">
-                  ✨ {formData.specialty || 'Étudiant ITAS'} {formData.promotion && `• Promo ${formData.promotion}`}
-                </p>
-                <div className="flex flex-wrap justify-center sm:justify-start gap-4 mt-4 text-xs text-zinc-400">
-                  <div className="bg-zinc-950 px-3 py-1.5 rounded-md border border-zinc-800">
-                    📝 <span className="text-white font-bold">{myPosts.length}</span> Publications
+
+              <div className="px-6 pb-6 sm:px-10 sm:pb-8 relative">
+                {/* Avatar superposé */}
+                <div className="absolute -top-16 sm:-top-20 left-6 sm:left-10">
+                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#030014] border-4 border-[#0b081e] flex items-center justify-center text-3xl font-bold uppercase shadow-xl shadow-indigo-500/10 overflow-hidden text-indigo-300">
+                    {avatarPreview ? (
+                      <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <span>
+                        {formData.firstName ? formData.firstName[0] : 'M'}
+                        {formData.lastName ? formData.lastName[0] : 'P'}
+                      </span>
+                    )}
                   </div>
-                  <div className="bg-zinc-950 px-3 py-1.5 rounded-md border border-zinc-800">
-                    🚀 <span className="text-white font-bold">{myProjects.length}</span> Projets partagés
+                </div>
+
+                {/* Infos principales */}
+                <div className="pt-20 sm:pt-24 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  <div>
+                    <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-1">
+                      {formData.firstName || 'Mon'} {formData.lastName || 'Profil'}
+                    </h1>
+                    <p className="text-indigo-400 font-medium text-sm">
+                      🎓 {formData.specialty || 'Étudiant ITAS'} {formData.promotion && `— Promo ${formData.promotion}`}
+                    </p>
+                    <p className="text-zinc-400 text-[11px] font-semibold mt-1">
+                      📍 {formData.currentLocation || 'Localisation non renseignée'}
+                    </p>
+                  </div>
+
+                  {/* Statistiques alignées à droite */}
+                  <div className="flex gap-3 text-xs text-zinc-400 mt-2 sm:mt-0">
+                    <div className="bg-[#030014]/60 px-4 py-2 rounded-xl border border-indigo-900/40 shadow-inner flex flex-col items-center">
+                      <span className="text-white font-black text-lg">{myPosts.length}</span>
+                      <span className="text-[9px] uppercase tracking-widest">Posts</span>
+                    </div>
+                    <div className="bg-[#030014]/60 px-4 py-2 rounded-xl border border-indigo-900/40 shadow-inner flex flex-col items-center">
+                      <span className="text-white font-black text-lg">{myProjects.length}</span>
+                      <span className="text-[9px] uppercase tracking-widest">Projets</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* ONGLETS */}
-            <div className="flex gap-6 border-b border-zinc-800 mb-8 pb-2 text-sm font-semibold">
+            <div className="flex gap-6 border-b border-indigo-900/40 mb-8 pb-3 text-sm font-bold tracking-wide overflow-x-auto scrollbar-none">
               <button
                 type="button"
                 onClick={() => setActiveTab('account')}
-                className={`pb-2 px-1 transition-all border-b-2 ${
-                  activeTab === 'account' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-400 hover:text-zinc-200 border-transparent'
+                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap ${
+                  activeTab === 'account' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300 border-transparent'
                 }`}
               >
-                👤 Mon Compte
+                ⚙️ Paramètres du Profil
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('posts')}
-                className={`pb-2 px-1 transition-all border-b-2 ${
-                  activeTab === 'posts' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-400 hover:text-zinc-200 border-transparent'
+                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap ${
+                  activeTab === 'posts' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300 border-transparent'
                 }`}
               >
                 📝 Mes Publications ({myPosts.length})
@@ -253,8 +285,8 @@ function Profil() {
               <button
                 type="button"
                 onClick={() => setActiveTab('projects')}
-                className={`pb-2 px-1 transition-all border-b-2 ${
-                  activeTab === 'projects' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-400 hover:text-zinc-200 border-transparent'
+                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap ${
+                  activeTab === 'projects' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300 border-transparent'
                 }`}
               >
                 🚀 Mes Projets ({myProjects.length})
@@ -263,90 +295,108 @@ function Profil() {
 
             {/* CONTENU DYNAMIQUE */}
             {activeTab === 'account' && (
-              <div className="max-w-2xl mx-auto space-y-6">
-                <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-md">
-                  {message.text && (
-                    <div className={`mb-6 p-3 border text-xs font-medium rounded-lg ${
-                      message.type === 'success' ? 'bg-emerald-950/40 border-emerald-900 text-emerald-400' : 'bg-red-950/40 border-red-900 text-red-400'
-                    }`}>
-                      {message.type === 'success' ? '🎉' : '⚠️'} {message.text}
-                    </div>
-                  )}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                {/* COLONNE GAUCHE : Formulaire */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="p-6 sm:p-8 bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl shadow-xl shadow-black/40">
+                    
+                    <h2 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                      Éditer les informations
+                    </h2>
 
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="flex items-center gap-5 bg-zinc-950 p-4 border border-zinc-800 rounded-xl">
-                      <div className="w-16 h-16 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center flex-shrink-0">
-                        {avatarPreview ? (
-                          <img src={avatarPreview} alt="Aperçu" className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-2xl">👤</span>
-                        )}
+                    {message.text && (
+                      <div className={`mb-6 p-4 border text-xs font-bold rounded-xl flex items-center gap-2 ${
+                        message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'
+                      }`}>
+                        {message.type === 'success' ? '✅' : '⚠️'} {message.text}
                       </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                      {/* Update Avatar Input */}
+                      <div className="flex items-center gap-5 bg-[#030014]/60 p-4 border border-indigo-950/60 rounded-2xl shadow-inner">
+                        <div className="w-16 h-16 rounded-full bg-[#0b081e] border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0">
+                          {avatarPreview ? (
+                            <img src={avatarPreview} alt="Aperçu" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-2xl">👤</span>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Changer la photo</label>
+                          <input 
+                            type="file" accept="image/*" onChange={handleFileChange}
+                            className="text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénom</label>
+                          <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Nom de famille</label>
+                          <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion</label>
+                          <input type="text" name="promotion" required value={formData.promotion} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Spécialité</label>
+                          <input type="text" name="specialty" required value={formData.specialty} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                      </div>
+
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1">Photo de profil</label>
-                        <input 
-                          type="file" accept="image/*" onChange={handleFileChange}
-                          className="text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 file:cursor-pointer"
-                        />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Localisation Actuelle</label>
+                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Prénom</label>
-                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos</label>
+                        <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                       </div>
+
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Nom de famille</label>
-                        <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
+                        <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: React, Node.js, Réseaux..." />
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Promotion</label>
-                        <input type="text" name="promotion" required value={formData.promotion} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
+                      <div className="pt-4">
+                        <button type="submit" disabled={submitting} className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-sm rounded-xl transition-all shadow-lg hover:shadow-indigo-500/25 active:scale-[0.98] disabled:opacity-50">
+                          {submitting ? 'Enregistrement en cours...' : 'Sauvegarder les modifications'}
+                        </button>
                       </div>
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Spécialité</label>
-                        <input type="text" name="specialty" required value={formData.specialty} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Localisation Actuelle</label>
-                      <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Biographie</label>
-                      <textarea name="bio" rows="3" value={formData.bio} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors resize-none" />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
-                      <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-3 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-zinc-700 transition-colors" />
-                    </div>
-
-                    <button type="submit" disabled={submitting} className="w-full py-2.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-bold text-sm rounded-xl transition-colors disabled:opacity-50">
-                      {submitting ? 'Enregistrement...' : 'Enregistrer mon profil'}
-                    </button>
-                  </form>
+                    </form>
+                  </div>
                 </div>
 
-                {/* ZONE DE DANGER : Suppression du compte */}
-                <div className="p-6 bg-zinc-900 border border-red-900/40 rounded-2xl shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <h4 className="text-sm font-bold text-red-400">Zone de danger</h4>
-                    <p className="text-xs text-zinc-400 mt-1">La suppression supprimera définitivement votre profil, vos posts et vos projets de la plateforme ITAS.</p>
+                {/* COLONNE DROITE : Danger Zone */}
+                <div className="space-y-6">
+                  <div className="p-6 sm:p-8 bg-[#0b081e]/85 backdrop-blur-xl border border-red-900/30 rounded-3xl shadow-xl flex flex-col items-center text-center">
+                    <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
+                      <span className="text-xl">⚠️</span>
+                    </div>
+                    <h4 className="text-base font-bold text-red-400 mb-2">Zone de Danger</h4>
+                    <p className="text-xs text-zinc-400 leading-relaxed mb-6">
+                      La suppression supprimera définitivement votre profil, vos posts et vos projets de la plateforme HITAS. Cette action est irréversible.
+                    </p>
+                    <button 
+                      type="button"
+                      onClick={handleDeleteAccount}
+                      className="w-full px-4 py-3 bg-red-950/40 hover:bg-red-900/60 text-red-400 font-bold text-xs rounded-xl border border-red-900/60 transition-colors shadow-sm"
+                    >
+                      Supprimer mon compte
+                    </button>
                   </div>
-                  <button 
-                    type="button"
-                    onClick={handleDeleteAccount}
-                    className="w-full sm:w-auto px-4 py-2 bg-red-950/40 hover:bg-red-900/60 text-red-400 font-semibold text-xs rounded-xl border border-red-900/60 transition-colors whitespace-nowrap"
-                  >
-                    Supprimer le compte
-                  </button>
                 </div>
               </div>
             )}
@@ -355,7 +405,7 @@ function Profil() {
             {activeTab === 'posts' && (
               <div className="space-y-4 max-w-3xl mx-auto">
                 {myPosts.length === 0 ? (
-                  <div className="text-center py-12 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 text-sm">
+                  <div className="text-center py-16 bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/40 rounded-3xl text-zinc-500 text-sm shadow-xl">
                     Aucune publication pour le moment dans l'espace Entraide.
                   </div>
                 ) : (
@@ -363,15 +413,15 @@ function Profil() {
                     <div 
                       key={post._id} 
                       onClick={() => navigate('/blog', { state: { scrollToId: post._id } })}
-                      className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800 cursor-pointer hover:border-zinc-600 transition-all shadow-md group"
+                      className="bg-[#0b081e]/85 backdrop-blur-md p-6 rounded-2xl border border-indigo-900/60 cursor-pointer hover:border-indigo-600/50 hover:bg-[#0b081e] transition-all shadow-lg group"
                     >
-                      <div className="flex justify-between items-center mb-3">
-                        <span className="text-xs text-zinc-500">{new Date(post.date).toLocaleDateString('fr-FR')}</span>
-                        <span className="text-xs bg-zinc-950 text-zinc-300 px-2 py-0.5 rounded border border-zinc-800 uppercase font-bold tracking-wider">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-xs font-medium text-zinc-500">{new Date(post.date).toLocaleDateString('fr-FR')}</span>
+                        <span className="text-[10px] bg-indigo-500/10 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-500/20 uppercase font-bold tracking-wider">
                           {post.category}
                         </span>
                       </div>
-                      <p className="text-zinc-300 text-sm whitespace-pre-wrap group-hover:text-zinc-100 transition-colors">{post.text}</p>
+                      <p className="text-zinc-300 text-sm whitespace-pre-wrap group-hover:text-zinc-100 transition-colors leading-relaxed">{post.text}</p>
                     </div>
                   ))
                 )}
@@ -382,7 +432,7 @@ function Profil() {
             {activeTab === 'projects' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {myProjects.length === 0 ? (
-                  <div className="col-span-full text-center py-12 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-500 text-sm">
+                  <div className="col-span-full text-center py-16 bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/40 rounded-3xl text-zinc-500 text-sm shadow-xl">
                     Aucun projet partagé pour le moment dans le Showcase.
                   </div>
                 ) : (
@@ -390,21 +440,21 @@ function Profil() {
                     <div 
                       key={project._id} 
                       onClick={() => navigate('/showcase', { state: { scrollToId: project._id } })}
-                      className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex flex-col justify-between cursor-pointer hover:border-zinc-600 transition-all shadow-lg group"
+                      className="bg-[#0b081e]/85 backdrop-blur-md border border-indigo-900/60 rounded-2xl p-6 flex flex-col justify-between cursor-pointer hover:border-indigo-600/50 hover:bg-[#0b081e] transition-all shadow-lg group"
                     >
                       <div>
                         <h3 className="text-lg font-bold text-zinc-100 mb-2 group-hover:text-indigo-400 transition-colors">{project.title}</h3>
-                        <p className="text-zinc-400 text-sm mb-4 line-clamp-3">{project.description}</p>
+                        <p className="text-zinc-400 text-sm mb-4 line-clamp-3 leading-relaxed">{project.description}</p>
                       </div>
                       
-                      <div className="flex gap-2 text-center text-xs mt-4">
+                      <div className="flex gap-3 text-center text-xs mt-4 pt-4 border-t border-indigo-950/60">
                         {project.githubLink && (
                           <a 
                             href={project.githubLink} 
                             target="_blank" 
                             rel="noopener noreferrer" 
                             onClick={(e) => e.stopPropagation()} 
-                            className="bg-zinc-950 border border-zinc-800 p-2 rounded-xl w-full text-zinc-300 hover:bg-zinc-800 transition-colors"
+                            className="bg-[#030014]/80 border border-indigo-900/40 p-2.5 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold"
                           >
                             📦 GitHub
                           </a>
@@ -415,7 +465,7 @@ function Profil() {
                             target="_blank" 
                             rel="noopener noreferrer" 
                             onClick={(e) => e.stopPropagation()} 
-                            className="bg-indigo-600 p-2 rounded-xl w-full text-white hover:bg-indigo-500 transition-colors"
+                            className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2.5 rounded-xl w-full text-white hover:from-indigo-500 hover:to-purple-500 transition-colors font-bold shadow-md shadow-indigo-500/20"
                           >
                             🌐 Démo
                           </a>
