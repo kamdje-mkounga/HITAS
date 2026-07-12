@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
+import tradPattern from '../assets/traditional.jpg';
 
 const PublicProfile = () => {
   const { id } = useParams();
@@ -277,136 +278,85 @@ const PublicProfile = () => {
   const isPdf = urlLower && urlLower.endsWith('.pdf');
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-[#161618] border border-zinc-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
+      <div className="max-w-4xl mx-auto px-4">
         
-        <div className="p-6 border-b border-zinc-800/80 flex justify-between items-center bg-[#111113]">
-          <div>
-            <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails Approfondis</span>
-            <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide">{selectedProject.title}</h2>
-          </div>
-          <button 
-            onClick={() => setSelectedProject(null)} 
-            className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors"
-          >
-            ✕
-          </button>
-        </div>
+        <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-white flex items-center gap-1 transition-all">
+          ← Retour
+        </button>
 
-        <div className="p-6 space-y-6">
-          <div>
-            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète du projet</h4>
-            <div className="bg-[#0d0d0e] border border-zinc-800/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
-              {selectedProject.description || "Aucune description fournie."}
+        {/* Profil Header avec Bannière et Avatar superposé */}
+        <div className="bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl overflow-hidden shadow-2xl shadow-black/40 mb-8">
+          <div className="h-32 bg-gradient-to-r from-indigo-900/40 to-[#030014] border-b border-indigo-900/50"></div>
+          
+          <div className="px-8 pb-8 relative">
+            <div className="absolute -top-16 w-32 h-32 rounded-full bg-[#030014] border-4 border-[#0b081e] flex items-center justify-center text-3xl font-bold uppercase shadow-xl overflow-hidden text-indigo-300">
+              {userProfile.avatar ? (
+                <img src={formatMediaUrl(userProfile.avatar)} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span>{userProfile.firstName?.[0]}{userProfile.lastName?.[0]}</span>
+              )}
             </div>
-          </div>
-
-          <div>
-            <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">
-              Fichiers insérés par le profil {mediaList.length > 1 && `(${currentFileIndex + 1}/${mediaList.length})`}
-            </h4>
             
-            {fullMediaUrl ? (
-              <div className="bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4 space-y-4">
-                <div className="w-full bg-[#111113] rounded-lg border border-zinc-800 overflow-hidden flex items-center justify-center min-h-[180px] max-h-[350px]">
-                  
-                  {/* 1. Traitement des Images */}
-                  {isImage ? (
-                    <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[350px] object-contain" />
-                  
-                  // 2. Traitement des Vidéos
-                  ) : isVideo ? (
-                    <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls />
-                  
-                  // 3. Traitement des PDF
-                  ) : isPdf ? (
-                    <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="Visualiseur PDF" />
-                  
-                  // 4. Autre type de document
-                  ) : (
-                    <div className="text-center p-6 flex flex-col items-center gap-2">
-                      <span className="text-4xl">📄</span>
-                      <span className="text-xs text-zinc-200 font-semibold uppercase tracking-wider">Document Associé</span>
-                      <span className="text-[10px] text-zinc-500 truncate max-w-[250px]">{mediaStringUrl.split('/').pop() || 'Fichier joint'}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* SÉLECTEUR MULTI-FICHIERS (Apparaît uniquement s'il y a plus d'un fichier) */}
-                {mediaList.length > 1 && (
-                  <div className="flex flex-wrap gap-2 pt-2 border-t border-zinc-800/40">
-                    {mediaList.map((_, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => setCurrentFileIndex(idx)}
-                        className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${
-                          currentFileIndex === idx 
-                            ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' 
-                            : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700'
-                        }`}
-                      >
-                        📄 Fichier {idx + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <a 
-                  href={fullMediaUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md"
-                >
-                  📥 Télécharger / Ouvrir le document joint {mediaList.length > 1 && `#${currentFileIndex + 1}`} ↗
-                </a>
-              </div>
-            ) : (
-              <div className="bg-[#0d0d0e] border border-zinc-800/40 rounded-xl p-4 text-center text-xs text-zinc-500 italic">
-                Aucun fichier ou média n'a été inséré pour ce projet.
-              </div>
-            )}
-          </div>
-
-          {(selectedProject.githubLink || selectedProject.demoLink) && (
-            <div>
-              <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Liens d'accès externes</h4>
-              <div className="flex flex-col sm:flex-row gap-3">
-                {selectedProject.githubLink && (
-                  <a 
-                    href={selectedProject.githubLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex-1 text-center text-xs font-bold bg-[#0d0d0e] border border-zinc-800 text-zinc-300 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
-                  >
-                    📦 Dépôt de code GitHub ↗
-                  </a>
-                )}
-                {selectedProject.demoLink && (
-                  <a 
-                    href={selectedProject.demoLink} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="flex-1 text-center text-xs font-bold bg-[#111113] border border-zinc-800 text-indigo-400 py-3 rounded-xl hover:bg-zinc-800 transition-colors"
-                  >
-                    🌐 Déploiement en ligne (Live Demo) ↗
-                  </a>
-                )}
-              </div>
+            <div className="pt-20">
+              <h1 className="text-3xl font-black text-white">{userProfile.firstName} {userProfile.lastName}</h1>
+              <p className="text-indigo-400 text-sm font-medium mt-1">
+                🎓 {userProfile.specialty || 'Étudiant ITAS'} • Promo {userProfile.promotion || 'Non renseignée'}
+              </p>
+              <p className="text-zinc-400 text-[11px] font-semibold mt-1">📍 {userProfile.currentLocation || 'Localisation non renseignée'}</p>
             </div>
-          )}
+          </div>
         </div>
 
-        <div className="p-4 border-t border-zinc-800/80 bg-[#111113] text-right">
-          <button 
-            onClick={() => setSelectedProject(null)} 
-            className="bg-zinc-100 text-zinc-950 text-xs font-bold px-4 py-2 rounded-xl hover:bg-zinc-200 transition-all"
-          >
-            Fermer
+        {/* Navigation Onglets */}
+        <div className="flex border-b border-indigo-900/40 mb-8 gap-8 text-xs font-bold tracking-widest uppercase">
+          <button onClick={() => setActiveTab('compte')} className={`pb-3 transition-all border-b-2 ${activeTab === 'compte' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>
+            👤 Profil
+          </button>
+          <button onClick={() => setActiveTab('projets')} className={`pb-3 transition-all border-b-2 ${activeTab === 'projets' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}>
+            🚀 Projets ({userProjects.length})
           </button>
         </div>
 
+        {/* Contenu */}
+        {activeTab === 'compte' && (
+          <div className="space-y-6">
+            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-xl">
+              <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Biographie</h2>
+              <p className="text-zinc-300 text-sm leading-relaxed italic bg-[#030014]/60 p-4 rounded-xl border border-indigo-900/30">
+                {userProfile.bio || "Aucune biographie disponible."}
+              </p>
+            </div>
+            
+            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-xl">
+              <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-4">Compétences</h2>
+              <div className="flex flex-wrap gap-2">
+                {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'projets' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {userProjects.map((project) => (
+              <div key={project._id} onClick={() => setSelectedProject(project)} className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group">
+                <h3 className="font-bold text-white mb-2 group-hover:text-indigo-400">{project.title}</h3>
+                <p className="text-zinc-400 text-xs line-clamp-2">{project.description}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
+      
+      {/* (Garde ta logique de Modal ici, elle est très bien faite !) */}
     </div>
   );
 })()}
