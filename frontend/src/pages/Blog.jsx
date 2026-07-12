@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client'; // 🌐 Importation du client socket
-
+import tradPattern from '../assets/traditional.jpg';
 import {
   Paperclip,
   Search,
@@ -324,7 +324,14 @@ const Blog = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#030014] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12">
+    <div 
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
       <div className="max-w-3xl mx-auto px-4">
         
         {/* Header */}
