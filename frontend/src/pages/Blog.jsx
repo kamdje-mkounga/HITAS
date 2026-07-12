@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client'; // 🌐 Importation du client socket
+import tradPattern from '../assets/traditional.jpg';
 import {
   Paperclip,
   Search,
@@ -699,7 +700,7 @@ const Blog = () => {
         )}
       </div>
     </div>
-  );
+);
 };
 
 export default Blog;
