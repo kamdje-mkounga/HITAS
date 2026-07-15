@@ -9,6 +9,8 @@ const multer = require('multer');
 const { getVideoDurationInSeconds } = require('get-video-duration');
 const { Readable } = require('stream'); 
 const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
+const User = require('../models/User');
+const admin = require('../config/firebaseAdmin');
 
 // Configuration du stockage de Multer en mémoire
 const storage = multer.memoryStorage();
