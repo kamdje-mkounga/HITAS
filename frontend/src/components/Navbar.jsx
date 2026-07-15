@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
-import axios from 'react-shadow'; // Note : gardé selon ton import axios
-import axiosInstance from 'axios'; // Pour corriger l'appel si nécessaire, ou on garde ton import standard :
-import axiosActual from 'axios'; 
+import axios from 'axios'; 
 import { io } from 'socket.io-client'; // 🌐 1. On importe Socket.IO
-
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   
