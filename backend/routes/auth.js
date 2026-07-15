@@ -97,13 +97,11 @@ router.put('/fcm-token', auth, async (req, res) => {
 
     try {
 
+        console.log("=== ROUTE FCM APPELÉE ===");
+
         const { token } = req.body;
 
-        if (!token) {
-            return res.status(400).json({
-                message: "Token Firebase manquant."
-            });
-        }
+        console.log("Token reçu :", token);
 
         const user = await User.findById(req.user.userId);
 
@@ -113,20 +111,23 @@ router.put('/fcm-token', auth, async (req, res) => {
             });
         }
 
-        // Création du tableau s'il n'existe pas
+        console.log("Utilisateur trouvé :", user.email);
+
         if (!user.fcmTokens) {
             user.fcmTokens = [];
         }
 
-        // Évite les doublons
         if (!user.fcmTokens.includes(token)) {
             user.fcmTokens.push(token);
+            console.log("Tableau avant sauvegarde :", user.fcmTokens);
+
             await user.save();
+
+            console.log("✅ Utilisateur sauvegardé");
         }
 
         res.json({
-            success: true,
-            message: "Token enregistré."
+            success: true
         });
 
     } catch (err) {
@@ -134,7 +135,7 @@ router.put('/fcm-token', auth, async (req, res) => {
         console.error(err);
 
         res.status(500).json({
-            message: "Erreur serveur."
+            message: "Erreur serveur"
         });
 
     }
