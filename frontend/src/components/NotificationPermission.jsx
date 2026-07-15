@@ -7,7 +7,7 @@ const VAPID_KEY =
   "BOh0xGH6_Rq1yaJaXio2W0SQMd5vplhb3zL_7MBAyfy7zZk5CJdOulOD33qiRyyDOLLoewyfU0XBEH-KlNEpnvA";
 
 // ⚠️ Mets ici l'URL de ton backend
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function NotificationPermission() {
 
