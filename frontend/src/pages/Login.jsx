@@ -50,8 +50,15 @@ function Login() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#030014] text-zinc-50 flex items-center justify-center px-4 font-sans antialiased selection:bg-indigo-500 selection:text-white">
-      <div className="w-full max-w-md p-8 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 rounded-2xl shadow-2xl shadow-black/50">
+    <div 
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative flex items-center justify-center px-4 font-sans selection:bg-indigo-500 selection:text-white"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
+      <div className="w-full max-w-md p-8 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 rounded-2xl shadow-2xl shadow-black/50 relative z-10">
         
         {/* En-tête */}
         <div className="text-center mb-8">
