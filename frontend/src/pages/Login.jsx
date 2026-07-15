@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
+import tradPattern from '../assets/traditional.jpg';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
