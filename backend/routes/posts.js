@@ -105,20 +105,21 @@ router.post('/', auth, (req, res) => {
       const post = await newPost.save();
       //
       // 🔔 Notification Firebase
+// 🔔 Notification Firebase
 try {
 
-  // Récupère tous les utilisateurs ayant au moins un token FCM
+  // Tous les utilisateurs sauf celui qui vient de publier
   const users = await User.find({
+      _id: { $ne: req.user.userId },
       fcmTokens: { $exists: true, $ne: [] }
   });
 
-  // Fusionne tous les tokens dans un seul tableau
   const tokens = users.flatMap(user => user.fcmTokens);
 
   if (tokens.length > 0) {
 
-      const message = {
-          tokens,
+      const messages = tokens.map(token => ({
+          token,
 
           notification: {
               title: "📢 Nouvelle publication",
@@ -128,26 +129,27 @@ try {
           webpush: {
               notification: {
                   icon: "https://hitas.onrender.com/hitas_logo.svg",
-                  badge: "https://hitas.onrender.com/hitas_logo.svg"
+                  badge: "https://hitas.onrender.com/hitas_logo.svg",
+                  requireInteraction: true
               },
 
               fcmOptions: {
                   link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
               }
           }
-      };
+      }));
 
-      const response = await admin.messaging().sendEachForMulticast(message);
+      const response = await admin.messaging().sendEach(messages);
 
       console.log(
-          `Notifications envoyées : ${response.successCount}/${tokens.length}`
+          `✅ ${response.successCount}/${messages.length} notifications envoyées`
       );
 
   }
 
 } catch (err) {
 
-  console.error("Erreur Firebase :", err);
+  console.error("🔥 Firebase Error:", err);
 
 }
       
