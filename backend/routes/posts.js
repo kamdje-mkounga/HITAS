@@ -101,6 +101,53 @@ router.post('/', auth, (req, res) => {
       });
 
       const post = await newPost.save();
+      //
+      // 🔔 Notification Firebase
+try {
+
+  // Récupère tous les utilisateurs ayant au moins un token FCM
+  const users = await User.find({
+      fcmTokens: { $exists: true, $ne: [] }
+  });
+
+  // Fusionne tous les tokens dans un seul tableau
+  const tokens = users.flatMap(user => user.fcmTokens);
+
+  if (tokens.length > 0) {
+
+      const message = {
+          tokens,
+
+          notification: {
+              title: "📢 Nouvelle publication",
+              body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
+          },
+
+          webpush: {
+              notification: {
+                  icon: "https://hitas.onrender.com/hitas_logo.svg",
+                  badge: "https://hitas.onrender.com/hitas_logo.svg"
+              },
+
+              fcmOptions: {
+                  link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+              }
+          }
+      };
+
+      const response = await admin.messaging().sendEachForMulticast(message);
+
+      console.log(
+          `Notifications envoyées : ${response.successCount}/${tokens.length}`
+      );
+
+  }
+
+} catch (err) {
+
+  console.error("Erreur Firebase :", err);
+
+}
       
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
       const postWithLean = post.toObject();
