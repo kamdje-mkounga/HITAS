@@ -24,7 +24,7 @@ const UserSchema = new mongoose.Schema({
     },
 
     // 🔔 Token Firebase
-    fcmToken: {
+    fcmTokens: {
         type: [String],
         default: []
     }
