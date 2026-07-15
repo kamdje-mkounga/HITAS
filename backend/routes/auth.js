@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // @route   POST api/auth/register
-// @desc    Inscrire un nouvel étudiant / alumni
+// @desc    Inscrire un nouvel étudiant / alumni (En attente de validation)
 router.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
 
@@ -17,6 +17,7 @@ router.post('/register', async (req, res) => {
         }
 
         // 2. Créer l'instance du nouvel utilisateur
+        // Note : Par défaut, isVerified sera à false (défini dans le modèle)
         user = new User({
             email,
             password,
@@ -30,17 +31,9 @@ router.post('/register', async (req, res) => {
         // 4. Sauvegarder dans MongoDB
         await user.save();
 
-        // 5. Générer un token JWT valide pour 24h (1 jour)
-        const payload = { userId: user.id, role: user.role };
-        const token = jwt.sign(
-            payload, 
-            process.env.JWT_SECRET || 'secret_temporaire', 
-            { expiresIn: '24h' }
-        );
-
+        // 🔒 SÉCURITÉ : Pas de token généré ici. L'utilisateur doit attendre la validation admin.
         res.status(201).json({
-            message: "Utilisateur créé avec succès ! 🎉",
-            token,
+            message: "Inscription enregistrée avec succès ! Votre compte est en attente de validation par l'administration de HITAS. 🎉",
             user: { id: user.id, email: user.email, role: user.role }
         });
 
@@ -51,7 +44,7 @@ router.post('/register', async (req, res) => {
 });
 
 // @route   POST api/auth/login
-// @desc    Connecter un étudiant / alumni & obtenir le token
+// @desc    Connecter un étudiant / alumni & obtenir le token s'il est validé
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -66,6 +59,14 @@ router.post('/login', async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: "Identifiants invalides." });
+        }
+
+        // 🔒 BARRIÈRE DE SÉCURITÉ : Vérifier si le compte est validé
+        // On laisse l'admin passer d'office pour éviter les blocages de configuration
+        if (!user.isVerified && user.role !== 'admin') {
+            return res.status(403).json({ 
+                message: "Votre compte est en attente de validation par l'administration de HITAS. Vous ne pouvez pas encore vous connecter." 
+            });
         }
 
         // 3. Générer un nouveau token JWT valide pour 24h

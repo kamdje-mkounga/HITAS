@@ -73,6 +73,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/profile', require('./routes/profile'));
 app.use('/api/posts', require('./routes/posts'));
 app.use('/api/project', require('./routes/project'));
+app.use('/api/admin', require('./routes/admin'));
 
 // 9. Route de test globale
 app.get('/', (req, res) => {
