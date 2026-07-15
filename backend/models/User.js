@@ -1,5 +1,3 @@
-const mongoose = require('mongoose');
-
 const UserSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -13,17 +11,26 @@ const UserSchema = new mongoose.Schema({
         required: [true, "Le mot de passe est obligatoire"],
         minlength: [6, "Le mot de passe doit faire au moins 6 caractères"]
     },
+
     role: {
         type: String,
         enum: ['student', 'alumni', 'admin'],
         default: 'student'
     },
+
     isVerified: {
         type: Boolean,
-        default: false // Le président ou l'admin pourra passer à true pour valider l'étudiant
+        default: false
+    },
+
+    // 🔔 Token Firebase
+    fcmToken: {
+        type: [String],
+        default: []
     }
+
 }, {
-    timestamps: true // Crée automatiquement les champs createdAt et updatedAt
+    timestamps: true
 });
 
 module.exports = mongoose.model('User', UserSchema);
