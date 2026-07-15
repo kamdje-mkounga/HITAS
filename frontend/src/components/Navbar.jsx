@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'react-shadow'; // Note : gardé selon ton import axios
+import axiosInstance from 'axios'; // Pour corriger l'appel si nécessaire, ou on garde ton import standard :
+import axiosActual from 'axios'; 
 import { io } from 'socket.io-client'; // 🌐 1. On importe Socket.IO
 
 const Navbar = () => {
@@ -13,12 +15,13 @@ const Navbar = () => {
   const BACKEND_URL = "https://hitas.onrender.com";
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId'); // On récupère ton ID
+  const userRole = localStorage.getItem('userRole'); // 🔒 Récupération du rôle pour le filtre Admin
 
   useEffect(() => {
     const fetchNavbarProfile = async () => {
       if (!token) return;
       try {
-        const res = await axios.get(`${BACKEND_URL}/api/profile/me`, {
+        const res = await axiosActual.get(`${BACKEND_URL}/api/profile/me`, {
           headers: { 'x-auth-token': token }
         });
         if (res.data?.avatar) {
@@ -47,45 +50,44 @@ const Navbar = () => {
   }, [token]);
 
   // 🌐 3. ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL
- // 🌐 ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL
- useEffect(() => {
-  if (!token || !loggedInUserId) return; // Sécurité supplémentaire
+  useEffect(() => {
+    if (!token || !loggedInUserId) return; // Sécurité supplémentaire
 
-  const socket = io(BACKEND_URL, {
-    transports: ['websocket', 'polling'],
-  });
+    const socket = io(BACKEND_URL, {
+      transports: ['websocket', 'polling'],
+    });
 
-  socket.on('article_published', (newPost) => {
-    if (!newPost || !newPost.user) return;
+    socket.on('article_published', (newPost) => {
+      if (!newPost || !newPost.user) return;
 
-    // 1. On extrait l'ID proprement, qu'il soit un objet peuplé ou un ID direct
-    const rawAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
-    
-    // 2. 🛡️ LE FILTRE BLINDÉ : On force tout en texte (String) et on enlève les espaces invisibles (trim)
-    const postAuthorId = String(rawAuthorId).trim();
-    const myId = String(loggedInUserId).trim();
+      // 1. On extrait l'ID proprement, qu'il soit un objet peuplé ou un ID direct
+      const rawAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
+      
+      // 2. 🛡️ LE FILTRE BLINDÉ : On force tout en texte (String) et on enlève les espaces invisibles (trim)
+      const postAuthorId = String(rawAuthorId).trim();
+      const myId = String(loggedInUserId).trim();
 
-    console.log(`Comparaison - Auteur du post: ${postAuthorId} | Mon ID: ${myId}`);
+      console.log(`Comparaison - Auteur du post: ${postAuthorId} | Mon ID: ${myId}`);
 
-    // 3. Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie !
-    if (postAuthorId !== myId) {
-      setHasNewNotification(true); 
-      // Si tu as un state de compteur (ex: setCount(prev => prev + 1)), c'est ici qu'il faut le mettre.
-    } else {
-      // C'est mon post, je l'ignore silencieusement 🥷
-      console.log("C'est mon post, on bloque la notification !");
-    }
-  });
+      // 3. Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie !
+      if (postAuthorId !== myId) {
+        setHasNewNotification(true); 
+      } else {
+        // C'est mon post, je l'ignore silencieusement 🥷
+        console.log("C'est mon post, on bloque la notification !");
+      }
+    });
 
-  return () => {
-    socket.off('article_published');
-    socket.disconnect();
-  };
-}, [token, loggedInUserId]);
+    return () => {
+      socket.off('article_published');
+      socket.disconnect();
+    };
+  }, [token, loggedInUserId]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
+    localStorage.removeItem('userRole'); // 🔒 Nettoyage du rôle à la déconnexion
     navigate('/login');
   };
 
@@ -112,7 +114,7 @@ const Navbar = () => {
               Annuaire
             </NavLink>
 
-            {/* Onglet Blog mis à jour avec la notification style WhatsApp */}
+            {/* Onglet Blog */}
             <NavLink 
               to="/blog" 
               onClick={() => setHasNewNotification(false)} // Efface la notif quand on clique
@@ -125,9 +127,7 @@ const Navbar = () => {
                 
                 {hasNewNotification && (
                   <span className="absolute -top-1 -right-2 flex h-2.5 w-2.5">
-                    {/* L'effet de halo clignotant WhatsApp */}
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    {/* Le point rouge fixe au premier plan */}
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
                   </span>
                 )}
@@ -142,6 +142,20 @@ const Navbar = () => {
             >
               Showcase
             </NavLink>
+
+            {/* 🔒 ONGLET PANEL ADMIN (Visible uniquement pour le rôle 'admin') */}
+            {token && userRole === 'admin' && (
+              <NavLink 
+                to="/admin" 
+                className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 border border-indigo-500/20 ${
+                  isActive 
+                    ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' 
+                    : 'text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/30'
+                }`}
+              >
+                Panel Admin 🛠️
+              </NavLink>
+            )}
           </div>
           
           {/* 🔐 ESPACE UTILISATEUR CONNECTÉ / COMPTE */}
