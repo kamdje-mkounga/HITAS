@@ -10,7 +10,6 @@ import Profil from './pages/Profil';
 import AutoLogout from './components/AutoLogout'; // 👈 On importe le composant de déconnexion automatique
 import PublicProfile from './pages/PublicProfile'; // Ajuste le chemin selon ton dossier
 import AdminDashboard from './pages/AdminDashboard';
-import NotificationBadge from "./components/NotificationBadge";
 import NotificationPermission from "./components/NotificationPermission";
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
