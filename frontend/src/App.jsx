@@ -11,7 +11,7 @@ import AutoLogout from './components/AutoLogout'; // 👈 On importe le composan
 import PublicProfile from './pages/PublicProfile'; // Ajuste le chemin selon ton dossier
 import AdminDashboard from './pages/AdminDashboard';
 import NotificationBadge from "./components/NotificationBadge";
-
+import NotificationPermission from "./components/NotificationPermission";
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" />;
@@ -20,6 +20,7 @@ const PrivateRoute = ({ children }) => {
 function App() {
   return (
     <Router>
+      <NotificationPermission />
       {/* 🔒 AutoLogout enveloppe toutes les routes pour suivre l'activité sur tout le site */}
       <AutoLogout>
         <Routes>
