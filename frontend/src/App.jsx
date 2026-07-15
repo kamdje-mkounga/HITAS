@@ -9,6 +9,7 @@ import Showcase from './pages/Showcase';
 import Profil from './pages/Profil'; 
 import AutoLogout from './components/AutoLogout'; // 👈 On importe le composant de déconnexion automatique
 import PublicProfile from './pages/PublicProfile'; // Ajuste le chemin selon ton dossier
+import AdminDashboard from './pages/AdminDashboard';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -21,6 +22,7 @@ function App() {
       {/* 🔒 AutoLogout enveloppe toutes les routes pour suivre l'activité sur tout le site */}
       <AutoLogout>
         <Routes>
+        <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} /> 
           
