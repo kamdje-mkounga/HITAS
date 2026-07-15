@@ -167,7 +167,8 @@ function Home() {
       
       <Navbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 flex flex-col justify-center relative z-10">
+      {/* Ajout de pb-24 sur mobile pour éviter que le sous-menu ne chevauche le contenu */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-12 pb-24 md:pb-12 flex flex-col justify-center relative z-10">
         
         {/* En-tête principal animé */}
         <div className="text-center max-w-2xl mx-auto mb-14 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
@@ -182,7 +183,7 @@ function Home() {
           </p>
         </div>
 
-        {/* Grille des fonctionnalités principales avec chargement différé et progressif */}
+        {/* Grille des fonctionnalités principales */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           
           {/* Carte Annuaire */}
