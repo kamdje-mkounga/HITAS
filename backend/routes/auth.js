@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
 
 // @route   POST api/auth/register
 // @desc    Inscrire un nouvel étudiant / alumni (En attente de validation)
@@ -87,6 +88,57 @@ router.post('/login', async (req, res) => {
         console.error(error.message);
         res.status(500).send("Erreur serveur lors de la connexion.");
     }
+});
+
+// @route   PUT /api/auth/fcm-token
+// @desc    Enregistrer le token Firebase de l'utilisateur connecté
+// @access  Private
+router.put('/fcm-token', auth, async (req, res) => {
+
+    try {
+
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({
+                message: "Token Firebase manquant."
+            });
+        }
+
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Utilisateur introuvable."
+            });
+        }
+
+        // Création du tableau s'il n'existe pas
+        if (!user.fcmTokens) {
+            user.fcmTokens = [];
+        }
+
+        // Évite les doublons
+        if (!user.fcmTokens.includes(token)) {
+            user.fcmTokens.push(token);
+            await user.save();
+        }
+
+        res.json({
+            success: true,
+            message: "Token enregistré."
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        res.status(500).json({
+            message: "Erreur serveur."
+        });
+
+    }
+
 });
 
 module.exports = router;
