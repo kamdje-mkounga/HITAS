@@ -265,14 +265,16 @@ router.delete('/:id', auth, async (req, res) => {
         user.fcmTokens.forEach(token => {
           badgeMessages.push({
             token,
-            // 💡 Pas de clé "notification" (title/body) ici ! 
-            // De cette façon, aucune notification visible (bannière) n'apparaît à l'écran de l'iPhone,
-            // mais iOS va discrètement modifier le chiffre sur l'icône de l'app.
+            // 💡 On passe aussi la donnée brute pour que le code de l'application puisse la lire facilement
+            data: {
+              action: "DELETE_POST",
+              unreadCount: String(newUnreadCount) 
+            },
             apns: {
               payload: {
                 aps: {
-                  badge: newUnreadCount, // Met à jour avec le nouveau chiffre diminué (ou 0 pour effacer la pastille)
-                  "content-available": 1 // Indique à iOS qu'il s'agit d'une mise à jour en arrière-plan
+                  badge: newUnreadCount,
+                  "content-available": 1
                 }
               }
             }
