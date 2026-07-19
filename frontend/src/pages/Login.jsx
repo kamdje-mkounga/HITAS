@@ -74,6 +74,27 @@ function Login() {
             ⚠️ {error}
           </div>
         )}
+        
+        <button 
+  onClick={async () => {
+    if ('Notification' in window) {
+      const permission = await Notification.requestPermission();
+      alert("Statut de la permission : " + permission);
+      
+      if (permission === 'granted' && 'serviceWorker' in navigator) {
+        const registration = await navigator.serviceWorker.ready;
+        console.log("SW prêt pour iOS !", registration);
+      }
+    } else {
+      alert("Les notifications ne sont pas supportées sur ce navigateur/appareil.");
+    }
+  }}
+  className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium"
+>
+  🔔 Activer les notifications sur mon iPhone
+</button>
+
+
 
         {/* Formulaire */}
         <form onSubmit={handleSubmit} className="space-y-5">
