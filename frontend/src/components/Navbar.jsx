@@ -1,25 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
 import axios from 'axios'; 
-import { io } from 'socket.io-client'; // 🌐 1. On importe Socket.IO
+import { io } from 'socket.io-client'; 
 
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   
-  // 🔴 2. On initialise à FALSE pour ne pas avoir de fausse notification au démarrage
+  // 🔴 Initialisé à FALSE pour ne pas avoir de fausse notification au démarrage
   const [hasNewNotification, setHasNewNotification] = useState(false); 
   
   const navigate = useNavigate();
   const BACKEND_URL = "https://hitas.onrender.com";
   const token = localStorage.getItem('token');
-  const loggedInUserId = localStorage.getItem('userId'); // On récupère ton ID
-  const userRole = localStorage.getItem('userRole'); // 🔒 Récupération du rôle pour le filtre Admin
+  const loggedInUserId = localStorage.getItem('userId'); 
+  const userRole = localStorage.getItem('userRole'); 
+
+  // 🔔 Effet pour piloter le badge de l'icône de l'application mobile
+  useEffect(() => {
+    if ('setAppBadge' in navigator) {
+      if (hasNewNotification) {
+        // Affiche un badge de 1 sur l'icône de l'application
+        navigator.setAppBadge(1).catch((err) => console.log("Erreur AppBadge:", err));
+      } else {
+        // Efface le badge de l'icône si plus de notifications
+        navigator.clearAppBadge().catch((err) => console.log("Erreur AppBadge Clear:", err));
+      }
+    }
+  }, [hasNewNotification]);
 
   useEffect(() => {
     const fetchNavbarProfile = async () => {
       if (!token) return;
       try {
-        // Correction ici : utilisation du bon import 'axios'
         const res = await axios.get(`${BACKEND_URL}/api/profile/me`, {
           headers: { 'x-auth-token': token }
         });
@@ -48,9 +60,9 @@ const Navbar = () => {
     };
   }, [token]);
 
-  // 🌐 3. ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL
+  // 🌐 ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL (SOCKETS)
   useEffect(() => {
-    if (!token || !loggedInUserId) return; // Sécurité supplémentaire
+    if (!token || !loggedInUserId) return; 
 
     const socket = io(BACKEND_URL, {
       transports: ['websocket', 'polling'],
@@ -59,16 +71,13 @@ const Navbar = () => {
     socket.on('article_published', (newPost) => {
       if (!newPost || !newPost.user) return;
 
-      // 1. On extrait l'ID proprement, qu'il soit un objet peuplé ou un ID direct
       const rawAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
-      
-      // 2. 🛡️ LE FILTRE BLINDÉ : On force tout en texte (String) et on enlève les espaces invisibles (trim)
       const postAuthorId = String(rawAuthorId).trim();
       const myId = String(loggedInUserId).trim();
 
       console.log(`Comparaison - Auteur du post: ${postAuthorId} | Mon ID: ${myId}`);
 
-      // 3. Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie !
+      // Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie !
       if (postAuthorId !== myId) {
         setHasNewNotification(true); 
       } else {
@@ -85,8 +94,16 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
-    localStorage.removeItem('userRole'); // 🔒 Nettoyage du rôle à la déconnexion
+    localStorage.removeItem('userRole'); 
+    if ('clearAppBadge' in navigator) {
+      navigator.clearAppBadge().catch(() => {});
+    }
     navigate('/login');
+  };
+
+  // Helper pour effacer les notifications quand on clique sur le Blog
+  const clearNotifications = () => {
+    setHasNewNotification(false);
   };
 
   return (
@@ -101,7 +118,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* 🗺️ LIENS DE NAVIGATION (PC / ÉCRANS LARGES) */}
+          {/* 🗺️ LIENS DE NAVIGATION (PC) */}
           <div className="hidden md:flex items-center space-x-1">
             <NavLink 
               to="/annuaire" 
@@ -112,10 +129,10 @@ const Navbar = () => {
               Annuaire
             </NavLink>
 
-            {/* Onglet Blog */}
+            {/* Onglet Blog PC */}
             <NavLink 
               to="/blog" 
-              onClick={() => setHasNewNotification(false)}
+              onClick={clearNotifications}
               className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive ? 'bg-indigo-500/10 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
               }`}
@@ -140,7 +157,6 @@ const Navbar = () => {
               Showcase
             </NavLink>
 
-            {/* 🔒 PANEL ADMIN - BUREAU */}
             {token && userRole === 'admin' && (
               <NavLink 
                 to="/admin" 
@@ -155,7 +171,7 @@ const Navbar = () => {
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR CONNECTÉ / COMPTE */}
+          {/* 🔐 ESPACE UTILISATEUR */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             {token ? (
               <div className="flex items-center gap-2 sm:gap-4">
@@ -191,7 +207,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 📱 MENU SUB-BARRE MOBILE (S'affiche uniquement sur téléphone sous le header) */}
+      {/* 📱 MENU SUB-BARRE MOBILE */}
       <div className="md:hidden border-t border-slate-800/40 bg-[#0B0F19]/90 px-4 py-2 flex items-center justify-around text-xs font-medium overflow-x-auto gap-2">
         <NavLink 
           to="/annuaire" 
@@ -202,9 +218,10 @@ const Navbar = () => {
           Annuaire
         </NavLink>
         
+        {/* Onglet Blog Mobile */}
         <NavLink 
           to="/blog" 
-          onClick={() => setHasNewNotification(false)} 
+          onClick={clearNotifications} 
           className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-colors ${
             isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
           }`}
@@ -224,7 +241,6 @@ const Navbar = () => {
           Showcase
         </NavLink>
         
-        {/* 🛠️ Le Panel Admin apparaît ici en surbrillance sur téléphone si admin */}
         {token && userRole === 'admin' && (
           <NavLink 
             to="/admin" 
