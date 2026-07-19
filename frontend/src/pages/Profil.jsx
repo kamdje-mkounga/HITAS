@@ -70,10 +70,12 @@ function Profil() {
               skills: response.data.skills ? response.data.skills.join(', ') : ''
             });
             
+            {/*}
             // Si le profil existe et contient les données clés, on met à jour le localStorage
             if (response.data.firstName && response.data.lastName && response.data.currentLocation) {
               localStorage.setItem('isProfileComplete', 'true');
             }
+            */}
             
             if (response.data.avatar) {
               console.log("🔗 [F5] AVATAR TROUVÉ :", response.data.avatar);
