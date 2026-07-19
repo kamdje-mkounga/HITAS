@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client';
-import { Users, MessageSquareText, Rocket } from 'lucide-react';
+import { Users, MessageSquareText, Rocket, Bell } from 'lucide-react';
 import tradPattern from '../assets/traditional.jpg';
 
 // 🌐 CONFIGURATION DE L'URL DU BACKEND
@@ -79,6 +79,40 @@ const OrbitingLogo = () => {
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
   const currentUserId = localStorage.getItem('userId'); 
+  
+  // 🍏 État pour suivre la permission de notification native
+  const [permissionStatus, setPermissionStatus] = useState(
+    'Notification' in window ? Notification.permission : 'default'
+  );
+
+  // 🔔 Fonction d'activation au clic pour contourner les blocages iOS
+  const handleEnableNotifications = async () => {
+    if ('Notification' in window) {
+      try {
+        const permission = await Notification.requestPermission();
+        setPermissionStatus(permission);
+        
+        if (permission === 'granted' && 'serviceWorker' in navigator) {
+          // Réveille le Service Worker pour l'enregistrement du token FCM
+          await navigator.serviceWorker.ready;
+          console.log("iOS PWA : Autorisation validée !");
+        }
+      } catch (err) {
+        console.error("Erreur demande de permission :", err);
+      }
+    }
+  };
+
+  // 🔴 Gestion et synchronisation en temps réel du badge sur l'écran d'accueil
+  useEffect(() => {
+    if ('setAppBadge' in navigator) {
+      if (unreadCount > 0) {
+        navigator.setAppBadge(unreadCount).catch((err) => console.log(err));
+      } else {
+        navigator.clearAppBadge().catch((err) => console.log(err));
+      }
+    }
+  }, [unreadCount]);
 
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
@@ -166,6 +200,28 @@ function Home() {
       `}</style>
       
       <Navbar />
+
+      {/* 🔔 COMPOSANT DE SUGGESTION DESIGN DES NOTIFICATIONS */}
+      {permissionStatus !== 'granted' ? (
+        <div className="bg-indigo-950/30 border-b border-indigo-500/10 px-4 py-2.5 flex items-center justify-between text-xs sm:text-sm backdrop-blur-sm sticky top-0 z-50">
+          <div className="flex items-center gap-2 text-zinc-300">
+            <Bell className="h-4 w-4 text-indigo-400 animate-bounce" />
+            <span>Activez les notifications pour recevoir les alertes du blog en temps réel.</span>
+          </div>
+          <button 
+            onClick={handleEnableNotifications}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg font-semibold text-xs transition-all shadow-md shadow-indigo-600/10 active:scale-95"
+          >
+            Activer
+          </button>
+        </div>
+      ) : (
+        /* Micro-message super discret quand c'est actif */
+        <div className="absolute right-4 top-16 z-50 flex items-center gap-1 text-[10px] text-emerald-400/70 font-medium select-none">
+          <span className="w-1 h-1 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>Notifications actives</span>
+        </div>
+      )}
 
       {/* Ajout de pb-24 sur mobile pour éviter que le sous-menu ne chevauche le contenu */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-12 pb-24 md:pb-12 flex flex-col justify-center relative z-10">

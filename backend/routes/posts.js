@@ -1,16 +1,14 @@
 const express = require('express');
-const User = require('../models/User');
-const admin = require('../config/firebaseAdmin');
 const router = express.Router();
 const auth = require('../middleware/auth'); 
 const Post = require('../models/Post');
+const User = require('../models/User');
 const Profile = require('../models/Profile');
+const admin = require('../config/firebaseAdmin');
 const multer = require('multer');
 const { getVideoDurationInSeconds } = require('get-video-duration');
 const { Readable } = require('stream'); 
 const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
-const User = require('../models/User');
-const admin = require('../config/firebaseAdmin');
 
 // Configuration du stockage de Multer en mémoire
 const storage = multer.memoryStorage();
@@ -103,62 +101,73 @@ router.post('/', auth, (req, res) => {
       });
 
       const post = await newPost.save();
-      //
-      // 🔔 Notification Firebase
-// 🔔 Notification Firebase
-try {
+      
+      // 🔔 Notification Firebase avec calcul de Badge dynamique pour l'icône de l'application
+      try {
+        // Tous les utilisateurs sauf celui qui vient de publier
+        const users = await User.find({
+            _id: { $ne: req.user.userId },
+            fcmTokens: { $exists: true, $not: { $size: 0 } }
+        });
 
-  // Tous les utilisateurs sauf celui qui vient de publier
-  const users = await User.find({
-      _id: { $ne: req.user.userId },
-      fcmTokens: { $exists: true, $ne: [] }
-  });
+        const messages = [];
 
-  const tokens = users.flatMap(user => user.fcmTokens);
+        // Boucle pour calculer le compteur d'articles non lus par utilisateur
+        for (const user of users) {
+          const lastViewedBlog = user.lastViewedBlog || new Date(0);
+          
+          // Compte les posts créés après sa dernière visite (excluant ses propres posts)
+          const unreadCount = await Post.countDocuments({
+            user: { $ne: user._id },
+            date: { $gt: lastViewedBlog }
+          });
 
-  if (tokens.length > 0) {
-
-      const messages = tokens.map(token => ({
-          token,
-
-          notification: {
-              title: "📢 Nouvelle publication",
-              body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
-          },
-
-          webpush: {
+          // Crée une structure de notification individuelle pour chacun de ses tokens
+          user.fcmTokens.forEach(token => {
+            messages.push({
+              token,
               notification: {
+                title: "📢 Nouvelle publication",
+                body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
+              },
+              // 🍏 Spécifique pour pousser et forcer le chiffre rouge sur iOS lorsque l'application est en tâche de fond/fermée
+              apns: {
+                payload: {
+                  aps: {
+                    badge: unreadCount, // Le vrai chiffre calculé remplace le comportement binaire
+                    sound: "default"
+                  }
+                }
+              },
+              webpush: {
+                notification: {
                   icon: "https://hitas.onrender.com/hitas_logo.svg",
                   badge: "https://hitas.onrender.com/hitas_logo.svg",
                   requireInteraction: true
-              },
-
-              fcmOptions: {
+                },
+                fcmOptions: {
                   link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+                }
               }
-          }
-      }));
+            });
+          });
+        }
 
-      const response = await admin.messaging().sendEach(messages);
+        if (messages.length > 0) {
+            const response = await admin.messaging().sendEach(messages);
+            console.log(`✅ ${response.successCount}/${messages.length} notifications push envoyées avec succès.`);
+            
+            // Gestion optionnelle : nettoyer les jetons morts si nécessaire (ex: jetons invalides détectés dans response.responses)
+        }
 
-      console.log(
-          `✅ ${response.successCount}/${messages.length} notifications envoyées`
-      );
-
-  }
-
-} catch (err) {
-
-  console.error("🔥 Firebase Error:", err);
-
-}
+      } catch (err) {
+        console.error("🔥 Firebase Error lors du calcul du badge:", err);
+      }
       
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
       const postWithLean = post.toObject();
 
-      // 🌐 TEMPS RÉEL OPTIMISÉ POUR EXCLURE L'AUTEUR DE LA NOTIFICATION
       // 🌐 TEMPS RÉEL : On diffuse à tout le monde ! 
-      // Le filtrage (pour ne pas s'auto-notifier) est désormais géré à 100% par le Frontend.
       const io = req.app.get('io');
       if (io) {
         io.emit('posts_created', postWithLean);
@@ -381,7 +390,7 @@ router.put('/like/:id', auth, async (req, res) => {
     // 🌐 TEMPS RÉEL : Diffuser la mise à jour des interactions (Likes)
     const io = req.app.get('io');
     if (io) {
-      const senderSocketId = req.body.socketId; // ⚠️ Frontend : axios.put(..., { socketId: socket.id })
+      const senderSocketId = req.body.socketId; 
       if (senderSocketId) {
         io.except(senderSocketId).emit('posts_updated_interactions', updatedPost);
       } else {
@@ -433,7 +442,7 @@ router.post('/comment/:id', auth, async (req, res) => {
     if (updatedPost.comments && updatedPost.comments.length > 0) {
       updatedPost.comments = await Promise.all(updatedPost.comments.map(async (comment) => {
         if (comment.user) {
-          const commentProfile = await Profile.findOne({ user: comment.user }).select('avatar');
+          const commentProfile = await Profile.findOne({ user: userProfile.user }).select('avatar');
           if (commentProfile && commentProfile.avatar) comment.avatar = commentProfile.avatar;
         }
         return comment;
@@ -443,7 +452,7 @@ router.post('/comment/:id', auth, async (req, res) => {
     // 🌐 TEMPS RÉEL : Diffuser le post mis à jour avec le nouveau commentaire
     const io = req.app.get('io');
     if (io) {
-      const senderSocketId = req.body.socketId; // ⚠️ Frontend : axios.post(..., { text: "...", socketId: socket.id })
+      const senderSocketId = req.body.socketId; 
       if (senderSocketId) {
         io.except(senderSocketId).emit('posts_updated_interactions', updatedPost);
       } else {
