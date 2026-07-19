@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../services/api';
+import tradPattern from '../assets/traditional.jpg';
 
 function Register() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -26,7 +27,7 @@ function Register() {
       // Stockage du token automatique après inscription
       localStorage.setItem('token', response.data.token);
       
-      setSuccess('Compte créé avec succès ! Redirection...');
+      setSuccess('Compte créé avec succès ! Préparation de votre espace...');
       setTimeout(() => {
         navigate('/');
       }, 2000);
@@ -38,29 +39,42 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 flex items-center justify-center px-4 font-sans antialiased">
-      <div className="w-full max-w-md p-8 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-xl">
+    <div 
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative flex items-center justify-center px-4 font-sans selection:bg-indigo-500 selection:text-white"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
+      <div className="w-full max-w-md p-8 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 rounded-2xl shadow-2xl shadow-black/50 relative z-10">
         
+        {/* En-tête */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-extrabold tracking-tight">Créer un compte</h2>
-          <p className="text-zinc-400 text-sm mt-2">Rejoins la communauté ITAS Connect</p>
+          <h2 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-100 to-purple-300 bg-clip-text text-transparent">
+            Inscription
+          </h2>
+          <p className="text-zinc-400 text-sm mt-2">Rejoins la communauté HITAS Connect</p>
         </div>
 
+        {/* Message d'erreur flash */}
         {error && (
-          <div className="mb-4 p-3 bg-red-950/50 border border-red-900 text-red-400 text-sm rounded-lg">
+          <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium rounded-xl leading-relaxed">
             ⚠️ {error}
           </div>
         )}
 
+        {/* Message de succès flash */}
         {success && (
-          <div className="mb-4 p-3 bg-emerald-950/50 border border-emerald-900 text-emerald-400 text-sm rounded-lg">
+          <div className="mb-5 p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium rounded-xl leading-relaxed">
             🎉 {success}
           </div>
         )}
 
+        {/* Formulaire */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
               Adresse Email
             </label>
             <input
@@ -69,13 +83,13 @@ function Register() {
               required
               value={formData.email}
               onChange={handleChange}
-              placeholder="ton.nom@gmail.com"
-              className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+              placeholder="etudiant@hitas.com"
+              className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
               Mot de passe
             </label>
             <input
@@ -85,23 +99,24 @@ function Register() {
               value={formData.password}
               onChange={handleChange}
               placeholder="••••••••"
-              className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-600 transition-colors"
+              className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-950 font-bold rounded-xl transition-colors shadow-md disabled:opacity-50"
+            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-[0.99] disabled:opacity-50 text-sm"
           >
-            {loading ? 'Création...' : 'Créer mon compte'}
+            {loading ? 'Création en cours...' : 'Créer mon compte'}
           </button>
         </form>
 
+        {/* Lien vers connexion */}
         <div className="text-center mt-6">
-          <p className="text-zinc-500 text-sm">
+          <p className="text-zinc-500 text-xs font-medium">
             Déjà inscrit ?{' '}
-            <Link to="/login" className="text-zinc-300 hover:underline font-medium">
+            <Link to="/login" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-colors">
               Se connecter
             </Link>
           </p>
