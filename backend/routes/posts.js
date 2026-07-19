@@ -243,6 +243,52 @@ router.delete('/:id', auth, async (req, res) => {
     const io = req.app.get('io');
     if (io) io.emit('posts_deleted', postId);
 
+    // 🔔 MISE À JOUR DU BADGE FIREBASE (Après suppression)
+    try {
+      // On cherche tous les autres utilisateurs qui ont des tokens push configurés
+      const usersToUpdate = await User.find({
+        _id: { $ne: req.user.userId },
+        fcmTokens: { $exists: true, $not: { $size: 0 } }
+      });
+
+      const badgeMessages = [];
+
+      for (const user of usersToUpdate) {
+        const lastViewedBlog = user.lastViewedBlog || new Date(0);
+        
+        // Recalcul du nouveau total d'articles non lus (sans celui qui vient d'être supprimé)
+        const newUnreadCount = await Post.countDocuments({
+          user: { $ne: user._id },
+          date: { $gt: lastViewedBlog }
+        });
+
+        user.fcmTokens.forEach(token => {
+          badgeMessages.push({
+            token,
+            // 💡 Pas de clé "notification" (title/body) ici ! 
+            // De cette façon, aucune notification visible (bannière) n'apparaît à l'écran de l'iPhone,
+            // mais iOS va discrètement modifier le chiffre sur l'icône de l'app.
+            apns: {
+              payload: {
+                aps: {
+                  badge: newUnreadCount, // Met à jour avec le nouveau chiffre diminué (ou 0 pour effacer la pastille)
+                  "content-available": 1 // Indique à iOS qu'il s'agit d'une mise à jour en arrière-plan
+                }
+              }
+            }
+          });
+        });
+      }
+
+      if (badgeMessages.length > 0) {
+        await admin.messaging().sendEach(badgeMessages);
+        console.log(`📉 Pastilles d'icônes mises à jour pour ${badgeMessages.length} appareils suite à la suppression.`);
+      }
+
+    } catch (firebaseErr) {
+      console.error("🔥 Erreur Firebase lors de la baisse du badge :", firebaseErr);
+    }
+
     res.json({ message: 'Publication supprimée avec succès.' });
   } catch (err) {
     console.error(err.message);
