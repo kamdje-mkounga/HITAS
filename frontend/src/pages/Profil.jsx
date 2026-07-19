@@ -133,8 +133,16 @@ function Profil() {
     e.preventDefault();
     setSubmitting(true);
     setMessage({ type: '', text: '' });
-
+  
     const token = localStorage.getItem('token'); 
+    
+    // Si le token a disparu du localStorage, on déconnecte
+    if (!token) {
+      setMessage({ type: 'error', text: 'Votre session a expiré. Veuillez vous reconnecter.' });
+      setSubmitting(false);
+      return;
+    }
+  
     const data = new FormData();
     data.append('firstName', formData.firstName);
     data.append('lastName', formData.lastName);
@@ -147,40 +155,48 @@ function Profil() {
     if (avatarFile) {
       data.append('avatar', avatarFile);
     }
-
+  
     try {
       console.log("📤 ENVOI DU FORMULAIRE AU BACKEND...");
+      
+      // On passe UNIQUEMENT le Content-Type pour le FormData. 
+      // Si ton fichier api.js gère déjà le token, Axios s'occupe du reste.
       const response = await API.post('/profile', data, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-auth-token': token 
+          'Content-Type': 'multipart/form-data',
+          'x-auth-token': token // On garde uniquement celui que ton middleware Node.js attend (souvent x-auth-token)
         }
       });
-
+  
       console.log("📥 RÉPONSE DU SERVEUR APRÈS SAUVEGARDE :", response.data);
-
+  
       if (response.data && response.data.avatar) {
         setAvatarPreview(formatMediaUrl(response.data.avatar));
         setAvatarFile(null); 
       }
-
-      // 🔓 Déblocage de la barrière de routage
+  
+      // 🔓 Profil sauvegardé avec succès !
       localStorage.setItem('isProfileComplete', 'true');
-
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès ! Vous avez maintenant accès à l\'ensemble du hub.' });
+      setMessage({ type: 'success', text: 'Profil mis à jour avec succès ! Récompilation...' });
       
-      // Petite redirection douce vers l'accueil après 1.5 seconde
       setTimeout(() => {
         navigate('/');
       }, 1500);
-
+  
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la sauvegarde.' });
+      console.error("Erreur détaillée lors du POST :", err);
+      
+      // Si le serveur répond avec une 401, c'est que le token en session est mort
+      if (err.response?.status === 401) {
+        setMessage({ type: 'error', text: 'Votre session est invalide ou a expiré. Veuillez vous reconnecter.' });
+      } else {
+        setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la sauvegarde.' });
+      }
     } finally {
       setSubmitting(false);
     }
   };
-
+  
   const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
       "🛑 Es-tu absolument sûr de vouloir supprimer ton compte ? Cette action est irréversible et effacera ton profil, tes publications et tes projets."
