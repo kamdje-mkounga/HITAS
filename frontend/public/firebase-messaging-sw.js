@@ -20,8 +20,15 @@ messaging.onBackgroundMessage((payload) => {
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: payload.notification.icon || '/icon-192x192.png', // L'icône de ton application
+    icon: payload.notification.icon || '/logo192.png',
   };
+
+  // 🔥 Met à jour le badge d'icône depuis le Service Worker en arrière-plan
+  if ('setAppBadge' in navigator) {
+    // Si ton backend envoie le compteur dans payload.data.badgeCount
+    const badgeCount = parseInt(payload.data?.badgeCount || 1, 10);
+    navigator.setAppBadge(badgeCount);
+  }
 
   self.registration.showNotification(notificationTitle, notificationOptions);
 });
