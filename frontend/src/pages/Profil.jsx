@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api'; // On utilise uniquement ton instance API configurée
 import tradPattern from '../assets/traditional.jpg';
@@ -20,6 +20,10 @@ function Profil() {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
+  
+  // 🔍 Lecture des paramètres d'URL pour afficher la barrière
+  const [searchParams] = useSearchParams();
+  const isIncomplete = searchParams.get('reason') === 'incomplete';
 
   const [activeTab, setActiveTab] = useState('account'); 
   const [myPosts, setMyPosts] = useState([]);
@@ -65,6 +69,11 @@ function Profil() {
               bio: response.data.bio || '',
               skills: response.data.skills ? response.data.skills.join(', ') : ''
             });
+            
+            // Si le profil existe et contient les données clés, on met à jour le localStorage
+            if (response.data.firstName && response.data.lastName && response.data.currentLocation) {
+              localStorage.setItem('isProfileComplete', 'true');
+            }
             
             if (response.data.avatar) {
               console.log("🔗 [F5] AVATAR TROUVÉ :", response.data.avatar);
@@ -123,7 +132,7 @@ function Profil() {
     setSubmitting(true);
     setMessage({ type: '', text: '' });
 
-    const token = localStorage.getItem('token'); // Récupération essentielle ici
+    const token = localStorage.getItem('token'); 
     const data = new FormData();
     data.append('firstName', formData.firstName);
     data.append('lastName', formData.lastName);
@@ -153,15 +162,23 @@ function Profil() {
         setAvatarFile(null); 
       }
 
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
+      // 🔓 Déblocage de la barrière de routage
+      localStorage.setItem('isProfileComplete', 'true');
+
+      setMessage({ type: 'success', text: 'Profil mis à jour avec succès ! Vous avez maintenant accès à l\'ensemble du hub.' });
+      
+      // Petite redirection douce vers l'accueil après 1.5 seconde
+      setTimeout(() => {
+        navigate('/');
+      }, 1500);
+
     } catch (err) {
       setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la sauvegarde.' });
     } finally {
       setSubmitting(false);
     }
   };
-  //
-  // NOUVELLE FONCTION : Gestion de la suppression du compte
+
   const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm(
       "🛑 Es-tu absolument sûr de vouloir supprimer ton compte ? Cette action est irréversible et effacera ton profil, tes publications et tes projets."
@@ -180,11 +197,11 @@ function Profil() {
 
         alert("Ton compte a été supprimé avec succès.");
         
-        // Nettoyage complet du stockage local
+        // Nettoyage complet
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
+        localStorage.removeItem('isProfileComplete');
         
-        // Redirection vers l'écran de connexion
         navigate('/login');
       } catch (err) {
         console.error("Erreur lors de la suppression du compte :", err);
@@ -192,6 +209,7 @@ function Profil() {
       }
     }
   };
+
   return (
     <div 
       className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white"
@@ -204,6 +222,14 @@ function Profil() {
       <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10">
+        
+        {/* ⚠️ Bannière d'obligation de configuration du profil */}
+        {isIncomplete && (
+          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-2xl text-center text-sm shadow-xl font-medium animate-pulse">
+            🚀 <strong>Profil incomplet :</strong> Veuillez remplir et sauvegarder vos informations obligatoires pour débloquer l'accès à l'Accueil, au Blog et à l'Annuaire.
+          </div>
+        )}
+
         {loading ? (
           <p className="text-zinc-400 font-bold tracking-widest uppercase text-xs animate-pulse text-center py-20 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl border border-indigo-900/60 shadow-xl">
             Chargement de tes données...
@@ -212,14 +238,11 @@ function Profil() {
           <div>
             {/* CARTE D'EN-TÊTE PRINCIPALE (STYLE BANNIÈRE) */}
             <div className="bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl overflow-hidden shadow-2xl shadow-black/50 mb-10 mt-8">
-              
-              {/* Bannière décorative */}
               <div className="h-32 sm:h-40 bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-[#030014] border-b border-indigo-900/50 relative">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
               </div>
 
               <div className="px-6 pb-6 sm:px-10 sm:pb-8 relative">
-                {/* Avatar superposé */}
                 <div className="absolute -top-16 sm:-top-20 left-6 sm:left-10">
                   <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-[#030014] border-4 border-[#0b081e] flex items-center justify-center text-3xl font-bold uppercase shadow-xl shadow-indigo-500/10 overflow-hidden text-indigo-300">
                     {avatarPreview ? (
@@ -233,7 +256,6 @@ function Profil() {
                   </div>
                 </div>
 
-                {/* Infos principales */}
                 <div className="pt-20 sm:pt-24 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div>
                     <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-1">
@@ -247,7 +269,6 @@ function Profil() {
                     </p>
                   </div>
 
-                  {/* Statistiques alignées à droite */}
                   <div className="flex gap-3 text-xs text-zinc-400 mt-2 sm:mt-0">
                     <div className="bg-[#030014]/60 px-4 py-2 rounded-xl border border-indigo-900/40 shadow-inner flex flex-col items-center">
                       <span className="text-white font-black text-lg">{myPosts.length}</span>
@@ -275,8 +296,9 @@ function Profil() {
               </button>
               <button
                 type="button"
+                disabled={isIncomplete}
                 onClick={() => setActiveTab('posts')}
-                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap ${
+                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed ${
                   activeTab === 'posts' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300 border-transparent'
                 }`}
               >
@@ -284,8 +306,9 @@ function Profil() {
               </button>
               <button
                 type="button"
+                disabled={isIncomplete}
                 onClick={() => setActiveTab('projects')}
-                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap ${
+                className={`pb-2 px-1 transition-all border-b-2 whitespace-nowrap disabled:opacity-40 disabled:cursor-not-allowed ${
                   activeTab === 'projects' ? 'text-indigo-400 border-indigo-500' : 'text-zinc-500 hover:text-zinc-300 border-transparent'
                 }`}
               >
@@ -315,7 +338,6 @@ function Profil() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                      {/* Update Avatar Input */}
                       <div className="flex items-center gap-5 bg-[#030014]/60 p-4 border border-indigo-950/60 rounded-2xl shadow-inner">
                         <div className="w-16 h-16 rounded-full bg-[#0b081e] border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0">
                           {avatarPreview ? (
@@ -335,29 +357,29 @@ function Profil() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénom</label>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénom *</label>
                           <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Nom de famille</label>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Nom de famille *</label>
                           <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion</label>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion *</label>
                           <input type="text" name="promotion" required value={formData.promotion} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Spécialité</label>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Spécialité *</label>
                           <input type="text" name="specialty" required value={formData.specialty} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Localisation Actuelle</label>
-                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Localisation Actuelle *</label>
+                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: Paris, France ou Punjab, Inde" />
                       </div>
 
                       <div>
