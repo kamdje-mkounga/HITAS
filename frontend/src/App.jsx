@@ -10,10 +10,12 @@ import Profil from './pages/Profil';
 import AutoLogout from './components/AutoLogout'; // 👈 On importe le composant de déconnexion automatique
 import PublicProfile from './pages/PublicProfile'; // Ajuste le chemin selon ton dossier
 import AdminDashboard from './pages/AdminDashboard';
+import ProfileProtectedRoute from './components/ProfileProtectedRoute';
 import NotificationPermission from "./components/NotificationPermission";
+
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
+  return token ? children : <Navigate to="/login" replace />;
 };
 
 function App() {
@@ -23,30 +25,34 @@ function App() {
       {/* 🔒 AutoLogout enveloppe toutes les routes pour suivre l'activité sur tout le site */}
       <AutoLogout>
         <Routes>
-        <Route path="/admin" element={<AdminDashboard />} />
+          {/* 🌐 Routes Publiques */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} /> 
           
-          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-          <Route path="/annuaire" element={<PrivateRoute><Annuaire /></PrivateRoute>} />
-          <Route path="/blog" element={<PrivateRoute><Blog /></PrivateRoute>} />
-          
-          <Route path="/showcase" element={
-            <PrivateRoute>
-              <Showcase />
-            </PrivateRoute>
-          } />
+          {/* 🛠️ Tableau de bord Admin */}
+          <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
 
+          {/* 📝 Page Profil (Accessible pour remplir les données manquantes) */}
           <Route path="/profil" element={
             <PrivateRoute>
               <Profil /> 
             </PrivateRoute>
           } />
           
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* 🛡️ Profils Publics */}
+          <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
 
-          <Route path="/profile/:id" element={<PublicProfile />} />
+          {/* 🔒 Routes Protégées par le Profil Complet */}
+          {/* Si le profil n'est pas complété, l'utilisateur sera redirigé de force vers /profil */}
+          <Route element={<ProfileProtectedRoute />}>
+            <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/annuaire" element={<PrivateRoute><Annuaire /></PrivateRoute>} />
+            <Route path="/blog" element={<PrivateRoute><Blog /></PrivateRoute>} />
+            <Route path="/showcase" element={<PrivateRoute><Showcase /></PrivateRoute>} />
+          </Route>
 
+          {/* 🔀 Redirection par défaut */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AutoLogout>
     </Router>
