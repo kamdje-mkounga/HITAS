@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const PostSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'user', // Vérifie bien si c't'un 'user' ou 'User' dans ton projet
+    ref: 'user', // Assure-toi que le nom du modèle correspond exactement
     required: true
   },
   firstName: {
@@ -32,10 +32,15 @@ const PostSchema = new mongoose.Schema({
   mediaPath: {
     type: String
   },
+  // 📁 Nom d'origine du fichier téléversé (ex: "Exercice_Algebre.pdf")
+  mediaOriginalName: {
+    type: String,
+    default: ''
+  },
   mediaType: {
     type: String,
-    // 📢 Nettoyage : On retire null de l'enum pour éviter les bugs Mongoose
-    enum: ['image', 'video', 'audio', 'pdf', 'document'],
+    // 📢 Ajout de 'file' dans l'enum pour éviter les rejets Mongoose sur les formats génériques
+    enum: ['image', 'video', 'audio', 'pdf', 'document', 'file'],
     default: null
   },
   likes: [
