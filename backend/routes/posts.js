@@ -104,11 +104,11 @@ router.post('/', auth, (req, res) => {
       
       // 🔔 Notification Firebase avec calcul de Badge dynamique pour l'icône de l'application
       // 🔔 Notification Firebase avec correction du Badge pour iOS PWA fermée
+// 🔔 Notification Firebase avec correction du Badge pour iOS PWA (App Ouverte ou Fermée)
 try {
-  // Tous les utilisateurs sauf celui qui vient de publier
   const users = await User.find({
-      _id: { $ne: req.user.userId },
-      fcmTokens: { $exists: true, $not: { $size: 0 } }
+    _id: { $ne: req.user.userId },
+    fcmTokens: { $exists: true, $not: { $size: 0 } }
   });
 
   const messages = [];
@@ -116,7 +116,6 @@ try {
   for (const user of users) {
     const lastViewedBlog = user.lastViewedBlog || new Date(0);
     
-    // Compte le nombre d'articles non lus
     const unreadCount = await Post.countDocuments({
       user: { $ne: user._id },
       date: { $gt: lastViewedBlog }
@@ -129,28 +128,29 @@ try {
           title: "📢 Nouvelle publication",
           body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
         },
-        // 🍏 Utile si c'est encapsulé dans une app native (Cordova/Capacitor/React Native)
+        
+        // 🍏 CONFIGURATION APNS (Système iOS natif & PWA fermée)
         apns: {
+          headers: {
+            'apns-priority': '10' // Priorité maximale : force la mise à jour immédiate
+          },
           payload: {
             aps: {
-              badge: unreadCount,
-              sound: "default"
+              badge: Number(unreadCount), // 🔴 iOS lit directement ce chiffre natif !
+              sound: "default",
+              "mutable-content": 1
             }
           }
         },
-        // 🌐 ESSENTIEL POUR IOS PWA (Safari / Icône sur l'écran d'accueil)
-        // C'est ce bloc qu'iOS intercepte nativement au niveau du système, même si l'application est fermée !
+
+        // 🌐 CONFIGURATION WEBPUSH (Android / Desktop / Safari)
         webpush: {
           notification: {
             title: "📢 Nouvelle publication",
             body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`,
             icon: "https://hitas.onrender.com/hitas_logo.svg",
-            badge: "https://hitas.onrender.com/hitas_logo.svg", // L'icône de statut
+            badge: "https://hitas.onrender.com/hitas_logo.svg",
             requireInteraction: true
-          },
-          headers: {
-            // Indique à Apple le nombre exact à poser sur l'icône
-            "X-Badge": String(unreadCount)
           },
           fcmOptions: {
             link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
@@ -161,12 +161,12 @@ try {
   }
 
   if (messages.length > 0) {
-      const response = await admin.messaging().sendEach(messages);
-      console.log(`✅ ${response.successCount}/${messages.length} notifications poussées.`);
+    const response = await admin.messaging().sendEach(messages);
+    console.log(`✅ ${response.successCount}/${messages.length} notifications poussées avec badge.`);
   }
 
 } catch (err) {
-  console.error("🔥 Firebase Error lors de la configuration du badge WebPush:", err);
+  console.error("🔥 Firebase Error lors de l'envoi de la notification :", err);
 }
       
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
