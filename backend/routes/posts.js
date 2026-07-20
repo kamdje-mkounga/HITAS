@@ -129,7 +129,7 @@ try {
           title: "📢 Nouvelle publication",
           body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
         },
-        // 🌐 Webpush avec payload APNS embarqué pour Safari iOS
+        // 🌐 Webpush (Safari / Android / PC)
         webpush: {
           headers: {
             Urgency: "high",
@@ -142,7 +142,6 @@ try {
             badge: "https://hitas.onrender.com/hitas_logo.svg",
             requireInteraction: true
           },
-          // Transmet les données de navigation et le badge au JS / SW
           data: {
             unreadCount: String(unreadCount),
             link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
@@ -151,12 +150,16 @@ try {
             link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
           }
         },
-        // 🍏 Transmis au canal APNS pour forcer la mise à jour iOS du chiffre
+        // 🍏 APNS (Impératif pour iOS PWA entièrement FERMÉE)
         apns: {
+          headers: {
+            'apns-priority': '10' // 👈 OBLIGATOIRE : Force Apple à traiter le badge immédiatement en arrière-plan
+          },
           payload: {
             aps: {
               badge: Number(unreadCount),
-              sound: "default"
+              sound: "default",
+              "mutable-content": 1 // 👈 OBLIGATOIRE : Indique à iOS de réveiller le gestionnaire de notifications natif
             }
           }
         }
@@ -168,7 +171,6 @@ try {
     const response = await admin.messaging().sendEach(messages);
     console.log(`✅ ${response.successCount}/${messages.length} notifications envoyées.`);
     
-    // ⚠️ Si des jetons ont échoué, on affiche les erreurs exactes dans les logs Render
     if (response.failureCount > 0) {
       response.responses.forEach((resp, idx) => {
         if (!resp.success) {
