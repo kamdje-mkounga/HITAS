@@ -52,10 +52,14 @@ router.post('/', auth, (req, res) => {
       let mediaUrl = '';
       let mediaType = null;
       let mediaPath = null;
+      let mediaOriginalName = '';
 
       if (req.file) {
         const mime = req.file.mimetype.toLowerCase();
         const ext = req.file.originalname.split('.').pop().toLowerCase();
+        
+        // Stockage du nom d'origine du fichier pour affichage et téléchargement
+        mediaOriginalName = req.file.originalname;
         
         // Détermination et validation complète du type de média
         if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
@@ -97,7 +101,8 @@ router.post('/', auth, (req, res) => {
         user: req.user.userId,
         mediaUrl: mediaUrl,   
         mediaType: mediaType,
-        mediaPath: mediaPath  
+        mediaPath: mediaPath,
+        mediaOriginalName: mediaOriginalName
       });
 
       const post = await newPost.save();
@@ -355,6 +360,8 @@ router.put('/:id', auth, (req, res) => {
         const mime = req.file.mimetype.toLowerCase();
         const ext = req.file.originalname.split('.').pop().toLowerCase();
         
+        post.mediaOriginalName = req.file.originalname;
+        
         if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
           post.mediaType = 'video';
           try {
@@ -389,6 +396,7 @@ router.put('/:id', auth, (req, res) => {
         post.mediaUrl = '';
         post.mediaType = null;
         post.mediaPath = null;
+        post.mediaOriginalName = '';
       }
       
       await post.save();
