@@ -102,87 +102,94 @@ router.post('/', auth, (req, res) => {
 
       const post = await newPost.save();
       
-      // 🔔 Notification Firebase avec calcul de Badge dynamique pour l'icône de l'application
-      // 🔔 Notification Firebase avec correction du Badge pour iOS PWA fermée
-// 🔔 Notification Firebase avec correction du Badge pour iOS PWA (App Ouverte ou Fermée)
-// 🔔 Notification Firebase Universelle (PWA iOS & Web)
-try {
-  const users = await User.find({
-    _id: { $ne: req.user.userId },
-    fcmTokens: { $exists: true, $not: { $size: 0 } }
-  });
+      // 🔔 Notification Push dynamique avec décompte pour l'Écran de Verrouillage
+      try {
+        const users = await User.find({
+          _id: { $ne: req.user.userId },
+          fcmTokens: { $exists: true, $not: { $size: 0 } }
+        });
 
-  const messages = [];
+        const messages = [];
 
-  for (const user of users) {
-    const lastViewedBlog = user.lastViewedBlog || new Date(0);
-    
-    const unreadCount = await Post.countDocuments({
-      user: { $ne: user._id },
-      date: { $gt: lastViewedBlog }
-    });
+        for (const user of users) {
+          const lastViewedBlog = user.lastViewedBlog || new Date(0);
+          
+          const unreadCount = await Post.countDocuments({
+            user: { $ne: user._id },
+            date: { $gt: lastViewedBlog }
+          });
 
-    user.fcmTokens.forEach(token => {
-      messages.push({
-        token,
-        notification: {
-          title: "📢 Nouvelle publication",
-          body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
-        },
-        // 🌐 Webpush (Safari / Android / PC)
-        webpush: {
-          headers: {
-            Urgency: "high",
-            TTL: "86400"
-          },
-          notification: {
-            title: "📢 Nouvelle publication",
-            body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`,
-            icon: "https://hitas.onrender.com/hitas_logo.svg",
-            badge: "https://hitas.onrender.com/hitas_logo.svg",
-            requireInteraction: true
-          },
-          data: {
-            unreadCount: String(unreadCount),
-            link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
-          },
-          fcmOptions: {
-            link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+          // 💬 Personnalisation du texte selon le nombre de contenus non lus
+          let notificationTitle = "📢 Nouvelle publication";
+          let notificationBody = `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`;
+
+          if (unreadCount > 1) {
+            notificationTitle = `📢 ${unreadCount} nouveautés sur HITAS`;
+            notificationBody = `Vous avez ${unreadCount} publications non lues qui vous attendent !`;
           }
-        },
-        // 🍏 APNS (Impératif pour iOS PWA entièrement FERMÉE)
-        apns: {
-          headers: {
-            'apns-priority': '10' // 👈 OBLIGATOIRE : Force Apple à traiter le badge immédiatement en arrière-plan
-          },
-          payload: {
-            aps: {
-              badge: Number(unreadCount),
-              sound: "default",
-              "mutable-content": 1 // 👈 OBLIGATOIRE : Indique à iOS de réveiller le gestionnaire de notifications natif
-            }
+
+          user.fcmTokens.forEach(token => {
+            messages.push({
+              token,
+              // 🔔 Bloc lu directement par l'ÉCRAN DE VERROUILLAGE iOS/Android (App Ouverte ou Fermée)
+              notification: {
+                title: notificationTitle,
+                body: notificationBody
+              },
+              // 🌐 Webpush (Safari / Android / PC)
+              webpush: {
+                headers: {
+                  Urgency: "high",
+                  TTL: "86400"
+                },
+                notification: {
+                  title: notificationTitle,
+                  body: notificationBody,
+                  icon: "https://hitas.onrender.com/hitas_logo.svg",
+                  badge: "https://hitas.onrender.com/hitas_logo.svg",
+                  requireInteraction: true
+                },
+                data: {
+                  unreadCount: String(unreadCount),
+                  link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+                },
+                fcmOptions: {
+                  link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+                }
+              },
+              // 🍏 APNS (Haute priorité pour réveil iOS)
+              apns: {
+                headers: {
+                  'apns-priority': '10'
+                },
+                payload: {
+                  aps: {
+                    badge: Number(unreadCount),
+                    sound: "default",
+                    "mutable-content": 1
+                  }
+                }
+              }
+            });
+          });
+        }
+
+        if (messages.length > 0) {
+          const response = await admin.messaging().sendEach(messages);
+          console.log(`✅ ${response.successCount}/${messages.length} notifications envoyées.`);
+          
+          if (response.failureCount > 0) {
+            response.responses.forEach((resp, idx) => {
+              if (!resp.success) {
+                console.error(`❌ Échec envoi token [${idx}]:`, resp.error);
+              }
+            });
           }
         }
-      });
-    });
-  }
 
-  if (messages.length > 0) {
-    const response = await admin.messaging().sendEach(messages);
-    console.log(`✅ ${response.successCount}/${messages.length} notifications envoyées.`);
-    
-    if (response.failureCount > 0) {
-      response.responses.forEach((resp, idx) => {
-        if (!resp.success) {
-          console.error(`❌ Échec envoi token [${idx}]:`, resp.error);
-        }
-      });
-    }
-  }
-
-} catch (err) {
-  console.error("🔥 Erreur Firebase lors de l'envoi :", err);
-}
+      } catch (err) {
+        console.error("🔥 Erreur Firebase lors de l'envoi :", err);
+      }
       
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
       const postWithLean = post.toObject();
@@ -265,7 +272,6 @@ router.delete('/:id', auth, async (req, res) => {
 
     // 🔔 MISE À JOUR DU BADGE FIREBASE (Après suppression)
     try {
-      // On cherche tous les autres utilisateurs qui ont des tokens push configurés
       const usersToUpdate = await User.find({
         _id: { $ne: req.user.userId },
         fcmTokens: { $exists: true, $not: { $size: 0 } }
@@ -276,7 +282,6 @@ router.delete('/:id', auth, async (req, res) => {
       for (const user of usersToUpdate) {
         const lastViewedBlog = user.lastViewedBlog || new Date(0);
         
-        // Recalcul du nouveau total d'articles non lus (sans celui qui vient d'être supprimé)
         const newUnreadCount = await Post.countDocuments({
           user: { $ne: user._id },
           date: { $gt: lastViewedBlog }
@@ -285,7 +290,6 @@ router.delete('/:id', auth, async (req, res) => {
         user.fcmTokens.forEach(token => {
           badgeMessages.push({
             token,
-            // 💡 On passe aussi la donnée brute pour que le code de l'application puisse la lire facilement
             data: {
               action: "DELETE_POST",
               unreadCount: String(newUnreadCount) 
@@ -510,7 +514,7 @@ router.post('/comment/:id', auth, async (req, res) => {
     if (updatedPost.comments && updatedPost.comments.length > 0) {
       updatedPost.comments = await Promise.all(updatedPost.comments.map(async (comment) => {
         if (comment.user) {
-          const commentProfile = await Profile.findOne({ user: userProfile.user }).select('avatar');
+          const commentProfile = await Profile.findOne({ user: comment.user }).select('avatar');
           if (commentProfile && commentProfile.avatar) comment.avatar = commentProfile.avatar;
         }
         return comment;
