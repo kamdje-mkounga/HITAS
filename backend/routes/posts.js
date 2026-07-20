@@ -105,6 +105,7 @@ router.post('/', auth, (req, res) => {
       // 🔔 Notification Firebase avec calcul de Badge dynamique pour l'icône de l'application
       // 🔔 Notification Firebase avec correction du Badge pour iOS PWA fermée
 // 🔔 Notification Firebase avec correction du Badge pour iOS PWA (App Ouverte ou Fermée)
+// 🔔 Notification Firebase Universelle (PWA iOS & Web)
 try {
   const users = await User.find({
     _id: { $ne: req.user.userId },
@@ -128,23 +129,12 @@ try {
           title: "📢 Nouvelle publication",
           body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`
         },
-        
-        // 🍏 CONFIGURATION APNS (Système iOS natif & PWA fermée)
-        apns: {
-          headers: {
-            'apns-priority': '10' // Priorité maximale : force la mise à jour immédiate
-          },
-          payload: {
-            aps: {
-              badge: Number(unreadCount), // 🔴 iOS lit directement ce chiffre natif !
-              sound: "default",
-              "mutable-content": 1
-            }
-          }
-        },
-
-        // 🌐 CONFIGURATION WEBPUSH (Android / Desktop / Safari)
+        // 🌐 Webpush avec payload APNS embarqué pour Safari iOS
         webpush: {
+          headers: {
+            Urgency: "high",
+            TTL: "86400"
+          },
           notification: {
             title: "📢 Nouvelle publication",
             body: `${profile.firstName} ${profile.lastName} vient de publier un nouveau post.`,
@@ -152,8 +142,22 @@ try {
             badge: "https://hitas.onrender.com/hitas_logo.svg",
             requireInteraction: true
           },
+          // Transmet les données de navigation et le badge au JS / SW
+          data: {
+            unreadCount: String(unreadCount),
+            link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+          },
           fcmOptions: {
             link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+          }
+        },
+        // 🍏 Transmis au canal APNS pour forcer la mise à jour iOS du chiffre
+        apns: {
+          payload: {
+            aps: {
+              badge: Number(unreadCount),
+              sound: "default"
+            }
           }
         }
       });
@@ -162,11 +166,20 @@ try {
 
   if (messages.length > 0) {
     const response = await admin.messaging().sendEach(messages);
-    console.log(`✅ ${response.successCount}/${messages.length} notifications poussées avec badge.`);
+    console.log(`✅ ${response.successCount}/${messages.length} notifications envoyées.`);
+    
+    // ⚠️ Si des jetons ont échoué, on affiche les erreurs exactes dans les logs Render
+    if (response.failureCount > 0) {
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success) {
+          console.error(`❌ Échec envoi token [${idx}]:`, resp.error);
+        }
+      });
+    }
   }
 
 } catch (err) {
-  console.error("🔥 Firebase Error lors de l'envoi de la notification :", err);
+  console.error("🔥 Erreur Firebase lors de l'envoi :", err);
 }
       
       // Convertir en objet simple pour pouvoir manipuler l'avatar proprement au besoin
