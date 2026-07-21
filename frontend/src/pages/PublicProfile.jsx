@@ -53,7 +53,6 @@ const PublicProfile = () => {
     if (id) fetchPublicData();
   }, [id]);
 
-  // Formatage d'URL adaptatif
   const formatMediaUrl = (urlData) => {
     if (!urlData) return '';
     
@@ -93,10 +92,12 @@ const PublicProfile = () => {
     if (!userProfile.skills) return null;
     const skillsArray = Array.isArray(userProfile.skills) 
       ? userProfile.skills 
-      : userProfile.skills.split(',').map(s => s.trim());
+      : typeof userProfile.skills === 'string'
+        ? userProfile.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim())
+        : [];
     
     return skillsArray.filter(Boolean).map((skill, index) => (
-      <span key={index} className="bg-indigo-950/50 text-indigo-300 border border-indigo-800/50 px-2.5 py-1 rounded-lg text-[11px] font-medium">
+      <span key={index} className="bg-indigo-950/50 text-indigo-300 border border-indigo-800/50 px-2.5 py-1 rounded-lg text-[11px] font-medium break-all max-w-full">
         {skill}
       </span>
     ));
@@ -104,21 +105,21 @@ const PublicProfile = () => {
 
   return (
     <div 
-      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative"
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative overflow-x-hidden"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
     >
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4 overflow-hidden">
         
         <button onClick={() => navigate(-1)} className="mb-6 text-xs text-zinc-400 hover:text-zinc-200 flex items-center gap-1 transition-all">
           ← Retour
         </button>
 
         {/* Profil Header */}
-        <div className="bg-[#0b081e]/85 backdrop-blur-xl p-8 rounded-2xl border border-indigo-900/60 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6">
+        <div className="bg-[#0b081e]/85 backdrop-blur-xl p-8 rounded-2xl border border-indigo-900/60 shadow-2xl mb-6 flex flex-col sm:flex-row items-center gap-6 overflow-hidden">
           <div className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold uppercase shadow-inner overflow-hidden border border-indigo-900/50 flex-shrink-0">
             {userProfile.avatar ? (
               <img 
@@ -133,29 +134,29 @@ const PublicProfile = () => {
             )}
           </div>
 
-          <div className="text-center sm:text-left flex-1">
+          <div className="text-center sm:text-left flex-1 min-w-0">
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
-              <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
+              <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase break-words">
                 {userProfile.firstName} {userProfile.lastName}
               </h1>
               {userProfile.status && (
-                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                   ● {userProfile.status}
                 </span>
               )}
             </div>
 
-            <p className="text-indigo-400 text-xs font-medium">
+            <p className="text-indigo-400 text-xs font-medium truncate">
               🎓 {userProfile.specialty || 'Informatique'} • Promo {userProfile.promotion || 'Non renseignée'}
             </p>
             
-            <p className="text-zinc-400 text-[11px] font-semibold mt-1">
+            <p className="text-zinc-400 text-[11px] font-semibold mt-1 truncate">
               📍 {userProfile.country || userProfile.currentLocation || 'Localisation non renseignée'}
               {userProfile.degreeLevel && ` • ${userProfile.degreeLevel}`}
             </p>
 
             {(userProfile.jobTitle || userProfile.currentCompany) && (
-              <p className="text-zinc-300 text-xs mt-2 font-medium">
+              <p className="text-zinc-300 text-xs mt-2 font-medium truncate">
                 💼 {userProfile.jobTitle || 'Poste'} {userProfile.currentCompany ? `chez ${userProfile.currentCompany}` : ''}
               </p>
             )}
@@ -169,18 +170,18 @@ const PublicProfile = () => {
         </div>
 
         {/* Navigation Onglets */}
-        <div className="flex border-b border-indigo-900/40 mb-6 gap-6 text-xs font-bold tracking-wide">
+        <div className="flex border-b border-indigo-900/40 mb-6 gap-6 text-xs font-bold tracking-wide overflow-x-auto scrollbar-none">
           <button 
             type="button"
             onClick={() => setActiveTab('compte')}
-            className={`pb-3 flex items-center gap-1.5 transition-all cursor-pointer ${activeTab === 'compte' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`pb-3 flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'compte' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             👤 L'Étudiant
           </button>
           <button 
             type="button"
             onClick={() => setActiveTab('projets')}
-            className={`pb-3 flex items-center gap-1.5 transition-all cursor-pointer ${activeTab === 'projets' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`pb-3 flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${activeTab === 'projets' ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
             🚀 Ses Projets ({userProjects.length})
           </button>
@@ -189,68 +190,68 @@ const PublicProfile = () => {
         {/* Onglet Compte */}
         {activeTab === 'compte' && (
           <div className="space-y-6">
-            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-lg">
+            <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-lg overflow-hidden">
               <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Prénom</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.firstName || '-'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.firstName || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Nom de famille</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.lastName || '-'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.lastName || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Promotion</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.promotion || '-'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.promotion || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Spécialité</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.specialty || '-'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.specialty || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Statut Actuel</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.status || 'Non renseigné'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.status || 'Non renseigné'}</span>
                 </div>
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Niveau d'étude</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.degreeLevel || 'Non renseigné'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.degreeLevel || 'Non renseigné'}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Pays</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.country || '-'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.country || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Ville / Emplacement</span>
-                  <span className="text-zinc-200 font-medium text-sm">{userProfile.currentLocation || '-'}</span>
+                  <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.currentLocation || '-'}</span>
                 </div>
               </div>
 
               {(userProfile.jobTitle || userProfile.currentCompany) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                  <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                  <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                     <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Intitulé du Poste</span>
-                    <span className="text-zinc-200 font-medium text-sm">{userProfile.jobTitle || '-'}</span>
+                    <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.jobTitle || '-'}</span>
                   </div>
-                  <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                  <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 overflow-hidden">
                     <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Entreprise</span>
-                    <span className="text-zinc-200 font-medium text-sm">{userProfile.currentCompany || '-'}</span>
+                    <span className="text-zinc-200 font-medium text-sm break-words">{userProfile.currentCompany || '-'}</span>
                   </div>
                 </div>
               )}
 
-              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs mb-4">
+              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs mb-4 overflow-hidden">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Biographie</span>
-                <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
+                <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line break-words">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
               </div>
 
-              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs">
+              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs overflow-hidden">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Compétences</span>
-                <div className="flex flex-wrap gap-1.5 mt-2">
+                <div className="flex flex-wrap gap-1.5 mt-2 overflow-hidden">
                   {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
                 </div>
               </div>
@@ -271,20 +272,20 @@ const PublicProfile = () => {
                   <div 
                     key={project._id} 
                     onClick={() => setSelectedProject(project)}
-                    className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group shadow-lg"
+                    className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group shadow-lg overflow-hidden"
                   >
                     <div className="w-full md:w-48 h-32 bg-[#030014]/60 rounded-xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 transition-colors">
                       <span className="text-3xl text-amber-500">📁</span>
                       <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">Fichier</span>
                     </div>
 
-                    <div className="flex-1 flex flex-col justify-between">
+                    <div className="flex-1 flex flex-col justify-between overflow-hidden">
                       <div>
-                        <div className="flex justify-between items-start">
-                          <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide">{project.title}</h3>
-                          <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold">Voir détails →</span>
+                        <div className="flex justify-between items-start gap-2">
+                          <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide break-words">{project.title}</h3>
+                          <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">Voir détails →</span>
                         </div>
-                        <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2">{project.description}</p>
+                        <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2 break-words">{project.description}</p>
                       </div>
                       <div className="text-[11px] text-zinc-500 font-medium mt-4">
                         Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
@@ -316,17 +317,17 @@ const PublicProfile = () => {
             <div className="bg-[#0b081e] border border-indigo-900/60 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
               
               <div className="p-6 border-b border-indigo-900/80 flex justify-between items-center bg-[#0b081e]">
-                <div>
+                <div className="min-w-0 pr-4">
                   <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Détails</span>
-                  <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide">{selectedProject.title}</h2>
+                  <h2 className="text-lg font-black text-white mt-1 uppercase tracking-wide break-words">{selectedProject.title}</h2>
                 </div>
-                <button onClick={() => setSelectedProject(null)} className="w-8 h-8 rounded-full bg-[#030014] border border-indigo-900 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors">✕</button>
+                <button onClick={() => setSelectedProject(null)} className="w-8 h-8 rounded-full bg-[#030014] border border-indigo-900 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors flex-shrink-0">✕</button>
               </div>
 
               <div className="p-6 space-y-6">
                 <div>
                   <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Description complète</h4>
-                  <div className="bg-[#030014]/60 border border-indigo-900/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line">
+                  <div className="bg-[#030014]/60 border border-indigo-900/60 rounded-xl p-4 text-sm text-zinc-300 leading-relaxed whitespace-pre-line break-words">
                     {selectedProject.description || "Aucune description fournie."}
                   </div>
                 </div>
