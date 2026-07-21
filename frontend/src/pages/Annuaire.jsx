@@ -88,49 +88,117 @@ function Annuaire() {
           <p className="text-zinc-400 text-sm">Connecte-toi avec les étudiants de HITAS à travers le monde.</p>
         </div>
 
-        {/* BARRE DE RECHERCHE & FILTRES */}
-        {!loading && !error && profiles.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-900/60 rounded-2xl shadow-2xl shadow-black/40">
-            <div className="md:col-span-2">
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">Rechercher un membre</label>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Nom, spécialité, ville..."
-                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner"
-              />
-            </div>
+        {/* BARRE DE RECHERCHE & FILTRES ENRICHIS */}
+{!loading && !error && profiles.length > 0 && (
+  <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-900/60 rounded-2xl shadow-2xl shadow-black/40 mb-8 space-y-4">
+    
+    {/* Ligne 1 : Barre de recherche globale */}
+    <div>
+      <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+        Recherche globale
+      </label>
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Nom, entreprise, poste, mots-clés..."
+        className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner"
+      />
+    </div>
 
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">Spécialité</label>
-              <select
-                value={selectedSpecialty}
-                onChange={(e) => setSelectedSpecialty(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-              >
-                <option value="" className="bg-[#0b081e]">Toutes</option>
-                {uniqueSpecialties.map((spec, idx) => (
-                  <option key={idx} value={spec} className="bg-[#0b081e]">{spec}</option>
-                ))}
-              </select>
-            </div>
+    {/* Ligne 2 : Filtres structurés en grille */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      
+      {/* Filtre : Spécialité / Filière */}
+      <div>
+        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+          Spécialité
+        </label>
+        <select
+          value={selectedSpecialty}
+          onChange={(e) => setSelectedSpecialty(e.target.value)}
+          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+        >
+          <option value="" className="bg-[#0b081e]">Toutes</option>
+          {uniqueSpecialties.map((spec, idx) => (
+            <option key={idx} value={spec} className="bg-[#0b081e]">{spec}</option>
+          ))}
+        </select>
+      </div>
 
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">Promotion</label>
-              <select
-                value={selectedPromotion}
-                onChange={(e) => setSelectedPromotion(e.target.value)}
-                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-              >
-                <option value="" className="bg-[#0b081e]">Toutes</option>
-                {uniquePromotions.map((promo, idx) => (
-                  <option key={idx} value={promo} className="bg-[#0b081e]">Promo {promo}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
+      {/* Filtre : Promotion (Année de diplôme) */}
+      <div>
+        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+          Promotion
+        </label>
+        <select
+          value={selectedPromotion}
+          onChange={(e) => setSelectedPromotion(e.target.value)}
+          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+        >
+          <option value="" className="bg-[#0b081e]">Toutes</option>
+          {uniquePromotions.map((promo, idx) => (
+            <option key={idx} value={promo} className="bg-[#0b081e]">Promo {promo}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Filtre : Pays d'accueil / Ville */}
+      <div>
+        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+          Pays / Localisation
+        </label>
+        <select
+          value={selectedCountry}
+          onChange={(e) => setSelectedCountry(e.target.value)}
+          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+        >
+          <option value="" className="bg-[#0b081e]">Tous les pays</option>
+          {uniqueCountries?.map((country, idx) => (
+            <option key={idx} value={country} className="bg-[#0b081e]">{country}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Filtre : Statut actuel */}
+      <div>
+        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+          Statut
+        </label>
+        <select
+          value={selectedStatus}
+          onChange={(e) => setSelectedStatus(e.target.value)}
+          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+        >
+          <option value="" className="bg-[#0b081e]">Tous</option>
+          <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
+          <option value="En poste" className="bg-[#0b081e]">En poste</option>
+          <option value="En recherche de stage" className="bg-[#0b081e]">Recherche de stage</option>
+          <option value="Indépendant / Freelance" className="bg-[#0b081e]">Indépendant</option>
+        </select>
+      </div>
+
+      {/* Filtre : Niveau d'étude */}
+      <div>
+        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+          Niveau d'étude
+        </label>
+        <select
+          value={selectedDegree}
+          onChange={(e) => setSelectedDegree(e.target.value)}
+          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+        >
+          <option value="" className="bg-[#0b081e]">Tous les niveaux</option>
+          <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
+          <option value="Master" className="bg-[#0b081e]">Master / M2</option>
+          <option value="Doctorat" className="bg-[#0b081e]">Doctorat / Ph.D</option>
+          <option value="Alumni" className="bg-[#0b081e]">Alumni (Diplômé)</option>
+        </select>
+      </div>
+
+    </div>
+  </div>
+)}
 
         {loading && <p className="text-zinc-400 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-xl text-center shadow-xl border border-indigo-900/60">Recherche des profils...</p>}
         {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl mb-6 text-sm font-medium backdrop-blur-md">{error}</div>}
