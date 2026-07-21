@@ -10,7 +10,7 @@ const PublicProfile = () => {
   const [userProjects, setUserProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentFileIndex, setCurrentFileIndex] = useState(0);
+  const [currentFileIndex] = useState(0);
   
   const [activeTab, setActiveTab] = useState('compte');
   const [selectedProject, setSelectedProject] = useState(null);
@@ -53,18 +53,16 @@ const PublicProfile = () => {
     if (id) fetchPublicData();
   }, [id]);
 
-  // Fonction de formatage d'URL adaptative et tolérante aux structures complexes
+  // Formatage d'URL adaptatif
   const formatMediaUrl = (urlData) => {
     if (!urlData) return '';
     
     let cleanUrl = '';
     
-    // Si c'est un tableau, on extrait le premier élément
     if (Array.isArray(urlData) && urlData.length > 0) {
       return formatMediaUrl(urlData[0]);
     }
     
-    // Si c'est un objet, on cherche les propriétés classiques (url, path, secure_url)
     if (typeof urlData === 'object' && urlData !== null) {
       cleanUrl = urlData.url || urlData.path || urlData.secure_url || '';
     } else if (typeof urlData === 'string') {
@@ -74,18 +72,6 @@ const PublicProfile = () => {
     if (!cleanUrl || typeof cleanUrl !== 'string') return '';
     if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) return cleanUrl;
     return `${BACKEND_URL}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
-  };
-
-  // Fonction pour extraire intelligemment n'importe quelle source de média du projet
-  const extractMediaRaw = (project) => {
-    if (!project) return '';
-    // On inspecte toutes les clés potentielles utilisées dans le modèle de données
-    const potentialMedia = project.media || project.file || project.pdf || project.image || project.attachments;
-    
-    if (Array.isArray(potentialMedia) && potentialMedia.length > 0) {
-      return potentialMedia[0];
-    }
-    return potentialMedia || '';
   };
 
   if (loading) {
@@ -110,7 +96,7 @@ const PublicProfile = () => {
       : userProfile.skills.split(',').map(s => s.trim());
     
     return skillsArray.filter(Boolean).map((skill, index) => (
-      <span key={index} className="bg-zinc-900 text-zinc-300 border border-zinc-800 px-2.5 py-1 rounded-lg text-[11px]">
+      <span key={index} className="bg-indigo-950/50 text-indigo-300 border border-indigo-800/50 px-2.5 py-1 rounded-lg text-[11px] font-medium">
         {skill}
       </span>
     ));
@@ -141,19 +127,39 @@ const PublicProfile = () => {
                 className="w-full h-full object-cover" 
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-tr from-indigo-950 to-zinc-800 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-tr from-indigo-950 to-zinc-800 flex items-center justify-center text-indigo-300">
                 {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
               </div>
             )}
           </div>
 
           <div className="text-center sm:text-left flex-1">
-            <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
-              {userProfile.firstName} {userProfile.lastName}
-            </h1>
-            <p className="text-indigo-400 text-xs font-medium mt-1">
-              ✨ {userProfile.specialty || 'computer science'} • Promo {userProfile.promotion || 'Non renseignée'}
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1">
+              <h1 className="text-2xl font-extrabold tracking-tight text-white uppercase">
+                {userProfile.firstName} {userProfile.lastName}
+              </h1>
+              {userProfile.status && (
+                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  ● {userProfile.status}
+                </span>
+              )}
+            </div>
+
+            <p className="text-indigo-400 text-xs font-medium">
+              🎓 {userProfile.specialty || 'Informatique'} • Promo {userProfile.promotion || 'Non renseignée'}
             </p>
+            
+            <p className="text-zinc-400 text-[11px] font-semibold mt-1">
+              📍 {userProfile.country || userProfile.currentLocation || 'Localisation non renseignée'}
+              {userProfile.degreeLevel && ` • ${userProfile.degreeLevel}`}
+            </p>
+
+            {(userProfile.jobTitle || userProfile.currentCompany) && (
+              <p className="text-zinc-300 text-xs mt-2 font-medium">
+                💼 {userProfile.jobTitle || 'Poste'} {userProfile.currentCompany ? `chez ${userProfile.currentCompany}` : ''}
+              </p>
+            )}
+
             <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
               <span className="bg-[#030014]/60 border border-indigo-900/40 text-zinc-400 text-[10px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1">
                 🚀 {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
@@ -185,6 +191,7 @@ const PublicProfile = () => {
           <div className="space-y-6">
             <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 shadow-lg">
               <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Informations Générales</h2>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
                 <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Prénom</span>
@@ -202,15 +209,45 @@ const PublicProfile = () => {
                   <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Spécialité</span>
                   <span className="text-zinc-200 font-medium text-sm">{userProfile.specialty || '-'}</span>
                 </div>
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Statut Actuel</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.status || 'Non renseigné'}</span>
+                </div>
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Niveau d'étude</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.degreeLevel || 'Non renseigné'}</span>
+                </div>
               </div>
-              <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs mb-4">
-                <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Localisation Actuelle</span>
-                <span className="text-zinc-200 font-medium text-sm">{userProfile.currentLocation || 'Non renseignée'}</span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Pays</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.country || '-'}</span>
+                </div>
+                <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Ville / Emplacement</span>
+                  <span className="text-zinc-200 font-medium text-sm">{userProfile.currentLocation || '-'}</span>
+                </div>
               </div>
+
+              {(userProfile.jobTitle || userProfile.currentCompany) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
+                  <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                    <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Intitulé du Poste</span>
+                    <span className="text-zinc-200 font-medium text-sm">{userProfile.jobTitle || '-'}</span>
+                  </div>
+                  <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40">
+                    <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Entreprise</span>
+                    <span className="text-zinc-200 font-medium text-sm">{userProfile.currentCompany || '-'}</span>
+                  </div>
+                </div>
+              )}
+
               <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs mb-4">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Biographie</span>
                 <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
               </div>
+
               <div className="bg-[#030014]/60 p-3.5 rounded-xl border border-indigo-900/40 text-xs">
                 <span className="text-zinc-500 block mb-1 uppercase text-[10px] tracking-wider">Compétences</span>
                 <div className="flex flex-wrap gap-1.5 mt-2">
