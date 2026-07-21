@@ -124,15 +124,15 @@ function Profil() {
     e.preventDefault();
     setSubmitting(true);
     setMessage({ type: '', text: '' });
-  
-    const token = localStorage.getItem('token'); 
-    
+
+    const token = localStorage.getItem('token');
+
     if (!token) {
       setMessage({ type: 'error', text: 'Votre session a expiré. Veuillez vous reconnecter.' });
       setSubmitting(false);
       return;
     }
-  
+
     const data = new FormData();
     data.append('firstName', formData.firstName);
     data.append('lastName', formData.lastName);
@@ -140,45 +140,53 @@ function Profil() {
     data.append('specialty', formData.specialty);
     data.append('currentLocation', formData.currentLocation);
     data.append('bio', formData.bio);
-    
-    // Traitement propre des compétences
+
+    // Formatage propre des compétences sous forme de tableau JSON
     const skillsArray = formData.skills
       ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
       : [];
     data.append('skills', JSON.stringify(skillsArray));
-    
+
     if (avatarFile) {
       data.append('avatar', avatarFile);
     }
-  
+
     try {
+      // 🚀 Utilisation propre d'Axios : On envoie les 2 formats de token au cas où ton middleware backend attend l'un ou l'autre
       const response = await API.post('/profile', data, {
         headers: {
-          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${token}`,
-          'x-auth-token': token
+          'x-auth-token': token,
+          // Note : N'ajoute pas 'Content-Type': 'multipart/form-data', 
+          // Axios et le navigateur le gèrent automatiquement avec les bons 'boundary' pour FormData
         }
       });
-  
+
       if (response.data && response.data.avatar) {
         setAvatarPreview(formatMediaUrl(response.data.avatar));
-        setAvatarFile(null); 
+        setAvatarFile(null);
       }
-  
+
       localStorage.setItem('isProfileComplete', 'true');
       setMessage({ type: 'success', text: 'Profil mis à jour avec succès ! Redirection...' });
-      
+
       setTimeout(() => {
         navigate('/');
       }, 1200);
-  
+
     } catch (err) {
       console.error("Erreur détaillée lors de la sauvegarde :", err);
-      
+
       if (err.response?.status === 401) {
-        setMessage({ type: 'error', text: 'Votre session est invalide ou a expiré. Veuillez vous reconnecter.' });
+        setMessage({ 
+          type: 'error', 
+          text: 'Session expirée ou jeton invalide (401). Essaye de te déconnecter et de te reconnecter.' 
+        });
       } else {
-        setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la sauvegarde du profil.' });
+        setMessage({ 
+          type: 'error', 
+          text: err.response?.data?.message || 'Erreur lors de la sauvegarde du profil.' 
+        });
       }
     } finally {
       setSubmitting(false);
