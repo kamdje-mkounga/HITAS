@@ -10,10 +10,10 @@ const PublicProfile = () => {
   const [userProjects, setUserProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [currentFileIndex] = useState(0);
   
   const [activeTab, setActiveTab] = useState('compte');
   const [selectedProject, setSelectedProject] = useState(null);
+  const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
   const BACKEND_URL = 'https://hitas.onrender.com';
 
@@ -53,14 +53,16 @@ const PublicProfile = () => {
     if (id) fetchPublicData();
   }, [id]);
 
+  // Réinitialiser l'index du fichier à chaque ouverture de modale d'un projet
+  const handleOpenProject = (project) => {
+    setSelectedProject(project);
+    setCurrentFileIndex(0);
+  };
+
   const formatMediaUrl = (urlData) => {
     if (!urlData) return '';
     
     let cleanUrl = '';
-    
-    if (Array.isArray(urlData) && urlData.length > 0) {
-      return formatMediaUrl(urlData[0]);
-    }
     
     if (typeof urlData === 'object' && urlData !== null) {
       cleanUrl = urlData.url || urlData.path || urlData.secure_url || '';
@@ -71,6 +73,21 @@ const PublicProfile = () => {
     if (!cleanUrl || typeof cleanUrl !== 'string') return '';
     if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) return cleanUrl;
     return `${BACKEND_URL}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
+  };
+
+  // Extraction propre du nom du fichier à partir de l'URL ou de l'objet
+  const getFileName = (rawMedia) => {
+    if (!rawMedia) return 'Fichier sans nom';
+    if (typeof rawMedia === 'object' && rawMedia !== null) {
+      if (rawMedia.originalName) return rawMedia.originalName;
+      if (rawMedia.name) return rawMedia.name;
+    }
+    const urlStr = typeof rawMedia === 'string' ? rawMedia : (rawMedia.url || rawMedia.path || '');
+    if (!urlStr) return 'Fichier joint';
+    const parts = urlStr.split('/');
+    const fullName = parts[parts.length - 1];
+    // Nettoyer les paramètres d'URL s'il y en a (ex: ?alt=media)
+    return decodeURIComponent(fullName.split('?')[0]) || 'Fichier joint';
   };
 
   if (loading) {
@@ -268,31 +285,38 @@ const PublicProfile = () => {
               </p>
             ) : (
               <div className="grid grid-cols-1 gap-4">
-                {userProjects.map((project) => (
-                  <div 
-                    key={project._id} 
-                    onClick={() => setSelectedProject(project)}
-                    className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group shadow-lg overflow-hidden"
-                  >
-                    <div className="w-full md:w-48 h-32 bg-[#030014]/60 rounded-xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 transition-colors">
-                      <span className="text-3xl text-amber-500">📁</span>
-                      <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">Fichier</span>
-                    </div>
+                {userProjects.map((project) => {
+                  const potentialMedia = project.media || project.file || project.pdf || project.image || project.attachments;
+                  const mediaCount = Array.isArray(potentialMedia) ? potentialMedia.length : (potentialMedia ? 1 : 0);
 
-                    <div className="flex-1 flex flex-col justify-between overflow-hidden">
-                      <div>
-                        <div className="flex justify-between items-start gap-2">
-                          <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide break-words">{project.title}</h3>
-                          <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">Voir détails →</span>
-                        </div>
-                        <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2 break-words">{project.description}</p>
+                  return (
+                    <div 
+                      key={project._id} 
+                      onClick={() => handleOpenProject(project)}
+                      className="bg-[#0b081e]/85 backdrop-blur-xl p-6 rounded-2xl border border-indigo-900/60 hover:border-indigo-500/50 cursor-pointer transition-all flex flex-col md:flex-row gap-6 group shadow-lg overflow-hidden"
+                    >
+                      <div className="w-full md:w-48 h-32 bg-[#030014]/60 rounded-xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 transition-colors relative">
+                        <span className="text-3xl text-amber-500">📁</span>
+                        <span className="text-[10px] text-zinc-400 font-bold tracking-wider uppercase">
+                          {mediaCount > 1 ? `${mediaCount} Fichiers` : '1 Fichier'}
+                        </span>
                       </div>
-                      <div className="text-[11px] text-zinc-500 font-medium mt-4">
-                        Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
+
+                      <div className="flex-1 flex flex-col justify-between overflow-hidden">
+                        <div>
+                          <div className="flex justify-between items-start gap-2">
+                            <h3 className="font-extrabold text-base text-zinc-100 group-hover:text-indigo-400 transition-colors uppercase tracking-wide break-words">{project.title}</h3>
+                            <span className="text-[10px] text-indigo-400 bg-indigo-950/40 border border-indigo-900/50 px-2 py-0.5 rounded-md font-bold whitespace-nowrap">Voir détails →</span>
+                          </div>
+                          <p className="text-zinc-400 text-xs leading-relaxed mt-2 line-clamp-2 break-words">{project.description}</p>
+                        </div>
+                        <div className="text-[11px] text-zinc-500 font-medium mt-4">
+                          Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -300,12 +324,14 @@ const PublicProfile = () => {
 
       </div>
 
-      {/* MODALE REVISEE ET MULTI-MEDIA DETECTEUR */}
+      {/* MODALE REVISEE ET MULTI-MEDIA DETECTEUR AVEC NAVIGATION ET NOM DE FICHIER */}
       {selectedProject && (() => {
         const potentialMedia = selectedProject.media || selectedProject.file || selectedProject.pdf || selectedProject.image || selectedProject.attachments;
         const mediaList = Array.isArray(potentialMedia) ? potentialMedia : (potentialMedia ? [potentialMedia] : []);
         const rawMedia = mediaList[currentFileIndex] || '';
         const fullMediaUrl = formatMediaUrl(rawMedia);
+        const fileName = getFileName(rawMedia);
+        
         const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
         const urlLower = mediaStringUrl.toLowerCase();
         const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
@@ -333,15 +359,56 @@ const PublicProfile = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Fichiers</h4>
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Fichiers joints</h4>
+                    {mediaList.length > 1 && (
+                      <span className="text-xs text-indigo-400 font-semibold">
+                        Fichier {currentFileIndex + 1} sur {mediaList.length}
+                      </span>
+                    )}
+                  </div>
+
                   {fullMediaUrl ? (
                     <div className="bg-[#030014]/60 border border-indigo-900/60 rounded-xl p-4 space-y-4">
-                      <div className="w-full bg-[#030014] rounded-lg border border-indigo-900/60 overflow-hidden flex items-center justify-center min-h-[180px] max-h-[350px]">
-                        {isImage ? <img src={fullMediaUrl} alt={selectedProject.title} className="w-full max-h-[350px] object-contain" /> : 
+                      
+                      {/* Affichage du nom du fichier */}
+                      <div className="flex items-center gap-2 bg-[#030014] px-3 py-2 rounded-lg border border-indigo-900/40 text-xs text-indigo-200">
+                        <span>📎</span>
+                        <span className="truncate font-medium">{fileName}</span>
+                      </div>
+
+                      <div className="w-full bg-[#030014] rounded-lg border border-indigo-900/60 overflow-hidden flex items-center justify-center min-h-[180px] max-h-[350px] relative">
+                        {isImage ? <img src={fullMediaUrl} alt={fileName} className="w-full max-h-[350px] object-contain" /> : 
                          isVideo ? <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls /> : 
                          isPdf ? <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="PDF" /> : 
                          <div className="text-center p-6"><span className="text-4xl">📄</span></div>}
                       </div>
+
+                      {/* Boutons de navigation s'il y a plusieurs fichiers */}
+                      {mediaList.length > 1 && (
+                        <div className="flex justify-between items-center pt-2">
+                          <button 
+                            type="button"
+                            disabled={currentFileIndex === 0}
+                            onClick={() => setCurrentFileIndex(prev => Math.max(0, prev - 1))}
+                            className="px-3 py-1.5 bg-indigo-950/60 border border-indigo-900 text-zinc-200 text-xs rounded-lg hover:bg-indigo-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          >
+                            ← Précédent
+                          </button>
+                          <span className="text-xs text-zinc-400 font-mono">
+                            {currentFileIndex + 1} / {mediaList.length}
+                          </span>
+                          <button 
+                            type="button"
+                            disabled={currentFileIndex === mediaList.length - 1}
+                            onClick={() => setCurrentFileIndex(prev => Math.min(mediaList.length - 1, prev + 1))}
+                            className="px-3 py-1.5 bg-indigo-950/60 border border-indigo-900 text-zinc-200 text-xs rounded-lg hover:bg-indigo-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          >
+                            Suivant →
+                          </button>
+                        </div>
+                      )}
+
                       <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all">
                         📥 Télécharger ↗
                       </a>
