@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import API from '../services/api'; // On utilise uniquement ton instance API configurée
+import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
 
 function Profil() {
@@ -19,9 +19,8 @@ function Profil() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const navigate = useNavigate();
   
-  // 🔍 Lecture des paramètres d'URL pour afficher la barrière
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isIncomplete = searchParams.get('reason') === 'incomplete';
 
@@ -54,39 +53,31 @@ function Profil() {
         try {
           const response = await API.get('/profile/me', {
             headers: {
-              'Authorization': `Bearer ${token}`, // Version standardisée
-              'x-auth-token': token // Conservé au cas où ton middleware l'impose
+              'Authorization': `Bearer ${token}`,
+              'x-auth-token': token
             }
           });
 
           if (response.data) {
+            const data = response.data;
             setFormData({
-              firstName: response.data.firstName || '',
-              lastName: response.data.lastName || '',
-              promotion: response.data.promotion || '',
-              specialty: response.data.specialty || '',
-              currentLocation: response.data.currentLocation || '',
-              bio: response.data.bio || '',
-              skills: response.data.skills ? response.data.skills.join(', ') : ''
+              firstName: data.firstName || '',
+              lastName: data.lastName || '',
+              promotion: data.promotion || '',
+              specialty: data.specialty || '',
+              currentLocation: data.currentLocation || '',
+              bio: data.bio || '',
+              skills: Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills || '')
             });
             
-            {/*}
-            // Si le profil existe et contient les données clés, on met à jour le localStorage
-            if (response.data.firstName && response.data.lastName && response.data.currentLocation) {
-              localStorage.setItem('isProfileComplete', 'true');
-            }
-            */}
-            
-            if (response.data.avatar) {
-              console.log("🔗 [F5] AVATAR TROUVÉ :", response.data.avatar);
-              setAvatarPreview(formatMediaUrl(response.data.avatar));
+            if (data.avatar) {
+              setAvatarPreview(formatMediaUrl(data.avatar));
             } else {
-              console.log("⚠️ [F5] AUCUN CHAMP AVATAR DANS LE PROFIL DU BACKEND.");
               setAvatarPreview('');
             }
           }
         } catch (err) {
-          console.log("Aucun profil existant trouvé ou jeton absent.", err);
+          console.log("Aucun profil existant trouvé ou session invalide.", err);
         }
 
         // 2. Récupération des publications
@@ -136,7 +127,6 @@ function Profil() {
   
     const token = localStorage.getItem('token'); 
     
-    // Si le token a disparu du localStorage, on déconnecte
     if (!token) {
       setMessage({ type: 'error', text: 'Votre session a expiré. Veuillez vous reconnecter.' });
       setSubmitting(false);
@@ -150,47 +140,45 @@ function Profil() {
     data.append('specialty', formData.specialty);
     data.append('currentLocation', formData.currentLocation);
     data.append('bio', formData.bio);
-    data.append('skills', formData.skills);
+    
+    // Traitement propre des compétences
+    const skillsArray = formData.skills
+      ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+    data.append('skills', JSON.stringify(skillsArray));
     
     if (avatarFile) {
       data.append('avatar', avatarFile);
     }
   
     try {
-      console.log("📤 ENVOI DU FORMULAIRE AU BACKEND...");
-      
-      // On passe UNIQUEMENT le Content-Type pour le FormData. 
-      // Si ton fichier api.js gère déjà le token, Axios s'occupe du reste.
       const response = await API.post('/profile', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'x-auth-token': token // On garde uniquement celui que ton middleware Node.js attend (souvent x-auth-token)
+          'Authorization': `Bearer ${token}`,
+          'x-auth-token': token
         }
       });
-  
-      console.log("📥 RÉPONSE DU SERVEUR APRÈS SAUVEGARDE :", response.data);
   
       if (response.data && response.data.avatar) {
         setAvatarPreview(formatMediaUrl(response.data.avatar));
         setAvatarFile(null); 
       }
   
-      // 🔓 Profil sauvegardé avec succès !
       localStorage.setItem('isProfileComplete', 'true');
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès ! Récompilation...' });
+      setMessage({ type: 'success', text: 'Profil mis à jour avec succès ! Redirection...' });
       
       setTimeout(() => {
         navigate('/');
-      }, 1500);
+      }, 1200);
   
     } catch (err) {
-      console.error("Erreur détaillée lors du POST :", err);
+      console.error("Erreur détaillée lors de la sauvegarde :", err);
       
-      // Si le serveur répond avec une 401, c'est que le token en session est mort
       if (err.response?.status === 401) {
         setMessage({ type: 'error', text: 'Votre session est invalide ou a expiré. Veuillez vous reconnecter.' });
       } else {
-        setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la sauvegarde.' });
+        setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors de la sauvegarde du profil.' });
       }
     } finally {
       setSubmitting(false);
@@ -215,7 +203,6 @@ function Profil() {
 
         alert("Ton compte a été supprimé avec succès.");
         
-        // Nettoyage complet
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('isProfileComplete');
@@ -241,7 +228,7 @@ function Profil() {
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10">
         
-        {/* ⚠️ Bannière d'obligation de configuration du profil */}
+        {/* Banner Profil Incomplet */}
         {isIncomplete && (
           <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-2xl text-center text-sm shadow-xl font-medium animate-pulse">
             🚀 <strong>Profil incomplet :</strong> Veuillez remplir et sauvegarder vos informations obligatoires pour débloquer l'accès à l'Accueil, au Blog et à l'Annuaire.
@@ -254,7 +241,7 @@ function Profil() {
           </p>
         ) : (
           <div>
-            {/* CARTE D'EN-TÊTE PRINCIPALE (STYLE BANNIÈRE) */}
+            {/* CARTE D'EN-TÊTE PRINCIPALE */}
             <div className="bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl overflow-hidden shadow-2xl shadow-black/50 mb-10 mt-8">
               <div className="h-32 sm:h-40 bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-[#030014] border-b border-indigo-900/50 relative">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -419,7 +406,7 @@ function Profil() {
                   </div>
                 </div>
 
-                {/* COLONNE DROITE : Danger Zone */}
+                {/* COLONNE DROITE : Zone de Danger */}
                 <div className="space-y-6">
                   <div className="p-6 sm:p-8 bg-[#0b081e]/85 backdrop-blur-xl border border-red-900/30 rounded-3xl shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
