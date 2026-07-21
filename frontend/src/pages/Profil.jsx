@@ -11,6 +11,11 @@ function Profil() {
     promotion: '',
     specialty: '',
     currentLocation: '',
+    country: '',
+    status: '',
+    degreeLevel: '',
+    jobTitle: '',
+    currentCompany: '',
     bio: '',
     skills: ''
   });
@@ -30,7 +35,7 @@ function Profil() {
 
   const BACKEND_URL = 'https://hitas.onrender.com';
 
-  // Fonction pour formater correctement l'URL des médias distants
+  // Formatage URL des médias
   const formatMediaUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -41,6 +46,31 @@ function Profil() {
     if (!userField) return '';
     return typeof userField === 'object' ? userField._id : userField;
   };
+
+  // Listes prédéfinies pour correspondre aux filtres de l'Annuaire
+  const presetSpecialties = [
+    'Développement Web / Fullstack',
+    'Génie Logiciel',
+    'Data Science & IA',
+    'Cybersécurité',
+    'Cloud & DevOps',
+    'Réseaux & Systèmes',
+    'Informatique Décisionnelle (BI)',
+    'UI/UX Design',
+    'IoT / Systèmes Embarqués'
+  ];
+
+  const presetCountries = [
+    'Allemagne',
+    'France',
+    'Cameroun',
+    'USA',
+    'Belgique',
+    'Italie',
+    'Angleterre'
+  ];
+
+  const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
 
   useEffect(() => {
     const fetchAllProfileData = async () => {
@@ -66,6 +96,11 @@ function Profil() {
               promotion: data.promotion || '',
               specialty: data.specialty || '',
               currentLocation: data.currentLocation || '',
+              country: data.country || data.currentLocation || '',
+              status: data.status || '',
+              degreeLevel: data.degreeLevel || '',
+              jobTitle: data.jobTitle || '',
+              currentCompany: data.currentCompany || '',
               bio: data.bio || '',
               skills: Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills || '')
             });
@@ -138,10 +173,14 @@ function Profil() {
     data.append('lastName', formData.lastName);
     data.append('promotion', formData.promotion);
     data.append('specialty', formData.specialty);
-    data.append('currentLocation', formData.currentLocation);
+    data.append('currentLocation', formData.currentLocation || formData.country);
+    data.append('country', formData.country);
+    data.append('status', formData.status);
+    data.append('degreeLevel', formData.degreeLevel);
+    data.append('jobTitle', formData.jobTitle);
+    data.append('currentCompany', formData.currentCompany);
     data.append('bio', formData.bio);
 
-    // Formatage propre des compétences sous forme de tableau JSON
     const skillsArray = formData.skills
       ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
       : [];
@@ -152,13 +191,10 @@ function Profil() {
     }
 
     try {
-      // 🚀 Utilisation propre d'Axios : On envoie les 2 formats de token au cas où ton middleware backend attend l'un ou l'autre
       const response = await API.post('/profile', data, {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'x-auth-token': token,
-          // Note : N'ajoute pas 'Content-Type': 'multipart/form-data', 
-          // Axios et le navigateur le gèrent automatiquement avec les bons 'boundary' pour FormData
+          'x-auth-token': token
         }
       });
 
@@ -278,7 +314,7 @@ function Profil() {
                       🎓 {formData.specialty || 'Étudiant ITAS'} {formData.promotion && `— Promo ${formData.promotion}`}
                     </p>
                     <p className="text-zinc-400 text-[11px] font-semibold mt-1">
-                      📍 {formData.currentLocation || 'Localisation non renseignée'}
+                      📍 {formData.country || formData.currentLocation || 'Localisation non renseignée'} {formData.status && `• [${formData.status}]`}
                     </p>
                   </div>
 
@@ -339,7 +375,7 @@ function Profil() {
                     
                     <h2 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                       <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                      Éditer les informations
+                      Éditer les informations du profil
                     </h2>
 
                     {message.text && (
@@ -351,6 +387,7 @@ function Profil() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
+                      {/* Avatar */}
                       <div className="flex items-center gap-5 bg-[#030014]/60 p-4 border border-indigo-950/60 rounded-2xl shadow-inner">
                         <div className="w-16 h-16 rounded-full bg-[#0b081e] border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0">
                           {avatarPreview ? (
@@ -368,6 +405,7 @@ function Profil() {
                         </div>
                       </div>
 
+                      {/* Prénom & Nom */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénom *</label>
@@ -379,30 +417,129 @@ function Profil() {
                         </div>
                       </div>
 
+                      {/* Promotion & Spécialité */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion *</label>
-                          <input type="text" name="promotion" required value={formData.promotion} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                          <input 
+                            type="text" 
+                            name="promotion" 
+                            list="promotions-list"
+                            required 
+                            value={formData.promotion} 
+                            onChange={handleChange} 
+                            placeholder="Ex: 2026"
+                            className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
+                          />
+                          <datalist id="promotions-list">
+                            {presetPromotions.map((p, i) => <option key={i} value={p} />)}
+                          </datalist>
                         </div>
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Spécialité *</label>
-                          <input type="text" name="specialty" required value={formData.specialty} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                          <input 
+                            type="text" 
+                            name="specialty" 
+                            list="specialties-list"
+                            required 
+                            value={formData.specialty} 
+                            onChange={handleChange} 
+                            placeholder="Ex: Développement Web / Fullstack"
+                            className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
+                          />
+                          <datalist id="specialties-list">
+                            {presetSpecialties.map((s, i) => <option key={i} value={s} />)}
+                          </datalist>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Localisation Actuelle *</label>
-                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: Paris, France ou Punjab, Inde" />
+                      {/* Statut & Niveau d'étude */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Statut Actuel</label>
+                          <select 
+                            name="status" 
+                            value={formData.status} 
+                            onChange={handleChange} 
+                            className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer"
+                          >
+                            <option value="" className="bg-[#0b081e]">Sélectionner un statut</option>
+                            <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
+                            <option value="En poste" className="bg-[#0b081e]">En poste</option>
+                            <option value="En recherche de stage" className="bg-[#0b081e]">En recherche de stage</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Niveau d'étude</label>
+                          <select 
+                            name="degreeLevel" 
+                            value={formData.degreeLevel} 
+                            onChange={handleChange} 
+                            className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer"
+                          >
+                            <option value="" className="bg-[#0b081e]">Sélectionner un niveau</option>
+                            <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
+                            <option value="Master" className="bg-[#0b081e]">Master / M2</option>
+                            <option value="Doctorat" className="bg-[#0b081e]">Doctorat / Ph.D</option>
+                            <option value="Alumni" className="bg-[#0b081e]">Alumni (Diplômé)</option>
+                          </select>
+                        </div>
                       </div>
 
+                      {/* Pays / Localisation */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Pays *</label>
+                          <input 
+                            type="text" 
+                            name="country" 
+                            list="countries-list"
+                            required
+                            value={formData.country} 
+                            onChange={handleChange} 
+                            placeholder="Ex: France, Allemagne..."
+                            className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
+                          />
+                          <datalist id="countries-list">
+                            {presetCountries.map((c, i) => <option key={i} value={c} />)}
+                          </datalist>
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Ville / Emplacement précis *</label>
+                          <input 
+                            type="text" 
+                            name="currentLocation" 
+                            required 
+                            value={formData.currentLocation} 
+                            onChange={handleChange} 
+                            placeholder="Ex: Paris, Lyon, Berlin..." 
+                            className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
+                          />
+                        </div>
+                      </div>
+
+                      {/* Poste & Entreprise (Si en poste) */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Intitulé du Poste</label>
+                          <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Entreprise Actuelle</label>
+                          <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                      </div>
+
+                      {/* Bio */}
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos</label>
                         <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                       </div>
 
+                      {/* Compétences */}
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
-                        <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: React, Node.js, Réseaux..." />
+                        <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: React, Node.js, Docker, Python..." />
                       </div>
 
                       <div className="pt-4">
