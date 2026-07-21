@@ -35,7 +35,6 @@ function Profil() {
 
   const BACKEND_URL = 'https://hitas.onrender.com';
 
-  // Formatage URL des médias
   const formatMediaUrl = (url) => {
     if (!url) return '';
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -47,17 +46,37 @@ function Profil() {
     return typeof userField === 'object' ? userField._id : userField;
   };
 
-  // Listes prédéfinies pour correspondre aux filtres de l'Annuaire
   const presetSpecialties = [
-    'Développement Web / Fullstack',
-    'Génie Logiciel',
-    'Data Science & IA',
-    'Cybersécurité',
-    'Cloud & DevOps',
-    'Réseaux & Systèmes',
-    'Informatique Décisionnelle (BI)',
-    'UI/UX Design',
-    'IoT / Systèmes Embarqués'
+    'Agriculture',
+    'Architecture',
+    'Biotechnologie',
+    'Business Administration (BBA)',
+    'Computer Applications (BCA/MCA)',
+    'Computer Science & Engineering (CSE)',
+    'Computer Science & Engineering (AI & ML)',
+    'Computer Science & Engineering (Cyber Security)',
+    'Computer Science & Engineering (Data Science)',
+    'Computer Science & Engineering (Internet of Things)',
+    'Computer Science & Information Technology (CSIT)',
+    'Dentistry',
+    'Electrical & Electronics Engineering (EEE)',
+    'Electrical Engineering (EE)',
+    'Electronics & Communication Engineering (ECE)',
+    'Hospitality & Hotel Management',
+    'Law',
+    'Management (MBA)',
+    'MBA (Artificial Intelligence & Data Science)',
+    'MBA (Hospital Administration)',
+    'Mathematics',
+    'Mechanical Engineering',
+    'Medicine (MBBS)',
+    'Nursing',
+    'Paramedical Sciences',
+    'Pharmaceutical Sciences',
+    'Physics',
+    'Sciences (Chemistry)',
+    'Structural Engineering',
+    'Veterinary Science'
   ];
 
   const presetCountries = [
@@ -67,7 +86,9 @@ function Profil() {
     'USA',
     'Belgique',
     'Italie',
-    'Angleterre'
+    'Angleterre',
+    'Brésil',
+    'Inde'
   ];
 
   const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
@@ -79,7 +100,6 @@ function Profil() {
         const loggedInUserId = localStorage.getItem('userId');
         const token = localStorage.getItem('token'); 
 
-        // 1. Récupération des informations du profil
         try {
           const response = await API.get('/profile/me', {
             headers: {
@@ -102,7 +122,11 @@ function Profil() {
               jobTitle: data.jobTitle || '',
               currentCompany: data.currentCompany || '',
               bio: data.bio || '',
-              skills: Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills || '')
+              skills: Array.isArray(data.skills) 
+                ? data.skills.join(', ') 
+                : typeof data.skills === 'string' 
+                  ? data.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()).join(', ') 
+                  : ''
             });
             
             if (data.avatar) {
@@ -115,7 +139,6 @@ function Profil() {
           console.log("Aucun profil existant trouvé ou session invalide.", err);
         }
 
-        // 2. Récupération des publications
         try {
           const postsRes = await API.get('/posts');
           const userPosts = postsRes.data.filter(post => getUserId(post.user) === loggedInUserId);
@@ -124,7 +147,6 @@ function Profil() {
           console.error("Erreur lors de la récupération des publications", err);
         }
 
-        // 3. Récupération des projets
         try {
           const projectsRes = await API.get('/project');
           const userProjects = projectsRes.data.filter(project => getUserId(project.user) === loggedInUserId);
@@ -261,7 +283,7 @@ function Profil() {
 
   return (
     <div 
-      className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white"
+      className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
         backgroundSize: 'contain',
@@ -270,9 +292,8 @@ function Profil() {
     >
       <Navbar />
 
-      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10">
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10 overflow-hidden">
         
-        {/* Banner Profil Incomplet */}
         {isIncomplete && (
           <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-2xl text-center text-sm shadow-xl font-medium animate-pulse">
             🚀 <strong>Profil incomplet :</strong> Veuillez remplir et sauvegarder vos informations obligatoires pour débloquer l'accès à l'Accueil, au Blog et à l'Annuaire.
@@ -285,7 +306,6 @@ function Profil() {
           </p>
         ) : (
           <div>
-            {/* CARTE D'EN-TÊTE PRINCIPALE */}
             <div className="bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl overflow-hidden shadow-2xl shadow-black/50 mb-10 mt-8">
               <div className="h-32 sm:h-40 bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-[#030014] border-b border-indigo-900/50 relative">
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -306,19 +326,19 @@ function Profil() {
                 </div>
 
                 <div className="pt-20 sm:pt-24 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                  <div>
-                    <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-1">
+                  <div className="overflow-hidden">
+                    <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white mb-1 break-words">
                       {formData.firstName || 'Mon'} {formData.lastName || 'Profil'}
                     </h1>
-                    <p className="text-indigo-400 font-medium text-sm">
+                    <p className="text-indigo-400 font-medium text-sm truncate">
                       🎓 {formData.specialty || 'Étudiant ITAS'} {formData.promotion && `— Promo ${formData.promotion}`}
                     </p>
-                    <p className="text-zinc-400 text-[11px] font-semibold mt-1">
+                    <p className="text-zinc-400 text-[11px] font-semibold mt-1 truncate">
                       📍 {formData.country || formData.currentLocation || 'Localisation non renseignée'} {formData.status && `• [${formData.status}]`}
                     </p>
                   </div>
 
-                  <div className="flex gap-3 text-xs text-zinc-400 mt-2 sm:mt-0">
+                  <div className="flex gap-3 text-xs text-zinc-400 mt-2 sm:mt-0 flex-shrink-0">
                     <div className="bg-[#030014]/60 px-4 py-2 rounded-xl border border-indigo-900/40 shadow-inner flex flex-col items-center">
                       <span className="text-white font-black text-lg">{myPosts.length}</span>
                       <span className="text-[9px] uppercase tracking-widest">Posts</span>
@@ -332,7 +352,6 @@ function Profil() {
               </div>
             </div>
 
-            {/* ONGLETS */}
             <div className="flex gap-6 border-b border-indigo-900/40 mb-8 pb-3 text-sm font-bold tracking-wide overflow-x-auto scrollbar-none">
               <button
                 type="button"
@@ -365,11 +384,9 @@ function Profil() {
               </button>
             </div>
 
-            {/* CONTENU DYNAMIQUE */}
             {activeTab === 'account' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                {/* COLONNE GAUCHE : Formulaire */}
                 <div className="lg:col-span-2 space-y-6">
                   <div className="p-6 sm:p-8 bg-[#0b081e]/85 backdrop-blur-xl border border-indigo-900/60 rounded-3xl shadow-xl shadow-black/40">
                     
@@ -387,7 +404,6 @@ function Profil() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-5">
-                      {/* Avatar */}
                       <div className="flex items-center gap-5 bg-[#030014]/60 p-4 border border-indigo-950/60 rounded-2xl shadow-inner">
                         <div className="w-16 h-16 rounded-full bg-[#0b081e] border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0">
                           {avatarPreview ? (
@@ -396,16 +412,15 @@ function Profil() {
                             <span className="text-2xl">👤</span>
                           )}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Changer la photo</label>
                           <input 
                             type="file" accept="image/*" onChange={handleFileChange}
-                            className="text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
+                            className="w-full text-xs text-zinc-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
                           />
                         </div>
                       </div>
 
-                      {/* Prénom & Nom */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénom *</label>
@@ -417,7 +432,6 @@ function Profil() {
                         </div>
                       </div>
 
-                      {/* Promotion & Spécialité */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion *</label>
@@ -453,7 +467,6 @@ function Profil() {
                         </div>
                       </div>
 
-                      {/* Statut & Niveau d'étude */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Statut Actuel</label>
@@ -486,7 +499,6 @@ function Profil() {
                         </div>
                       </div>
 
-                      {/* Pays / Localisation */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Pays *</label>
@@ -518,7 +530,6 @@ function Profil() {
                         </div>
                       </div>
 
-                      {/* Poste & Entreprise (Si en poste) */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Intitulé du Poste</label>
@@ -530,13 +541,11 @@ function Profil() {
                         </div>
                       </div>
 
-                      {/* Bio */}
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos</label>
                         <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                       </div>
 
-                      {/* Compétences */}
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
                         <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/60 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: React, Node.js, Docker, Python..." />
@@ -551,7 +560,6 @@ function Profil() {
                   </div>
                 </div>
 
-                {/* COLONNE DROITE : Zone de Danger */}
                 <div className="space-y-6">
                   <div className="p-6 sm:p-8 bg-[#0b081e]/85 backdrop-blur-xl border border-red-900/30 rounded-3xl shadow-xl flex flex-col items-center text-center">
                     <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mb-4 border border-red-500/20">
@@ -573,7 +581,6 @@ function Profil() {
               </div>
             )}
 
-            {/* ONGLET POSTS */}
             {activeTab === 'posts' && (
               <div className="space-y-4 max-w-3xl mx-auto">
                 {myPosts.length === 0 ? (
@@ -585,7 +592,7 @@ function Profil() {
                     <div 
                       key={post._id} 
                       onClick={() => navigate('/blog', { state: { scrollToId: post._id } })}
-                      className="bg-[#0b081e]/85 backdrop-blur-md p-6 rounded-2xl border border-indigo-900/60 cursor-pointer hover:border-indigo-600/50 hover:bg-[#0b081e] transition-all shadow-lg group"
+                      className="bg-[#0b081e]/85 backdrop-blur-md p-6 rounded-2xl border border-indigo-900/60 cursor-pointer hover:border-indigo-600/50 hover:bg-[#0b081e] transition-all shadow-lg group overflow-hidden"
                     >
                       <div className="flex justify-between items-center mb-4">
                         <span className="text-xs font-medium text-zinc-500">{new Date(post.date).toLocaleDateString('fr-FR')}</span>
@@ -593,14 +600,13 @@ function Profil() {
                           {post.category}
                         </span>
                       </div>
-                      <p className="text-zinc-300 text-sm whitespace-pre-wrap group-hover:text-zinc-100 transition-colors leading-relaxed">{post.text}</p>
+                      <p className="text-zinc-300 text-sm whitespace-pre-wrap group-hover:text-zinc-100 transition-colors leading-relaxed break-words">{post.text}</p>
                     </div>
                   ))
                 )}
               </div>
             )}
 
-            {/* ONGLET PROJECTS */}
             {activeTab === 'projects' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {myProjects.length === 0 ? (
@@ -612,11 +618,11 @@ function Profil() {
                     <div 
                       key={project._id} 
                       onClick={() => navigate('/showcase', { state: { scrollToId: project._id } })}
-                      className="bg-[#0b081e]/85 backdrop-blur-md border border-indigo-900/60 rounded-2xl p-6 flex flex-col justify-between cursor-pointer hover:border-indigo-600/50 hover:bg-[#0b081e] transition-all shadow-lg group"
+                      className="bg-[#0b081e]/85 backdrop-blur-md border border-indigo-900/60 rounded-2xl p-6 flex flex-col justify-between cursor-pointer hover:border-indigo-600/50 hover:bg-[#0b081e] transition-all shadow-lg group overflow-hidden"
                     >
-                      <div>
-                        <h3 className="text-lg font-bold text-zinc-100 mb-2 group-hover:text-indigo-400 transition-colors">{project.title}</h3>
-                        <p className="text-zinc-400 text-sm mb-4 line-clamp-3 leading-relaxed">{project.description}</p>
+                      <div className="overflow-hidden">
+                        <h3 className="text-lg font-bold text-zinc-100 mb-2 group-hover:text-indigo-400 transition-colors break-words">{project.title}</h3>
+                        <p className="text-zinc-400 text-sm mb-4 line-clamp-3 leading-relaxed break-words">{project.description}</p>
                       </div>
                       
                       <div className="flex gap-3 text-center text-xs mt-4 pt-4 border-t border-indigo-950/60">
@@ -626,7 +632,7 @@ function Profil() {
                             target="_blank" 
                             rel="noopener noreferrer" 
                             onClick={(e) => e.stopPropagation()} 
-                            className="bg-[#030014]/80 border border-indigo-900/40 p-2.5 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold"
+                            className="bg-[#030014]/80 border border-indigo-900/40 p-2.5 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold truncate"
                           >
                             📦 GitHub
                           </a>
@@ -637,7 +643,7 @@ function Profil() {
                             target="_blank" 
                             rel="noopener noreferrer" 
                             onClick={(e) => e.stopPropagation()} 
-                            className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2.5 rounded-xl w-full text-white hover:from-indigo-500 hover:to-purple-500 transition-colors font-bold shadow-md shadow-indigo-500/20"
+                            className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2.5 rounded-xl w-full text-white hover:from-indigo-500 hover:to-purple-500 transition-colors font-bold shadow-md shadow-indigo-500/20 truncate"
                           >
                             🌐 Démo
                           </a>
