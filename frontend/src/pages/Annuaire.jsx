@@ -88,7 +88,6 @@ function Annuaire() {
 
   const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
 
-  // Extraction propre des options uniques (sans mélanger les villes dans les pays)
   const uniqueSpecialties = Array.from(
     new Set([...presetSpecialties, ...profiles.map(p => p.specialty).filter(Boolean)])
   );
@@ -100,10 +99,9 @@ function Annuaire() {
   const uniquePromotions = Array.from(
     new Set([...presetPromotions, ...profiles.map(p => String(p.promotion)).filter(Boolean)])
   )
-    .filter(promo => /^20\d{2}$/.test(promo)) // 👈 Ne garde que les années valides (ex: 2024, 2026, 2030)
+    .filter(promo => /^20\d{2}$/.test(promo))
     .sort((a, b) => b - a);
 
-  // Logique de filtrage ciblée et stricte
   const filteredProfiles = profiles.filter((profile) => {
     const search = searchTerm.toLowerCase().trim();
     
@@ -115,7 +113,6 @@ function Annuaire() {
     const job = (profile.jobTitle || '').toLowerCase();
     const bio = (profile.bio || '').toLowerCase();
 
-    // Recherche globale textuelle
     const matchesSearch = 
       !search ||
       fullName.includes(search) || 
@@ -126,7 +123,6 @@ function Annuaire() {
       job.includes(search) ||
       bio.includes(search);
 
-    // Filtres sélectifs stricts
     const matchesSpecialty = selectedSpecialty === '' || profile.specialty === selectedSpecialty;
     const matchesPromotion = selectedPromotion === '' || String(profile.promotion) === selectedPromotion;
     const matchesCountry = selectedCountry === '' || (profile.country || profile.currentLocation) === selectedCountry;
@@ -168,7 +164,6 @@ function Annuaire() {
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-12 relative z-10">
         
-        {/* En-tête */}
         <div className="mb-10 border-b border-indigo-900/40 pb-5">
           <h1 className="text-3xl font-black tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-100 to-purple-400 bg-clip-text text-transparent">
             Annuaire de la Diaspora
@@ -176,11 +171,8 @@ function Annuaire() {
           <p className="text-zinc-400 text-sm">Connecte-toi avec les étudiants et alumni de HITAS à travers le monde.</p>
         </div>
 
-        {/* BARRE DE RECHERCHE & FILTRES ENRICHIS */}
         {!loading && !error && profiles.length > 0 && (
           <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-900/60 rounded-2xl shadow-2xl shadow-black/40 mb-8 space-y-4">
-            
-            {/* Ligne 1 : Barre de recherche globale */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
                 Recherche globale
@@ -194,10 +186,7 @@ function Annuaire() {
               />
             </div>
 
-            {/* Ligne 2 : Filtres structurés en grille */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              
-              {/* Filtre : Spécialité */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
                   Spécialité
@@ -214,7 +203,6 @@ function Annuaire() {
                 </select>
               </div>
 
-              {/* Filtre : Promotion */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
                   Promotion
@@ -231,7 +219,6 @@ function Annuaire() {
                 </select>
               </div>
 
-              {/* Filtre : Pays / Localisation */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
                   Pays / Localisation
@@ -248,7 +235,6 @@ function Annuaire() {
                 </select>
               </div>
 
-              {/* Filtre : Statut actuel */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
                   Statut
@@ -265,7 +251,6 @@ function Annuaire() {
                 </select>
               </div>
 
-              {/* Filtre : Niveau d'étude */}
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
                   Niveau d'étude
@@ -282,7 +267,6 @@ function Annuaire() {
                   <option value="Alumni" className="bg-[#0b081e]">Alumni (Diplômé)</option>
                 </select>
               </div>
-
             </div>
           </div>
         )}
@@ -290,7 +274,6 @@ function Annuaire() {
         {loading && <p className="text-zinc-400 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-xl text-center shadow-xl border border-indigo-900/60">Recherche des profils...</p>}
         {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl mb-6 text-sm font-medium backdrop-blur-md">{error}</div>}
 
-        {/* LISTE DES CARTES FILTRÉES */}
         {!loading && !error && (
           <div>
             {filteredProfiles.length === 0 ? (
@@ -311,11 +294,10 @@ function Annuaire() {
                   <div 
                     key={profile._id} 
                     onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
-                    className="p-6 bg-[#0b081e]/50 backdrop-blur-md border border-indigo-900/50 rounded-2xl shadow-lg shadow-black/30 flex flex-col justify-between hover:bg-[#0b081e]/70 hover:border-indigo-600/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1"
+                    className="p-6 bg-[#0b081e]/50 backdrop-blur-md border border-indigo-900/50 rounded-2xl shadow-lg shadow-black/30 flex flex-col justify-between hover:bg-[#0b081e]/70 hover:border-indigo-600/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1 overflow-hidden"
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
-                    <div>
-                      {/* EN-TÊTE DE LA CARTE AVEC AVATAR */}
+                    <div className="overflow-hidden">
                       <div className="flex items-start gap-4 mb-4">
                         <div className="w-12 h-12 rounded-full bg-[#030014]/80 border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner group-hover:border-indigo-400/60 transition-colors backdrop-blur-sm">
                           {profile.avatar ? (
@@ -335,43 +317,53 @@ function Annuaire() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h2 className="text-base font-bold text-zinc-100 group-hover:text-indigo-300 transition-colors truncate leading-snug">
+                          {/* Ajout de break-words pour éviter que les noms très longs ne débordent */}
+                          <h2 className="text-base font-bold text-zinc-100 group-hover:text-indigo-300 transition-colors leading-snug break-words">
                             {profile.firstName} {profile.lastName}
                           </h2>
                           <p className="text-zinc-300 text-xs font-medium truncate mt-0.5">
                             🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'N/A'}
                           </p>
-                          <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1">
+                          <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1 truncate">
                             📍 {profile.country || 'Non renseigné'} {profile.currentLocation || profile.city ? `(${profile.currentLocation || profile.city})` : ''}
                           </p>
                         </div>
                       </div>
 
-                      {/* STATUT ET POSTE DE L'UTILISATEUR */}
                       {(profile.status || profile.currentCompany || profile.jobTitle) && (
-                        <div className="mb-4 text-xs bg-indigo-950/30 p-2.5 rounded-xl border border-indigo-900/40 text-indigo-200">
+                        <div className="mb-4 text-xs bg-indigo-950/30 p-2.5 rounded-xl border border-indigo-900/40 text-indigo-200 overflow-hidden">
                           {profile.jobTitle && <p className="font-semibold text-zinc-200 truncate">{profile.jobTitle}</p>}
                           {profile.currentCompany && <p className="text-[11px] text-indigo-300 truncate">🏢 {profile.currentCompany}</p>}
                           {profile.status && <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-900/50 text-indigo-300 font-bold uppercase">{profile.status}</span>}
                         </div>
                       )}
 
-                      {/* BIOGRAPHIE */}
                       {profile.bio && (
-                        <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/40 p-3 rounded-xl border border-indigo-900/30 font-normal shadow-inner">
+                        <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/40 p-3 rounded-xl border border-indigo-900/30 font-normal shadow-inner break-words">
                           {profile.bio}
                         </p>
                       )}
                     </div>
 
-                    {/* COMPÉTENCES */}
-                    {profile.skills && profile.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/30 mt-auto">
-                        {profile.skills.map((skill, index) => (
-                          <span key={index} className="px-2 py-0.5 bg-[#030014]/60 text-zinc-300 text-[11px] font-mono rounded border border-indigo-900/40 shadow-sm group-hover:border-indigo-600/40 transition-colors">
-                            {skill}
-                          </span>
-                        ))}
+                    {/* Correction des compétences avec break-all et gestion des données polluées */}
+                    {profile.skills && (
+                      <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/30 mt-auto overflow-hidden">
+                        {(Array.isArray(profile.skills) ? profile.skills : [profile.skills]).map((skill, index) => {
+                          const cleanSkill = typeof skill === 'string' 
+                            ? skill.replace(/[\[\]"'\\]/g, '').trim() // Nettoie les caractères JSON/Array mal parsés s'il y en a
+                            : String(skill);
+
+                          if (!cleanSkill) return null;
+
+                          return (
+                            <span 
+                              key={index} 
+                              className="px-2 py-0.5 bg-[#030014]/60 text-zinc-300 text-[11px] font-mono rounded border border-indigo-900/40 shadow-sm group-hover:border-indigo-600/40 transition-colors break-all max-w-full"
+                            >
+                              {cleanSkill}
+                            </span>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
