@@ -40,10 +40,43 @@ function Annuaire() {
     fetchProfiles();
   }, []);
 
-  // Listes dynamiques pour les dropdowns de filtres
-  const uniqueSpecialties = [...new Set(profiles.map(p => p.specialty).filter(Boolean))];
-  const uniquePromotions = [...new Set(profiles.map(p => p.promotion).filter(Boolean))].sort((a, b) => b - a);
-  const uniqueCountries = [...new Set(profiles.map(p => p.country || p.currentLocation).filter(Boolean))];
+  // Listes prédéfinies de suggestions
+  const presetSpecialties = [
+    'Développement Web / Fullstack',
+    'Génie Logiciel',
+    'Data Science & IA',
+    'Cybersécurité',
+    'Cloud & DevOps',
+    'Réseaux & Systèmes',
+    'Informatique Décisionnelle (BI)',
+    'UI/UX Design',
+    'IoT / Systèmes Embarqués'
+  ];
+
+  const presetCountries = [
+    'Allemagne',
+    'France',
+    'Cameroun',
+    'USA',
+    'Belgique',
+    'Italie',
+    'Angleterre'
+  ];
+
+  const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
+
+  // Combinaison des suggestions prédéfinies avec les données réelles existantes
+  const uniqueSpecialties = Array.from(
+    new Set([...presetSpecialties, ...profiles.map(p => p.specialty).filter(Boolean)])
+  );
+
+  const uniqueCountries = Array.from(
+    new Set([...presetCountries, ...profiles.map(p => p.country || p.currentLocation).filter(Boolean)])
+  );
+
+  const uniquePromotions = Array.from(
+    new Set([...presetPromotions, ...profiles.map(p => String(p.promotion)).filter(Boolean)])
+  ).sort((a, b) => b - a);
 
   // Logique de filtrage complète
   const filteredProfiles = profiles.filter((profile) => {
@@ -65,7 +98,7 @@ function Annuaire() {
 
     // Filtres sélectifs
     const matchesSpecialty = selectedSpecialty === '' || profile.specialty === selectedSpecialty;
-    const matchesPromotion = selectedPromotion === '' || profile.promotion === selectedPromotion;
+    const matchesPromotion = selectedPromotion === '' || String(profile.promotion) === selectedPromotion;
     const matchesCountry = selectedCountry === '' || (profile.country || profile.currentLocation) === selectedCountry;
     const matchesStatus = selectedStatus === '' || profile.status === selectedStatus;
     const matchesDegree = selectedDegree === '' || profile.degreeLevel === selectedDegree;
@@ -198,8 +231,7 @@ function Annuaire() {
                   <option value="" className="bg-[#0b081e]">Tous</option>
                   <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
                   <option value="En poste" className="bg-[#0b081e]">En poste</option>
-                  <option value="En recherche de stage" className="bg-[#0b081e]">Recherche de stage</option>
-                  <option value="Indépendant / Freelance" className="bg-[#0b081e]">Indépendant</option>
+                  <option value="En recherche de stage" className="bg-[#0b081e]">En recherche de stage</option>
                 </select>
               </div>
 
