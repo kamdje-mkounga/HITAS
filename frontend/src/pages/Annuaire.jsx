@@ -82,44 +82,49 @@ function Annuaire() {
     'Belgique',
     'Italie',
     'Angleterre',
-    'Brezil',
+    'Brésil',
     'Inde'
   ];
 
   const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
 
-  // Combinaison des suggestions prédéfinies avec les données réelles existantes
+  // Extraction propre des options uniques (sans mélanger les villes dans les pays)
   const uniqueSpecialties = Array.from(
     new Set([...presetSpecialties, ...profiles.map(p => p.specialty).filter(Boolean)])
   );
 
   const uniqueCountries = Array.from(
-    new Set([...presetCountries, ...profiles.map(p => p.country || p.currentLocation).filter(Boolean)])
+    new Set([...presetCountries, ...profiles.map(p => p.country).filter(Boolean)])
   );
 
   const uniquePromotions = Array.from(
     new Set([...presetPromotions, ...profiles.map(p => String(p.promotion)).filter(Boolean)])
   ).sort((a, b) => b - a);
 
-  // Logique de filtrage complète
+  // Logique de filtrage ciblée et stricte
   const filteredProfiles = profiles.filter((profile) => {
-    const search = searchTerm.toLowerCase();
+    const search = searchTerm.toLowerCase().trim();
     
     const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
     const specialty = (profile.specialty || '').toLowerCase();
-    const location = (profile.country || profile.currentLocation || '').toLowerCase();
+    const country = (profile.country || '').toLowerCase();
+    const city = (profile.city || profile.currentLocation || '').toLowerCase();
     const company = (profile.currentCompany || '').toLowerCase();
     const job = (profile.jobTitle || '').toLowerCase();
+    const bio = (profile.bio || '').toLowerCase();
 
-    // Recherche globale par mot-clé
+    // Recherche globale textuelle
     const matchesSearch = 
+      !search ||
       fullName.includes(search) || 
       specialty.includes(search) || 
-      location.includes(search) ||
+      country.includes(search) ||
+      city.includes(search) ||
       company.includes(search) ||
-      job.includes(search);
+      job.includes(search) ||
+      bio.includes(search);
 
-    // Filtres sélectifs
+    // Filtres sélectifs stricts
     const matchesSpecialty = selectedSpecialty === '' || profile.specialty === selectedSpecialty;
     const matchesPromotion = selectedPromotion === '' || String(profile.promotion) === selectedPromotion;
     const matchesCountry = selectedCountry === '' || (profile.country || profile.currentLocation) === selectedCountry;
@@ -335,7 +340,7 @@ function Annuaire() {
                             🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'N/A'}
                           </p>
                           <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1">
-                            📍 {profile.country || profile.currentLocation || 'Non renseigné'} {profile.city ? `(${profile.city})` : ''}
+                            📍 {profile.country || 'Non renseigné'} {profile.currentLocation || profile.city ? `(${profile.currentLocation || profile.city})` : ''}
                           </p>
                         </div>
                       </div>
