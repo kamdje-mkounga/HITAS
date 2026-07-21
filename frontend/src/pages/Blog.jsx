@@ -606,9 +606,10 @@ const Blog = () => {
                                     href={formatMediaUrl(post.mediaUrl)} 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
+                                    download
                                     className="text-xs text-indigo-400 hover:text-indigo-300 hover:underline inline-flex items-center gap-1 mt-0.5"
                                   >
-                                    Ouvrir le document dans un nouvel onglet ↗
+                                    Télécharger / Ouvrir le document ↗
                                   </a>
                                 </div>
                               </div>
