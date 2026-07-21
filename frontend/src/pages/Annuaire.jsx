@@ -99,7 +99,9 @@ function Annuaire() {
 
   const uniquePromotions = Array.from(
     new Set([...presetPromotions, ...profiles.map(p => String(p.promotion)).filter(Boolean)])
-  ).sort((a, b) => b - a);
+  )
+    .filter(promo => /^20\d{2}$/.test(promo)) // 👈 Ne garde que les années valides (ex: 2024, 2026, 2030)
+    .sort((a, b) => b - a);
 
   // Logique de filtrage ciblée et stricte
   const filteredProfiles = profiles.filter((profile) => {
