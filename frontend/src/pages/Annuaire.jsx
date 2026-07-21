@@ -42,15 +42,36 @@ function Annuaire() {
 
   // Listes prédéfinies de suggestions
   const presetSpecialties = [
-    'Développement Web / Fullstack',
-    'Génie Logiciel',
-    'Data Science & IA',
-    'Cybersécurité',
-    'Cloud & DevOps',
-    'Réseaux & Systèmes',
-    'Informatique Décisionnelle (BI)',
-    'UI/UX Design',
-    'IoT / Systèmes Embarqués'
+    'Agriculture',
+    'Architecture',
+    'Biotechnologie',
+    'Business Administration (BBA)',
+    'Computer Applications (BCA/MCA)',
+    'Computer Science & Engineering (CSE)',
+    'Computer Science & Engineering (AI & ML)',
+    'Computer Science & Engineering (Cyber Security)',
+    'Computer Science & Engineering (Data Science)',
+    'Computer Science & Engineering (Internet of Things)',
+    'Computer Science & Information Technology (CSIT)',
+    'Dentistry',
+    'Electrical & Electronics Engineering (EEE)',
+    'Electrical Engineering (EE)',
+    'Electronics & Communication Engineering (ECE)',
+    'Hospitality & Hotel Management',
+    'Law',
+    'Management (MBA)',
+    'MBA (Artificial Intelligence & Data Science)',
+    'MBA (Hospital Administration)',
+    'Mathematics',
+    'Mechanical Engineering',
+    'Medicine (MBBS)',
+    'Nursing',
+    'Paramedical Sciences',
+    'Pharmaceutical Sciences',
+    'Physics',
+    'Sciences (Chemistry)',
+    'Structural Engineering',
+    'Veterinary Science'
   ];
 
   const presetCountries = [
@@ -60,7 +81,9 @@ function Annuaire() {
     'USA',
     'Belgique',
     'Italie',
-    'Angleterre'
+    'Angleterre',
+    'Brezil',
+    'Inde'
   ];
 
   const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
