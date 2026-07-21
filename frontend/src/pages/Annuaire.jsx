@@ -14,7 +14,6 @@ function Annuaire() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedPromotion, setSelectedPromotion] = useState('');
-
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [selectedDegree, setSelectedDegree] = useState('');
@@ -41,25 +40,47 @@ function Annuaire() {
     fetchProfiles();
   }, []);
 
+  // Listes dynamiques pour les dropdowns de filtres
   const uniqueSpecialties = [...new Set(profiles.map(p => p.specialty).filter(Boolean))];
   const uniquePromotions = [...new Set(profiles.map(p => p.promotion).filter(Boolean))].sort((a, b) => b - a);
+  const uniqueCountries = [...new Set(profiles.map(p => p.country || p.currentLocation).filter(Boolean))];
 
+  // Logique de filtrage complète
   const filteredProfiles = profiles.filter((profile) => {
+    const search = searchTerm.toLowerCase();
+    
     const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
     const specialty = (profile.specialty || '').toLowerCase();
-    const location = (profile.currentLocation || '').toLowerCase();
-    const search = searchTerm.toLowerCase();
+    const location = (profile.country || profile.currentLocation || '').toLowerCase();
+    const company = (profile.currentCompany || '').toLowerCase();
+    const job = (profile.jobTitle || '').toLowerCase();
 
+    // Recherche globale par mot-clé
     const matchesSearch = 
       fullName.includes(search) || 
       specialty.includes(search) || 
-      location.includes(search);
+      location.includes(search) ||
+      company.includes(search) ||
+      job.includes(search);
 
+    // Filtres sélectifs
     const matchesSpecialty = selectedSpecialty === '' || profile.specialty === selectedSpecialty;
     const matchesPromotion = selectedPromotion === '' || profile.promotion === selectedPromotion;
+    const matchesCountry = selectedCountry === '' || (profile.country || profile.currentLocation) === selectedCountry;
+    const matchesStatus = selectedStatus === '' || profile.status === selectedStatus;
+    const matchesDegree = selectedDegree === '' || profile.degreeLevel === selectedDegree;
 
-    return matchesSearch && matchesSpecialty && matchesPromotion;
+    return matchesSearch && matchesSpecialty && matchesPromotion && matchesCountry && matchesStatus && matchesDegree;
   });
+
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setSelectedSpecialty('');
+    setSelectedPromotion('');
+    setSelectedCountry('');
+    setSelectedStatus('');
+    setSelectedDegree('');
+  };
 
   return (
     <div 
@@ -89,120 +110,120 @@ function Annuaire() {
           <h1 className="text-3xl font-black tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-100 to-purple-400 bg-clip-text text-transparent">
             Annuaire de la Diaspora
           </h1>
-          <p className="text-zinc-400 text-sm">Connecte-toi avec les étudiants de HITAS à travers le monde.</p>
+          <p className="text-zinc-400 text-sm">Connecte-toi avec les étudiants et alumni de HITAS à travers le monde.</p>
         </div>
 
         {/* BARRE DE RECHERCHE & FILTRES ENRICHIS */}
-{!loading && !error && profiles.length > 0 && (
-  <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-900/60 rounded-2xl shadow-2xl shadow-black/40 mb-8 space-y-4">
-    
-    {/* Ligne 1 : Barre de recherche globale */}
-    <div>
-      <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
-        Recherche globale
-      </label>
-      <input
-        type="text"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Nom, entreprise, poste, mots-clés..."
-        className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner"
-      />
-    </div>
+        {!loading && !error && profiles.length > 0 && (
+          <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-900/60 rounded-2xl shadow-2xl shadow-black/40 mb-8 space-y-4">
+            
+            {/* Ligne 1 : Barre de recherche globale */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                Recherche globale
+              </label>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Nom, entreprise, poste, mots-clés..."
+                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner"
+              />
+            </div>
 
-    {/* Ligne 2 : Filtres structurés en grille */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-      
-      {/* Filtre : Spécialité / Filière */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
-          Spécialité
-        </label>
-        <select
-          value={selectedSpecialty}
-          onChange={(e) => setSelectedSpecialty(e.target.value)}
-          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-        >
-          <option value="" className="bg-[#0b081e]">Toutes</option>
-          {uniqueSpecialties.map((spec, idx) => (
-            <option key={idx} value={spec} className="bg-[#0b081e]">{spec}</option>
-          ))}
-        </select>
-      </div>
+            {/* Ligne 2 : Filtres structurés en grille */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              
+              {/* Filtre : Spécialité */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                  Spécialité
+                </label>
+                <select
+                  value={selectedSpecialty}
+                  onChange={(e) => setSelectedSpecialty(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                >
+                  <option value="" className="bg-[#0b081e]">Toutes</option>
+                  {uniqueSpecialties.map((spec, idx) => (
+                    <option key={idx} value={spec} className="bg-[#0b081e]">{spec}</option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Filtre : Promotion (Année de diplôme) */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
-          Promotion
-        </label>
-        <select
-          value={selectedPromotion}
-          onChange={(e) => setSelectedPromotion(e.target.value)}
-          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-        >
-          <option value="" className="bg-[#0b081e]">Toutes</option>
-          {uniquePromotions.map((promo, idx) => (
-            <option key={idx} value={promo} className="bg-[#0b081e]">Promo {promo}</option>
-          ))}
-        </select>
-      </div>
+              {/* Filtre : Promotion */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                  Promotion
+                </label>
+                <select
+                  value={selectedPromotion}
+                  onChange={(e) => setSelectedPromotion(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                >
+                  <option value="" className="bg-[#0b081e]">Toutes</option>
+                  {uniquePromotions.map((promo, idx) => (
+                    <option key={idx} value={promo} className="bg-[#0b081e]">Promo {promo}</option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Filtre : Pays d'accueil / Ville */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
-          Pays / Localisation
-        </label>
-        <select
-          value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.target.value)}
-          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-        >
-          <option value="" className="bg-[#0b081e]">Tous les pays</option>
-          {uniqueCountries?.map((country, idx) => (
-            <option key={idx} value={country} className="bg-[#0b081e]">{country}</option>
-          ))}
-        </select>
-      </div>
+              {/* Filtre : Pays / Localisation */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                  Pays / Localisation
+                </label>
+                <select
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                >
+                  <option value="" className="bg-[#0b081e]">Tous les pays</option>
+                  {uniqueCountries.map((country, idx) => (
+                    <option key={idx} value={country} className="bg-[#0b081e]">{country}</option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Filtre : Statut actuel */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
-          Statut
-        </label>
-        <select
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-        >
-          <option value="" className="bg-[#0b081e]">Tous</option>
-          <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
-          <option value="En poste" className="bg-[#0b081e]">En poste</option>
-          <option value="En recherche de stage" className="bg-[#0b081e]">Recherche de stage</option>
-          <option value="Indépendant / Freelance" className="bg-[#0b081e]">Indépendant</option>
-        </select>
-      </div>
+              {/* Filtre : Statut actuel */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                  Statut
+                </label>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                >
+                  <option value="" className="bg-[#0b081e]">Tous</option>
+                  <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
+                  <option value="En poste" className="bg-[#0b081e]">En poste</option>
+                  <option value="En recherche de stage" className="bg-[#0b081e]">Recherche de stage</option>
+                  <option value="Indépendant / Freelance" className="bg-[#0b081e]">Indépendant</option>
+                </select>
+              </div>
 
-      {/* Filtre : Niveau d'étude */}
-      <div>
-        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
-          Niveau d'étude
-        </label>
-        <select
-          value={selectedDegree}
-          onChange={(e) => setSelectedDegree(e.target.value)}
-          className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
-        >
-          <option value="" className="bg-[#0b081e]">Tous les niveaux</option>
-          <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
-          <option value="Master" className="bg-[#0b081e]">Master / M2</option>
-          <option value="Doctorat" className="bg-[#0b081e]">Doctorat / Ph.D</option>
-          <option value="Alumni" className="bg-[#0b081e]">Alumni (Diplômé)</option>
-        </select>
-      </div>
+              {/* Filtre : Niveau d'étude */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                  Niveau d'étude
+                </label>
+                <select
+                  value={selectedDegree}
+                  onChange={(e) => setSelectedDegree(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                >
+                  <option value="" className="bg-[#0b081e]">Tous les niveaux</option>
+                  <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
+                  <option value="Master" className="bg-[#0b081e]">Master / M2</option>
+                  <option value="Doctorat" className="bg-[#0b081e]">Doctorat / Ph.D</option>
+                  <option value="Alumni" className="bg-[#0b081e]">Alumni (Diplômé)</option>
+                </select>
+              </div>
 
-    </div>
-  </div>
-)}
+            </div>
+          </div>
+        )}
 
         {loading && <p className="text-zinc-400 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-xl text-center shadow-xl border border-indigo-900/60">Recherche des profils...</p>}
         {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl mb-6 text-sm font-medium backdrop-blur-md">{error}</div>}
@@ -213,9 +234,9 @@ function Annuaire() {
             {filteredProfiles.length === 0 ? (
               <div className="text-center py-16 bg-[#0b081e]/80 backdrop-blur-md border border-indigo-900/60 rounded-2xl shadow-xl">
                 <p className="text-zinc-400 text-sm font-medium">Aucun membre ne correspond à tes critères de recherche.</p>
-                {(searchTerm || selectedSpecialty || selectedPromotion) && (
+                {(searchTerm || selectedSpecialty || selectedPromotion || selectedCountry || selectedStatus || selectedDegree) && (
                   <button 
-                    onClick={() => { setSearchTerm(''); setSelectedSpecialty(''); setSelectedPromotion(''); }}
+                    onClick={handleResetFilters}
                     className="mt-4 text-xs font-bold text-indigo-400 hover:text-white px-4 py-2 border border-indigo-900/60 rounded-xl hover:bg-indigo-900/40 transition-all shadow-sm"
                   >
                     Réinitialiser les filtres
@@ -256,13 +277,22 @@ function Annuaire() {
                             {profile.firstName} {profile.lastName}
                           </h2>
                           <p className="text-zinc-300 text-xs font-medium truncate mt-0.5">
-                            🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'Non renseignée'}
+                            🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'N/A'}
                           </p>
                           <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1">
-                            📍 {profile.currentLocation || 'Non renseignée'}
+                            📍 {profile.country || profile.currentLocation || 'Non renseigné'} {profile.city ? `(${profile.city})` : ''}
                           </p>
                         </div>
                       </div>
+
+                      {/* STATUT ET POSTE DE L'UTILISATEUR */}
+                      {(profile.status || profile.currentCompany || profile.jobTitle) && (
+                        <div className="mb-4 text-xs bg-indigo-950/30 p-2.5 rounded-xl border border-indigo-900/40 text-indigo-200">
+                          {profile.jobTitle && <p className="font-semibold text-zinc-200 truncate">{profile.jobTitle}</p>}
+                          {profile.currentCompany && <p className="text-[11px] text-indigo-300 truncate">🏢 {profile.currentCompany}</p>}
+                          {profile.status && <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-900/50 text-indigo-300 font-bold uppercase">{profile.status}</span>}
+                        </div>
+                      )}
 
                       {/* BIOGRAPHIE */}
                       {profile.bio && (
