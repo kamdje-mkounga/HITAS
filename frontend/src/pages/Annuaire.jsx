@@ -15,6 +15,10 @@ function Annuaire() {
   const [selectedSpecialty, setSelectedSpecialty] = useState('');
   const [selectedPromotion, setSelectedPromotion] = useState('');
 
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedDegree, setSelectedDegree] = useState('');
+
   const BACKEND_URL = 'https://hitas.onrender.com';
 
   const formatMediaUrl = (url) => {
