@@ -107,7 +107,7 @@ router.post('/', auth, (req, res) => {
 
       const post = await newPost.save();
       
-      // 🔔 Notification Push dynamique avec décompte pour l'Écran de Verrouillage
+      // 🔔 Notification Push dynamique gérée par le Service Worker en arrière-plan
       try {
         const users = await User.find({
           _id: { $ne: req.user.userId },
@@ -136,7 +136,7 @@ router.post('/', auth, (req, res) => {
           user.fcmTokens.forEach(token => {
             messages.push({
               token,
-              // 🌐 Webpush (Safari / Android / PC) géré entièrement par le Service Worker
+              // 🌐 Webpush (Safari / Android / PC) entièrement géré par le Service Worker
               webpush: {
                 headers: {
                   Urgency: "high",
