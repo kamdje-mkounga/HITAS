@@ -4,7 +4,8 @@ import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
 
-function Annuaire() {
+// On récupère hasNewNotification et clearNotifications en props (transmisses depuis App.jsx ou un routeur)
+function Annuaire({ hasNewNotification, clearNotifications }) {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,48 +43,21 @@ function Annuaire() {
 
   // Listes prédéfinies de suggestions
   const presetSpecialties = [
-    'Agriculture',
-    'Architecture',
-    'Biotechnologie',
-    'Business Administration (BBA)',
-    'Computer Applications (BCA/MCA)',
-    'Computer Science & Engineering (CSE)',
-    'Computer Science & Engineering (AI & ML)',
-    'Computer Science & Engineering (Cyber Security)',
-    'Computer Science & Engineering (Data Science)',
-    'Computer Science & Engineering (Internet of Things)',
-    'Computer Science & Information Technology (CSIT)',
-    'Dentistry',
-    'Electrical & Electronics Engineering (EEE)',
-    'Electrical Engineering (EE)',
-    'Electronics & Communication Engineering (ECE)',
-    'Hospitality & Hotel Management',
-    'Law',
-    'Management (MBA)',
-    'MBA (Artificial Intelligence & Data Science)',
-    'MBA (Hospital Administration)',
-    'Mathematics',
-    'Mechanical Engineering',
-    'Medicine (MBBS)',
-    'Nursing',
-    'Paramedical Sciences',
-    'Pharmaceutical Sciences',
-    'Physics',
-    'Sciences (Chemistry)',
-    'Structural Engineering',
-    'Veterinary Science'
+    'Agriculture', 'Architecture', 'Biotechnologie', 'Business Administration (BBA)',
+    'Computer Applications (BCA/MCA)', 'Computer Science & Engineering (CSE)',
+    'Computer Science & Engineering (AI & ML)', 'Computer Science & Engineering (Cyber Security)',
+    'Computer Science & Engineering (Data Science)', 'Computer Science & Engineering (Internet of Things)',
+    'Computer Science & Information Technology (CSIT)', 'Dentistry', 'Electrical & Electronics Engineering (EEE)',
+    'Electrical Engineering (EE)', 'Electronics & Communication Engineering (ECE)',
+    'Hospitality & Hotel Management', 'Law', 'Management (MBA)',
+    'MBA (Artificial Intelligence & Data Science)', 'MBA (Hospital Administration)',
+    'Mathematics', 'Mechanical Engineering', 'Medicine (MBBS)', 'Nursing',
+    'Paramedical Sciences', 'Pharmaceutical Sciences', 'Physics', 'Sciences (Chemistry)',
+    'Structural Engineering', 'Veterinary Science'
   ];
 
   const presetCountries = [
-    'Allemagne',
-    'France',
-    'Cameroun',
-    'USA',
-    'Belgique',
-    'Italie',
-    'Angleterre',
-    'Brésil',
-    'Inde'
+    'Allemagne', 'France', 'Cameroun', 'USA', 'Belgique', 'Italie', 'Angleterre', 'Brésil', 'Inde'
   ];
 
   const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
@@ -160,7 +134,8 @@ function Annuaire() {
         }
       `}</style>
 
-      <Navbar />
+      {/* On transmet l'état global des notifications à la Navbar */}
+      <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-12 relative z-10">
         
@@ -317,7 +292,6 @@ function Annuaire() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          {/* Ajout de break-words pour éviter que les noms très longs ne débordent */}
                           <h2 className="text-base font-bold text-zinc-100 group-hover:text-indigo-300 transition-colors leading-snug break-words">
                             {profile.firstName} {profile.lastName}
                           </h2>
@@ -345,12 +319,11 @@ function Annuaire() {
                       )}
                     </div>
 
-                    {/* Correction des compétences avec break-all et gestion des données polluées */}
                     {profile.skills && (
                       <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/30 mt-auto overflow-hidden">
                         {(Array.isArray(profile.skills) ? profile.skills : [profile.skills]).map((skill, index) => {
                           const cleanSkill = typeof skill === 'string' 
-                            ? skill.replace(/[\[\]"'\\]/g, '').trim() // Nettoie les caractères JSON/Array mal parsés s'il y en a
+                            ? skill.replace(/[\[\]"'\\]/g, '').trim()
                             : String(skill);
 
                           if (!cleanSkill) return null;
