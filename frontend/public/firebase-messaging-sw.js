@@ -18,14 +18,14 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Message reçu en arrière-plan : ', payload);
 
-  // Extraction propre des données (privilégiez l'envoi en mode 'data' depuis le backend)
+  // Extraction propre des données
   const data = payload.data || {};
-  const notificationTitle = data.title || payload.notification?.title || "📢 Hitas";
-  const notificationBody = data.body || payload.notification?.body || "Vous avez un nouveau message.";
+  const notificationTitle = data.title || payload.notification?.title || "📢 Hitas Connect";
+  const notificationBody = data.body || payload.notification?.body || "Vous avez une nouvelle notification.";
   const notificationIcon = data.icon || payload.notification?.icon || '/logo192.png';
+  const targetUrl = data.url || 'https://ronaldokamdje-9589s-projects.vercel.app/blog';
 
   // --- GESTION DU BADGE ---
-  // On récupère le nombre non lu envoyé par le backend (ex: dans data.unreadCount)
   if ('setAppBadge' in self.navigator) {
     const unreadCount = parseInt(data.unreadCount, 10);
     
@@ -48,12 +48,14 @@ messaging.onBackgroundMessage((payload) => {
     return Promise.resolve();
   }
 
-  // --- AFFICHAGE DE LA NOTIFICATION ---
+  // --- AFFICHAGE DE LA NOTIFICATION (Écran de verrouillage / Bannieère) ---
   const notificationOptions = {
     body: notificationBody,
     icon: notificationIcon,
     badge: '/logo192.png',
-    data: data
+    tag: 'hitas-notification-tag', // Évite d'empiler des dizaines de notifications identiques
+    renotify: true,              // Fait vibrer/sonner même si une notification porte le même tag
+    data: { ...data, url: targetUrl }
   };
 
   return self.registration.showNotification(notificationTitle, notificationOptions);
@@ -64,7 +66,7 @@ self.addEventListener('notificationclick', (event) => {
   console.log('[Service Worker] Clic sur la notification reçu.', event.notification);
   event.notification.close();
 
-  const targetUrl = event.notification.data?.url || '/';
+  const targetUrl = event.notification.data?.url || 'https://ronaldokamdje-9589s-projects.vercel.app/blog';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
