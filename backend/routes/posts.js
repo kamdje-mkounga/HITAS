@@ -136,30 +136,19 @@ router.post('/', auth, (req, res) => {
           user.fcmTokens.forEach(token => {
             messages.push({
               token,
-              // 🔔 Bloc lu directement par l'ÉCRAN DE VERROUILLAGE iOS/Android (App Ouverte ou Fermée)
-              notification: {
-                title: notificationTitle,
-                body: notificationBody
-              },
-              // 🌐 Webpush (Safari / Android / PC)
+              // 🌐 Webpush (Safari / Android / PC) géré entièrement par le Service Worker
               webpush: {
                 headers: {
                   Urgency: "high",
                   TTL: "86400"
                 },
-                notification: {
+                data: {
                   title: notificationTitle,
                   body: notificationBody,
+                  unreadCount: String(unreadCount),
                   icon: "https://hitas.onrender.com/hitas_logo.svg",
                   badge: "https://hitas.onrender.com/hitas_logo.svg",
-                  requireInteraction: true
-                },
-                data: {
-                  unreadCount: String(unreadCount),
-                  link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
-                },
-                fcmOptions: {
-                  link: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
+                  url: "https://ronaldokamdje-9589s-projects.vercel.app/blog"
                 }
               },
               // 🍏 APNS (Haute priorité pour réveil iOS)
