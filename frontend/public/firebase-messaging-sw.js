@@ -1,6 +1,8 @@
+// 1. Importer d'abord le Core de Firebase, puis le module de messagerie
+importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js');
 
-// Initialise Firebase dans le Service Worker
+// 2. Initialisation de Firebase
 firebase.initializeApp({
   apiKey: "AIzaSyD7yfdB5dK_uDEi4QZbAbsjSuLe7ubyALY",
   authDomain: "hitas-connect.firebaseapp.com",
@@ -12,33 +14,71 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Gère l'affichage lorsque l'application est en arrière-plan / fermée (Essentiellement pour Android/PC)
+// 3. Gestion des messages en arrière-plan
 messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Notification reçue en arrière-plan : ', payload);
+  console.log('[firebase-messaging-sw.js] Message reçu en arrière-plan : ', payload);
 
-  // 💡 Si le backend a envoyé une notification visible standard, on extrait ses infos
-  const notificationTitle = payload.notification?.title || "📢 Nouvelle publication";
-  const notificationOptions = {
-    body: payload.notification?.body || "Un nouveau post est disponible sur le blog.",
-    icon: payload.notification?.icon || '/logo192.png',
-    badge: '/logo192.png',
-    data: payload.data // On conserve le lien ou l'action de redirection
-  };
+  // Extraction propre des données (privilégiez l'envoi en mode 'data' depuis le backend)
+  const data = payload.data || {};
+  const notificationTitle = data.title || payload.notification?.title || "📢 Hitas";
+  const notificationBody = data.body || payload.notification?.body || "Vous avez un nouveau message.";
+  const notificationIcon = data.icon || payload.notification?.icon || '/logo192.png';
 
-  // 🍏 COMPORTEMENT IOS / SAFARI PWA :
-  // Sur iPhone, modifier le badge depuis cette fonction échoue ou est bloqué par Apple.
-  // C'est l'iOS de l'iPhone qui lit directement le paramètre "badge" de l'APNS envoyé par ton backend.
-  // Ce code sert de secours pour les navigateurs de bureau (Chrome/Edge/Android).
-  if (typeof self.navigator !== 'undefined' && 'setAppBadge' in self.navigator) {
-    const badgeCount = parseInt(payload.data?.unreadCount || payload.data?.badgeCount || 1, 10);
-    self.navigator.setAppBadge(badgeCount).catch(err => console.log("Erreur badge SW:", err));
+  // --- GESTION DU BADGE ---
+  // On récupère le nombre non lu envoyé par le backend (ex: dans data.unreadCount)
+  if ('setAppBadge' in self.navigator) {
+    const unreadCount = parseInt(data.unreadCount, 10);
+    
+    if (!isNaN(unreadCount)) {
+      if (unreadCount > 0) {
+        self.navigator.setAppBadge(unreadCount).catch(err => {
+          console.log("Erreur mise à jour badge SW:", err);
+        });
+      } else {
+        // Si le compteur est à 0, on efface proprement le badge
+        self.navigator.clearAppBadge().catch(err => {
+          console.log("Erreur effacement badge SW:", err);
+        });
+      }
+    }
   }
 
-  // Si c'est un push silencieux (uniquement pour baisser le badge lors d'une suppression),
-  // on n'affiche pas de bannière de notification !
-  if (payload.data?.action === "DELETE_POST") {
+  // Si c'est un signal silencieux (ex: suppression de post), on n'affiche pas de popup visuelle
+  if (data.action === "DELETE_POST" || data.silent === "true") {
     return Promise.resolve();
   }
 
+  // --- AFFICHAGE DE LA NOTIFICATION ---
+  const notificationOptions = {
+    body: notificationBody,
+    icon: notificationIcon,
+    badge: '/logo192.png',
+    data: data
+  };
+
   return self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+// 4. Gestion du clic sur la notification (pour rediriger l'utilisateur vers la bonne page)
+self.addEventListener('notificationclick', (event) => {
+  console.log('[Service Worker] Clic sur la notification reçu.', event.notification);
+  event.notification.close();
+
+  const targetUrl = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      // Si une fenêtre est déjà ouverte, on l'amène au premier plan et on navigue
+      for (let i = 0; i < windowClients.length; i++) {
+        const client = windowClients[i];
+        if (client.url === targetUrl && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      // Sinon, on ouvre une nouvelle fenêtre/onglet
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
