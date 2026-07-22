@@ -13,34 +13,37 @@ export default function NotificationPermission() {
       // 🔒 Si l'utilisateur n'est pas connecté, on attend qu'il le soit
       if (!authToken) return;
 
-      // 📱 Vérification du support des notifications
-      if (!("Notification" in window)) {
-        console.log("Ce navigateur ne gère pas les notifications push.");
+      // 📱 Vérification du support des notifications et des service workers
+      if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+        console.log("Ce navigateur ne gère pas les notifications push ou les service workers.");
         return;
       }
 
-      // Si la permission est déjà accordée, on récupère directement le jeton sans re-demander
-      if (Notification.permission === "granted") {
-        await registerToken();
-      } else if (Notification.permission !== "denied") {
-        // 🍏 Sur iOS/Safari, il est fortement conseillé de lier cette demande à un bouton (ex: dans Profil)
-        // Mais si la permission n'est pas refusée, on tente de la demander au chargement de la session
-        try {
-          const permission = await Notification.requestPermission();
-          if (permission === "granted") {
-            await registerToken();
-          }
-        } catch (err) {
-          console.error("Erreur lors de la demande de permission :", err);
+      try {
+        // 🚀 1. ENREGISTREMENT EXPLICITE DU SERVICE WORKER ICI
+        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        console.log("✅ Service Worker enregistré avec succès, scope:", registration.scope);
+
+        // 2. Gestion des permissions de notification
+        let permission = Notification.permission;
+        
+        if (permission === "default") {
+          permission = await Notification.requestPermission();
         }
+
+        if (permission === "granted") {
+          await registerToken(registration);
+        } else {
+          console.log("Permission de notification refusée.");
+        }
+      } catch (err) {
+        console.error("Erreur lors de l'enregistrement du Service Worker ou des permissions :", err);
       }
     }
 
-    async function registerToken() {
+    async function registerToken(registration) {
       try {
-        // Enregistrement du Service Worker explicite requis pour récupérer le token sur certaines PWA iOS
-        const registration = await navigator.serviceWorker.ready;
-        
+        // On passe directement l'enregistrement que l'on vient de faire à getToken
         const token = await getToken(messaging, { 
           vapidKey: VAPID_KEY,
           serviceWorkerRegistration: registration
