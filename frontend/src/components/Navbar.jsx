@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   
-  // 🔴 Initialisé à FALSE pour ne pas avoir de fausse notification au démarrage
+  // 🔴 Initialisé à FALSE pour le point rouge visuel dans l'interface
   const [hasNewNotification, setHasNewNotification] = useState(false); 
   
   const navigate = useNavigate();
@@ -14,19 +14,6 @@ const Navbar = () => {
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId'); 
   const userRole = localStorage.getItem('userRole'); 
-
-  // 🔔 Effet pour piloter le badge de l'icône de l'application mobile
-  useEffect(() => {
-    if ('setAppBadge' in navigator) {
-      if (hasNewNotification) {
-        // Affiche un badge de 1 sur l'icône de l'application
-        navigator.setAppBadge(1).catch((err) => console.log("Erreur AppBadge:", err));
-      } else {
-        // Efface le badge de l'icône si plus de notifications
-        navigator.clearAppBadge().catch((err) => console.log("Erreur AppBadge Clear:", err));
-      }
-    }
-  }, [hasNewNotification]);
 
   useEffect(() => {
     const fetchNavbarProfile = async () => {
@@ -60,7 +47,7 @@ const Navbar = () => {
     };
   }, [token]);
 
-  // 🌐 ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL (SOCKETS)
+  // 🌐 ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL (SOCKETS - Uniquement pour l'UI interne du site)
   useEffect(() => {
     if (!token || !loggedInUserId) return; 
 
@@ -77,7 +64,7 @@ const Navbar = () => {
 
       console.log(`Comparaison - Auteur du post: ${postAuthorId} | Mon ID: ${myId}`);
 
-      // Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie !
+      // Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie l'UI interne !
       if (postAuthorId !== myId) {
         setHasNewNotification(true); 
       } else {
@@ -95,9 +82,6 @@ const Navbar = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('userRole'); 
-    if ('clearAppBadge' in navigator) {
-      navigator.clearAppBadge().catch(() => {});
-    }
     navigate('/login');
   };
 
