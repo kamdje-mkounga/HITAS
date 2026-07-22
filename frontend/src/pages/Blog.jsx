@@ -3,6 +3,7 @@ import { useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client'; // 🌐 Importation du client socket
 import tradPattern from '../assets/traditional.jpg';
+import Navbar from '../components/Navbar'; // 👈 Importation de la Navbar globale
 import {
   Paperclip,
   Search,
@@ -18,7 +19,8 @@ import {
   Briefcase
 } from "lucide-react";
 
-const Blog = () => {
+// On récupère hasNewNotification et clearNotifications en props venant de App.jsx
+const Blog = ({ hasNewNotification, clearNotifications }) => {
   const [mediaFile, setMediaFile] = useState(null);
   const [mediaPreview, setMediaPreview] = useState(null); 
   const [posts, setPosts] = useState([]);
@@ -143,17 +145,22 @@ const Blog = () => {
 
   useEffect(() => {
     fetchPosts();
+    
+    // 🧹 Dès que l'utilisateur visite le Blog, on efface l'indicateur de notification de la Navbar
+    if (clearNotifications) {
+      clearNotifications();
+    }
+
     return () => { 
       if (mediaPreview) URL.revokeObjectURL(mediaPreview); 
       if (editMediaPreview) URL.revokeObjectURL(editMediaPreview); 
     };
-  }, []);
+  }, [clearNotifications]);
 
   // 🌐 INTERCEPTION TEMPS RÉEL STABILISÉE (PC & MOBILE)
   useEffect(() => {
-    // 🟢 ASSIGNATION DU SOCKET À LA RÉFÉRENCE
     socketRef.current = io(BACKEND_URL, {
-      transports: ['websocket', 'polling'], // Assure une meilleure compatibilité mobile
+      transports: ['websocket', 'polling'], 
       closeOnBeforeunload: true
     });
 
@@ -178,13 +185,11 @@ const Blog = () => {
       setPosts((prevPosts) => prevPosts.map(post => post._id === updatedPost._id ? updatedPost : post));
     };
 
-    // 1. On attache les écouteurs
     socket.on('posts_created', handleCreated);
     socket.on('posts_deleted', handleDeleted);
     socket.on('posts_updated', handleUpdated);
     socket.on('posts_updated_interactions', handleInteractions);
 
-    // 2. Nettoyage STRICT quand on quitte la page / le composant démonte
     return () => {
       socket.off('posts_created', handleCreated);
       socket.off('posts_deleted', handleDeleted);
@@ -194,10 +199,8 @@ const Blog = () => {
     };
   }, [BACKEND_URL]);
 
-  // 2. Aimer / Liker une publication
   const handleLike = async (postId) => {
     try {
-      // 🟢 AJOUT DU SOCKET ID
       const response = await axios.put(`${BACKEND_URL}/api/posts/like/${postId}`, {
         socketId: socketRef.current?.id
       }, getAuthHeader());
@@ -207,12 +210,10 @@ const Blog = () => {
     }
   };
 
-  // 3. Ajouter un commentaire
   const handleAddComment = async (postId) => {
     const textComment = commentTexts[postId];
     if (!textComment || !textComment.trim()) return;
     try {
-      // 🟢 AJOUT DU SOCKET ID
       const response = await axios.post(`${BACKEND_URL}/api/posts/comment/${postId}`, { 
         text: textComment,
         socketId: socketRef.current?.id
@@ -225,7 +226,6 @@ const Blog = () => {
     }
   };
 
-  // 4. Soumission d'une nouvelle publication
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(''); setSuccess('');
@@ -233,7 +233,6 @@ const Blog = () => {
     try {
       const formData = new FormData();
       
-      // 🟢 AJOUT DU SOCKET ID EN PREMIER DANS LE FORMDATA (Très important pour Multer)
       if (socketRef.current?.id) {
         formData.append('socketId', socketRef.current.id);
       }
@@ -255,7 +254,6 @@ const Blog = () => {
     }
   };
 
-  // 5. Enregistrer les modifications d'un post
   const handleEditSubmit = async (postId) => {
     if (!editText.trim() && !editMediaFile && !existingMediaUrl) {
       return alert('La publication ne peut pas être complètement vide.');
@@ -264,7 +262,6 @@ const Blog = () => {
     try {
       const formData = new FormData();
       
-      // 🟢 AJOUT DU SOCKET ID EN PREMIER DANS LE FORMDATA
       if (socketRef.current?.id) {
         formData.append('socketId', socketRef.current.id);
       }
@@ -289,7 +286,6 @@ const Blog = () => {
     }
   };
 
-  // 6. Supprimer un post
   const handleDelete = async (postId) => {
     if (window.confirm('Es-tu sûr de vouloir supprimer cette publication ?')) {
       try {
@@ -325,14 +321,17 @@ const Blog = () => {
 
   return (
     <div 
-      className="w-full min-h-screen bg-[#030014] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased py-12"
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased flex flex-col"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
     >
-      <div className="max-w-3xl mx-auto px-4">
+      {/* 🧭 Intégration de la Navbar globale */}
+      <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
+
+      <div className="max-w-3xl mx-auto px-4 py-12 flex-1 w-full">
         
         {/* Header */}
         <div className="mb-10 text-center md:text-left">
