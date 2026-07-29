@@ -23,7 +23,7 @@ module.exports = function (req, res, next) {
     
     next();
   } catch (err) {
-    console.error("❌ ÉCHEC DE VALIDATION JWT :", err.message);
+    console.error(" ÉCHEC DE VALIDATION JWT :", err.message);
     return res.status(401).json({ message: 'Le jeton n’est pas valide ou a expiré.' });
   }
 };
