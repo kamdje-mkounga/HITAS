@@ -7,9 +7,9 @@ if (!admin.apps || admin.apps.length === 0) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
-    console.log("✅ Firebase Admin SDK connecté avec succès au projet :", serviceAccount.project_id);
+    console.log("Firebase Admin SDK connecté avec succès au projet :", serviceAccount.project_id);
   } catch (error) {
-    console.error("❌ Erreur lors de l'initialisation de Firebase Admin :", error.message);
+    console.error("Erreur lors de l'initialisation de Firebase Admin :", error.message);
   }
 }
 

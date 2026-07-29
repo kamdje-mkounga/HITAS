@@ -123,7 +123,7 @@ router.put('/fcm-token', auth, async (req, res) => {
 
             await user.save();
 
-            console.log("✅ Utilisateur sauvegardé");
+            console.log("Utilisateur sauvegardé");
         }
 
         res.json({
