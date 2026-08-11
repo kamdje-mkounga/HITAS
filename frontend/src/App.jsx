@@ -26,6 +26,16 @@ function App() {
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId');
 
+  // 🌓 Synchronisation globale du thème au chargement de l'application
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+    } else {
+      document.body.removeAttribute('data-theme');
+    }
+  }, []);
+
   // 🍏 iOS PWA Helper: Initialise et nettoie les anomalies de badges au rechargement
   useEffect(() => {
     const clearInitialBadges = async () => {
