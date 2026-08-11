@@ -33,7 +33,7 @@ body {
   font-family: Arial, sans-serif;
   
   /* --- INSERT YOUR BACKGROUND IMAGE HERE --- */
-  background-image: url('./assets/your-background-image.jpg'); /* Remplis le chemin correct */
+  background-image: url('./assets/traditional.jpg'); /* Remplis le chemin correct */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
