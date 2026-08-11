@@ -48,7 +48,7 @@ body::before {
   width: 100vw;
   height: 100vh;
   /* Remplacez par le chemin de votre image de fond */
-  background-image: url('./assets/your-background-image.jpg'); 
+  background-image: url('./assets/traditional.jpg'); 
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
