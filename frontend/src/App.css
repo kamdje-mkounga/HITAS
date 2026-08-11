@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* --- DEFINE THE THEME VARIABLES --- */
 :root {
   /* Default: Dark/Sombre Theme */
@@ -47,7 +49,7 @@ body::before {
   left: 0;
   width: 100vw;
   height: 100vh;
-  /* Remplacez par le chemin de votre image de fond */
+  /* Ensure this path points correctly to your assets folder from src/App.css */
   background-image: url('./assets/traditional.jpg'); 
   background-size: cover;
   background-position: center;
