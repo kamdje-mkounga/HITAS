@@ -4,16 +4,16 @@
   --bg-color: #030014;
   --text-color: #ffffff;
   --border: #333333;
-  --bg-brightness: 0.4;
-  --bg-contrast: 1.2;
+  --home-overlay-1: rgba(3, 0, 20, 0.40);
+  --home-overlay-2: rgba(3, 0, 20, 0.50);
 }
 
 [data-theme='light'] {
   --bg-color: #f0f2f5;
   --text-color: #121212;
   --border: #cccccc;
-  --bg-brightness: 1.3;
-  --bg-contrast: 0.9;
+  --home-overlay-1: rgba(255, 255, 255, 0.85);
+  --home-overlay-2: rgba(240, 242, 245, 0.90);
 }
 
 html, body {
