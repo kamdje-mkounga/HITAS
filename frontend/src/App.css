@@ -27,29 +27,6 @@ html, body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body {
-  position: relative;
-  min-height: 100dvh;
-}
-
-/* Couche de fond globale gérée par Vite */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-image: url('./assets/traditional.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  filter: brightness(var(--bg-brightness)) contrast(var(--bg-contrast));
-  z-index: -999; 
-  transition: filter 0.3s ease;
-}
-
 #root {
   width: 100%;
   min-height: 100dvh;

@@ -14,6 +14,9 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProfileProtectedRoute from './components/ProfileProtectedRoute';
 import NotificationPermission from "./components/NotificationPermission";
 
+// 🖼️ Importation propre de l'image par Vite
+import tradPattern from './assets/traditional.jpg';
+
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" replace />;
@@ -26,7 +29,7 @@ function App() {
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId');
 
-  // 🌓 Synchronisation globale du thème au chargement de l'application
+  // 🌓 Synchronisation globale du thème au chargement
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
@@ -36,7 +39,6 @@ function App() {
     }
   }, []);
 
-  // 🍏 iOS PWA Helper: Initialise et nettoie les anomalies de badges au rechargement
   useEffect(() => {
     const clearInitialBadges = async () => {
       if ('clearAppBadge' in navigator) {
@@ -53,7 +55,6 @@ function App() {
     clearInitialBadges();
   }, []);
 
-  // 🌐 ÉCOUTE GLOBALE DES SOCKETS (Fonctionne désormais sur TOUTES les pages du site)
   useEffect(() => {
     if (!token || !loggedInUserId) return;
 
@@ -63,12 +64,10 @@ function App() {
 
     socket.on('article_published', (newPost) => {
       if (!newPost || !newPost.user) return;
-
       const rawAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
       const postAuthorId = String(rawAuthorId).trim();
       const myId = String(loggedInUserId).trim();
 
-      // Si c'est le post de quelqu'un d'autre -> On active l'indicateur global
       if (postAuthorId !== myId) {
         setHasNewNotification(true);
       }
@@ -80,54 +79,43 @@ function App() {
     };
   }, [token, loggedInUserId]);
 
-  // 🔄 Écoute du retour au premier plan pour rafraîchir l'état si l'onglet était en veille
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        console.log("🔄 Application active, vérification des états globaux...");
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
-
   return (
     <Router>
-      {/* 🔔 Gère la demande de permission FCM */}
-      <NotificationPermission />
-      
-      {/* 🔒 AutoLogout enveloppe toutes les routes */}
-      <AutoLogout>
-        <Routes>
-          {/* 🌐 Routes Publiques */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} /> 
-          
-          {/* 🛠️ Tableau de bord Admin */}
-          <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+      {/* 🌟 Conteneur global avec l'image de fond et le filtre dynamique lié aux variables CSS */}
+      <div 
+        style={{
+          backgroundImage: `url(${tradPattern})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          minHeight: '100dvh',
+          width: '100%',
+          filter: 'brightness(var(--bg-brightness)) contrast(var(--bg-contrast))',
+          transition: 'filter 0.3s ease'
+        }}
+      >
+        <NotificationPermission />
+        
+        <AutoLogout>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} /> 
+            <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
+            <Route path="/profil" element={<PrivateRoute><Profil /></PrivateRoute>} />
+            <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
 
-          {/* 📝 Page Profil */}
-          <Route path="/profil" element={
-            <PrivateRoute>
-              <Profil /> 
-            </PrivateRoute>
-          } />
-          
-          {/* 🛡️ Profils Publics */}
-          <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
+            <Route element={<ProfileProtectedRoute />}>
+              <Route path="/" element={<PrivateRoute><Home hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
+              <Route path="/annuaire" element={<PrivateRoute><Annuaire hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
+              <Route path="/blog" element={<PrivateRoute><Blog hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
+              <Route path="/showcase" element={<PrivateRoute><Showcase hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
+            </Route>
 
-          {/* 🔒 Routes Protégées par le Profil Complet */}
-          <Route element={<ProfileProtectedRoute />}>
-            <Route path="/" element={<PrivateRoute><Home hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-            <Route path="/annuaire" element={<PrivateRoute><Annuaire hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-            <Route path="/blog" element={<PrivateRoute><Blog hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-            <Route path="/showcase" element={<PrivateRoute><Showcase hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-          </Route>
-
-          {/* 🔀 Redirection par défaut */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AutoLogout>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AutoLogout>
+      </div>
     </Router>
   );
 }
