@@ -5,11 +5,9 @@ import { io } from 'socket.io-client';
 
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
-  
-  // 🔴 Initialisé à FALSE pour le point rouge visuel dans l'interface
   const [hasNewNotification, setHasNewNotification] = useState(false); 
 
-  // 🌓 État du thème (Dark/Light)
+  // 🌓 Gestion de l'état du thème (Dark/Light)
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   
   const navigate = useNavigate();
@@ -18,7 +16,7 @@ const Navbar = () => {
   const loggedInUserId = localStorage.getItem('userId'); 
   const userRole = localStorage.getItem('userRole'); 
 
-  // 🌓 Effet pour appliquer et persister le thème
+  // 🌓 Effet pour appliquer dynamiquement le thème sur le body
   useEffect(() => {
     if (theme === 'light') {
       document.body.setAttribute('data-theme', 'light');
@@ -65,7 +63,6 @@ const Navbar = () => {
     };
   }, [token]);
 
-  // 🌐 ÉCOUTE DES NOTIFICATIONS EN TEMPS RÉEL (SOCKETS - Uniquement pour l'UI interne du site)
   useEffect(() => {
     if (!token || !loggedInUserId) return; 
 
@@ -80,13 +77,8 @@ const Navbar = () => {
       const postAuthorId = String(rawAuthorId).trim();
       const myId = String(loggedInUserId).trim();
 
-      console.log(`Comparaison - Auteur du post: ${postAuthorId} | Mon ID: ${myId}`);
-
-      // Si les deux IDs sont DIFFÉRENTS, c'est le post de quelqu'un d'autre -> On notifie l'UI interne !
       if (postAuthorId !== myId) {
         setHasNewNotification(true); 
-      } else {
-        console.log("C'est mon post, on bloque la notification !");
       }
     });
 
@@ -103,7 +95,6 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  // Helper pour effacer les notifications quand on clique sur le Blog
   const clearNotifications = () => {
     setHasNewNotification(false);
   };
@@ -131,7 +122,6 @@ const Navbar = () => {
               Annuaire
             </NavLink>
 
-            {/* Onglet Blog PC */}
             <NavLink 
               to="/blog" 
               onClick={clearNotifications}
@@ -173,13 +163,13 @@ const Navbar = () => {
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR & TOGGLE THÈME */}
+          {/* 🔐 ESPACE UTILISATEUR & BOUTON TOGGLE */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             
-            {/* 🌓 Bouton Toggle Thème */}
+            {/* 🌓 Bouton Toggle Thème (Clair / Sombre) */}
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-800 bg-slate-900/40 text-slate-300 hover:text-white hover:border-slate-700 transition-all duration-200 text-sm flex items-center justify-center shadow-sm"
+              className="p-2 rounded-xl border border-slate-700/60 bg-slate-800/50 text-slate-200 hover:bg-slate-800 transition-all duration-200 text-sm flex items-center justify-center shadow-sm"
               aria-label="Toggle Theme"
               title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
             >
@@ -231,7 +221,6 @@ const Navbar = () => {
           Annuaire
         </NavLink>
         
-        {/* Onglet Blog Mobile */}
         <NavLink 
           to="/blog" 
           onClick={clearNotifications} 
