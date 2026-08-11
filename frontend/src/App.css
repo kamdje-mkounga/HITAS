@@ -1,20 +1,63 @@
+/* --- DEFINE THE THEME VARIABLES --- */
+:root {
+  /* Default: Dark/Sombre Theme */
+  --bg-color: #030014;
+  --bg-overlay: rgba(0, 0, 0, 0.75); /* Sombre dark overlay on top of the image */
+  --text-color: #ffffff;
+  --border: #333333;
+}
+
+[data-theme='light'] {
+  /* Light Theme */
+  --bg-color: #ffffff;
+  --bg-overlay: rgba(255, 255, 255, 0.75); /* Brighter overlay on top of the image */
+  --text-color: #121212;
+  --border: #cccccc;
+}
+
 /* --- CORRECTION DU DÉBORDEMENT MOBILE & OVERSCROLL IOS --- */
 html, body {
   overflow-x: hidden;
   width: 100%;
   margin: 0;
   padding: 0;
-  /* Évite le flash blanc en peignant le fond du système avec ta couleur sombre */
-  background-color: #030014; 
+  /* Utilise la variable de fond pour éviter le flash blanc */
+  background-color: var(--bg-color); 
   /* Bloque l'effet élastique vertical (overscroll bounce) */
   overscroll-behavior-y: none; 
+  transition: background-color 0.3s ease;
+}
+
+body {
+  color: var(--text-color);
+  font-family: Arial, sans-serif;
+  
+  /* --- INSERT YOUR BACKGROUND IMAGE HERE --- */
+  background-image: url('./assets/your-background-image.jpg'); /* Remplis le chemin correct */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* --- OVERLAY GLOBAL POUR TOUTES LES PAGES --- */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-overlay);
+  z-index: -1; /* Garde l'overlay derrière tout le contenu des pages */
+  transition: background-color 0.3s ease;
 }
 
 #root {
   width: 100%;
   min-height: 100dvh;
   overflow-x: hidden;
-  background-color: #030014;
+  background-color: transparent; /* Transparent pour laisser passer l'image et l'overlay du body */
 }
 
 /* --- TON STYLE EXISTANT --- */
