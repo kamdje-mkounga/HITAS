@@ -13,8 +13,8 @@
   --text-color: #0f172a;
   --border: #cbd5e1;
   /* Un voile blanc subtil et propre pour garder le motif visible sans tout délaver */
-  --home-overlay-1: rgba(255, 255, 255, 0.35);
-  --home-overlay-2: rgba(241, 245, 249, 0.40);
+  --home-overlay-1: rgba(255, 255, 255, 0.25);
+  --home-overlay-2: rgba(241, 245, 249, 0.25);
 }
 
 html, body {
