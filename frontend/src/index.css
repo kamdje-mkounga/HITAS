@@ -1,16 +1,19 @@
 @import "tailwindcss";
-@import "tailwindcss";
 
 :root {
   --bg-color: #030014;
   --text-color: #ffffff;
   --border: #333333;
+  --home-overlay-1: rgba(3, 0, 20, 0.40);
+  --home-overlay-2: rgba(3, 0, 20, 0.50);
 }
 
 [data-theme='light'] {
   --bg-color: #f0f2f5;
   --text-color: #121212;
   --border: #cccccc;
+  --home-overlay-1: rgba(255, 255, 255, 0.85);
+  --home-overlay-2: rgba(240, 242, 245, 0.90);
 }
 
 html, body {
@@ -29,22 +32,4 @@ html, body {
   min-height: 100dvh;
   overflow-x: hidden;
   background-color: transparent; 
-}
-
-/* --- CUSTOM THIN SCROLLBAR --- */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #030014;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #312e81; /* Indigo sombre */
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5; /* Indigo vif au survol */
 }
