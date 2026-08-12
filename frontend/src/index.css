@@ -9,13 +9,12 @@
 }
 
 [data-theme='light'] {
-  /* Un fond blanc cassé moderne et ultra-propre */
-  --bg-color: #f8fafc;
+  --bg-color: #f1f5f9;
   --text-color: #0f172a;
-  --border: #e2e8f0;
-  /* Un voile très léger juste pour texturer subtilement sans faire flou */
-  --home-overlay-1: rgba(248, 250, 252, 0.92);
-  --home-overlay-2: rgba(241, 245, 249, 0.95);
+  --border: #cbd5e1;
+  /* Un voile blanc subtil et propre pour garder le motif visible sans tout délaver */
+  --home-overlay-1: rgba(255, 255, 255, 0.35);
+  --home-overlay-2: rgba(241, 245, 249, 0.40);
 }
 
 html, body {
