@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client'; 
-
+import { Users, MessageSquareText, Rocket, Bell, Moon, Sun } from 'lucide-react';
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   const [hasNewNotification, setHasNewNotification] = useState(false); 
@@ -148,25 +148,26 @@ const Navbar = () => {
           {/* 🔐 ESPACE UTILISATEUR & SWITCH ANIMÉ */}
           <div className="flex items-center space-x-3 sm:space-x-4">
             
-            {/* 🌟 SLIDING THEME SWITCH */}
-            <button 
+           {/* 🌟 SLIDING THEME SWITCH PROFESSIONNEL */}
+           <button 
               onClick={toggleTheme}
-              className="relative w-16 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none border border-slate-700/60 shadow-inner"
-              style={{
-                backgroundColor: theme === 'dark' ? '#0f172a' : '#e2e8f0'
-              }}
+              className="relative w-16 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none border border-slate-700/60 shadow-inner bg-slate-900/80"
               aria-label="Toggle Theme"
               title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
             >
-              {/* Curseur coulissant avec l'icône */}
+              {/* Curseur coulissant contenant l'icône pro */}
               <div 
-                className="switch-ball w-6 h-6 rounded-full shadow-md flex items-center justify-center text-xs transform"
+                className="w-6 h-6 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
                 style={{
                   transform: theme === 'light' ? 'translateX(32px)' : 'translateX(0px)',
-                  backgroundColor: theme === 'light' ? '#ffffff' : '#1e293b'
+                  backgroundColor: theme === 'light' ? '#f59e0b' : '#312e81' // Doré pour le soleil, Indigo profond pour la lune
                 }}
               >
-                {theme === 'dark' ? '🌙' : '☀️'}
+                {theme === 'dark' ? (
+                  <Moon className="w-3.5 h-3.5 text-indigo-200" />
+                ) : (
+                  <Sun className="w-3.5 h-3.5 text-white animate-spin-slow" />
+                )}
               </div>
             </button>
 
