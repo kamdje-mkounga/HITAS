@@ -4,16 +4,18 @@
   --bg-color: #030014;
   --text-color: #ffffff;
   --border: #333333;
-  --home-overlay-1: rgba(3, 0, 20, 0.40);
-  --home-overlay-2: rgba(3, 0, 20, 0.50);
+  --home-overlay-1: rgba(3, 0, 20, 0.65);
+  --home-overlay-2: rgba(3, 0, 20, 0.75);
 }
 
 [data-theme='light'] {
-  --bg-color: #f0f2f5;
-  --text-color: #121212;
-  --border: #cccccc;
-  --home-overlay-1: rgba(255, 255, 255, 0.55);
-  --home-overlay-2: rgba(240, 242, 245, 0.65);
+  /* Un fond blanc cassé moderne et ultra-propre */
+  --bg-color: #f8fafc;
+  --text-color: #0f172a;
+  --border: #e2e8f0;
+  /* Un voile très léger juste pour texturer subtilement sans faire flou */
+  --home-overlay-1: rgba(248, 250, 252, 0.92);
+  --home-overlay-2: rgba(241, 245, 249, 0.95);
 }
 
 html, body {
@@ -23,7 +25,6 @@ html, body {
   padding: 0;
   background-color: var(--bg-color); 
   color: var(--text-color);
-  overscroll-behavior-y: none; 
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
