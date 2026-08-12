@@ -27,7 +27,6 @@ const Navbar = () => {
     }
   }, [theme]);
 
-  // Fonction de bascule du thème
   const toggleTheme = () => {
     setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
   };
@@ -52,33 +51,19 @@ const Navbar = () => {
     };
 
     fetchNavbarProfile();
-
-    const handleAvatarUpdated = () => {
-      fetchNavbarProfile();
-    };
-
+    const handleAvatarUpdated = () => fetchNavbarProfile();
     window.addEventListener("avatarUpdated", handleAvatarUpdated);
-
-    return () => {
-      window.removeEventListener("avatarUpdated", handleAvatarUpdated);
-    };
+    return () => window.removeEventListener("avatarUpdated", handleAvatarUpdated);
   }, [token]);
 
   useEffect(() => {
     if (!token || !loggedInUserId) return; 
-
-    const socket = io(BACKEND_URL, {
-      transports: ['websocket', 'polling'],
-    });
+    const socket = io(BACKEND_URL, { transports: ['websocket', 'polling'] });
 
     socket.on('article_published', (newPost) => {
       if (!newPost || !newPost.user) return;
-
       const rawAuthorId = typeof newPost.user === 'object' ? newPost.user._id : newPost.user;
-      const postAuthorId = String(rawAuthorId).trim();
-      const myId = String(loggedInUserId).trim();
-
-      if (postAuthorId !== myId) {
+      if (String(rawAuthorId).trim() !== String(loggedInUserId).trim()) {
         setHasNewNotification(true); 
       }
     });
@@ -96,9 +81,7 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const clearNotifications = () => {
-    setHasNewNotification(false);
-  };
+  const clearNotifications = () => setHasNewNotification(false);
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-800/60 bg-[#0B0F19]/70 backdrop-blur-xl">
@@ -154,9 +137,7 @@ const Navbar = () => {
               <NavLink 
                 to="/admin" 
                 className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 border border-indigo-500/20 ${
-                  isActive 
-                    ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' 
-                    : 'text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/30'
+                  isActive ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' : 'text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/30'
                 }`}
               >
                 Panel Admin 🛠️
@@ -164,17 +145,29 @@ const Navbar = () => {
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR & BOUTON TOGGLE */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* 🔐 ESPACE UTILISATEUR & SWITCH ANIMÉ */}
+          <div className="flex items-center space-x-3 sm:space-x-4">
             
-            {/* 🌓 Bouton Toggle Thème (Clair / Sombre) */}
+            {/* 🌟 SLIDING THEME SWITCH */}
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-xl border border-slate-700/60 bg-slate-800/50 text-slate-200 hover:bg-slate-800 transition-all duration-200 text-sm flex items-center justify-center shadow-sm cursor-pointer"
+              className="relative w-16 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none border border-slate-700/60 shadow-inner"
+              style={{
+                backgroundColor: theme === 'dark' ? '#0f172a' : '#e2e8f0'
+              }}
               aria-label="Toggle Theme"
               title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
             >
-              {theme === 'dark' ? '☀️' : '🌙'}
+              {/* Curseur coulissant avec l'icône */}
+              <div 
+                className="switch-ball w-6 h-6 rounded-full shadow-md flex items-center justify-center text-xs transform"
+                style={{
+                  transform: theme === 'light' ? 'translateX(32px)' : 'translateX(0px)',
+                  backgroundColor: theme === 'light' ? '#ffffff' : '#1e293b'
+                }}
+              >
+                {theme === 'dark' ? '🌙' : '☀️'}
+              </div>
             </button>
 
             {token ? (
@@ -213,48 +206,13 @@ const Navbar = () => {
 
       {/* 📱 MENU SUB-BARRE MOBILE */}
       <div className="md:hidden border-t border-slate-800/40 bg-[#0B0F19]/90 px-4 py-2 flex items-center justify-around text-xs font-medium overflow-x-auto gap-2">
-        <NavLink 
-          to="/annuaire" 
-          className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${
-            isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          Annuaire
+        <NavLink to="/annuaire" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}>Annuaire</NavLink>
+        <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}>
+          Blog {hasNewNotification && <span className="absolute top-1.5 right-1 h-1.5 w-1.5 rounded-full bg-red-500" />}
         </NavLink>
-        
-        <NavLink 
-          to="/blog" 
-          onClick={clearNotifications} 
-          className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-colors ${
-            isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          Blog
-          {hasNewNotification && (
-            <span className="absolute top-1.5 right-1 h-1.5 w-1.5 rounded-full bg-red-500" />
-          )}
-        </NavLink>
-
-        <NavLink 
-          to="/showcase" 
-          className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${
-            isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'
-          }`}
-        >
-          Showcase
-        </NavLink>
-        
+        <NavLink to="/showcase" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}>Showcase</NavLink>
         {token && userRole === 'admin' && (
-          <NavLink 
-            to="/admin" 
-            className={({ isActive }) => `py-1.5 px-3 rounded-lg font-bold border transition-colors ${
-              isActive 
-                ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' 
-                : 'text-indigo-400 bg-indigo-500/5 border-indigo-500/20 hover:text-indigo-300'
-            }`}
-          >
-            Admin 🛠️
-          </NavLink>
+          <NavLink to="/admin" className={({ isActive }) => `py-1.5 px-3 rounded-lg font-bold border transition-colors ${isActive ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' : 'text-indigo-400 bg-indigo-500/5 border-indigo-500/20 hover:text-indigo-300'}`}>Admin 🛠️</NavLink>
         )}
       </div>
     </nav>
