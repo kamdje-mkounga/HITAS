@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 import tradPattern from '../assets/traditional.jpg';
+import Navbar from '../components/Navbar'; // 👈 Importation de la Navbar globale
 
 const formatMediaUrl = (url) => {
   if (!url) return '';
@@ -247,6 +248,13 @@ const Showcase = () => {
         backgroundRepeat: 'repeat',
       }}
     >
+
+      {/* 🧭 Intégration de la Navbar globale */}
+      <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
+
+      <div className="max-w-3xl mx-auto px-4 py-12 flex-1 w-full">
+
+      </div>
       <div className="max-w-5xl mx-auto px-4 py-10 text-slate-100 overflow-hidden">
         
         {/* HEADER DE PAGE */}
