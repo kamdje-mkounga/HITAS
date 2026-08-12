@@ -12,8 +12,8 @@
   --bg-color: #f0f2f5;
   --text-color: #121212;
   --border: #cccccc;
-  --home-overlay-1: rgba(255, 255, 255, 0.85);
-  --home-overlay-2: rgba(240, 242, 245, 0.90);
+  --home-overlay-1: rgba(255, 255, 255, 0.55);
+  --home-overlay-2: rgba(240, 242, 245, 0.65);
 }
 
 html, body {
