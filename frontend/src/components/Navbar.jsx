@@ -7,11 +7,30 @@ const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   const [hasNewNotification, setHasNewNotification] = useState(false); 
   
+  // 🌓 État du thème (Dark/Light) initialisé depuis le localStorage
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  
   const navigate = useNavigate();
   const BACKEND_URL = "https://hitas.onrender.com";
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId'); 
   const userRole = localStorage.getItem('userRole'); 
+
+  // 🌓 Effet pour appliquer ou retirer l'attribut data-theme du body
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.body.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'dark');
+    }
+  }, [theme]);
+
+  // Fonction de bascule du thème
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
+  };
 
   useEffect(() => {
     const fetchNavbarProfile = async () => {
@@ -145,8 +164,19 @@ const Navbar = () => {
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR */}
+          {/* 🔐 ESPACE UTILISATEUR & BOUTON TOGGLE */}
           <div className="flex items-center space-x-2 sm:space-x-4">
+            
+            {/* 🌓 Bouton Toggle Thème (Clair / Sombre) */}
+            <button 
+              onClick={toggleTheme}
+              className="p-2 rounded-xl border border-slate-700/60 bg-slate-800/50 text-slate-200 hover:bg-slate-800 transition-all duration-200 text-sm flex items-center justify-center shadow-sm cursor-pointer"
+              aria-label="Toggle Theme"
+              title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+            </button>
+
             {token ? (
               <div className="flex items-center gap-2 sm:gap-4">
                 <Link 
