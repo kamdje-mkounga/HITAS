@@ -4,6 +4,7 @@ import { io } from 'socket.io-client';
 // 🛠️ Importation des icônes modernes
 import { Trash2, Send, Layers } from 'lucide-react';
 import Navbar from '../components/Navbar'; // 👈 Importation cruciale de la Navbar
+import tradPattern from '../assets/traditional.jpg'; // 👈 Importation du motif de fond
 
 const BlogEntraide = ({ hasNewNotification, clearNotifications }) => {
   // États pour les posts et le formulaire
@@ -137,80 +138,88 @@ const BlogEntraide = ({ hasNewNotification, clearNotifications }) => {
   // Fonction utilitaire pour la couleur des badges de catégorie
   const getBadgeColor = (cat) => {
     switch(cat) {
-      case 'Entraide': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      case 'Stage/Emploi': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-      case 'Logement': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      default: return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
+      case 'Entraide': return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
+      case 'Stage/Emploi': return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+      case 'Logement': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+      default: return 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20';
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white">
+    <div 
+      className="min-h-screen text-slate-900 dark:text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300"
+      style={{
+        backgroundColor: 'var(--bg-color)',
+        backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
+        backgroundSize: 'contain',
+        backgroundRepeat: 'repeat',
+      }}
+    >
       {/* 🧭 Intégration de la Navbar avec synchronisation des notifications */}
       <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-12">
         {/* En-tête */}
         <div className="mb-10 text-center md:text-left">
-          <h1 className="text-4xl font-extrabold mb-2 tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-extrabold mb-2 tracking-tight text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-white dark:via-zinc-200 dark:to-zinc-400 dark:bg-clip-text">
             Blog & Entraide
           </h1>
-          <p className="text-zinc-400 text-sm max-w-xl">Pose tes questions, partage des opportunités ou échange avec la communauté.</p>
+          <p className="text-slate-600 dark:text-zinc-400 text-sm max-w-xl">Pose tes questions, partage des opportunités ou échange avec la communauté.</p>
         </div>
 
         {/* Formulaire de création de Post */}
-        <div className="bg-[#161618] p-6 rounded-2xl border border-zinc-800/60 shadow-2xl mb-8 transition-all duration-300 hover:border-zinc-800">
-          <h2 className="text-xs font-bold mb-4 text-zinc-400 uppercase tracking-widest">Créer une nouvelle publication</h2>
+        <div className="bg-white/80 dark:bg-[#161618] backdrop-blur-xl p-6 rounded-2xl border border-slate-200 dark:border-zinc-800/60 shadow-2xl shadow-slate-200/50 dark:shadow-black/40 mb-8 transition-all duration-300">
+          <h2 className="text-xs font-bold mb-4 text-indigo-600 dark:text-zinc-400 uppercase tracking-widest">Créer une nouvelle publication</h2>
           
-          {error && <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl mb-4 text-xs font-medium">{error}</div>}
-          {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl mb-4 text-xs font-medium">{success}</div>}
+          {error && <div className="bg-red-500/10 border border-red-500/20 text-red-500 dark:text-red-400 p-3 rounded-xl mb-4 text-xs font-medium">{error}</div>}
+          {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 dark:text-emerald-400 p-3 rounded-xl mb-4 text-xs font-medium">{success}</div>}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <textarea
               rows="3"
-              className="w-full bg-[#0d0d0e] border border-zinc-800 rounded-xl p-4 text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 focus:ring-4 focus:ring-zinc-800/40 transition-all resize-none text-sm leading-relaxed"
+              className="w-full bg-slate-50 dark:bg-[#0d0d0e] border border-slate-200 dark:border-zinc-800 rounded-xl p-4 text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none text-sm leading-relaxed shadow-inner"
               placeholder="Que veux-tu partager aujourd'hui ?"
               value={text}
               onChange={(e) => setText(e.target.value)}
             ></textarea>
 
             <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 pt-2">
-              <div className="flex items-center gap-2 bg-[#0d0d0e] border border-zinc-800 px-3 py-1.5 rounded-xl">
-                <Layers className="h-3.5 w-3.5 text-zinc-500" />
-                <label className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">Catégorie :</label>
+              <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#0d0d0e] border border-slate-200 dark:border-zinc-800 px-3 py-1.5 rounded-xl">
+                <Layers className="h-3.5 w-3.5 text-slate-500 dark:text-zinc-500" />
+                <label className="text-[11px] font-medium text-slate-500 dark:text-zinc-500 uppercase tracking-wider">Catégorie :</label>
                 <select
-                  className="bg-transparent text-xs font-semibold text-zinc-200 focus:outline-none cursor-pointer pr-1"
+                  className="bg-transparent text-xs font-semibold text-slate-800 dark:text-zinc-200 focus:outline-none cursor-pointer pr-1"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
-                  <option value="General" className="bg-[#0d0d0e]">Général</option>
-                  <option value="Entraide" className="bg-[#0d0d0e]">Entraide</option>
-                  <option value="Stage/Emploi" className="bg-[#0d0d0e]">Stage / Emploi</option>
-                  <option value="Logement" className="bg-[#0d0d0e]">Logement</option>
+                  <option value="General" className="bg-white dark:bg-[#0d0d0e]">Général</option>
+                  <option value="Entraide" className="bg-white dark:bg-[#0d0d0e]">Entraide</option>
+                  <option value="Stage/Emploi" className="bg-white dark:bg-[#0d0d0e]">Stage / Emploi</option>
+                  <option value="Logement" className="bg-white dark:bg-[#0d0d0e]">Logement</option>
                 </select>
               </div>
 
               <button
                 type="submit"
-                className="bg-zinc-100 hover:bg-white text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md hover:shadow-xl active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 <span>Publier</span>
-                <Send className="h-3 w-3" />
+                <Send className="h-3 w-3 text-white" />
               </button>
             </div>
           </form>
         </div>
 
         {/* Barre de Filtres */}
-        <div className="flex flex-wrap gap-2 mb-8 border-b border-zinc-800/40 pb-5">
+        <div className="flex flex-wrap gap-2 mb-8 border-b border-slate-200 dark:border-zinc-800/40 pb-5">
           {['Tous', 'General', 'Entraide', 'Stage/Emploi', 'Logement'].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedFilter(cat)}
               className={`px-4 py-1.5 rounded-xl text-xs font-semibold border transition-all duration-200 ${
                 selectedFilter === cat
-                  ? 'bg-zinc-100 text-zinc-900 border-zinc-100 shadow-md'
-                  : 'bg-[#161618] text-zinc-400 border-zinc-800/60 hover:border-zinc-700 hover:text-zinc-200'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md'
+                  : 'bg-white/80 dark:bg-[#161618] text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-800/60 hover:border-indigo-500/50 hover:text-slate-900 dark:hover:text-zinc-200'
               }`}
             >
               {cat === 'General' ? 'Général' : cat === 'Tous' ? '📢 Tous' : cat === 'Stage/Emploi' ? '💼 Stage / Emploi' : cat}
@@ -220,15 +229,15 @@ const BlogEntraide = ({ hasNewNotification, clearNotifications }) => {
 
         {/* Liste des Posts */}
         {loading ? (
-          <div className="text-center text-zinc-500 py-16 text-xs font-bold tracking-widest animate-pulse">CHARGEMENT DU FIL D'ACTUALITÉ...</div>
+          <div className="text-center text-slate-500 dark:text-zinc-500 py-16 text-xs font-bold tracking-widest animate-pulse">CHARGEMENT DU FIL D'ACTUALITÉ...</div>
         ) : filteredPosts.length === 0 ? (
-          <div className="text-center text-zinc-500 py-16 bg-[#161618] border border-zinc-800/40 rounded-2xl text-sm">
+          <div className="text-center text-slate-600 dark:text-zinc-500 py-16 bg-white/80 dark:bg-[#161618] border border-slate-200 dark:border-zinc-800/40 rounded-2xl text-sm shadow-xl">
             Aucune publication trouvée dans cette catégorie.
           </div>
         ) : (
           <div className="space-y-5">
             {filteredPosts.map((post) => (
-              <div key={post._id} className="bg-[#161618] p-5 rounded-2xl border border-zinc-800/50 transition-all duration-300 hover:border-zinc-700/60 shadow-lg">
+              <div key={post._id} className="bg-white/85 dark:bg-[#161618] backdrop-blur-xl p-5 rounded-2xl border border-slate-200 dark:border-zinc-800/50 transition-all duration-300 hover:border-indigo-500/50 shadow-xl shadow-slate-200/50 dark:shadow-lg">
                 
                 {/* En-tête du post : Auteur + Date + Catégorie */}
                 <div className="flex justify-between items-start mb-4">
@@ -237,16 +246,16 @@ const BlogEntraide = ({ hasNewNotification, clearNotifications }) => {
                       <img 
                         src={formatMediaUrl(post.avatar)} 
                         alt={`${post.firstName} ${post.lastName}`}
-                        className="w-10 h-10 rounded-full object-cover border border-zinc-700 shadow-md"
+                        className="w-10 h-10 rounded-full object-cover border border-slate-300 dark:border-zinc-700 shadow-md"
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-zinc-800 text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-zinc-700 shadow-md uppercase">
+                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-100 dark:from-zinc-700 to-slate-200 dark:to-zinc-800 text-slate-800 dark:text-zinc-200 rounded-full flex items-center justify-center font-bold text-xs select-none border border-slate-300 dark:border-zinc-700 shadow-md uppercase">
                         {post.firstName?.[0]}{post.lastName?.[0]}
                       </div>
                     )}
                     <div>
-                      <h3 className="font-bold text-sm text-zinc-200 tracking-wide">{post.firstName} {post.lastName}</h3>
-                      <p className="text-[11px] text-zinc-500 font-medium">
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-200 tracking-wide">{post.firstName} {post.lastName}</h3>
+                      <p className="text-[11px] text-slate-500 dark:text-zinc-500 font-medium">
                         {new Date(post.date).toLocaleDateString('fr-FR', {
                           day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                         })}
@@ -261,7 +270,7 @@ const BlogEntraide = ({ hasNewNotification, clearNotifications }) => {
                     
                     <button 
                       onClick={() => handleDelete(post._id)}
-                      className="text-zinc-500 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl text-xs transition-all flex items-center justify-center border border-transparent hover:border-red-500/10"
+                      className="text-slate-500 dark:text-zinc-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl text-xs transition-all flex items-center justify-center border border-transparent hover:border-red-500/10"
                       title="Supprimer la publication"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -270,7 +279,7 @@ const BlogEntraide = ({ hasNewNotification, clearNotifications }) => {
                 </div>
 
                 {/* Corps du texte */}
-                <p className="text-zinc-300 text-sm whitespace-pre-wrap pl-0.5 leading-relaxed font-normal">
+                <p className="text-slate-800 dark:text-zinc-300 text-sm whitespace-pre-wrap pl-0.5 leading-relaxed font-normal">
                   {post.text}
                 </p>
 
