@@ -129,7 +129,7 @@ function Home() {
           setUnreadCount(othersArticles.length);
           return;
         }
-  
+ 
         const lastViewedDate = new Date(lastViewedBlog);
         
         const unreadArticles = articles.filter(article => {
@@ -143,13 +143,13 @@ function Home() {
           const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
-  
+ 
         setUnreadCount(unreadArticles.length);
       } catch (error) {
         console.error("Erreur initialisation des notifications:", error);
       }
     };
-  
+ 
     fetchArticlesAndCalculateUnread();
 
     const handlePageShow = (event) => {
@@ -157,7 +157,7 @@ function Home() {
     };
 
     window.addEventListener('pageshow', handlePageShow);
-  
+ 
     return () => {
       window.removeEventListener('pageshow', handlePageShow);
     };
@@ -182,9 +182,10 @@ function Home() {
 
   return (
     <div 
-      className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white"
+      className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundColor: 'var(--bg-color)',
+        backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
