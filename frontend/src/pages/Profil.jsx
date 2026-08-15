@@ -620,7 +620,7 @@ function Profil() {
                       <AlertTriangle className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-red-400 mb-1 uppercase tracking-wider">Zone de Danger — Suppression du Compte</h4>
+                      
                       <p className="text-xs text-zinc-400 leading-relaxed">
                         Cette action est définitive et irréversible. Elle supprimera définitivement votre profil, vos posts et vos projets de la plateforme HITAS.
                       </p>
