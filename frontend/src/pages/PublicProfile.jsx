@@ -148,7 +148,8 @@ const PublicProfile = () => {
     <div 
       className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-10 relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.75), rgba(3, 0, 20, 0.85)), url(${tradPattern})`,
+        // Lowered opacity values (e.g., 0.45 and 0.55) make the background pattern brighter and clearer
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
