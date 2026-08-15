@@ -217,9 +217,17 @@ function Profil() {
     data.append('country', formData.country);
     data.append('status', formData.status);
     data.append('degreeLevel', formData.degreeLevel);
-    data.append('jobTitle', formData.jobTitle);
-    data.append('currentCompany', formData.currentCompany);
-    data.append('bio', formData.bio);
+    
+    // N'envoie les champs professionnels que s'ils sont pertinents
+    if (formData.status === 'En poste') {
+      data.append('jobTitle', formData.jobTitle);
+      data.append('currentCompany', formData.currentCompany);
+    } else {
+      data.append('jobTitle', '');
+      data.append('currentCompany', '');
+    }
+
+    data.append('bio', formData.bio || '');
 
     const skillsArray = formData.skills
       ? formData.skills.split(',').map(s => s.trim()).filter(Boolean)
@@ -556,19 +564,22 @@ function Profil() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Intitulé du Poste</label>
-                        <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                    {/* Affichage conditionnel : masqué si Étudiant ou En recherche de stage */}
+                    {formData.status === 'En poste' && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fadeIn">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Intitulé du Poste</label>
+                          <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Entreprise Actuelle</label>
+                          <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        </div>
                       </div>
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Entreprise Actuelle</label>
-                        <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
-                      </div>
-                    </div>
+                    )}
 
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos (Optionnel)</label>
                       <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                     </div>
 
@@ -592,7 +603,7 @@ function Profil() {
                       <AlertTriangle className="w-6 h-6" />
                     </div>
                     <div>
-                      
+                      <h4 className="text-sm font-bold text-red-400 mb-1 uppercase tracking-wider">Zone de Danger — Suppression du Compte</h4>
                       <p className="text-xs text-zinc-400 leading-relaxed">
                         Cette action est définitive et irréversible. Elle supprimera définitivement votre profil, vos posts et vos projets de la plateforme HITAS.
                       </p>
