@@ -474,11 +474,11 @@ function Profil() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénom *</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénoms *</label>
                         <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Nom de famille *</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Noms *</label>
                         <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
                       </div>
                     </div>
@@ -568,7 +568,7 @@ function Profil() {
                         </datalist>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Ville / Emplacement précis *</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Adresse *</label>
                         <input 
                           type="text" 
                           name="currentLocation" 
