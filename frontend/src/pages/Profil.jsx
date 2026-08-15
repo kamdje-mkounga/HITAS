@@ -15,11 +15,10 @@ import {
   MapPin, 
   GraduationCap, 
   Briefcase, 
-  Github, 
+  GitBranch, 
   Globe, 
   CheckCircle2, 
   XCircle, 
-  ChevronRight,
   Sparkles
 } from 'lucide-react';
 
@@ -664,7 +663,7 @@ function Profil() {
                             onClick={(e) => e.stopPropagation()} 
                             className="bg-[#030014]/80 border border-indigo-900/40 py-2.5 px-3 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold truncate flex items-center justify-center gap-1.5"
                           >
-                            <Github className="w-3.5 h-3.5" /> GitHub
+                            <GitBranch className="w-3.5 h-3.5" /> GitHub
                           </a>
                         )}
                         {project.demoLink && (
