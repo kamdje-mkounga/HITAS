@@ -64,6 +64,27 @@ function Profil() {
     return typeof userField === 'object' ? userField._id : userField;
   };
 
+  // Fonction pour nettoyer proprement les compétences brutes de la base de données
+  const cleanSkillsData = (rawSkills) => {
+    if (!rawSkills) return '';
+    if (Array.isArray(rawSkills)) {
+      return rawSkills.join(', ');
+    }
+    if (typeof rawSkills === 'string') {
+      try {
+        // Tente de parser si c'est un JSON sérialisé
+        const parsed = JSON.parse(rawSkills);
+        if (Array.isArray(parsed)) {
+          return parsed.flat().join(', ');
+        }
+      } catch (e) {
+        // Sinon nettoyage par regex des caractères superflus
+        return rawSkills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()).filter(Boolean).join(', ');
+      }
+    }
+    return '';
+  };
+
   const presetSpecialties = [
     'Agriculture',
     'Architecture',
@@ -140,11 +161,7 @@ function Profil() {
               jobTitle: data.jobTitle || '',
               currentCompany: data.currentCompany || '',
               bio: data.bio || '',
-              skills: Array.isArray(data.skills) 
-                ? data.skills.join(', ') 
-                : typeof data.skills === 'string' 
-                  ? data.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()).join(', ') 
-                  : ''
+              skills: cleanSkillsData(data.skills)
             });
             
             if (data.avatar) {
@@ -218,7 +235,7 @@ function Profil() {
     data.append('status', formData.status);
     data.append('degreeLevel', formData.degreeLevel);
     
-    // N'envoie les champs professionnels que s'ils sont pertinents
+    // N'envoie les champs professionnels que si le statut est "En poste"
     if (formData.status === 'En poste') {
       data.append('jobTitle', formData.jobTitle);
       data.append('currentCompany', formData.currentCompany);
@@ -435,7 +452,7 @@ function Profil() {
                     </div>
                   )}
 
-                  <form onSubmit={handleSubmit} className="space-y-5">
+                  <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="flex items-center gap-5 bg-[#030014]/70 p-4 border border-indigo-900/40 rounded-2xl shadow-inner">
                       <div className="w-16 h-16 rounded-2xl bg-[#0b081e] border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0 shadow">
                         {avatarPreview ? (
