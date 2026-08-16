@@ -1,29 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  /* Dark Mode (Par défaut) */
-  --bg-color: #080518;
+  /* Mode Sombre : Fond profond + image mixée en 'luminosity' ou 'overlay' */
+  --bg-color: #050212;
   --text-color: #ffffff;
-  --text-muted: #94a3b8;
-  --border: rgba(255, 255, 255, 0.1);
-  --card-bg: rgba(15, 12, 38, 0.75);
+  --border: rgba(255, 255, 255, 0.12);
+  --card-bg: rgba(15, 10, 30, 0.7);
   
-  /* Contraste du motif de fond */
-  --pattern-opacity: 0.18;
-  --pattern-filter: none;
+  /* Blending du motif sombre */
+  --hero-bg-color: #08031a;
+  --hero-blend-mode: overlay;
+  --hero-opacity: 0.85;
 }
 
 [data-theme='light'] {
-  /* Light Mode */
+  /* Mode Clair : Fond lumineux + inversion du motif pour un tracé propre */
   --bg-color: #f8fafc;
   --text-color: #0f172a;
-  --text-muted: #475569;
   --border: rgba(0, 0, 0, 0.08);
   --card-bg: #ffffff;
 
-  /* Inversion du motif sombre en motif clair net (évite l'effet délavé) */
-  --pattern-opacity: 0.06;
-  --pattern-filter: invert(1) brightness(0.2);
+  /* Blending du motif clair (évite l'effet grisâtre) */
+  --hero-bg-color: #f1f5f9;
+  --hero-blend-mode: multiply;
+  --hero-opacity: 1;
 }
 
 html, body {
@@ -43,14 +43,23 @@ html, body {
   background-color: transparent; 
 }
 
-/* À appliquer sur l'élément contenant l'image de fond/motif */
-.hero-pattern {
-  opacity: var(--pattern-opacity);
-  filter: var(--pattern-filter);
-  transition: opacity 0.3s ease, filter 0.3s ease;
+/* À appliquer sur la section du Hero / Banner */
+.hero-section {
+  background-image: url('chemin-vers-ton-image-traditionnelle.jpg');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--hero-bg-color);
+  background-blend-mode: var(--hero-blend-mode);
+  opacity: var(--hero-opacity);
+  transition: all 0.3s ease;
 }
 
-/* Style des cartes pour un contraste propre */
+/* Si tu veux inverser automatiquement l'image sombre en clair */
+[data-theme='light'] .hero-section {
+  filter: invert(0.93) hue-rotate(180deg);
+}
+
+/* Style des cartes */
 .card-container {
   background-color: var(--card-bg);
   border: 1px solid var(--border);
