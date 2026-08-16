@@ -260,7 +260,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             Showcase des Projets et Expériences
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm max-w-2xl break-words">
-            Découvrez et gérez les créations et applications codées par les étudiants de HITAS.
+          Découvrez et partagez les créations, travaux et expériences de tous les étudiants de HITAS.
           </p>
         </div>
 
@@ -278,14 +278,14 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <input 
                 type="text" 
-                placeholder="Nom du projet ou de l'expérience" 
+                placeholder="Nom du projet, de la recherche ou de la réalisation" 
                 className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-900 dark:text-zinc-100 shadow-inner" 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
               />
               <input 
                 type="text" 
-                placeholder="Technologies , Outils , poste, etc... " 
+                placeholder="Outils, matières, technologies ou compétences... " 
                 className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-900 dark:text-zinc-100 shadow-inner" 
                 value={technologies} 
                 onChange={(e) => setTechnologies(e.target.value)} 
@@ -294,7 +294,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             
             <textarea 
               rows="3" 
-              placeholder="Décrivez votre application, vos objectifs et votre accomplissement..." 
+              placeholder="Décrivez votre projet, vos objectifs ou votre accomplissement..." 
               className="w-full bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-900 dark:text-zinc-100 resize-none leading-relaxed shadow-inner" 
               value={description} 
               onChange={(e) => setDescription(e.target.value)}
@@ -303,14 +303,14 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <input 
                 type="text" 
-                placeholder="Lien GitHub" 
+                placeholder="Lien du projet / Rapport / Documentation" 
                 className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-700 dark:text-zinc-300 shadow-inner" 
                 value={githubUrl} 
                 onChange={(e) => setGithubUrl(e.target.value)} 
               />
               <input 
                 type="text" 
-                placeholder="Lien Démo Live" 
+                placeholder="Lien de démonstration ou portfolio externe" 
                 className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-700 dark:text-zinc-300 shadow-inner" 
                 value={demoUrl} 
                 onChange={(e) => setDemoUrl(e.target.value)} 
@@ -595,7 +595,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                             rel="noreferrer" 
                             className="flex-1 bg-slate-100 dark:bg-[#0b081e]/60 hover:bg-slate-200 dark:hover:bg-[#0b081e] border border-slate-200 dark:border-indigo-900/60 text-center text-xs py-2.5 rounded-xl text-slate-700 dark:text-zinc-300 font-bold transition shadow-sm hover:text-slate-900 dark:hover:text-white truncate px-2"
                           >
-                            📦 Explorer le Code Source
+                            Lien du projet / Rapport
                           </a>
                         )}
                         {project.demoUrl && (
@@ -605,7 +605,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                             rel="noreferrer" 
                             className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-center text-xs py-2.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/10 hover:opacity-95 hover:scale-[1.01] active:scale-98 transition truncate px-2"
                           >
-                            🌐 Visiter l'Application Live
+                            🌐 Lien externe
                           </a>
                         )}
                       </div>
