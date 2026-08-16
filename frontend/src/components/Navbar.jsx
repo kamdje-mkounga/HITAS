@@ -213,8 +213,8 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 📱 MENU SUB-BARRE MOBILE */}
-      <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-4 py-2 flex items-center justify-around text-xs font-semibold overflow-x-auto gap-2">
+      {/* 📱 MENU SUB-BARRE MOBILE (Corrigé avec un espacement et retour à la ligne si besoin pour éviter la superposition) */}
+      <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-3 py-2.5 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
         <NavLink to="/annuaire" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300 hover:text-white'}`}>Annuaire</NavLink>
         <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300 hover:text-white'}`}>
           Blog {hasNewNotification && <span className="absolute top-1.5 right-1 h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" />}
