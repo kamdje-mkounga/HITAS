@@ -3,6 +3,7 @@ import { Link, useNavigate, NavLink } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client'; 
 import { Users, MessageSquareText, Rocket, Bell, Moon, Sun } from 'lucide-react';
+
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   const [hasNewNotification, setHasNewNotification] = useState(false); 
@@ -84,23 +85,25 @@ const Navbar = () => {
   const clearNotifications = () => setHasNewNotification(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-800/60 bg-[#0B0F19]/70 backdrop-blur-xl">
+    <nav className="sticky top-0 z-50 w-full border-b border-indigo-950/60 bg-[#0B0F19]/80 backdrop-blur-xl shadow-lg shadow-indigo-950/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
-          {/* 🚀 LOGO MODERNE */}
+          {/* 🚀 LOGO STYLÉ & BRILLANT */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-xl font-bold tracking-wider bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 bg-clip-text text-transparent hover:opacity-90 transition-opacity">
-              HITAS <span className="font-light text-slate-400">Connect</span><span className="text-indigo-500">.</span>
+            <Link to="/" className="text-xl font-black tracking-wider bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400 bg-clip-text text-transparent hover:opacity-100 transition-opacity drop-shadow-[0_0_15px_rgba(129,140,248,0.4)]">
+              HITAS <span className="font-light text-slate-300">Connect</span><span className="text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]">.</span>
             </Link>
           </div>
 
-          {/* 🗺️ LIENS DE NAVIGATION (PC) */}
-          <div className="hidden md:flex items-center space-x-1">
+          {/* 🗺️ LIENS DE NAVIGATION (PC) AVEC EFFETS LUMINEUX */}
+          <div className="hidden md:flex items-center space-x-2">
             <NavLink 
               to="/annuaire" 
-              className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                isActive ? 'bg-indigo-500/10 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+              className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                isActive 
+                  ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.25)]' 
+                  : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
               }`}
             >
               Annuaire
@@ -109,8 +112,10 @@ const Navbar = () => {
             <NavLink 
               to="/blog" 
               onClick={clearNotifications}
-              className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                isActive ? 'bg-indigo-500/10 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+              className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                isActive 
+                  ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.25)]' 
+                  : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
               }`}
             >
               <span className="relative inline-block">
@@ -118,7 +123,7 @@ const Navbar = () => {
                 {hasNewNotification && (
                   <span className="absolute -top-1 -right-2 flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span>
                   </span>
                 )}
               </span>
@@ -126,8 +131,10 @@ const Navbar = () => {
 
             <NavLink 
               to="/showcase" 
-              className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                isActive ? 'bg-indigo-500/10 text-indigo-400 font-semibold' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+              className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                isActive 
+                  ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.25)]' 
+                  : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
               }`}
             >
               Showcase
@@ -136,8 +143,10 @@ const Navbar = () => {
             {token && userRole === 'admin' && (
               <NavLink 
                 to="/admin" 
-                className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 border border-indigo-500/20 ${
-                  isActive ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' : 'text-indigo-400 hover:text-indigo-300 hover:bg-indigo-950/30'
+                className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 border ${
+                  isActive 
+                    ? 'bg-indigo-600/30 text-indigo-200 border-indigo-500/60 shadow-[0_0_15px_rgba(99,102,241,0.4)]' 
+                    : 'text-indigo-300 border-indigo-500/30 hover:bg-indigo-950/40 hover:shadow-[0_0_10px_rgba(99,102,241,0.2)]'
                 }`}
               >
                 Panel Admin 🛠️
@@ -151,16 +160,15 @@ const Navbar = () => {
            {/* 🌟 SLIDING THEME SWITCH PROFESSIONNEL */}
            <button 
               onClick={toggleTheme}
-              className="relative w-16 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none border border-slate-700/60 shadow-inner bg-slate-900/80"
+              className="relative w-16 h-8 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300 focus:outline-none border border-slate-700/80 shadow-inner bg-slate-900/90"
               aria-label="Toggle Theme"
               title={theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre'}
             >
-              {/* Curseur coulissant contenant l'icône pro */}
               <div 
                 className="w-6 h-6 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
                 style={{
                   transform: theme === 'light' ? 'translateX(32px)' : 'translateX(0px)',
-                  backgroundColor: theme === 'light' ? '#f59e0b' : '#312e81' // Doré pour le soleil, Indigo profond pour la lune
+                  backgroundColor: theme === 'light' ? '#f59e0b' : '#312e81'
                 }}
               >
                 {theme === 'dark' ? (
@@ -175,19 +183,19 @@ const Navbar = () => {
               <div className="flex items-center gap-2 sm:gap-4">
                 <Link 
                   to="/profil" 
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-slate-800/80 bg-slate-900/40 text-slate-300 hover:text-white hover:border-slate-700 hover:bg-slate-900/80 transition-all duration-200 text-sm font-medium shadow-sm"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-indigo-500/30 bg-slate-900/60 text-slate-200 hover:text-white hover:border-indigo-500/60 hover:shadow-[0_0_12px_rgba(99,102,241,0.3)] transition-all duration-200 text-sm font-semibold shadow-sm"
                 >
                   <img 
                     src={avatar || 'https://via.placeholder.com/150'} 
                     alt="Profil" 
-                    className="w-6 h-6 rounded-full object-cover ring-2 ring-indigo-500/20"
+                    className="w-6 h-6 rounded-full object-cover ring-2 ring-indigo-400/50 shadow-[0_0_8px_rgba(99,102,241,0.5)]"
                   />
                   <span className="hidden sm:inline">Mon Profil</span>
                 </Link>
                 
                 <button 
                   onClick={handleLogout} 
-                  className="text-xs bg-slate-900 text-slate-400 border border-slate-800 px-2.5 py-2 rounded-xl hover:bg-red-950/30 hover:text-red-400 hover:border-red-900/50 transition-all duration-200 font-medium"
+                  className="text-xs bg-slate-900 text-slate-300 border border-slate-700/80 px-3 py-2 rounded-xl hover:bg-red-950/40 hover:text-red-300 hover:border-red-800/80 transition-all duration-200 font-semibold"
                 >
                   Déconnexion
                 </button>
@@ -195,7 +203,7 @@ const Navbar = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium text-sm px-4 py-2 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-indigo-500/20"
+                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-semibold text-sm px-5 py-2 rounded-xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] shadow-lg shadow-indigo-500/30 hover:shadow-[0_0_15px_rgba(99,102,241,0.6)]"
               >
                 Connexion
               </Link>
@@ -206,14 +214,14 @@ const Navbar = () => {
       </div>
 
       {/* 📱 MENU SUB-BARRE MOBILE */}
-      <div className="md:hidden border-t border-slate-800/40 bg-[#0B0F19]/90 px-4 py-2 flex items-center justify-around text-xs font-medium overflow-x-auto gap-2">
-        <NavLink to="/annuaire" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}>Annuaire</NavLink>
-        <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}>
-          Blog {hasNewNotification && <span className="absolute top-1.5 right-1 h-1.5 w-1.5 rounded-full bg-red-500" />}
+      <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-4 py-2 flex items-center justify-around text-xs font-semibold overflow-x-auto gap-2">
+        <NavLink to="/annuaire" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300 hover:text-white'}`}>Annuaire</NavLink>
+        <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300 hover:text-white'}`}>
+          Blog {hasNewNotification && <span className="absolute top-1.5 right-1 h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" />}
         </NavLink>
-        <NavLink to="/showcase" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/10 text-indigo-400' : 'text-slate-400 hover:text-slate-200'}`}>Showcase</NavLink>
+        <NavLink to="/showcase" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300 hover:text-white'}`}>Showcase</NavLink>
         {token && userRole === 'admin' && (
-          <NavLink to="/admin" className={({ isActive }) => `py-1.5 px-3 rounded-lg font-bold border transition-colors ${isActive ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40' : 'text-indigo-400 bg-indigo-500/5 border-indigo-500/20 hover:text-indigo-300'}`}>Admin 🛠️</NavLink>
+          <NavLink to="/admin" className={({ isActive }) => `py-1.5 px-3 rounded-lg font-bold border transition-colors ${isActive ? 'bg-indigo-600/30 text-indigo-200 border-indigo-500/50' : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30 hover:text-indigo-200'}`}>Admin 🛠️</NavLink>
         )}
       </div>
     </nav>
