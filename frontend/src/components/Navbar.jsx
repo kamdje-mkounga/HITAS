@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, NavLink } from 'react-router-dom';
 import axios from 'axios'; 
 import { io } from 'socket.io-client'; 
-import { Users, MessageSquareText, Rocket, Moon, Sun, LogOut } from 'lucide-react';
+import { Moon, Sun, LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
@@ -83,85 +83,83 @@ const Navbar = () => {
   const clearNotifications = () => setHasNewNotification(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-indigo-950/40 bg-[#0B0F19]/85 backdrop-blur-xl shadow-lg shadow-black/40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full border-b border-indigo-950/60 bg-[#0B0F19]/90 backdrop-blur-xl shadow-lg shadow-indigo-950/30">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 gap-2">
           
-          {/* 🚀 LOGO */}
+          {/* 🚀 LOGO BRILLANT */}
           <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-400 bg-clip-text text-transparent hover:opacity-100 transition-opacity drop-shadow-[0_0_15px_rgba(129,140,248,0.4)]">
-              HITAS <span className="font-light text-slate-300">Connect</span><span className="text-indigo-400">.</span>
+            <Link to="/" className="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400 bg-clip-text text-transparent hover:opacity-100 transition-opacity drop-shadow-[0_0_20px_rgba(129,140,248,0.6)]">
+              HITAS <span className="font-light text-slate-200">Connect</span><span className="text-indigo-400 drop-shadow-[0_0_10px_rgba(99,102,241,0.9)]">.</span>
             </Link>
           </div>
 
-          {/* 🗺️ LIENS DE NAVIGATION (PC) */}
-          <div className="hidden md:flex items-center space-x-1">
-            <NavLink to="/annuaire" className={({ isActive }) => `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.25)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
+          {/* 🗺️ LIENS DE NAVIGATION (PC) AVEC EFFET NÉON BRILLANT */}
+          <div className="hidden md:flex items-center space-x-2">
+            <NavLink to="/annuaire" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
               Annuaire
             </NavLink>
-            <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.25)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
+            <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
               <span className="relative inline-block">
                 Blog & Entraide
                 {hasNewNotification && (
-                  <span className="absolute -top-1 -right-2 flex h-2 w-2">
+                  <span className="absolute -top-1 -right-2 flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]"></span>
                   </span>
                 )}
               </span>
             </NavLink>
-            <NavLink to="/showcase" className={({ isActive }) => `px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive ? 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 shadow-[0_0_12px_rgba(99,102,241,0.25)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
+            <NavLink to="/showcase" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
               Showcase
             </NavLink>
             {token && userRole === 'admin' && (
-              <NavLink to="/admin" className={({ isActive }) => `px-3.5 py-2 rounded-xl text-sm font-bold border transition-all ${isActive ? 'bg-indigo-600/30 text-indigo-200 border-indigo-500/60' : 'text-indigo-300 border-indigo-500/30'}`}>
+              <NavLink to="/admin" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-black border transition-all ${isActive ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]' : 'text-indigo-300 border-indigo-500/40'}`}>
                 Admin 🛠️
               </NavLink>
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR & SWITCH ÉPURÉ */}
-          <div className="flex items-center space-x-2.5 sm:space-x-3">
+          {/* 🔐 ESPACE UTILISATEUR & SWITCH */}
+          <div className="flex items-center space-x-2 sm:space-x-3">
            
-           {/* SWITCH THEME */}
+           {/* SWITCH THEME LUMINEUX */}
            <button 
               onClick={toggleTheme}
-              className="relative w-12 h-6 flex items-center rounded-full p-0.5 cursor-pointer border border-slate-700/60 bg-slate-900/80 shadow-inner transition-colors"
+              className="relative w-12 sm:w-14 h-7 flex items-center rounded-full p-0.5 cursor-pointer border border-indigo-500/40 bg-slate-900/90 shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-colors"
               aria-label="Toggle Theme"
             >
               <div 
-                className="w-5 h-5 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
+                className="w-6 h-6 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
                 style={{
                   transform: theme === 'light' ? 'translateX(24px)' : 'translateX(0px)',
                   backgroundColor: theme === 'light' ? '#f59e0b' : '#312e81'
                 }}
               >
-                {theme === 'dark' ? <Moon className="w-3 h-3 text-indigo-200" /> : <Sun className="w-3 h-3 text-white" />}
+                {theme === 'dark' ? <Moon className="w-3.5 h-3.5 text-indigo-200" /> : <Sun className="w-3.5 h-3.5 text-white" />}
               </div>
             </button>
 
             {token ? (
               <div className="flex items-center gap-2">
-                {/* Profil sans bloc encombrant : juste l'avatar */}
-                <Link to="/profil" className="flex items-center p-1 rounded-full border border-indigo-500/40 bg-slate-900/40 hover:border-indigo-400 transition-all shadow-[0_0_10px_rgba(99,102,241,0.2)]" title="Mon Profil">
+                <Link to="/profil" className="flex items-center p-1 rounded-full border border-indigo-500/60 bg-slate-900/60 hover:border-indigo-400 transition-all shadow-[0_0_12px_rgba(99,102,241,0.4)]" title="Mon Profil">
                   <img 
                     src={avatar || 'https://via.placeholder.com/150'} 
                     alt="Profil" 
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-indigo-400/60"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-indigo-400"
                   />
                 </Link>
                 
-                {/* Déconnexion en icône stylée */}
                 <button 
                   onClick={handleLogout} 
-                  className="p-2 text-slate-400 hover:text-red-400 bg-slate-900/60 border border-slate-800 rounded-xl hover:border-red-500/40 transition-all shadow-sm" 
+                  className="p-2 text-slate-300 hover:text-red-400 bg-slate-900/80 border border-slate-700 rounded-xl hover:border-red-500/50 transition-all shadow-sm" 
                   title="Déconnexion"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
               </div>
             ) : (
-              <Link to="/login" className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-semibold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-lg hover:opacity-90 transition-opacity">
+              <Link to="/login" className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all">
                 Connexion
               </Link>
             )}
@@ -170,15 +168,15 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 📱 MENU SUB-BARRE MOBILE (Ajusté, compact et sans chevauchement) */}
-      <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-2 py-2 flex items-center justify-around text-xs font-semibold gap-1">
-        <NavLink to="/annuaire" className={({ isActive }) => `py-1 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300'}`}>Annuaire</NavLink>
-        <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1 px-3 rounded-lg relative transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300'}`}>
-          Blog {hasNewNotification && <span className="absolute top-1 right-0.5 h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_6px_rgba(239,68,68,0.8)]" />}
+      {/* 📱 MENU SUB-BARRE MOBILE BRILLANT */}
+      <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-2 py-2 flex items-center justify-around text-xs font-bold gap-1">
+        <NavLink to="/annuaire" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-all ${isActive ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'text-slate-300'}`}>Annuaire</NavLink>
+        <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-all ${isActive ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'text-slate-300'}`}>
+          Blog {hasNewNotification && <span className="absolute top-1.5 right-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" />}
         </NavLink>
-        <NavLink to="/showcase" className={({ isActive }) => `py-1 px-3 rounded-lg transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'text-slate-300'}`}>Showcase</NavLink>
+        <NavLink to="/showcase" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-all ${isActive ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'text-slate-300'}`}>Showcase</NavLink>
         {token && userRole === 'admin' && (
-          <NavLink to="/admin" className={({ isActive }) => `py-1 px-2.5 rounded-lg font-bold border ${isActive ? 'bg-indigo-600/30 text-indigo-200 border-indigo-500/50' : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30'}`}>Admin</NavLink>
+          <NavLink to="/admin" className={({ isActive }) => `py-1.5 px-2.5 rounded-lg font-black border ${isActive ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400' : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30'}`}>Admin</NavLink>
         )}
       </div>
     </nav>
