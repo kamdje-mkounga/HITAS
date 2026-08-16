@@ -45,7 +45,7 @@ html, body {
 
 /* À appliquer sur la section du Hero / Banner */
 .hero-section {
-  background-image: url('chemin-vers-ton-image-traditionnelle.jpg');
+  background-image: url('/assets/traditional.jpg');
   background-size: cover;
   background-position: center;
   background-color: var(--hero-bg-color);
