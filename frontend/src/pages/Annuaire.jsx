@@ -139,17 +139,17 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-12 relative z-10">
         
-        <div className="mb-10 border-b border-indigo-900/40 pb-5">
-          <h1 className="text-3xl font-black tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-100 to-purple-400 bg-clip-text text-transparent">
+        <div className="mb-10 border-b border-indigo-900/40 pb-5 text-center">
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(129,140,248,0.3)]">
             Annuaire de la Diaspora
           </h1>
-          <p className="text-zinc-400 text-sm">Connecte-toi avec les étudiants et alumni de HITAS à travers le monde.</p>
+          <p className="text-zinc-300 text-sm font-medium drop-shadow-sm">Connecte-toi avec les étudiants et alumni de HITAS à travers le monde.</p>
         </div>
 
         {!loading && !error && profiles.length > 0 && (
-          <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-900/60 rounded-2xl shadow-2xl shadow-black/40 mb-8 space-y-4">
+          <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-500/30 rounded-3xl shadow-2xl shadow-indigo-950/40 mb-8 space-y-4">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
                 Recherche globale
               </label>
               <input
@@ -157,19 +157,19 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Nom, entreprise, poste, mots-clés..."
-                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner"
+                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-500/30 rounded-2xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 transition-all shadow-inner"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
                   Spécialité
                 </label>
                 <select
                   value={selectedSpecialty}
                   onChange={(e) => setSelectedSpecialty(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
                 >
                   <option value="" className="bg-[#0b081e]">Toutes</option>
                   {uniqueSpecialties.map((spec, idx) => (
@@ -179,13 +179,13 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
                   Promotion
                 </label>
                 <select
                   value={selectedPromotion}
                   onChange={(e) => setSelectedPromotion(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
                 >
                   <option value="" className="bg-[#0b081e]">Toutes</option>
                   {uniquePromotions.map((promo, idx) => (
@@ -195,13 +195,13 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
                   Pays / Localisation
                 </label>
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
                 >
                   <option value="" className="bg-[#0b081e]">Tous les pays</option>
                   {uniqueCountries.map((country, idx) => (
@@ -211,13 +211,13 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
                   Statut
                 </label>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
                 >
                   <option value="" className="bg-[#0b081e]">Tous</option>
                   <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
@@ -227,13 +227,13 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400/80 mb-1.5">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
                   Niveau d'étude
                 </label>
                 <select
                   value={selectedDegree}
                   onChange={(e) => setSelectedDegree(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-900/60 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-500/50 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
                 >
                   <option value="" className="bg-[#0b081e]">Tous les niveaux</option>
                   <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
@@ -246,18 +246,18 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
           </div>
         )}
 
-        {loading && <p className="text-zinc-400 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-xl text-center shadow-xl border border-indigo-900/60">Recherche des profils...</p>}
-        {error && <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl mb-6 text-sm font-medium backdrop-blur-md">{error}</div>}
+        {loading && <p className="text-zinc-300 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl text-center shadow-xl border border-indigo-500/30 drop-shadow-sm">Recherche des profils...</p>}
+        {error && <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl mb-6 text-sm font-medium backdrop-blur-md shadow-lg">{error}</div>}
 
         {!loading && !error && (
           <div>
             {filteredProfiles.length === 0 ? (
-              <div className="text-center py-16 bg-[#0b081e]/80 backdrop-blur-md border border-indigo-900/60 rounded-2xl shadow-xl">
-                <p className="text-zinc-400 text-sm font-medium">Aucun membre ne correspond à tes critères de recherche.</p>
+              <div className="text-center py-16 bg-[#0b081e]/80 backdrop-blur-md border border-indigo-500/30 rounded-3xl shadow-xl">
+                <p className="text-zinc-300 text-sm font-medium">Aucun membre ne correspond à tes critères de recherche.</p>
                 {(searchTerm || selectedSpecialty || selectedPromotion || selectedCountry || selectedStatus || selectedDegree) && (
                   <button 
                     onClick={handleResetFilters}
-                    className="mt-4 text-xs font-bold text-indigo-400 hover:text-white px-4 py-2 border border-indigo-900/60 rounded-xl hover:bg-indigo-900/40 transition-all shadow-sm"
+                    className="mt-4 text-xs font-bold text-indigo-300 hover:text-white px-4 py-2 border border-indigo-500/40 rounded-xl hover:bg-indigo-950/60 transition-all shadow-md shadow-indigo-950/50"
                   >
                     Réinitialiser les filtres
                   </button>
@@ -269,12 +269,12 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                   <div 
                     key={profile._id} 
                     onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
-                    className="p-6 bg-[#0b081e]/50 backdrop-blur-md border border-indigo-900/50 rounded-2xl shadow-lg shadow-black/30 flex flex-col justify-between hover:bg-[#0b081e]/70 hover:border-indigo-600/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1 overflow-hidden"
+                    className="p-6 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-3xl shadow-xl shadow-indigo-950/30 flex flex-col justify-between hover:bg-[#0b081e]/90 hover:border-indigo-400/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(99,102,241,0.25)] overflow-hidden"
                     style={{ animationDelay: `${index * 0.05}s` }}
                   >
                     <div className="overflow-hidden">
                       <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-[#030014]/80 border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-inner group-hover:border-indigo-400/60 transition-colors backdrop-blur-sm">
+                        <div className="w-12 h-12 rounded-full bg-[#030014]/90 border border-indigo-500/40 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-[0_0_10px_rgba(99,102,241,0.3)] group-hover:border-indigo-300 transition-colors backdrop-blur-sm">
                           {profile.avatar ? (
                             <img 
                               src={formatMediaUrl(profile.avatar)} 
@@ -282,45 +282,45 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                               className="w-full h-full object-cover"
                               onError={(e) => {
                                 e.target.style.display = 'none';
-                                e.target.parentNode.innerHTML = `<span class="text-indigo-300 text-xs font-bold uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
+                                e.target.parentNode.innerHTML = `<span class="text-indigo-300 text-xs font-bold uppercase drop-shadow-[0_0_5px_rgba(129,140,248,0.8)]">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
                               }}
                             />
                           ) : (
-                            <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                            <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider drop-shadow-[0_0_5px_rgba(129,140,248,0.8)]">
                               {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
                             </span>
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h2 className="text-base font-bold text-zinc-100 group-hover:text-indigo-300 transition-colors leading-snug break-words">
+                          <h2 className="text-base font-black text-white group-hover:text-indigo-300 transition-colors leading-snug break-words drop-shadow-sm">
                             {profile.firstName} {profile.lastName}
                           </h2>
-                          <p className="text-zinc-300 text-xs font-medium truncate mt-0.5">
+                          <p className="text-indigo-200 text-xs font-semibold truncate mt-0.5">
                             🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'N/A'}
                           </p>
-                          <p className="text-zinc-400 text-[11px] font-semibold mt-1 flex items-center gap-1 truncate">
+                          <p className="text-zinc-300 text-[11px] font-semibold mt-1 flex items-center gap-1 truncate">
                             📍 {profile.country || 'Non renseigné'} {profile.currentLocation || profile.city ? `(${profile.currentLocation || profile.city})` : ''}
                           </p>
                         </div>
                       </div>
 
                       {(profile.status || profile.currentCompany || profile.jobTitle) && (
-                        <div className="mb-4 text-xs bg-indigo-950/30 p-2.5 rounded-xl border border-indigo-900/40 text-indigo-200 overflow-hidden">
-                          {profile.jobTitle && <p className="font-semibold text-zinc-200 truncate">{profile.jobTitle}</p>}
-                          {profile.currentCompany && <p className="text-[11px] text-indigo-300 truncate">🏢 {profile.currentCompany}</p>}
-                          {profile.status && <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-indigo-900/50 text-indigo-300 font-bold uppercase">{profile.status}</span>}
+                        <div className="mb-4 text-xs bg-indigo-950/40 p-3 rounded-2xl border border-indigo-500/30 text-indigo-200 overflow-hidden shadow-inner">
+                          {profile.jobTitle && <p className="font-bold text-white truncate drop-shadow-sm">{profile.jobTitle}</p>}
+                          {profile.currentCompany && <p className="text-[11px] text-indigo-300 truncate font-medium">🏢 {profile.currentCompany}</p>}
+                          {profile.status && <span className="inline-block mt-1 text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-900/60 text-indigo-200 font-bold uppercase border border-indigo-500/40 shadow-sm">{profile.status}</span>}
                         </div>
                       )}
 
                       {profile.bio && (
-                        <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/40 p-3 rounded-xl border border-indigo-900/30 font-normal shadow-inner break-words">
+                        <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/60 p-3.5 rounded-2xl border border-indigo-500/20 font-normal shadow-inner break-words">
                           {profile.bio}
                         </p>
                       )}
                     </div>
 
                     {profile.skills && (
-                      <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/30 mt-auto overflow-hidden">
+                      <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/40 mt-auto overflow-hidden">
                         {(Array.isArray(profile.skills) ? profile.skills : [profile.skills]).map((skill, index) => {
                           const cleanSkill = typeof skill === 'string' 
                             ? skill.replace(/[\[\]"'\\]/g, '').trim()
@@ -331,7 +331,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                           return (
                             <span 
                               key={index} 
-                              className="px-2 py-0.5 bg-[#030014]/60 text-zinc-300 text-[11px] font-mono rounded border border-indigo-900/40 shadow-sm group-hover:border-indigo-600/40 transition-colors break-all max-w-full"
+                              className="px-2 py-0.5 bg-[#030014]/80 text-indigo-200 text-[11px] font-mono rounded-lg border border-indigo-500/30 shadow-sm group-hover:border-indigo-400/60 transition-colors break-all max-w-full font-medium"
                             >
                               {cleanSkill}
                             </span>
