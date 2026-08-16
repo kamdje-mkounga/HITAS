@@ -126,17 +126,17 @@ const Navbar = () => {
            {/* SWITCH THEME LUMINEUX */}
            <button 
               onClick={toggleTheme}
-              className="relative w-12 sm:w-14 h-7 flex items-center rounded-full p-0.5 cursor-pointer border border-indigo-500/40 bg-slate-900/90 shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-colors"
+              className="relative w-10 sm:w-12 h-6 flex items-center rounded-full p-0.5 cursor-pointer border border-indigo-500/40 bg-slate-900/90 shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-colors"
               aria-label="Toggle Theme"
             >
               <div 
-                className="w-6 h-6 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
+                className="w-5 h-5 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
                 style={{
-                  transform: theme === 'light' ? 'translateX(24px)' : 'translateX(0px)',
+                  transform: theme === 'light' ? 'translateX(20px)' : 'translateX(0px)',
                   backgroundColor: theme === 'light' ? '#f59e0b' : '#312e81'
                 }}
               >
-                {theme === 'dark' ? <Moon className="w-3.5 h-3.5 text-indigo-200" /> : <Sun className="w-3.5 h-3.5 text-white" />}
+                {theme === 'dark' ? <Moon className="w-3 h-3 text-indigo-200" /> : <Sun className="w-3 h-3 text-white" />}
               </div>
             </button>
 
