@@ -218,7 +218,7 @@ function Home() {
       ) : (
         <div className="absolute right-4 top-20 z-50 flex items-center gap-1.5 text-[10px] text-emerald-400 font-semibold select-none bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-500/30 backdrop-blur-md shadow-[0_0_10px_rgba(52,211,153,0.2)]">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>Notifications actives</span>
+          {/*<span>Notifications actives</span> */}
         </div>
       )}
 
