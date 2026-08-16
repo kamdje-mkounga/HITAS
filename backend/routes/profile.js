@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const sharp = require('sharp'); // <--- Ajouté pour convertir les images (HEIC, etc.)
+const sharp = require('sharp');
 const auth = require('../middleware/auth');
 const Profile = require('../models/Profile'); 
 const User = require('../models/User'); 
@@ -20,7 +20,8 @@ if (!fs.existsSync(uploadDir)) {
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) {
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (file.mimetype.startsWith('image/') || ext === '.heic' || ext === '.heif') {
     cb(null, true);
   } else {
     cb(new Error('Seules les images sont autorisées !'), false);
@@ -106,7 +107,7 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
   try {
     let profile = await Profile.findOne({ user: req.user.userId });
 
-    // Handle Avatar Upload to Supabase Storage with Sharp (handles HEIC & conversion)
+    // Handle Avatar Upload to Supabase Storage with Sharp
     if (req.file) {
       if (profile && profile.avatarPath) {
         try {
@@ -116,18 +117,23 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
         }
       }
 
-      // Conversion de l'image (prend en charge les formats HEIC d'iPhone, PNG, etc.) en JPEG optimisé
-      const convertedBuffer = await sharp(req.file.buffer)
-        .rotate() // Redresse l'image automatiquement selon les métadonnées EXIF (très utile pour les photos de téléphones)
-        .jpeg({ quality: 85 }) // Convertit et compresse proprement en JPEG
-        .toBuffer();
+      try {
+        // Tentative de conversion avec Sharp
+        const convertedBuffer = await sharp(req.file.buffer)
+          .rotate() 
+          .jpeg({ quality: 85 }) 
+          .toBuffer();
 
-      // On met à jour l'objet req.file pour simuler un fichier JPEG propre pour Supabase
-      req.file.buffer = convertedBuffer;
-      req.file.mimetype = 'image/jpeg';
-      // On adapte l'extension du nom de fichier original en .jpg
-      const baseName = path.parse(req.file.originalname).name;
-      req.file.originalname = `${baseName}.jpg`;
+        req.file.buffer = convertedBuffer;
+        req.file.mimetype = 'image/jpeg';
+        const baseName = path.parse(req.file.originalname).name;
+        req.file.originalname = `${baseName}.jpg`;
+      } catch (sharpErr) {
+        console.error("Erreur de conversion Sharp (format HEIC non supporté par le serveur) :", sharpErr);
+        return res.status(400).json({
+          message: "Format d'image non pris en charge par le serveur. Veuillez convertir votre photo en JPEG ou PNG."
+        });
+      }
 
       const uploaded = await uploadFile(req.file, "avatars");
       console.log("File received & converted:", req.file?.originalname);
