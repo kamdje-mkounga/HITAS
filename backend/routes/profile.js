@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp'); // <--- Ajouté pour convertir les images (HEIC, etc.)
 const auth = require('../middleware/auth');
 const Profile = require('../models/Profile'); 
 const User = require('../models/User'); 
@@ -105,7 +106,7 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
   try {
     let profile = await Profile.findOne({ user: req.user.userId });
 
-    // Handle Avatar Upload to Supabase Storage
+    // Handle Avatar Upload to Supabase Storage with Sharp (handles HEIC & conversion)
     if (req.file) {
       if (profile && profile.avatarPath) {
         try {
@@ -115,8 +116,21 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
         }
       }
 
+      // Conversion de l'image (prend en charge les formats HEIC d'iPhone, PNG, etc.) en JPEG optimisé
+      const convertedBuffer = await sharp(req.file.buffer)
+        .rotate() // Redresse l'image automatiquement selon les métadonnées EXIF (très utile pour les photos de téléphones)
+        .jpeg({ quality: 85 }) // Convertit et compresse proprement en JPEG
+        .toBuffer();
+
+      // On met à jour l'objet req.file pour simuler un fichier JPEG propre pour Supabase
+      req.file.buffer = convertedBuffer;
+      req.file.mimetype = 'image/jpeg';
+      // On adapte l'extension du nom de fichier original en .jpg
+      const baseName = path.parse(req.file.originalname).name;
+      req.file.originalname = `${baseName}.jpg`;
+
       const uploaded = await uploadFile(req.file, "avatars");
-      console.log("File received:", req.file?.originalname);
+      console.log("File received & converted:", req.file?.originalname);
       console.log("Supabase upload result:", uploaded);
 
       profileFields.avatar = uploaded.url;
