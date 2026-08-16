@@ -4,16 +4,28 @@
   --bg-color: #030014;
   --text-color: #ffffff;
   --border: #333333;
-  --home-overlay-1: rgba(3, 0, 20, 0.40);
-  --home-overlay-2: rgba(3, 0, 20, 0.50);
+
+  /* MODE SOMBRE : Voiles très légers pour laisser apparaître le motif traditionnel */
+  --home-overlay-1: rgba(3, 0, 20, 0.25);
+  --home-overlay-2: rgba(3, 0, 20, 0.40);
+
+  /* Propriétés dynamiques pour faire vibrer le motif */
+  --bg-blend-mode: overlay;
+  --bg-filter: none;
 }
 
 [data-theme='light'] {
-  --bg-color: #f0f2f5;
-  --text-color: #121212;
-  --border: #cccccc;
-  --home-overlay-1: rgba(255, 255, 255, 0.85);
-  --home-overlay-2: rgba(240, 242, 245, 0.90);
+  --bg-color: #f1f5f9;
+  --text-color: #0f172a;
+  --border: #cbd5e1;
+
+  /* MODE CLAIR : Quasi-absence de voile pour supprimer l'effet grisâtre délavé */
+  --home-overlay-1: rgba(241, 245, 249, 0.05);
+  --home-overlay-2: rgba(241, 245, 249, 0.15);
+
+  /* Inversion du motif sombre en gravure claire sur fond lumineux */
+  --bg-blend-mode: multiply;
+  --bg-filter: invert(0.92) brightness(0.35);
 }
 
 html, body {
@@ -21,9 +33,8 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color); 
+  background-color: var(--bg-color);
   color: var(--text-color);
-  overscroll-behavior-y: none; 
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -31,23 +42,16 @@ html, body {
   width: 100%;
   min-height: 100dvh;
   overflow-x: hidden;
-  background-color: transparent; 
+  background-color: transparent;
 }
 
-/* --- CUSTOM THIN SCROLLBAR --- */
-::-webkit-scrollbar {
-  width: 8px;
+/* À appliquer sur l'élément (div/section) qui porte votre image de fond */
+.hero-background {
+  background-blend-mode: var(--bg-blend-mode);
+  filter: var(--bg-filter);
+  transition: filter 0.3s ease, background-blend-mode 0.3s ease;
 }
 
-::-webkit-scrollbar-track {
-  background: #030014;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #312e81; /* Indigo sombre */
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5; /* Indigo vif au survol */
+.switch-ball {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 }
