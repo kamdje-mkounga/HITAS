@@ -1,57 +1,77 @@
 @import "tailwindcss";
 
+
+
 :root {
+
   --bg-color: #030014;
+
   --text-color: #ffffff;
+
   --border: #333333;
 
-  /* MODE SOMBRE : Voiles très légers pour laisser apparaître le motif traditionnel */
-  --home-overlay-1: rgba(3, 0, 20, 0.25);
-  --home-overlay-2: rgba(3, 0, 20, 0.40);
+  --home-overlay-1: rgba(3, 0, 20, 0.65);
 
-  /* Propriétés dynamiques pour faire vibrer le motif */
-  --bg-blend-mode: overlay;
-  --bg-filter: none;
+  --home-overlay-2: rgba(3, 0, 20, 0.75);
+
 }
+
+
 
 [data-theme='light'] {
+
   --bg-color: #f1f5f9;
+
   --text-color: #0f172a;
+
   --border: #cbd5e1;
 
-  /* MODE CLAIR : Quasi-absence de voile pour supprimer l'effet grisâtre délavé */
-  --home-overlay-1: rgba(241, 245, 249, 0.05);
-  --home-overlay-2: rgba(241, 245, 249, 0.15);
+  /* Un voile blanc subtil et propre pour garder le motif visible sans tout délaver */
 
-  /* Inversion du motif sombre en gravure claire sur fond lumineux */
-  --bg-blend-mode: multiply;
-  --bg-filter: invert(0.92) brightness(0.35);
+  --home-overlay-1: rgba(255, 255, 255, 0.25);
+
+  --home-overlay-2: rgba(241, 245, 249, 0.25);
+
 }
+
+
 
 html, body {
+
   overflow-x: hidden;
+
   width: 100%;
+
   margin: 0;
+
   padding: 0;
+
   background-color: var(--bg-color);
+
   color: var(--text-color);
+
   transition: background-color 0.3s ease, color 0.3s ease;
+
 }
+
+
 
 #root {
+
   width: 100%;
+
   min-height: 100dvh;
+
   overflow-x: hidden;
+
   background-color: transparent;
+
 }
 
-/* À appliquer sur l'élément (div/section) qui porte votre image de fond */
-.hero-background {
-  background-blend-mode: var(--bg-blend-mode);
-  filter: var(--bg-filter);
-  transition: filter 0.3s ease, background-blend-mode 0.3s ease;
-}
+
 
 .switch-ball {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-}
+
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+
+  } 
