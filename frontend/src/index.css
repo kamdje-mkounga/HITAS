@@ -1,20 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --bg-color: #030014;
+  /* Dark Mode (Par défaut) */
+  --bg-color: #080518;
   --text-color: #ffffff;
-  --border: #333333;
-  --home-overlay-1: rgba(3, 0, 20, 0.65);
-  --home-overlay-2: rgba(3, 0, 20, 0.75);
+  --text-muted: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(15, 12, 38, 0.75);
+  
+  /* Contraste du motif de fond */
+  --pattern-opacity: 0.18;
+  --pattern-filter: none;
 }
 
 [data-theme='light'] {
-  --bg-color: #f1f5f9;
+  /* Light Mode */
+  --bg-color: #f8fafc;
   --text-color: #0f172a;
-  --border: #cbd5e1;
-  /* Un voile blanc subtil et propre pour garder le motif visible sans tout délaver */
-  --home-overlay-1: rgba(255, 255, 255, 0.25);
-  --home-overlay-2: rgba(241, 245, 249, 0.25);
+  --text-muted: #475569;
+  --border: rgba(0, 0, 0, 0.08);
+  --card-bg: #ffffff;
+
+  /* Inversion du motif sombre en motif clair net (évite l'effet délavé) */
+  --pattern-opacity: 0.06;
+  --pattern-filter: invert(1) brightness(0.2);
 }
 
 html, body {
@@ -34,6 +43,17 @@ html, body {
   background-color: transparent; 
 }
 
-.switch-ball {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-  }
+/* À appliquer sur l'élément contenant l'image de fond/motif */
+.hero-pattern {
+  opacity: var(--pattern-opacity);
+  filter: var(--pattern-filter);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* Style des cartes pour un contraste propre */
+.card-container {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  color: var(--text-color);
+}
