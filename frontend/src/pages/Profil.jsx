@@ -72,13 +72,11 @@ function Profil() {
     }
     if (typeof rawSkills === 'string') {
       try {
-        // Tente de parser si c'est un JSON sérialisé
         const parsed = JSON.parse(rawSkills);
         if (Array.isArray(parsed)) {
           return parsed.flat().join(', ');
         }
       } catch (e) {
-        // Sinon nettoyage par regex des caractères superflus
         return rawSkills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()).filter(Boolean).join(', ');
       }
     }
@@ -235,7 +233,6 @@ function Profil() {
     data.append('status', formData.status);
     data.append('degreeLevel', formData.degreeLevel);
     
-    // N'envoie les champs professionnels que si le statut est "En poste"
     if (formData.status === 'En poste') {
       data.append('jobTitle', formData.jobTitle);
       data.append('currentCompany', formData.currentCompany);
@@ -278,15 +275,29 @@ function Profil() {
     } catch (err) {
       console.error("Erreur détaillée lors de la sauvegarde :", err);
 
-      if (err.response?.status === 401) {
+      const status = err.response?.status;
+      const errorMsg = err.response?.data?.message || err.response?.data?.error;
+
+      if (status === 401) {
         setMessage({ 
           type: 'error', 
-          text: 'Session expirée ou jeton invalide (401). Essaye de te déconnecter et de te reconnecter.' 
+          text: 'Session expirée ou jeton invalide (401). Veuillez vous reconnecter.' 
+        });
+      } else if (status === 400) {
+        // Erreur précise renvoyée par le serveur (ex: format d'image non supporté, champs manquants)
+        setMessage({ 
+          type: 'error', 
+          text: errorMsg || 'Données invalides. Veuillez vérifier les champs du formulaire.' 
+        });
+      } else if (status === 413) {
+        setMessage({ 
+          type: 'error', 
+          text: 'La photo sélectionnée est trop volumineuse. Veuillez choisir une image de moins de 5 Mo.' 
         });
       } else {
         setMessage({ 
           type: 'error', 
-          text: err.response?.data?.message || 'Erreur lors de la sauvegarde du profil.' 
+          text: errorMsg || 'Erreur interne du serveur lors de la sauvegarde du profil. Veuillez réessayer.' 
         });
       }
     } finally {
@@ -436,7 +447,6 @@ function Profil() {
             {activeTab === 'account' && (
               <div className="space-y-8">
                 
-                {/* Main Settings Form Container */}
                 <div className="p-6 sm:p-8 bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl shadow-2xl">
                   
                   <h2 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -448,7 +458,7 @@ function Profil() {
                       message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'
                     }`}>
                       {message.type === 'success' ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <XCircle className="w-4 h-4 flex-shrink-0" />} 
-                      <span>{message.text}</span>
+                      <span className="whitespace-pre-wrap">{message.text}</span>
                     </div>
                   )}
 
@@ -469,6 +479,7 @@ function Profil() {
                           type="file" accept="image/*" onChange={handleFileChange}
                           className="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
                         />
+                        <p className="text-[10px] text-zinc-500 mt-1">Formats acceptés : JPG, PNG, WEBP (Max 5Mo).</p>
                       </div>
                     </div>
 
@@ -581,7 +592,6 @@ function Profil() {
                       </div>
                     </div>
 
-                    {/* Affichage conditionnel : masqué si Étudiant ou En recherche de stage */}
                     {formData.status === 'En poste' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fadeIn">
                         <div>
@@ -613,14 +623,12 @@ function Profil() {
                   </form>
                 </div>
 
-                {/* Danger Zone Moved to the Bottom Modern Style */}
                 <div className="p-6 sm:p-8 bg-[#0b081e]/80 backdrop-blur-2xl border border-red-500/30 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
                   <div className="flex items-start gap-4 text-left">
                     <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20 text-red-400 flex-shrink-0 mt-0.5">
                       <AlertTriangle className="w-6 h-6" />
                     </div>
                     <div>
-                      
                       <p className="text-xs text-zinc-400 leading-relaxed">
                         Cette action est définitive et irréversible. Elle supprimera définitivement votre profil, vos posts et vos projets de la plateforme HITAS.
                       </p>
