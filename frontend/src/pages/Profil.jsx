@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import Cropper from 'react-easy-crop';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
@@ -14,13 +15,45 @@ import {
   User, 
   MapPin, 
   GraduationCap, 
-  Briefcase, 
   GitBranch, 
   Globe, 
   CheckCircle2, 
   XCircle, 
-  Sparkles
+  Sparkles,
+  ZoomIn,
+  Check,
+  X
 } from 'lucide-react';
+
+// Fonction utilitaire pour découper l'image recadrée via un Canvas HTML5
+async function getCroppedImg(imageSrc, pixelCrop) {
+  const image = new Image();
+  image.src = imageSrc;
+  await new Promise((resolve) => { image.onload = resolve; });
+
+  const canvas = document.createElement('canvas');
+  canvas.width = pixelCrop.width;
+  canvas.height = pixelCrop.height;
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(
+    image,
+    pixelCrop.x,
+    pixelCrop.y,
+    pixelCrop.width,
+    pixelCrop.height,
+    0,
+    0,
+    pixelCrop.width,
+    pixelCrop.height
+  );
+
+  return new Promise((resolve) => {
+    canvas.toBlob((file) => {
+      resolve(file);
+    }, 'image/jpeg', 0.90);
+  });
+}
 
 function Profil() {
   const [formData, setFormData] = useState({
@@ -37,11 +70,19 @@ function Profil() {
     bio: '',
     skills: ''
   });
+  
   const [avatarFile, setAvatarFile] = useState(null); 
   const [avatarPreview, setAvatarPreview] = useState(''); 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  // États dédiés au recadrage (Cropper)
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false);
   
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -64,7 +105,6 @@ function Profil() {
     return typeof userField === 'object' ? userField._id : userField;
   };
 
-  // Fonction pour nettoyer proprement les compétences brutes de la base de données
   const cleanSkillsData = (rawSkills) => {
     if (!rawSkills) return '';
     if (Array.isArray(rawSkills)) {
@@ -84,50 +124,20 @@ function Profil() {
   };
 
   const presetSpecialties = [
-    'Agriculture',
-    'Architecture',
-    'Biotechnologie',
-    'Business Administration (BBA)',
-    'Computer Applications (BCA/MCA)',
-    'Computer Science & Engineering (CSE)',
-    'Computer Science & Engineering (AI & ML)',
-    'Computer Science & Engineering (Cyber Security)',
-    'Computer Science & Engineering (Data Science)',
-    'Computer Science & Engineering (Internet of Things)',
-    'Computer Science & Information Technology (CSIT)',
-    'Dentistry',
-    'Electrical & Electronics Engineering (EEE)',
-    'Electrical Engineering (EE)',
-    'Electronics & Communication Engineering (ECE)',
-    'Hospitality & Hotel Management',
-    'Law',
-    'Management (MBA)',
-    'MBA (Artificial Intelligence & Data Science)',
-    'MBA (Hospital Administration)',
-    'Mathematics',
-    'Mechanical Engineering',
-    'Medicine (MBBS)',
-    'Nursing',
-    'Paramedical Sciences',
-    'Pharmaceutical Sciences',
-    'Physics',
-    'Sciences (Chemistry)',
-    'Structural Engineering',
-    'Veterinary Science'
+    'Agriculture', 'Architecture', 'Biotechnologie', 'Business Administration (BBA)',
+    'Computer Applications (BCA/MCA)', 'Computer Science & Engineering (CSE)',
+    'Computer Science & Engineering (AI & ML)', 'Computer Science & Engineering (Cyber Security)',
+    'Computer Science & Engineering (Data Science)', 'Computer Science & Engineering (Internet of Things)',
+    'Computer Science & Information Technology (CSIT)', 'Dentistry', 'Electrical & Electronics Engineering (EEE)',
+    'Electrical Engineering (EE)', 'Electronics & Communication Engineering (ECE)',
+    'Hospitality & Hotel Management', 'Law', 'Management (MBA)',
+    'MBA (Artificial Intelligence & Data Science)', 'MBA (Hospital Administration)',
+    'Mathematics', 'Mechanical Engineering', 'Medicine (MBBS)', 'Nursing',
+    'Paramedical Sciences', 'Pharmaceutical Sciences', 'Physics', 'Sciences (Chemistry)',
+    'Structural Engineering', 'Veterinary Science'
   ];
 
-  const presetCountries = [
-    'Allemagne',
-    'France',
-    'Cameroun',
-    'USA',
-    'Belgique',
-    'Italie',
-    'Angleterre',
-    'Brésil',
-    'Inde'
-  ];
-
+  const presetCountries = ['Allemagne', 'France', 'Cameroun', 'USA', 'Belgique', 'Italie', 'Angleterre', 'Brésil', 'Inde'];
   const presetPromotions = ['2030', '2029', '2028', '2027', '2026'];
 
   useEffect(() => {
@@ -139,10 +149,7 @@ function Profil() {
 
         try {
           const response = await API.get('/profile/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'x-auth-token': token
-            }
+            headers: { 'Authorization': `Bearer ${token}`, 'x-auth-token': token }
           });
 
           if (response.data) {
@@ -164,8 +171,6 @@ function Profil() {
             
             if (data.avatar) {
               setAvatarPreview(formatMediaUrl(data.avatar));
-            } else {
-              setAvatarPreview('');
             }
           }
         } catch (err) {
@@ -174,16 +179,14 @@ function Profil() {
 
         try {
           const postsRes = await API.get('/posts');
-          const userPosts = postsRes.data.filter(post => getUserId(post.user) === loggedInUserId);
-          setMyPosts(userPosts);
+          setMyPosts(postsRes.data.filter(post => getUserId(post.user) === loggedInUserId));
         } catch (err) {
           console.error("Erreur lors de la récupération des publications", err);
         }
 
         try {
           const projectsRes = await API.get('/project');
-          const userProjects = projectsRes.data.filter(project => getUserId(project.user) === loggedInUserId);
-          setMyProjects(userProjects);
+          setMyProjects(projectsRes.data.filter(project => getUserId(project.user) === loggedInUserId));
         } catch (err) {
           console.error("Erreur lors de la récupération des projets", err);
         }
@@ -202,11 +205,34 @@ function Profil() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Intercepte le choix du fichier pour ouvrir la modale de recadrage
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setAvatarFile(file);
-      setAvatarPreview(URL.createObjectURL(file)); 
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageToCrop(reader.result);
+        setIsCroppingModalOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  // Validation du recadrage : génère le fichier final recadré
+  const handleConfirmCrop = async () => {
+    try {
+      const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      const croppedFile = new File([croppedBlob], "avatar-cropped.jpg", { type: "image/jpeg" });
+      
+      setAvatarFile(croppedFile);
+      setAvatarPreview(URL.createObjectURL(croppedFile));
+      setIsCroppingModalOpen(false);
+    } catch (e) {
+      console.error("Erreur lors du recadrage de l'image", e);
     }
   };
 
@@ -216,7 +242,6 @@ function Profil() {
     setMessage({ type: '', text: '' });
 
     const token = localStorage.getItem('token');
-
     if (!token) {
       setMessage({ type: 'error', text: 'Votre session a expiré. Veuillez vous reconnecter.' });
       setSubmitting(false);
@@ -254,10 +279,7 @@ function Profil() {
 
     try {
       const response = await API.post('/profile', data, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'x-auth-token': token
-        }
+        headers: { 'Authorization': `Bearer ${token}`, 'x-auth-token': token }
       });
 
       if (response.data && response.data.avatar) {
@@ -274,31 +296,12 @@ function Profil() {
 
     } catch (err) {
       console.error("Erreur détaillée lors de la sauvegarde :", err);
-
-      const status = err.response?.status;
       const errorMsg = err.response?.data?.message || err.response?.data?.error;
 
-      if (status === 401) {
-        setMessage({ 
-          type: 'error', 
-          text: 'Session expirée ou jeton invalide (401). Veuillez vous reconnecter.' 
-        });
-      } else if (status === 400) {
-        // Erreur précise renvoyée par le serveur (ex: format d'image non supporté, champs manquants)
-        setMessage({ 
-          type: 'error', 
-          text: errorMsg || 'Données invalides. Veuillez vérifier les champs du formulaire.' 
-        });
-      } else if (status === 413) {
-        setMessage({ 
-          type: 'error', 
-          text: 'La photo sélectionnée est trop volumineuse. Veuillez choisir une image de moins de 5 Mo.' 
-        });
+      if (err.response?.status === 401) {
+        setMessage({ type: 'error', text: 'Session expirée ou jeton invalide (401). Veuillez vous reconnecter.' });
       } else {
-        setMessage({ 
-          type: 'error', 
-          text: errorMsg || 'Erreur interne du serveur lors de la sauvegarde du profil. Veuillez réessayer.' 
-        });
+        setMessage({ type: 'error', text: errorMsg || 'Erreur lors de la sauvegarde du profil.' });
       }
     } finally {
       setSubmitting(false);
@@ -306,30 +309,15 @@ function Profil() {
   };
   
   const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      "🛑 Es-tu absolument sûr de vouloir supprimer ton compte ? Cette action est irréversible et effacera ton profil, tes publications et tes projets."
-    );
-
+    const confirmDelete = window.confirm("🛑 Es-tu absolument sûr de vouloir supprimer ton compte ? Cette action est irréversible.");
     if (confirmDelete) {
       try {
         const token = localStorage.getItem('token');
-        
-        await API.delete('/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'x-auth-token': token
-          }
-        });
-
+        await API.delete('/profile', { headers: { 'Authorization': `Bearer ${token}`, 'x-auth-token': token } });
         alert("Ton compte a été supprimé avec succès.");
-        
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('isProfileComplete');
-        
+        localStorage.clear();
         navigate('/login');
       } catch (err) {
-        console.error("Erreur lors de la suppression du compte :", err);
         alert(err.response?.data?.message || "Une erreur est survenue lors de la suppression.");
       }
     }
@@ -348,19 +336,83 @@ function Profil() {
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10 overflow-hidden">
         
+        {/* MODALE DE RECADRAGE INTERACTIVE */}
+        {isCroppingModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#0b081e] border border-indigo-500/30 rounded-3xl w-full max-w-xl p-6 shadow-2xl flex flex-col gap-5">
+              <div className="flex justify-between items-center border-b border-indigo-900/40 pb-4">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-indigo-400" /> Cadrer et ajuster votre photo
+                </h3>
+                <button 
+                  onClick={() => setIsCroppingModalOpen(false)}
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Zone de recadrage */}
+              <div className="relative w-full h-72 sm:h-80 bg-black/60 rounded-2xl overflow-hidden border border-indigo-900/40">
+                <Cropper
+                  image={imageToCrop}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1} // Format carré parfait pour un avatar
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={onCropComplete}
+                />
+              </div>
+
+              {/* Contrôle du Zoom */}
+              <div className="flex items-center gap-3 px-2">
+                <ZoomIn className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                <input 
+                  type="range" 
+                  value={zoom} 
+                  min={1} 
+                  max={3} 
+                  step={0.1} 
+                  aria-label="Zoom de l'image"
+                  onChange={(e) => setZoom(Number(e.target.value))} 
+                  className="w-full accent-indigo-500 cursor-pointer"
+                />
+                <span className="text-xs text-zinc-400 font-bold w-10 text-right">{Math.round(zoom * 100)}%</span>
+              </div>
+
+              {/* Boutons d'action de la modale */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCroppingModalOpen(false)}
+                  className="w-1/2 py-3 bg-[#030014] border border-indigo-900/50 hover:bg-indigo-950/40 text-zinc-300 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmCrop}
+                  className="w-1/2 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Check className="w-4 h-4" /> Valider le cadre
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {isIncomplete && (
           <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-2xl text-center text-sm shadow-xl font-medium animate-pulse flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
-            <span><strong>Profil incomplet :</strong> Veuillez remplir et sauvegarder vos informations obligatoires pour débloquer l'accès à l'Accueil, au Blog et à l'Annuaire.</span>
+            <span><strong>Profil incomplet :</strong> Veuillez remplir et sauvegarder vos informations obligatoires.</span>
           </div>
         )}
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 bg-[#0b081e]/80 backdrop-blur-xl rounded-3xl border border-indigo-500/20 shadow-2xl gap-4">
             <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-zinc-400 font-bold tracking-widest uppercase text-xs">
-              Chargement de tes données...
-            </p>
+            <p className="text-zinc-400 font-bold tracking-widest uppercase text-xs">Chargement de tes données...</p>
           </div>
         ) : (
           <div>
@@ -446,7 +498,6 @@ function Profil() {
 
             {activeTab === 'account' && (
               <div className="space-y-8">
-                
                 <div className="p-6 sm:p-8 bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl shadow-2xl">
                   
                   <h2 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -479,50 +530,32 @@ function Profil() {
                           type="file" accept="image/*" onChange={handleFileChange}
                           className="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
                         />
-                        <p className="text-[10px] text-zinc-500 mt-1">Formats acceptés : JPG, PNG, WEBP (Max 5Mo).</p>
+                        <p className="text-[10px] text-zinc-500 mt-1">Vous pourrez cadrer et zoomer l'image après l'avoir sélectionnée.</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénoms *</label>
-                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Noms *</label>
-                        <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                        <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion *</label>
-                        <input 
-                          type="text" 
-                          name="promotion" 
-                          list="promotions-list"
-                          required 
-                          value={formData.promotion} 
-                          onChange={handleChange} 
-                          placeholder="Ex: 2026"
-                          className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
-                        />
+                        <input type="text" name="promotion" list="promotions-list" required value={formData.promotion} onChange={handleChange} placeholder="Ex: 2026" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                         <datalist id="promotions-list">
                           {presetPromotions.map((p, i) => <option key={i} value={p} />)}
                         </datalist>
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Spécialité *</label>
-                        <input 
-                          type="text" 
-                          name="specialty" 
-                          list="specialties-list"
-                          required 
-                          value={formData.specialty} 
-                          onChange={handleChange} 
-                          placeholder="Ex: Développement Web / Fullstack"
-                          className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
-                        />
+                        <input type="text" name="specialty" list="specialties-list" required value={formData.specialty} onChange={handleChange} placeholder="Ex: Développement Web / Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                         <datalist id="specialties-list">
                           {presetSpecialties.map((s, i) => <option key={i} value={s} />)}
                         </datalist>
@@ -532,12 +565,7 @@ function Profil() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Statut Actuel</label>
-                        <select 
-                          name="status" 
-                          value={formData.status} 
-                          onChange={handleChange} 
-                          className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer"
-                        >
+                        <select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer">
                           <option value="" className="bg-[#0b081e]">Sélectionner un statut</option>
                           <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
                           <option value="En poste" className="bg-[#0b081e]">En poste</option>
@@ -546,12 +574,7 @@ function Profil() {
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Niveau d'étude</label>
-                        <select 
-                          name="degreeLevel" 
-                          value={formData.degreeLevel} 
-                          onChange={handleChange} 
-                          className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer"
-                        >
+                        <select name="degreeLevel" value={formData.degreeLevel} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer">
                           <option value="" className="bg-[#0b081e]">Sélectionner un niveau</option>
                           <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
                           <option value="Master" className="bg-[#0b081e]">Master / M2</option>
@@ -564,31 +587,14 @@ function Profil() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Pays *</label>
-                        <input 
-                          type="text" 
-                          name="country" 
-                          list="countries-list"
-                          required
-                          value={formData.country} 
-                          onChange={handleChange} 
-                          placeholder="Ex: France, Allemagne..."
-                          className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
-                        />
+                        <input type="text" name="country" list="countries-list" required value={formData.country} onChange={handleChange} placeholder="Ex: France, Allemagne..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                         <datalist id="countries-list">
                           {presetCountries.map((c, i) => <option key={i} value={c} />)}
                         </datalist>
                       </div>
                       <div>
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Adresse *</label>
-                        <input 
-                          type="text" 
-                          name="currentLocation" 
-                          required 
-                          value={formData.currentLocation} 
-                          onChange={handleChange} 
-                          placeholder="Ex: Paris, Lyon, Berlin..." 
-                          className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" 
-                        />
+                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} placeholder="Ex: Paris, Lyon, Berlin..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                       </div>
                     </div>
 
@@ -596,23 +602,23 @@ function Profil() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fadeIn">
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Intitulé du Poste</label>
-                          <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                          <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                         </div>
                         <div>
                           <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Entreprise Actuelle</label>
-                          <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" />
+                          <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
                         </div>
                       </div>
                     )}
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos (Optionnel)</label>
-                      <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
+                      <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                     </div>
 
                     <div>
                       <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
-                      <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-inner" placeholder="Ex: React, Node.js, Docker, Python..." />
+                      <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" placeholder="Ex: React, Node.js, Docker, Python..." />
                     </div>
 
                     <div className="pt-4">
@@ -634,15 +640,10 @@ function Profil() {
                       </p>
                     </div>
                   </div>
-                  <button 
-                    type="button"
-                    onClick={handleDeleteAccount}
-                    className="w-full sm:w-auto px-5 py-3 bg-red-950/60 hover:bg-red-900/80 text-red-300 font-bold text-xs uppercase tracking-wider rounded-xl border border-red-900/80 transition-colors shadow-md flex items-center justify-center gap-2 flex-shrink-0"
-                  >
+                  <button type="button" onClick={handleDeleteAccount} className="w-full sm:w-auto px-5 py-3 bg-red-950/60 hover:bg-red-900/80 text-red-300 font-bold text-xs uppercase tracking-wider rounded-xl border border-red-900/80 transition-colors shadow-md flex items-center justify-center gap-2 flex-shrink-0">
                     <Trash2 className="w-4 h-4" /> Supprimer mon compte
                   </button>
                 </div>
-
               </div>
             )}
 
@@ -654,16 +655,10 @@ function Profil() {
                   </div>
                 ) : (
                   myPosts.map((post) => (
-                    <div 
-                      key={post._id} 
-                      onClick={() => navigate('/blog', { state: { scrollToId: post._id } })}
-                      className="bg-[#0b081e]/80 backdrop-blur-2xl p-6 rounded-3xl border border-indigo-500/20 cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group overflow-hidden"
-                    >
+                    <div key={post._id} onClick={() => navigate('/blog', { state: { scrollToId: post._id } })} className="bg-[#0b081e]/80 backdrop-blur-2xl p-6 rounded-3xl border border-indigo-500/20 cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group overflow-hidden">
                       <div className="flex justify-between items-center mb-4">
                         <span className="text-xs font-medium text-zinc-500">{new Date(post.date).toLocaleDateString('fr-FR')}</span>
-                        <span className="text-[10px] bg-indigo-500/10 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-500/20 uppercase font-bold tracking-wider">
-                          {post.category}
-                        </span>
+                        <span className="text-[10px] bg-indigo-500/10 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-500/20 uppercase font-bold tracking-wider">{post.category}</span>
                       </div>
                       <p className="text-zinc-300 text-sm whitespace-pre-wrap group-hover:text-zinc-100 transition-colors leading-relaxed break-words">{post.text}</p>
                     </div>
@@ -680,11 +675,7 @@ function Profil() {
                   </div>
                 ) : (
                   myProjects.map((project) => (
-                    <div 
-                      key={project._id} 
-                      onClick={() => navigate('/showcase', { state: { scrollToId: project._id } })}
-                      className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl p-6 flex flex-col justify-between cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group overflow-hidden"
-                    >
+                    <div key={project._id} onClick={() => navigate('/showcase', { state: { scrollToId: project._id } })} className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl p-6 flex flex-col justify-between cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group overflow-hidden">
                       <div className="overflow-hidden">
                         <h3 className="text-base sm:text-lg font-black text-white mb-2 group-hover:text-indigo-400 transition-colors break-words uppercase tracking-wide">{project.title}</h3>
                         <p className="text-zinc-400 text-xs sm:text-sm mb-4 line-clamp-3 leading-relaxed break-words">{project.description}</p>
@@ -692,24 +683,12 @@ function Profil() {
                       
                       <div className="flex gap-3 text-center text-xs mt-4 pt-4 border-t border-indigo-900/40">
                         {project.githubLink && (
-                          <a 
-                            href={project.githubLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            onClick={(e) => e.stopPropagation()} 
-                            className="bg-[#030014]/80 border border-indigo-900/40 py-2.5 px-3 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold truncate flex items-center justify-center gap-1.5"
-                          >
+                          <a href={project.githubLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-[#030014]/80 border border-indigo-900/40 py-2.5 px-3 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold truncate flex items-center justify-center gap-1.5">
                             <GitBranch className="w-3.5 h-3.5" /> GitHub
                           </a>
                         )}
                         {project.demoLink && (
-                          <a 
-                            href={project.demoLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            onClick={(e) => e.stopPropagation()} 
-                            className="bg-gradient-to-r from-indigo-600 to-purple-600 py-2.5 px-3 rounded-xl w-full text-white hover:from-indigo-500 hover:to-purple-500 transition-colors font-bold shadow-md shadow-indigo-500/20 truncate flex items-center justify-center gap-1.5"
-                          >
+                          <a href={project.demoLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-gradient-to-r from-indigo-600 to-purple-600 py-2.5 px-3 rounded-xl w-full text-white hover:from-indigo-500 hover:to-purple-500 transition-colors font-bold shadow-md shadow-indigo-500/20 truncate flex items-center justify-center gap-1.5">
                             <Globe className="w-3.5 h-3.5" /> Démo
                           </a>
                         )}
