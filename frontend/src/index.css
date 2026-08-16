@@ -1,29 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  /* Mode Sombre : Fond profond + image mixée en 'luminosity' ou 'overlay' */
-  --bg-color: #050212;
+  --bg-color: #030014;
   --text-color: #ffffff;
-  --border: rgba(255, 255, 255, 0.12);
-  --card-bg: rgba(15, 10, 30, 0.7);
-  
-  /* Blending du motif sombre */
-  --hero-bg-color: #08031a;
-  --hero-blend-mode: overlay;
-  --hero-opacity: 0.85;
+  --border: #333333;
+
+  /* MODE SOMBRE : Voiles très légers pour laisser apparaître le motif traditionnel */
+  --home-overlay-1: rgba(3, 0, 20, 0.25);
+  --home-overlay-2: rgba(3, 0, 20, 0.40);
+
+  /* Propriétés dynamiques pour faire vibrer le motif */
+  --bg-blend-mode: overlay;
+  --bg-filter: none;
 }
 
 [data-theme='light'] {
-  /* Mode Clair : Fond lumineux + inversion du motif pour un tracé propre */
-  --bg-color: #f8fafc;
+  --bg-color: #f1f5f9;
   --text-color: #0f172a;
-  --border: rgba(0, 0, 0, 0.08);
-  --card-bg: #ffffff;
+  --border: #cbd5e1;
 
-  /* Blending du motif clair (évite l'effet grisâtre) */
-  --hero-bg-color: #f1f5f9;
-  --hero-blend-mode: multiply;
-  --hero-opacity: 1;
+  /* MODE CLAIR : Quasi-absence de voile pour supprimer l'effet grisâtre délavé */
+  --home-overlay-1: rgba(241, 245, 249, 0.05);
+  --home-overlay-2: rgba(241, 245, 249, 0.15);
+
+  /* Inversion du motif sombre en gravure claire sur fond lumineux */
+  --bg-blend-mode: multiply;
+  --bg-filter: invert(0.92) brightness(0.35);
 }
 
 html, body {
@@ -31,7 +33,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color); 
+  background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -40,29 +42,16 @@ html, body {
   width: 100%;
   min-height: 100dvh;
   overflow-x: hidden;
-  background-color: transparent; 
+  background-color: transparent;
 }
 
-/* À appliquer sur la section du Hero / Banner */
-.hero-section {
-  background-image: url('/assets/traditional.jpg');
-  background-size: cover;
-  background-position: center;
-  background-color: var(--hero-bg-color);
-  background-blend-mode: var(--hero-blend-mode);
-  opacity: var(--hero-opacity);
-  transition: all 0.3s ease;
+/* À appliquer sur l'élément (div/section) qui porte votre image de fond */
+.hero-background {
+  background-blend-mode: var(--bg-blend-mode);
+  filter: var(--bg-filter);
+  transition: filter 0.3s ease, background-blend-mode 0.3s ease;
 }
 
-/* Si tu veux inverser automatiquement l'image sombre en clair */
-[data-theme='light'] .hero-section {
-  filter: invert(0.93) hue-rotate(180deg);
-}
-
-/* Style des cartes */
-.card-container {
-  background-color: var(--card-bg);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(12px);
-  color: var(--text-color);
+.switch-ball {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 }
