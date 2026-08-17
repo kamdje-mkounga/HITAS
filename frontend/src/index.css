@@ -6,8 +6,8 @@
   --border: #333333;
 
   /* MODE SOMBRE : Voiles très légers pour laisser apparaître le motif traditionnel */
-  --home-overlay-1: rgba(3, 0, 20, 0.25);
-  --home-overlay-2: rgba(3, 0, 20, 0.40);
+  --home-overlay-1: rgba(3, 0, 20, 0.55);
+  --home-overlay-2: rgba(3, 0, 20, 0.70);
 
   /* Propriétés dynamiques pour faire vibrer le motif */
   --bg-blend-mode: overlay;
