@@ -4,7 +4,13 @@ import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
 
 function Register() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,28 +24,35 @@ function Register() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Validation de correspondance des mots de passe
+    if (formData.password !== formData.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Appel à notre route d'inscription backend
-      const response = await API.post('/auth/register', formData);
-      
-      // Stockage du token automatique après inscription
+      // Exclure confirmPassword lors de l'envoi au backend
+      const { email, password } = formData;
+      const response = await API.post('/auth/register', { email, password });
+
       localStorage.setItem('token', response.data.token);
-      
+
       setSuccess('Compte créé avec succès ! Préparation de votre espace...');
       setTimeout(() => {
         navigate('/');
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Erreur lors de la création du compte.");
+      setError(err.response?.data?.message || 'Erreur lors de la création du compte.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div 
+    <div
       className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative flex items-center justify-center px-4 font-sans selection:bg-indigo-500 selection:text-white"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
@@ -88,19 +101,54 @@ function Register() {
             />
           </div>
 
+          {/* Mot de passe */}
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
               Mot de passe
             </label>
-            <input
-              type="password"
-              name="password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pl-4 pr-12 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-indigo-300 text-xs font-semibold px-1 py-0.5 rounded transition-colors"
+              >
+                {showPassword ? 'Masquer' : 'Afficher'}
+              </button>
+            </div>
+          </div>
+
+          {/* Confirmation Mot de passe */}
+          <div>
+            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
+              Confirmer le mot de passe
+            </label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                name="confirmPassword"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full pl-4 pr-12 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-indigo-300 text-xs font-semibold px-1 py-0.5 rounded transition-colors"
+              >
+                {showConfirmPassword ? 'Masquer' : 'Afficher'}
+              </button>
+            </div>
           </div>
 
           <button
