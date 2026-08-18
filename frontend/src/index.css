@@ -55,3 +55,32 @@ html, body {
 .switch-ball {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 }
+
+/* 🚫 Hide the annoying Google Translate top banner that pushes the page down */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+body {
+  top: 0px !important;
+}
+
+/* 🎨 Make the Google Translate widget compact and clean */
+.goog-te-gadget {
+  font-size: 0px !important;
+}
+.goog-te-gadget span {
+  display: none !important;
+}
+.goog-te-combo {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(99, 102, 241, 0.4) !important;
+  padding: 4px 8px !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.75rem !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+.goog-te-combo:hover {
+  border-color: rgba(99, 102, 241, 0.8) !important;
+}
