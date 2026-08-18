@@ -7,7 +7,6 @@ import { Moon, Sun, LogOut } from 'lucide-react';
 const Navbar = () => {
   const [avatar, setAvatar] = useState(null);
   const [hasNewNotification, setHasNewNotification] = useState(false); 
-  
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   
   const navigate = useNavigate();
@@ -15,6 +14,30 @@ const Navbar = () => {
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId'); 
   const userRole = localStorage.getItem('userRole'); 
+
+  // 🌐 Initialize Google Translate widget dynamically inside React
+  useEffect(() => {
+    window.googleTranslateElementInit = () => {
+      if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+        new window.google.translate.TranslateElement({
+          pageLanguage: 'fr',
+          includedLanguages: 'en,de,fr',
+          layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+      }
+    };
+
+    if (!document.getElementById('google-translate-script')) {
+      const script = document.createElement('script');
+      script.id = 'google-translate-script';
+      script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+      script.async = true;
+      document.body.appendChild(script);
+    } else {
+      // If script is already loaded, re-trigger initialization
+      window.googleTranslateElementInit();
+    }
+  }, []);
 
   useEffect(() => {
     if (theme === 'light') {
