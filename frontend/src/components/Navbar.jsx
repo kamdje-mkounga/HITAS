@@ -145,8 +145,11 @@ const Navbar = () => {
           <div className="flex items-center space-x-2 sm:space-x-3">
            
            {/* 🌐 Google Translate Widget épuré */}
-           <div id="google_translate_element" className="overflow-hidden rounded-xl"></div>
-
+           
+           <div className="language-switcher">
+  <span className="language-icon">🌐</span>
+  <div id="google_translate_element"></div>
+</div>
            {/* SWITCH THEME LUMINEUX */}
            <button 
               onClick={toggleTheme}
