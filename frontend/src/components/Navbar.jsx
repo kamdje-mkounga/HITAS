@@ -114,7 +114,7 @@ const Navbar = () => {
               Showcase
             </NavLink>
             {/* The container where the Google Translate dropdown will render */}
-<div id="google_translate_element">Lan</div>
+<div id="google_translate_element"></div>
             {token && userRole === 'admin' && (
               <NavLink to="/admin" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-black border transition-all ${isActive ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]' : 'text-indigo-300 border-indigo-500/40'}`}>
                 Admin 🛠️
