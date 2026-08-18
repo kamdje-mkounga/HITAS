@@ -94,7 +94,7 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* 🗺️ LIENS DE NAVIGATION (PC) AVEC EFFET NÉON BRILLANT */}
+          {/* 🗺️ LIENS DE NAVIGATION (PC) */}
           <div className="hidden md:flex items-center space-x-2">
             <NavLink to="/annuaire" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
               Annuaire
@@ -120,11 +120,11 @@ const Navbar = () => {
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR & SWITCH & TRANSLATE */}
+          {/* 🔐 ESPACE UTILISATEUR & TRANSLATE & SWITCH */}
           <div className="flex items-center space-x-2 sm:space-x-3">
            
-           {/* Google Translate Dropdown Container */}
-           <div id="google_translate_element" className="scale-90 text-xs"></div>
+           {/* 🌐 Google Translate Widget Mount Point */}
+           <div id="google_translate_element"></div>
 
            {/* SWITCH THEME LUMINEUX */}
            <button 
@@ -171,7 +171,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 📱 MENU SUB-BARRE MOBILE BRILLANT */}
+      {/* 📱 MENU SUB-BARRE MOBILE */}
       <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-2 py-2 flex items-center justify-around text-xs font-bold gap-1">
         <NavLink to="/annuaire" className={({ isActive }) => `py-1.5 px-3 rounded-lg transition-all ${isActive ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'text-slate-300'}`}>Annuaire</NavLink>
         <NavLink to="/blog" onClick={clearNotifications} className={({ isActive }) => `py-1.5 px-3 rounded-lg relative transition-all ${isActive ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]' : 'text-slate-300'}`}>
