@@ -113,8 +113,6 @@ const Navbar = () => {
             <NavLink to="/showcase" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]' : 'text-slate-300 hover:text-white hover:bg-slate-900/60'}`}>
               Showcase
             </NavLink>
-            {/* The container where the Google Translate dropdown will render */}
-<div id="google_translate_element"></div>
             {token && userRole === 'admin' && (
               <NavLink to="/admin" className={({ isActive }) => `px-4 py-2 rounded-xl text-sm font-black border transition-all ${isActive ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]' : 'text-indigo-300 border-indigo-500/40'}`}>
                 Admin 🛠️
@@ -122,9 +120,12 @@ const Navbar = () => {
             )}
           </div>
           
-          {/* 🔐 ESPACE UTILISATEUR & SWITCH */}
+          {/* 🔐 ESPACE UTILISATEUR & SWITCH & TRANSLATE */}
           <div className="flex items-center space-x-2 sm:space-x-3">
            
+           {/* Google Translate Dropdown Container */}
+           <div id="google_translate_element" className="scale-90 text-xs"></div>
+
            {/* SWITCH THEME LUMINEUX */}
            <button 
               onClick={toggleTheme}
