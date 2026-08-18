@@ -55,16 +55,3 @@ html, body {
 .switch-ball {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 }
-
-
-/* 🚫 Masquer la bulle contextuelle "Original text" au survol/clic des textes traduits */
-#goog-gt-tt, .goog-te-balloon-frame {
-  display: none !important;
-  visibility: hidden !important;
-}
-
-/* 🚫 Supprimer la surbrillance bleue/grise de Google quand on clique sur un texte */
-.goog-text-highlight {
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
