@@ -8,29 +8,60 @@
     <!-- 🎨 Couleur du thème pour la barre de statut du navigateur/téléphone -->
     <meta name="theme-color" content="#030014" />
     
-    <!-- 📱 Lien vers le manifeste PWA (assure-toi qu'il est dans le dossier public/) -->
+    <!-- 📱 Lien vers le manifeste PWA -->
     <link rel="manifest" href="/manifest.json" />
     
-    <!-- 🍏 Recommandé pour l'icône sur iOS (iPhone) -->
+    <!-- 🍏 Recommandé pour l'icône sur iOS -->
     <link rel="apple-touch-icon" href="/logo192.png" />
 
     <title>Communauté HITAS Connect</title>
+
+    <!-- 🌐 Styles to make Google Translate look good in dark mode -->
+    <style>
+      .goog-te-gadget {
+        font-family: inherit !important;
+        font-size: 0px !important;
+      }
+      .goog-te-gadget span {
+        display: none !important;
+      }
+      .goog-te-combo {
+        background-color: #0f172a !important;
+        color: #e2e8f0 !important;
+        border: 1px solid rgba(99, 102, 241, 0.4) !important;
+        padding: 6px 10px !important;
+        border-radius: 0.75rem !important;
+        font-size: 0.875rem !important;
+        outline: none !important;
+        cursor: pointer !important;
+      }
+      .goog-te-combo:hover {
+        border-color: rgba(99, 102, 241, 0.8) !important;
+      }
+      /* Hide Google banner frame that pushes the page down */
+      body {
+        top: 0px !important;
+      }
+      .goog-te-banner-frame {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     
-<!-- Google Translate Script -->
-<script type="text/javascript">
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-      pageLanguage: 'fr',
-      includedLanguages: 'en,de,fr',
-      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-    }, 'google_translate_element');
-  }
-  </script>
-  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <!-- Google Translate Script -->
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'fr',
+          includedLanguages: 'en,de,fr',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+        }, 'google_translate_element');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
   </body>
 </html>
