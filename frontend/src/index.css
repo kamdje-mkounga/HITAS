@@ -56,14 +56,6 @@ html, body {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 }
 
-/* 🚫 Masquer la barre blanche supérieure de Google Translate et bloquer le décalage de la page */
-.goog-te-banner-frame, .skiptranslate {
-  display: none !important;
-}
-body {
-  top: 0px !important;
-  position: static !important;
-}
 
 /* 🚫 Masquer la bulle contextuelle "Original text" au survol/clic des textes traduits */
 #goog-gt-tt, .goog-te-balloon-frame {
