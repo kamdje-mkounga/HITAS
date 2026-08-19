@@ -18,32 +18,42 @@
 
     <!-- 🌐 Styles to make Google Translate look good in dark mode -->
     <style>
-      .goog-te-gadget {
-        font-family: inherit !important;
-        font-size: 0px !important;
+      /* Google Translate is used only as a translation engine.
+         Its visual interface is completely hidden. */
+    
+      #google_translate_element {
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
       }
+    
+      .goog-te-gadget {
+        font-size: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+      }
+    
       .goog-te-gadget span {
         display: none !important;
       }
+    
       .goog-te-combo {
-        background-color: #0f172a !important;
-        color: #e2e8f0 !important;
-        border: 1px solid rgba(99, 102, 241, 0.4) !important;
-        padding: 6px 10px !important;
-        border-radius: 0.75rem !important;
-        font-size: 0.875rem !important;
-        outline: none !important;
-        cursor: pointer !important;
+        display: none !important;
       }
-      .goog-te-combo:hover {
-        border-color: rgba(99, 102, 241, 0.8) !important;
-      }
-      /* Hide Google banner frame that pushes the page down */
-      body {
-        top: 0px !important;
-      }
+    
       .goog-te-banner-frame {
         display: none !important;
+        visibility: hidden !important;
+      }
+    
+      body {
+        top: 0 !important;
+      }
+    
+      html {
+        margin-top: 0 !important;
       }
     </style>
   </head>
