@@ -18,21 +18,23 @@
 
     <!-- 🌐 Styles to make Google Translate look good in dark mode -->
     <style>
-      /* Google Translate is used only as a translation engine.
-         Its visual interface is completely hidden. */
+      /* =========================================
+         GOOGLE TRANSLATE
+         Hidden visually, but still functional
+         ========================================= */
     
       #google_translate_element {
-        width: 0 !important;
-        height: 0 !important;
+        position: absolute !important;
+        left: -9999px !important;
+        top: -9999px !important;
+        width: 1px !important;
+        height: 1px !important;
         overflow: hidden !important;
         opacity: 0 !important;
-        pointer-events: none !important;
       }
     
       .goog-te-gadget {
         font-size: 0 !important;
-        height: 0 !important;
-        overflow: hidden !important;
       }
     
       .goog-te-gadget span {
@@ -40,9 +42,12 @@
       }
     
       .goog-te-combo {
-        display: none !important;
+        width: 1px !important;
+        height: 1px !important;
+        opacity: 0 !important;
       }
     
+      /* Hide Google's top translation banner */
       .goog-te-banner-frame {
         display: none !important;
         visibility: hidden !important;
