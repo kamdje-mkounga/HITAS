@@ -121,27 +121,32 @@ const Navbar = () => {
      🌐 CHANGE LANGUAGE
      ========================================================= */
 
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
-    setLanguageOpen(false);
-
-    const googleSelect = document.querySelector('.goog-te-combo');
-
-    if (!googleSelect) {
-      console.warn(
-        'Google Translate is not ready yet. Please try again.'
-      );
-      return;
-    }
-
-    googleSelect.value = lang;
-
-    googleSelect.dispatchEvent(
-      new Event('change', {
-        bubbles: true
-      })
-    );
-  };
+     const changeLanguage = (lang) => {
+      setLanguage(lang);
+      setLanguageOpen(false);
+    
+      // 🇫🇷 French = original language
+      if (lang === 'fr') {
+        // Remove Google Translate cookie
+        document.cookie =
+          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
+        // Also try the host-specific cookie
+        document.cookie =
+          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
+          window.location.hostname;
+    
+        window.location.reload();
+        return;
+      }
+    
+      // 🌐 Tell Google Translate:
+      // French → selected language
+      document.cookie = `googtrans=/fr/${lang}; path=/;`;
+    
+      // Reload so Google Translate applies the translation
+      window.location.reload();
+    };
 
   /* =========================================================
      🌐 CLOSE LANGUAGE DROPDOWN WHEN CLICKING OUTSIDE
@@ -572,11 +577,12 @@ const Navbar = () => {
                 Hidden visually — controlled by our selector
                 ================================================= */}
 
-            <div
-              id="google_translate_element"
-              className="absolute w-0 h-0 overflow-hidden opacity-0 pointer-events-none"
-              aria-hidden="true"
-            />
+
+<div
+  id="google_translate_element"
+  className="absolute left-[-9999px] top-[-9999px] w-[1px] h-[1px] overflow-hidden opacity-0"
+  aria-hidden="true"
+/>
 
             {/* =================================================
                 🌙 THEME SWITCH
