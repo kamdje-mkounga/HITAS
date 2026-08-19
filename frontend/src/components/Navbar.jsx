@@ -60,8 +60,10 @@ const Navbar = () => {
       const script = document.createElement('script');
 
       script.id = 'google-translate-script';
+
       script.src =
-        '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+
       script.async = true;
 
       document.body.appendChild(script);
@@ -73,14 +75,76 @@ const Navbar = () => {
       window.googleTranslateElementInit();
     }
 
+    /* =========================================================
+       🚫 HIDE GOOGLE TRANSLATE BANNER
+       ========================================================= */
+
+    const hideGoogleBanner = () => {
+      // Google's top banner container
+      const banner = document.querySelector(
+        'body > .skiptranslate'
+      );
+
+      if (banner) {
+        banner.style.display = 'none';
+        banner.style.visibility = 'hidden';
+        banner.style.height = '0';
+        banner.style.width = '0';
+        banner.style.overflow = 'hidden';
+      }
+
+      // Google's banner iframe
+      const iframe = document.querySelector(
+        'iframe.goog-te-banner-frame'
+      );
+
+      if (iframe) {
+        iframe.style.display = 'none';
+        iframe.style.visibility = 'hidden';
+        iframe.style.height = '0';
+        iframe.style.width = '0';
+      }
+
+      // Google moves the page down when the banner appears.
+      document.documentElement.style.marginTop = '0';
+      document.body.style.marginTop = '0';
+      document.body.style.top = '0';
+    };
+
+    // Run immediately
+    hideGoogleBanner();
+
+    // Run again after Google loads
+    const firstTimer = setTimeout(() => {
+      hideGoogleBanner();
+    }, 500);
+
+    const secondTimer = setTimeout(() => {
+      hideGoogleBanner();
+    }, 1500);
+
+    /*
+      Google dynamically injects the banner.
+      MutationObserver makes sure it stays hidden.
+    */
+    const observer = new MutationObserver(() => {
+      hideGoogleBanner();
+    });
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+
     return () => {
-      // Do not remove the Google script because other components
-      // could potentially use it.
+      clearTimeout(firstTimer);
+      clearTimeout(secondTimer);
+      observer.disconnect();
     };
   }, []);
 
   /* =========================================================
-     🌐 DETECT CURRENT GOOGLE TRANSLATE LANGUAGE
+     🌐 DETECT CURRENT LANGUAGE
      ========================================================= */
 
   useEffect(() => {
@@ -111,8 +175,10 @@ const Navbar = () => {
 
     detectGoogleLanguage();
 
-    // Give Google Translate a little time to restore its cookie.
-    const timer = setTimeout(detectGoogleLanguage, 1000);
+    const timer = setTimeout(
+      detectGoogleLanguage,
+      1000
+    );
 
     return () => clearTimeout(timer);
   }, []);
@@ -121,35 +187,42 @@ const Navbar = () => {
      🌐 CHANGE LANGUAGE
      ========================================================= */
 
-     const changeLanguage = (lang) => {
-      setLanguage(lang);
-      setLanguageOpen(false);
-    
-      // 🇫🇷 French = original language
-      if (lang === 'fr') {
-        // Remove Google Translate cookie
-        document.cookie =
-          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
-        // Also try the host-specific cookie
-        document.cookie =
-          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
-          window.location.hostname;
-    
-        window.location.reload();
-        return;
-      }
-    
-      // 🌐 Tell Google Translate:
-      // French → selected language
-      document.cookie = `googtrans=/fr/${lang}; path=/;`;
-    
-      // Reload so Google Translate applies the translation
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    setLanguageOpen(false);
+
+    /* ---------------------------------------------------------
+       🇫🇷 RETURN TO ORIGINAL FRENCH
+       --------------------------------------------------------- */
+
+    if (lang === 'fr') {
+      // Remove standard Google Translate cookie
+      document.cookie =
+        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+      // Remove host-specific version
+      document.cookie =
+        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
+        window.location.hostname;
+
+      // Reload original French page
       window.location.reload();
-    };
+
+      return;
+    }
+
+    /* ---------------------------------------------------------
+       🌐 TRANSLATE FROM FRENCH
+       --------------------------------------------------------- */
+
+    document.cookie = `googtrans=/fr/${lang}; path=/;`;
+
+    // Reload so Google Translate automatically applies language
+    window.location.reload();
+  };
 
   /* =========================================================
-     🌐 CLOSE LANGUAGE DROPDOWN WHEN CLICKING OUTSIDE
+     👆 CLOSE LANGUAGE DROPDOWN WHEN CLICKING OUTSIDE
      ========================================================= */
 
   useEffect(() => {
@@ -162,7 +235,10 @@ const Navbar = () => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener(
+      'mousedown',
+      handleClickOutside
+    );
 
     return () => {
       document.removeEventListener(
@@ -178,17 +254,24 @@ const Navbar = () => {
 
   useEffect(() => {
     if (theme === 'light') {
-      document.body.setAttribute('data-theme', 'light');
+      document.body.setAttribute(
+        'data-theme',
+        'light'
+      );
+
       localStorage.setItem('theme', 'light');
     } else {
       document.body.removeAttribute('data-theme');
+
       localStorage.setItem('theme', 'dark');
     }
   }, [theme]);
 
   const toggleTheme = () => {
     setTheme((prevTheme) =>
-      prevTheme === 'dark' ? 'light' : 'dark'
+      prevTheme === 'dark'
+        ? 'light'
+        : 'dark'
     );
   };
 
@@ -211,10 +294,14 @@ const Navbar = () => {
         );
 
         if (res.data?.avatar) {
-          if (res.data.avatar.startsWith('http')) {
+          if (
+            res.data.avatar.startsWith('http')
+          ) {
             setAvatar(res.data.avatar);
           } else {
-            setAvatar(`${BACKEND_URL}${res.data.avatar}`);
+            setAvatar(
+              `${BACKEND_URL}${res.data.avatar}`
+            );
           }
         }
       } catch (err) {
@@ -249,24 +336,32 @@ const Navbar = () => {
     if (!token || !loggedInUserId) return;
 
     const socket = io(BACKEND_URL, {
-      transports: ['websocket', 'polling']
+      transports: [
+        'websocket',
+        'polling'
+      ]
     });
 
-    socket.on('article_published', (newPost) => {
-      if (!newPost || !newPost.user) return;
+    socket.on(
+      'article_published',
+      (newPost) => {
+        if (!newPost || !newPost.user) {
+          return;
+        }
 
-      const rawAuthorId =
-        typeof newPost.user === 'object'
-          ? newPost.user._id
-          : newPost.user;
+        const rawAuthorId =
+          typeof newPost.user === 'object'
+            ? newPost.user._id
+            : newPost.user;
 
-      if (
-        String(rawAuthorId).trim() !==
-        String(loggedInUserId).trim()
-      ) {
-        setHasNewNotification(true);
+        if (
+          String(rawAuthorId).trim() !==
+          String(loggedInUserId).trim()
+        ) {
+          setHasNewNotification(true);
+        }
       }
-    });
+    );
 
     return () => {
       socket.off('article_published');
@@ -295,7 +390,7 @@ const Navbar = () => {
   };
 
   /* =========================================================
-     🌐 LANGUAGE DISPLAY
+     🌐 LANGUAGE LABELS
      ========================================================= */
 
   const languageLabels = {
@@ -322,6 +417,7 @@ const Navbar = () => {
               className="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400 bg-clip-text text-transparent hover:opacity-100 transition-opacity drop-shadow-[0_0_20px_rgba(129,140,248,0.6)]"
             >
               HITAS{' '}
+
               <span className="font-light text-slate-200">
                 Connect
               </span>
@@ -393,20 +489,21 @@ const Navbar = () => {
               Showcase
             </NavLink>
 
-            {token && userRole === 'admin' && (
-              <NavLink
-                to="/admin"
-                className={({ isActive }) =>
-                  `px-4 py-2 rounded-xl text-sm font-black border transition-all ${
-                    isActive
-                      ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]'
-                      : 'text-indigo-300 border-indigo-500/40'
-                  }`
-                }
-              >
-                Admin 🛠️
-              </NavLink>
-            )}
+            {token &&
+              userRole === 'admin' && (
+                <NavLink
+                  to="/admin"
+                  className={({ isActive }) =>
+                    `px-4 py-2 rounded-xl text-sm font-black border transition-all ${
+                      isActive
+                        ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]'
+                        : 'text-indigo-300 border-indigo-500/40'
+                    }`
+                  }
+                >
+                  Admin 🛠️
+                </NavLink>
+              )}
 
           </div>
 
@@ -428,7 +525,9 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={() =>
-                  setLanguageOpen((prev) => !prev)
+                  setLanguageOpen(
+                    (prev) => !prev
+                  )
                 }
                 className="
                   group
@@ -457,7 +556,9 @@ const Navbar = () => {
 
                 <ChevronDown
                   className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-                    languageOpen ? 'rotate-180' : ''
+                    languageOpen
+                      ? 'rotate-180'
+                      : ''
                   }`}
                 />
 
@@ -489,11 +590,13 @@ const Navbar = () => {
                   "
                 >
 
-                  {/* French */}
+                  {/* 🇫🇷 French */}
 
                   <button
                     type="button"
-                    onClick={() => changeLanguage('fr')}
+                    onClick={() =>
+                      changeLanguage('fr')
+                    }
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                       language === 'fr'
                         ? 'bg-indigo-500/15 text-indigo-200'
@@ -515,11 +618,13 @@ const Navbar = () => {
                     )}
                   </button>
 
-                  {/* English */}
+                  {/* 🇬🇧 English */}
 
                   <button
                     type="button"
-                    onClick={() => changeLanguage('en')}
+                    onClick={() =>
+                      changeLanguage('en')
+                    }
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                       language === 'en'
                         ? 'bg-indigo-500/15 text-indigo-200'
@@ -541,11 +646,13 @@ const Navbar = () => {
                     )}
                   </button>
 
-                  {/* German */}
+                  {/* 🇩🇪 German */}
 
                   <button
                     type="button"
-                    onClick={() => changeLanguage('de')}
+                    onClick={() =>
+                      changeLanguage('de')
+                    }
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
                       language === 'de'
                         ? 'bg-indigo-500/15 text-indigo-200'
@@ -573,16 +680,15 @@ const Navbar = () => {
             </div>
 
             {/* =================================================
-                GOOGLE TRANSLATE ENGINE
-                Hidden visually — controlled by our selector
+                🌐 GOOGLE TRANSLATE ENGINE
+                Hidden visually but still functional
                 ================================================= */}
 
-
-<div
-  id="google_translate_element"
-  className="absolute left-[-9999px] top-[-9999px] w-[1px] h-[1px] overflow-hidden opacity-0"
-  aria-hidden="true"
-/>
+            <div
+              id="google_translate_element"
+              className="absolute left-[-9999px] top-[-9999px] w-[1px] h-[1px] overflow-hidden opacity-0"
+              aria-hidden="true"
+            />
 
             {/* =================================================
                 🌙 THEME SWITCH
@@ -723,20 +829,21 @@ const Navbar = () => {
           Showcase
         </NavLink>
 
-        {token && userRole === 'admin' && (
-          <NavLink
-            to="/admin"
-            className={({ isActive }) =>
-              `py-1.5 px-2.5 rounded-lg font-black border ${
-                isActive
-                  ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400'
-                  : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30'
-              }`
-            }
-          >
-            Admin
-          </NavLink>
-        )}
+        {token &&
+          userRole === 'admin' && (
+            <NavLink
+              to="/admin"
+              className={({ isActive }) =>
+                `py-1.5 px-2.5 rounded-lg font-black border ${
+                  isActive
+                    ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400'
+                    : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30'
+                }`
+              }
+            >
+              Admin
+            </NavLink>
+          )}
 
       </div>
 
