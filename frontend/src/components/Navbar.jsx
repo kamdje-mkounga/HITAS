@@ -19,7 +19,9 @@ const Navbar = () => {
   );
 
   // 🌐 Language selector
-  const [language, setLanguage] = useState('fr');
+  const [language, setLanguage] = useState(
+    localStorage.getItem('hitasLanguage') || 'fr'
+  );
   const [languageOpen, setLanguageOpen] = useState(false);
 
   const languageRef = useRef(null);
@@ -147,80 +149,51 @@ const Navbar = () => {
      🌐 DETECT CURRENT LANGUAGE
      ========================================================= */
 
-  useEffect(() => {
-    const detectGoogleLanguage = () => {
-      const cookies = document.cookie.split(';');
-
-      const translateCookie = cookies.find((cookie) =>
-        cookie.trim().startsWith('googtrans=')
-      );
-
-      if (!translateCookie) {
-        setLanguage('fr');
-        return;
-      }
-
-      const value = decodeURIComponent(
-        translateCookie.split('=')[1] || ''
-      );
-
-      if (value.includes('/en')) {
-        setLanguage('en');
-      } else if (value.includes('/de')) {
-        setLanguage('de');
+     useEffect(() => {
+      const savedLanguage =
+        localStorage.getItem('hitasLanguage');
+    
+      if (savedLanguage === 'en' || savedLanguage === 'de' || savedLanguage === 'fr') {
+        setLanguage(savedLanguage);
       } else {
         setLanguage('fr');
+        localStorage.setItem('hitasLanguage', 'fr');
       }
-    };
-
-    detectGoogleLanguage();
-
-    const timer = setTimeout(
-      detectGoogleLanguage,
-      1000
-    );
-
-    return () => clearTimeout(timer);
-  }, []);
+    }, []);
 
   /* =========================================================
      🌐 CHANGE LANGUAGE
      ========================================================= */
 
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
-    setLanguageOpen(false);
-
-    /* ---------------------------------------------------------
-       🇫🇷 RETURN TO ORIGINAL FRENCH
-       --------------------------------------------------------- */
-
-    if (lang === 'fr') {
-      // Remove standard Google Translate cookie
-      document.cookie =
-        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-
-      // Remove host-specific version
-      document.cookie =
-        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
-        window.location.hostname;
-
-      // Reload original French page
+     const changeLanguage = (lang) => {
+      // Save selected language for the Navbar
+      localStorage.setItem('hitasLanguage', lang);
+    
+      // Update Navbar immediately
+      setLanguage(lang);
+      setLanguageOpen(false);
+    
+      if (lang === 'fr') {
+        // Remove Google Translate cookies
+        document.cookie =
+          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    
+        document.cookie =
+          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
+          window.location.hostname;
+    
+        // Reload original French page
+        window.location.reload();
+    
+        return;
+      }
+    
+      // Set Google Translate language
+      document.cookie = `googtrans=/fr/${lang}; path=/;`;
+    
+      // Reload so Google Translate applies the translation
       window.location.reload();
-
-      return;
-    }
-
-    /* ---------------------------------------------------------
-       🌐 TRANSLATE FROM FRENCH
-       --------------------------------------------------------- */
-
-    document.cookie = `googtrans=/fr/${lang}; path=/;`;
-
-    // Reload so Google Translate automatically applies language
-    window.location.reload();
-  };
-
+    };
   /* =========================================================
      👆 CLOSE LANGUAGE DROPDOWN WHEN CLICKING OUTSIDE
      ========================================================= */
