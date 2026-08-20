@@ -48,7 +48,7 @@ const Navbar = () => {
         new window.google.translate.TranslateElement(
           {
             pageLanguage: 'fr',
-            includedLanguages: 'en,de,fr',
+            includedLanguages: 'en,de,fr,it',
             layout:
               window.google.translate.TranslateElement.InlineLayout.SIMPLE,
             autoDisplay: false
@@ -153,7 +153,7 @@ const Navbar = () => {
       const savedLanguage =
         localStorage.getItem('hitasLanguage');
     
-      if (savedLanguage === 'en' || savedLanguage === 'de' || savedLanguage === 'fr') {
+      if (savedLanguage === 'en' || savedLanguage === 'de' || savedLanguage === 'fr' || savedLanguage==='it') {
         setLanguage(savedLanguage);
       } else {
         setLanguage('fr');
