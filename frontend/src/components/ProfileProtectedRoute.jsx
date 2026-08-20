@@ -48,7 +48,7 @@ const ProfileProtectedRoute = () => {
   if (checking) {
     return (
       <div className="min-h-screen bg-[#030014] flex items-center justify-center text-zinc-400 font-bold tracking-widest uppercase text-xs">
-        <div className="animate-pulse">   <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">Vérification des accès en cours......</span></div>
+          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">Vérification des accès en cours......</span>
       </div>
     );
   }
