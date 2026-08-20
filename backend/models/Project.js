@@ -37,7 +37,7 @@ const ProjectSchema = new mongoose.Schema({
             type: {
                 type: String,
                 // On garde l'enum, mais on s'assure d'avoir une valeur par défaut "image" au cas où le parsing échoue
-                enum: ["image", "video", "pdf", "audio"],
+                enum: ["image", "pdf", "audio"],
                 default: "image", 
                 required: true
             }

@@ -40,7 +40,7 @@ const PostSchema = new mongoose.Schema({
   mediaType: {
     type: String,
     // 📢 Ajout de 'file' dans l'enum pour éviter les rejets Mongoose sur les formats génériques
-    enum: ['image', 'video', 'audio', 'pdf', 'document', 'file'],
+    enum: ['image', 'audio', 'pdf', 'document', 'file'],
     default: null
   },
   likes: [
