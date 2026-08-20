@@ -47,9 +47,10 @@ const ProfileProtectedRoute = () => {
   // Pendant la vérification avec le serveur, on affiche un écran d'attente propre
   if (checking) {
     return (
-      <div className="min-h-screen bg-[#030014] flex items-center justify-center text-zinc-400 font-bold tracking-widest uppercase text-xs">
-          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">Vérification des accès en cours......</span>
-      </div>
+      <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">Chargement du profil...</span>
+        </div>
     );
   }
 
