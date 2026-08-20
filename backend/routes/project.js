@@ -65,18 +65,7 @@ router.post('/', auth, (req, res) => {
           const ext = file.originalname.split('.').pop().toLowerCase();
           let type = 'image';
 
-          if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
-            type = 'video';
-            try {
-              const stream = Readable.from(file.buffer);
-              const duration = await getVideoDurationInSeconds(stream);
-              if (duration > 180) {
-                return res.status(400).json({ message: "L'une de vos vidéos dépasse les 3 minutes maximales." });
-              }
-            } catch (durationErr) {
-              console.error("Erreur durée vidéo :", durationErr);
-            }
-          } else if (mime === 'application/pdf' || ext === '.pdf') {
+          if (mime === 'application/pdf' || ext === 'pdf') {
             type = 'pdf';
           }
 
@@ -203,16 +192,7 @@ router.put('/:id', auth, (req, res) => {
           const ext = file.originalname.split('.').pop().toLowerCase();
           let type = 'image';
 
-          if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
-            type = 'video';
-            try {
-              const stream = Readable.from(file.buffer);
-              const duration = await getVideoDurationInSeconds(stream);
-              if (duration > 180) {
-                return res.status(400).json({ message: "Une vidéo dépasse la limite de 3 minutes." });
-              }
-            } catch (dErr) { console.error(dErr); }
-          } else if (mime === 'application/pdf' || ext === '.pdf') {
+          if (mime === 'application/pdf' || ext === 'pdf') {
             type = 'pdf';
           }
 

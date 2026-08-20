@@ -86,37 +86,40 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     setError('');
     const file = e.target.files[0];
     if (!file) return;
-
-    if (mediaPreview) URL.revokeObjectURL(mediaPreview);
-    const objectUrl = URL.createObjectURL(file);
-
+  
+    // Videos are not allowed
     if (file.type.startsWith('video/')) {
-      const video = document.createElement('video');
-      video.preload = 'metadata';
-      video.onloadedmetadata = function () {
-        window.URL.revokeObjectURL(video.src);
-        if (video.duration > 180) { 
-          setError('Désolé, les vidéos sont limitées à 3 minutes maximum !');
-          clearMedia();
-        } else {
-          setMediaFile(file);
-          setMediaPreview(objectUrl);
-        }
-      };
-      video.src = objectUrl;
-    } else {
-      setMediaFile(file);
-      setMediaPreview(objectUrl);
+      setError('Les vidéos ne sont pas autorisées.');
+      e.target.value = '';
+      return;
     }
+  
+    if (mediaPreview) {
+      URL.revokeObjectURL(mediaPreview);
+    }
+  
+    const objectUrl = URL.createObjectURL(file);
+  
+    setMediaFile(file);
+    setMediaPreview(objectUrl);
   };
 
   const handleEditFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    if (editMediaPreview) URL.revokeObjectURL(editMediaPreview);
+  
+    if (file.type.startsWith('video/')) {
+      alert('Les vidéos ne sont pas autorisées.');
+      e.target.value = '';
+      return;
+    }
+  
+    if (editMediaPreview) {
+      URL.revokeObjectURL(editMediaPreview);
+    }
+  
     const objectUrl = URL.createObjectURL(file);
-
+  
     setExistingMediaUrl('');
     setEditMediaFile(file);
     setEditMediaPreview(objectUrl);
@@ -352,7 +355,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             <textarea
               rows="3"
               className="w-full bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl p-4 text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all resize-none text-sm leading-relaxed shadow-inner"
-              placeholder="Un truc cool à l'école ou en stage ? Raconte ou ajoute un média..."
+              placeholder="Un truc cool à l'école ou en stage ? Raconte ou ajoute un fichier..."
               value={text}
               onChange={(e) => setText(e.target.value)}
             ></textarea>
@@ -366,9 +369,21 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 >
                   <X size={14} />
                 </button>
-                {mediaFile?.type.startsWith('image/') && <img src={mediaPreview} alt="Aperçu" className="w-full h-auto max-h-[360px] object-contain rounded-lg" />}
-                {mediaFile?.type.startsWith('video/') && <video src={mediaPreview} controls className="w-full h-auto max-h-[360px] object-contain rounded-lg" />}
-                {mediaFile?.type.startsWith('audio/') && <audio src={mediaPreview} controls className="w-full max-w-md my-4 accent-indigo-500" />}
+                {mediaFile?.type.startsWith('image/') && (
+  <img 
+    src={mediaPreview} 
+    alt="Aperçu" 
+    className="w-full h-auto max-h-[360px] object-contain rounded-lg" 
+  />
+)}
+
+{mediaFile?.type.startsWith('audio/') && (
+  <audio 
+    src={mediaPreview} 
+    controls 
+    className="w-full max-w-md my-4 accent-indigo-500" 
+  />
+)}
               </div>
             )}
 
@@ -395,15 +410,15 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   className={`flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium transition-all duration-200 ${mediaFile ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400' : 'border-slate-200 dark:border-indigo-950 bg-slate-100 dark:bg-[#030014] text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-200 hover:border-indigo-800'}`}
                 >
                   <Paperclip size={16} className="text-indigo-600 dark:text-indigo-400" />
-                  {mediaFile ? 'Média prêt' : 'Ajouter un média'}
+                  {mediaFile ? 'Média prêt' : 'Ajouter un fichier'}
                 </button>
                 <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  accept="image/*,video/*,audio/*,application/pdf,.doc,.docx" 
-                  onChange={handleFileChange} 
-                  className="hidden"
-                />
+  type="file" 
+  ref={fileInputRef}
+  accept="image/*,audio/*,application/pdf,.doc,.docx" 
+  onChange={handleFileChange} 
+  className="hidden"
+/>
               </div>
 
               <button 
@@ -559,19 +574,20 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           {!existingMediaUrl && !editMediaPreview && (
                             <div>
                               <button
-                                type="button"
-                                onClick={() => editFileInputRef.current?.click()}
-                                className="text-xs border border-slate-200 dark:border-indigo-900/60 bg-white dark:bg-[#0b081e]/80 text-slate-700 dark:text-zinc-300 px-3 py-1.5 rounded-lg hover:text-slate-900 dark:hover:text-white hover:border-indigo-700/50 transition-all flex items-center gap-1.5"
-                              >
-                                <Plus size={16} /> Insérer un fichier ou une vidéo
-                              </button>
-                              <input 
-                                type="file" 
-                                ref={editFileInputRef}
-                                accept="image/*,video/*,audio/*" 
-                                onChange={handleEditFileChange} 
-                                className="hidden"
-                              />
+  type="button"
+  onClick={() => editFileInputRef.current?.click()}
+  className="text-xs border border-slate-200 dark:border-indigo-900/60 bg-white dark:bg-[#0b081e]/80 text-slate-700 dark:text-zinc-300 px-3 py-1.5 rounded-lg hover:text-slate-900 dark:hover:text-white hover:border-indigo-700/50 transition-all flex items-center gap-1.5"
+>
+  <Plus size={16} /> Insérer un fichier
+</button>
+
+<input 
+  type="file" 
+  ref={editFileInputRef}
+  accept="image/*,audio/*,application/pdf,.doc,.docx" 
+  onChange={handleEditFileChange} 
+  className="hidden"
+/>
                             </div>
                           )}
                         </div>
@@ -590,39 +606,50 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                         )}
                         
                         {post.mediaUrl && (
-                          <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
-                            {post.mediaUrl.match(/\.(mp4|webm|mov|m4v)$/i) ? (
-                              <video src={formatMediaUrl(post.mediaUrl)} controls className="w-full h-auto max-h-[420px] object-contain rounded-lg" />
-                            ) : post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
-                              <audio src={formatMediaUrl(post.mediaUrl)} controls className="w-full max-w-md my-3 accent-indigo-500" />
-                            ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
-                              <div className="flex items-center gap-3 p-4 w-full bg-indigo-50 dark:bg-indigo-950/40 rounded-lg border border-indigo-200 dark:border-indigo-900/60 m-2 backdrop-blur-sm">
-                                <span className="text-2xl text-indigo-600 dark:text-indigo-400"><FileText size={28} className="text-indigo-600 dark:text-indigo-400" /></span>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium text-slate-800 dark:text-zinc-200 truncate">
-                                    {post.mediaUrl.split('/').pop()}
-                                  </p>
-                                  <a 
-                                    href={formatMediaUrl(post.mediaUrl)} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    download
-                                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 mt-0.5"
-                                  >
-                                    Télécharger / Ouvrir le document ↗
-                                  </a>
-                                </div>
-                              </div>
-                            ) : (
-                              <img 
-                                src={formatMediaUrl(post.mediaUrl)} 
-                                alt="Média" 
-                                className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
-                                onError={(e) => { e.target.parentNode.style.display = 'none'; }}
-                              />
-                            )}
-                          </div>
-                        )}
+  <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
+    
+    {post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
+      <audio
+        src={formatMediaUrl(post.mediaUrl)}
+        controls
+        className="w-full max-w-md my-3 accent-indigo-500"
+      />
+    ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
+      <div className="flex items-center gap-3 p-4 w-full bg-indigo-50 dark:bg-indigo-950/40 rounded-lg border border-indigo-200 dark:border-indigo-900/60 m-2 backdrop-blur-sm">
+        
+        <span className="text-2xl text-indigo-600 dark:text-indigo-400">
+          <FileText size={28} className="text-indigo-600 dark:text-indigo-400" />
+        </span>
+
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-slate-800 dark:text-zinc-200 truncate">
+            {post.mediaUrl.split('/').pop()}
+          </p>
+
+          <a
+            href={formatMediaUrl(post.mediaUrl)}
+            target="_blank"
+            rel="noopener noreferrer"
+            download
+            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 mt-0.5"
+          >
+            Télécharger / Ouvrir le document ↗
+          </a>
+        </div>
+      </div>
+    ) : (
+      <img
+        src={formatMediaUrl(post.mediaUrl)}
+        alt="Média"
+        className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
+        onError={(e) => {
+          e.target.parentNode.style.display = 'none';
+        }}
+      />
+    )}
+
+  </div>
+)}
 
                         {/* Actions / Boutons */}
                         <div className="flex gap-3 mt-4 pt-3 border-t border-slate-200 dark:border-indigo-900/40 text-xs">
