@@ -6,28 +6,35 @@ const User = require('../models/User');
 const Profile = require('../models/Profile');
 const admin = require('../config/firebaseAdmin');
 const multer = require('multer');
-const { getVideoDurationInSeconds } = require('get-video-duration');
-const { Readable } = require('stream'); 
 const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
 
 // Configuration du stockage de Multer en mémoire
 const storage = multer.memoryStorage();
 
-// Validation des extensions acceptées (Images, Vidéos, Audio, PDF, Word)
+// Validation des extensions acceptées (Images, Audio, PDF, Word)
 const upload = multer({
   storage,
   limits: {
     fileSize: 50 * 1024 * 1024 // 50Mo max
   },
   fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif|webp|mp4|mov|m4v|webm|quicktime|mp3|wav|m4a|ogg|mpeg|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/;
+    // 🚫 Videos are not allowed
+    if (file.mimetype.startsWith('video/')) {
+      return cb(new Error("Les vidéos ne sont pas autorisées sur HITAS."));
+    }
+  
+    const filetypes =
+      /jpeg|jpg|png|gif|webp|mp3|wav|ogg|mpeg|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/;
+  
     const ext = file.originalname.split('.').pop().toLowerCase();
+  
     const isExtValid = filetypes.test(ext);
     const isMimeValid = filetypes.test(file.mimetype);
-
+  
     if (isMimeValid || isExtValid) {
       return cb(null, true);
     }
+  
     cb(new Error("Format non supporté !"));
   }
 });
@@ -62,19 +69,7 @@ router.post('/', auth, (req, res) => {
         mediaOriginalName = req.file.originalname;
         
         // Détermination et validation complète du type de média
-        if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
-          mediaType = 'video';
-          
-          try {
-            const stream = Readable.from(req.file.buffer);
-            const duration = await getVideoDurationInSeconds(stream);
-            if (duration > 180) {
-              return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
-            }
-          } catch (durationErr) {
-            console.error("Impossible de lire la durée de la vidéo :", durationErr);
-          }
-        } else if (mime.startsWith('audio') || ['mp3', 'wav', 'm4a', 'ogg', 'mpeg'].includes(ext)) {
+         if (mime.startsWith('audio') || ['mp3', 'wav', 'm4a', 'ogg', 'mpeg'].includes(ext)) {
           mediaType = 'audio';
         } else if (mime.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
           mediaType = 'image';
@@ -351,18 +346,7 @@ router.put('/:id', auth, (req, res) => {
         
         post.mediaOriginalName = req.file.originalname;
         
-        if (mime.startsWith('video') || ['mp4', 'mov', 'qt', 'webm', 'm4v'].includes(ext)) {
-          post.mediaType = 'video';
-          try {
-            const stream = Readable.from(req.file.buffer);
-            const duration = await getVideoDurationInSeconds(stream);
-            if (duration > 180) {
-              return res.status(400).json({ message: "La vidéo dépasse la limite maximale de 3 minutes." });
-            }
-          } catch (durationErr) {
-            console.error("Impossible de lire la durée de la vidéo :", durationErr);
-          }
-        } else if (mime.startsWith('audio') || ['mp3', 'wav', 'm4a', 'ogg', 'mpeg'].includes(ext)) {
+         if (mime.startsWith('audio') || ['mp3', 'wav', 'm4a', 'ogg', 'mpeg'].includes(ext)) {
           post.mediaType = 'audio';
         } else if (mime.startsWith('image') || ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
           post.mediaType = 'image';
