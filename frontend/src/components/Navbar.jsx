@@ -18,10 +18,20 @@ const Navbar = () => {
     localStorage.getItem('theme') || 'dark'
   );
 
-  // 🌐 Language selector
-  const [language, setLanguage] = useState(
-    localStorage.getItem('hitasLanguage') || 'fr'
-  );
+  // =========================================================
+  // 🌐 LANGUAGE
+  // =========================================================
+
+  const supportedLanguages = ['fr', 'en', 'de', 'it'];
+
+  const [language, setLanguage] = useState(() => {
+    const savedLanguage = localStorage.getItem('hitasLanguage');
+
+    return supportedLanguages.includes(savedLanguage)
+      ? savedLanguage
+      : 'fr';
+  });
+
   const [languageOpen, setLanguageOpen] = useState(false);
 
   const languageRef = useRef(null);
@@ -82,7 +92,6 @@ const Navbar = () => {
        ========================================================= */
 
     const hideGoogleBanner = () => {
-      // Google's top banner container
       const banner = document.querySelector(
         'body > .skiptranslate'
       );
@@ -95,7 +104,6 @@ const Navbar = () => {
         banner.style.overflow = 'hidden';
       }
 
-      // Google's banner iframe
       const iframe = document.querySelector(
         'iframe.goog-te-banner-frame'
       );
@@ -107,16 +115,13 @@ const Navbar = () => {
         iframe.style.width = '0';
       }
 
-      // Google moves the page down when the banner appears.
       document.documentElement.style.marginTop = '0';
       document.body.style.marginTop = '0';
       document.body.style.top = '0';
     };
 
-    // Run immediately
     hideGoogleBanner();
 
-    // Run again after Google loads
     const firstTimer = setTimeout(() => {
       hideGoogleBanner();
     }, 500);
@@ -125,10 +130,6 @@ const Navbar = () => {
       hideGoogleBanner();
     }, 1500);
 
-    /*
-      Google dynamically injects the banner.
-      MutationObserver makes sure it stays hidden.
-    */
     const observer = new MutationObserver(() => {
       hideGoogleBanner();
     });
@@ -146,54 +147,67 @@ const Navbar = () => {
   }, []);
 
   /* =========================================================
-     🌐 DETECT CURRENT LANGUAGE
+     🌐 KEEP LANGUAGE SYNCHRONIZED WITH LOCAL STORAGE
      ========================================================= */
 
-     useEffect(() => {
-      const savedLanguage =
-        localStorage.getItem('hitasLanguage');
-    
-      if (savedLanguage === 'en' || savedLanguage === 'de' || savedLanguage === 'fr' || savedLanguage==='it') {
-        setLanguage(savedLanguage);
-      } else {
-        setLanguage('fr');
-        localStorage.setItem('hitasLanguage', 'fr');
-      }
-    }, []);
+  useEffect(() => {
+    const savedLanguage =
+      localStorage.getItem('hitasLanguage');
+
+    if (supportedLanguages.includes(savedLanguage)) {
+      setLanguage(savedLanguage);
+    } else {
+      localStorage.setItem('hitasLanguage', 'fr');
+      setLanguage('fr');
+    }
+  }, []);
 
   /* =========================================================
      🌐 CHANGE LANGUAGE
      ========================================================= */
 
-     const changeLanguage = (lang) => {
-      // Save selected language for the Navbar
-      localStorage.setItem('hitasLanguage', lang);
-    
-      // Update Navbar immediately
-      setLanguage(lang);
-      setLanguageOpen(false);
-    
-      if (lang === 'fr') {
-        // Remove Google Translate cookies
-        document.cookie =
-          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
-        document.cookie =
-          'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
-          window.location.hostname;
-    
-        // Reload original French page
-        window.location.reload();
-    
-        return;
-      }
-    
-      // Set Google Translate language
-      document.cookie = `googtrans=/fr/${lang}; path=/;`;
-    
-      // Reload so Google Translate applies the translation
+  const changeLanguage = (lang) => {
+    if (!supportedLanguages.includes(lang)) {
+      return;
+    }
+
+    // Save selected language
+    localStorage.setItem('hitasLanguage', lang);
+
+    // Update Navbar immediately
+    setLanguage(lang);
+    setLanguageOpen(false);
+
+    /* =======================================================
+       🇫🇷 RETURN TO ORIGINAL FRENCH
+       ======================================================= */
+
+    if (lang === 'fr') {
+      // Remove standard Google Translate cookie
+      document.cookie =
+        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+      // Remove host-specific cookie
+      document.cookie =
+        'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' +
+        window.location.hostname;
+
+      // Reload original French page
       window.location.reload();
-    };
+
+      return;
+    }
+
+    /* =======================================================
+       🌐 TRANSLATE FROM FRENCH
+       ======================================================= */
+
+    document.cookie = `googtrans=/fr/${lang}; path=/;`;
+
+    // Reload so Google Translate applies the language
+    window.location.reload();
+  };
+
   /* =========================================================
      👆 CLOSE LANGUAGE DROPDOWN WHEN CLICKING OUTSIDE
      ========================================================= */
@@ -369,7 +383,8 @@ const Navbar = () => {
   const languageLabels = {
     fr: 'FR',
     en: 'EN',
-    de: 'DE'
+    de: 'DE',
+    it: 'IT'
   };
 
   return (
@@ -487,7 +502,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-2 sm:space-x-3">
 
             {/* =================================================
-                🌐 MODERN LANGUAGE SELECTOR
+                🌐 LANGUAGE SELECTOR
                 ================================================= */}
 
             <div
@@ -563,7 +578,7 @@ const Navbar = () => {
                   "
                 >
 
-                  {/* 🇫🇷 French */}
+                  {/* 🇫🇷 FRENCH */}
 
                   <button
                     type="button"
@@ -591,7 +606,7 @@ const Navbar = () => {
                     )}
                   </button>
 
-                  {/* 🇬🇧 English */}
+                  {/* 🇬🇧 ENGLISH */}
 
                   <button
                     type="button"
@@ -619,7 +634,7 @@ const Navbar = () => {
                     )}
                   </button>
 
-                  {/* 🇩🇪 German */}
+                  {/* 🇩🇪 GERMAN */}
 
                   <button
                     type="button"
@@ -647,25 +662,25 @@ const Navbar = () => {
                     )}
                   </button>
 
-                  {/* IT ITALIA */}
-
+                  {/* 🇮🇹 ITALIAN */}
+                  
                   <button
                     type="button"
                     onClick={() =>
-                      changeLanguage('en')
+                      changeLanguage('it')
                     }
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                      language === 'en'
+                      language === 'it'
                         ? 'bg-indigo-500/15 text-indigo-200'
                         : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
                     }`}
                   >
                     <span className="text-base">
-                      IT
+                      🇮🇹
                     </span>
 
                     <span className="font-medium">
-                      ITALIA
+                      Italiano
                     </span>
 
                     {language === 'it' && (
@@ -675,7 +690,6 @@ const Navbar = () => {
                     )}
                   </button>
 
-
                 </div>
               )}
 
@@ -683,7 +697,6 @@ const Navbar = () => {
 
             {/* =================================================
                 🌐 GOOGLE TRANSLATE ENGINE
-                Hidden visually but still functional
                 ================================================= */}
 
             <div
@@ -809,7 +822,6 @@ const Navbar = () => {
             }`
           }
         >
-
           Blog
 
           {hasNewNotification && (
