@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
+import { Sparkles, GraduationCap, MapPin, Briefcase, User } from 'lucide-react';
 
-// On récupère hasNewNotification et clearNotifications en props (transmisses depuis App.jsx ou un routeur)
 function Annuaire({ hasNewNotification, clearNotifications }) {
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState([]);
@@ -41,7 +41,6 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
     fetchProfiles();
   }, []);
 
-  // Listes prédéfinies de suggestions
   const presetSpecialties = [
     'Agriculture', 'Architecture', 'Biotechnologie', 'Business Administration (BBA)',
     'Computer Applications (BCA/MCA)', 'Computer Science & Engineering (CSE)',
@@ -134,7 +133,6 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
         }
       `}</style>
 
-      {/* On transmet l'état global des notifications à la Navbar */}
       <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-12 relative z-10">
@@ -163,9 +161,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
-                  Spécialité
-                </label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">Spécialité</label>
                 <select
                   value={selectedSpecialty}
                   onChange={(e) => setSelectedSpecialty(e.target.value)}
@@ -179,9 +175,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
-                  Promotion
-                </label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">Promotion</label>
                 <select
                   value={selectedPromotion}
                   onChange={(e) => setSelectedPromotion(e.target.value)}
@@ -195,9 +189,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
-                  Pays / Localisation
-                </label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">Pays</label>
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
@@ -211,9 +203,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
-                  Statut
-                </label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">Statut</label>
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
@@ -227,9 +217,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
-                  Niveau d'étude
-                </label>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">Niveau</label>
                 <select
                   value={selectedDegree}
                   onChange={(e) => setSelectedDegree(e.target.value)}
@@ -246,7 +234,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
           </div>
         )}
 
-        {loading && <p className="text-zinc-300 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl text-center shadow-xl border border-indigo-500/30 drop-shadow-sm">Recherche des profils...</p>}
+        {loading && <p className="text-zinc-300 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl text-center shadow-xl border border-indigo-500/30">Recherche des profils...</p>}
         {error && <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl mb-6 text-sm font-medium backdrop-blur-md shadow-lg">{error}</div>}
 
         {!loading && !error && (
@@ -257,90 +245,115 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 {(searchTerm || selectedSpecialty || selectedPromotion || selectedCountry || selectedStatus || selectedDegree) && (
                   <button 
                     onClick={handleResetFilters}
-                    className="mt-4 text-xs font-bold text-indigo-300 hover:text-white px-4 py-2 border border-indigo-500/40 rounded-xl hover:bg-indigo-950/60 transition-all shadow-md shadow-indigo-950/50"
+                    className="mt-4 text-xs font-bold text-indigo-300 hover:text-white px-4 py-2 border border-indigo-500/40 rounded-xl hover:bg-indigo-950/60 transition-all shadow-md"
                   >
                     Réinitialiser les filtres
                   </button>
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredProfiles.map((profile, index) => (
-                  <div 
-                    key={profile._id} 
-                    onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
-                    className="p-6 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-3xl shadow-xl shadow-indigo-950/30 flex flex-col justify-between hover:bg-[#0b081e]/90 hover:border-indigo-400/60 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1 hover:shadow-[0_0_25px_rgba(99,102,241,0.25)] overflow-hidden"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                  >
-                    <div className="overflow-hidden">
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-[#030014]/90 border border-indigo-500/40 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5 shadow-[0_0_10px_rgba(99,102,241,0.3)] group-hover:border-indigo-300 transition-colors backdrop-blur-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProfiles.map((profile, index) => {
+                  const skillsArray = profile.skills 
+                    ? (Array.isArray(profile.skills) ? profile.skills : typeof profile.skills === 'string' ? profile.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()) : [])
+                    : [];
+
+                  return (
+                    <div 
+                      key={profile._id} 
+                      onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
+                      className="relative bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/30 rounded-[2.5rem] p-6 shadow-2xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1.5 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)] flex flex-col items-center text-center overflow-hidden"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      {/* Effet lumineux de fond */}
+                      <div className="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+
+                      {/* Racine de l'arbre : Avatar et Nom au sommet */}
+                      <div className="relative mb-4">
+                        <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-40 group-hover:opacity-80 transition duration-300"></div>
+                        <div className="relative w-20 h-20 rounded-full bg-[#030014] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-xl">
                           {profile.avatar ? (
                             <img 
                               src={formatMediaUrl(profile.avatar)} 
                               alt={`${profile.firstName} ${profile.lastName}`} 
-                              className="w-full h-full object-cover"
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               onError={(e) => {
                                 e.target.style.display = 'none';
-                                e.target.parentNode.innerHTML = `<span class="text-indigo-300 text-xs font-bold uppercase drop-shadow-[0_0_5px_rgba(129,140,248,0.8)]">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
+                                e.target.parentNode.innerHTML = `<span class="text-indigo-300 font-bold text-xs uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
                               }}
                             />
                           ) : (
-                            <span className="text-indigo-300 text-xs font-bold uppercase tracking-wider drop-shadow-[0_0_5px_rgba(129,140,248,0.8)]">
+                            <span className="text-indigo-300 font-bold text-xs uppercase">
                               {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
                             </span>
                           )}
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h2 className="text-base font-black text-white group-hover:text-indigo-300 transition-colors leading-snug break-words drop-shadow-sm">
-                            {profile.firstName} {profile.lastName}
-                          </h2>
-                          <p className="text-indigo-200 text-xs font-semibold truncate mt-0.5">
-                            🎓 {profile.specialty || 'Computer Science'} — Promo {profile.promotion || 'N/A'}
-                          </p>
-                          <p className="text-zinc-300 text-[11px] font-semibold mt-1 flex items-center gap-1 truncate">
-                            📍 {profile.country || 'Non renseigné'} {profile.currentLocation || profile.city ? `(${profile.currentLocation || profile.city})` : ''}
-                          </p>
-                        </div>
                       </div>
 
-                      {(profile.status || profile.currentCompany || profile.jobTitle) && (
-                        <div className="mb-4 text-xs bg-indigo-950/40 p-3 rounded-2xl border border-indigo-500/30 text-indigo-200 overflow-hidden shadow-inner">
-                          {profile.jobTitle && <p className="font-bold text-white truncate drop-shadow-sm">{profile.jobTitle}</p>}
-                          {profile.currentCompany && <p className="text-[11px] text-indigo-300 truncate font-medium">🏢 {profile.currentCompany}</p>}
-                          {profile.status && <span className="inline-block mt-1 text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-900/60 text-indigo-200 font-bold uppercase border border-indigo-500/40 shadow-sm">{profile.status}</span>}
+                      <h2 className="text-base font-black text-white group-hover:text-indigo-300 transition-colors uppercase tracking-tight mb-1">
+                        {profile.firstName} {profile.lastName}
+                      </h2>
+                      
+                      {profile.status && (
+                        <span className="inline-block text-[10px] font-bold px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3">
+                          {profile.status}
+                        </span>
+                      )}
+
+                      {/* Ligne de séparation centrale */}
+                      <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent my-3"></div>
+
+                      {/* Branches de données (Mind-Map compacte) */}
+                      <div className="w-full space-y-2.5 text-left text-xs mb-4">
+                        <div className="bg-[#030014]/70 p-2.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Formation</p>
+                            <p className="text-zinc-200 font-semibold truncate">{profile.specialty || 'Informatique'} (Promo {profile.promotion || '-'})</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-[#030014]/70 p-2.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-pink-400 flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Localisation</p>
+                            <p className="text-zinc-200 font-semibold truncate">{profile.country || 'Non renseigné'} {profile.currentLocation ? `- ${profile.currentLocation}` : ''}</p>
+                          </div>
+                        </div>
+
+                        {(profile.jobTitle || profile.currentCompany) && (
+                          <div className="bg-[#030014]/70 p-2.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
+                            <Briefcase className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Poste Actuel</p>
+                              <p className="text-zinc-200 font-semibold truncate">{profile.jobTitle || 'Poste'} {profile.currentCompany ? `chez ${profile.currentCompany}` : ''}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Feuille finale : Compétences */}
+                      {skillsArray.length > 0 && (
+                        <div className="w-full pt-3 border-t border-indigo-900/40 mt-auto">
+                          <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-2 text-center">Compétences</p>
+                          <div className="flex flex-wrap justify-center gap-1.5">
+                            {skillsArray.slice(0, 3).map((skill, sIdx) => (
+                              <span key={sIdx} className="bg-indigo-500/10 text-indigo-200 border border-indigo-500/20 px-2.5 py-1 rounded-xl text-[10px] font-medium">
+                                {skill}
+                              </span>
+                            ))}
+                            {skillsArray.length > 3 && (
+                              <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-1 rounded-xl text-[10px] font-bold">
+                                +{skillsArray.length - 3}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       )}
 
-                      {profile.bio && (
-                        <p className="text-zinc-300 text-xs leading-relaxed mb-6 line-clamp-3 bg-[#030014]/60 p-3.5 rounded-2xl border border-indigo-500/20 font-normal shadow-inner break-words">
-                          {profile.bio}
-                        </p>
-                      )}
                     </div>
-
-                    {profile.skills && (
-                      <div className="flex flex-wrap gap-1.5 pt-4 border-t border-indigo-900/40 mt-auto overflow-hidden">
-                        {(Array.isArray(profile.skills) ? profile.skills : [profile.skills]).map((skill, index) => {
-                          const cleanSkill = typeof skill === 'string' 
-                            ? skill.replace(/[\[\]"'\\]/g, '').trim()
-                            : String(skill);
-
-                          if (!cleanSkill) return null;
-
-                          return (
-                            <span 
-                              key={index} 
-                              className="px-2 py-0.5 bg-[#030014]/80 text-indigo-200 text-[11px] font-mono rounded-lg border border-indigo-500/30 shadow-sm group-hover:border-indigo-400/60 transition-colors break-all max-w-full font-medium"
-                            >
-                              {cleanSkill}
-                            </span>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
