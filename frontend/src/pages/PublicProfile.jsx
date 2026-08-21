@@ -168,11 +168,10 @@ const PublicProfile = () => {
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour
         </button>
 
-        {/* Profil Header - Plus fluide, arrondi et asymétrique */}
+        {/* Profil Header (Haut de page inchangé et élégant) */}
         <div className="bg-gradient-to-br from-[#0b081e]/90 via-[#0b081e]/70 to-[#120e2e]/80 backdrop-blur-3xl p-8 sm:p-10 rounded-[2.5rem] border border-indigo-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-8 flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden group">
           <div className="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700"></div>
           
-          {/* Avatar avec halo lumineux */}
           <div className="relative flex-shrink-0">
             <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2.2rem] blur opacity-50 group-hover:opacity-80 transition duration-500"></div>
             <div className="relative w-32 h-32 rounded-[2rem] flex items-center justify-center text-3xl font-extrabold uppercase overflow-hidden border-2 border-indigo-500/40 bg-[#030014] shadow-2xl">
@@ -251,81 +250,94 @@ const PublicProfile = () => {
           </button>
         </div>
 
-        {/* Tab: Compte */}
+        {/* =========================================================
+            TAB: COMPTE - STRUCTURE EN ARBRE / BRANCHES (MIND-MAP)
+        ========================================================= */}
         {activeTab === 'compte' && (
-          <div className="space-y-6">
-            <div className="bg-[#0b081e]/80 backdrop-blur-3xl p-6 sm:p-8 rounded-[2.5rem] border border-indigo-500/20 shadow-2xl overflow-hidden">
-              <h2 className="text-xs font-bold mb-6 text-indigo-300 uppercase tracking-widest flex items-center gap-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></span> Informations Générales
-              </h2>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Prénom</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.firstName || '-'}</span>
-                </div>
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Nom de famille</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.lastName || '-'}</span>
-                </div>
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Promotion</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.promotion || '-'}</span>
-                </div>
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Spécialité</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.specialty || '-'}</span>
-                </div>
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Statut Actuel</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.status || 'Non renseigné'}</span>
-                </div>
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Niveau d'étude</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.degreeLevel || 'Non renseigné'}</span>
-                </div>
-              </div>
+          <div className="relative py-8 flex flex-col items-center">
+            
+            {/* Titre de section stylisé */}
+            <h2 className="text-xs font-bold mb-12 text-indigo-300 uppercase tracking-widest flex items-center gap-2.5 bg-[#0b081e]/90 px-5 py-2 rounded-full border border-indigo-500/30 shadow-lg relative z-20">
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></span> Arbre de Profil & Compétences
+            </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Pays</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.country || '-'}</span>
-                </div>
-                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Ville / Emplacement</span>
-                  <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.currentLocation || '-'}</span>
-                </div>
-              </div>
-
-              {(userProfile.jobTitle || userProfile.currentCompany) && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                  <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                    <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Intitulé du Poste</span>
-                    <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.jobTitle || '-'}</span>
+            {/* Racine de l'arbre (Avatar et Nom) */}
+            <div className="relative z-20 flex flex-col items-center mb-16">
+              <div className="absolute -inset-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-lg opacity-40 animate-pulse"></div>
+              <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-indigo-400 bg-[#030014] shadow-2xl">
+                {userProfile.avatar ? (
+                  <img src={formatMediaUrl(userProfile.avatar)} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-indigo-300 font-bold text-xl">
+                    {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
                   </div>
-                  <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
-                    <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Entreprise</span>
-                    <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.currentCompany || '-'}</span>
-                  </div>
-                </div>
-              )}
-
-              <div className="bg-[#030014]/60 p-5 rounded-2xl border border-indigo-900/30 text-xs mb-4">
-                <span className="text-zinc-500 block mb-2 uppercase text-[10px] font-bold tracking-widest">Biographie</span>
-                <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line break-words">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
+                )}
               </div>
-
-              <div className="bg-[#030014]/60 p-5 rounded-2xl border border-indigo-900/30 text-xs">
-                <span className="text-zinc-500 block mb-3 uppercase text-[10px] font-bold tracking-widest">Compétences</span>
-                <div className="flex flex-wrap gap-2.5">
-                  {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
-                </div>
+              <div className="mt-3 text-center bg-[#0b081e]/90 backdrop-blur-md px-5 py-2 rounded-2xl border border-indigo-500/30 shadow-xl">
+                <span className="text-[10px] text-indigo-400 uppercase font-bold tracking-widest block">Étudiant</span>
+                <span className="text-white font-black text-sm uppercase">{userProfile.firstName} {userProfile.lastName}</span>
               </div>
             </div>
+
+            {/* Ligne verticale centrale principale de l'arbre */}
+            <div className="absolute top-36 bottom-20 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-transparent pointer-events-none"></div>
+
+            {/* Les Branches de l'Arbre (Nœuds d'informations asymétriques) */}
+            <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-10 relative z-10 px-4">
+              
+              {/* Branche 1 : Identité & Nom complet */}
+              <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[-15px] group">
+                <div className="absolute -left-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-1">👤 Identité</span>
+                <p className="text-zinc-100 text-xs font-semibold">Prénom : <span className="text-indigo-200 font-normal">{userProfile.firstName || '-'}</span></p>
+                <p className="text-zinc-100 text-xs font-semibold mt-1">Nom : <span className="text-indigo-200 font-normal">{userProfile.lastName || '-'}</span></p>
+              </div>
+
+              {/* Branche 2 : Formation & Promo */}
+              <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[15px] group">
+                <div className="absolute -right-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
+                <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest block mb-1">📚 Formation & Promo</span>
+                <p className="text-zinc-100 text-xs font-semibold">{userProfile.specialty || 'Spécialité non renseignée'}</p>
+                <p className="text-zinc-400 text-[11px] mt-1">Promo {userProfile.promotion || '-'} • {userProfile.degreeLevel || ''}</p>
+              </div>
+
+              {/* Branche 3 : Localisation */}
+              <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[-15px] group">
+                <div className="absolute -left-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
+                <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block mb-1">🌍 Localisation</span>
+                <p className="text-zinc-100 text-xs font-semibold">{userProfile.country || 'Pays non renseigné'}</p>
+                <p className="text-zinc-400 text-[11px] mt-1">{userProfile.currentLocation || 'Ville non renseignée'}</p>
+              </div>
+
+              {/* Branche 4 : Situation Professionnelle */}
+              <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[15px] group">
+                <div className="absolute -right-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block mb-1">💼 Situation Pro</span>
+                <p className="text-zinc-100 text-xs font-semibold">{userProfile.jobTitle || 'Statut / Poste non renseigné'}</p>
+                <p className="text-zinc-400 text-[11px] mt-1">{userProfile.currentCompany ? `chez ${userProfile.currentCompany}` : userProfile.status || ''}</p>
+              </div>
+
+              {/* Branche 5 : Biographie (Pleine largeur) */}
+              <div className="sm:col-span-2 relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all">
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1">📝 Biographie</span>
+                <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-line">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
+              </div>
+
+            </div>
+
+            {/* Feuille finale de l'arbre : Compétences Clés */}
+            <div className="mt-12 relative z-10 w-full max-w-lg bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-6 rounded-[2.5rem] shadow-2xl text-center">
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
+              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest block mb-4">⚡ Compétences Techniques</span>
+              <div className="flex flex-wrap justify-center gap-2.5">
+                {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
+              </div>
+            </div>
+
           </div>
         )}
 
-        {/* Tab: Projets */}
+        {/* Tab: Projets (Inchangé et fluide) */}
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
