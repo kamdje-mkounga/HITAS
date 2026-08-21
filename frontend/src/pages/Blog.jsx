@@ -18,7 +18,6 @@ import {
   Send,
   Megaphone,
   Briefcase,
-  Image as ImageIcon,
   Music,
   File
 } from 'lucide-react';
@@ -212,6 +211,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     if (!files.length) return;
 
     /* 🚫 VIDEOS */
+
     const hasVideo = files.some((file) =>
       file.type.startsWith('video/')
     );
@@ -664,12 +664,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       );
 
       /*
-       * IMPORTANT :
        * Tous les fichiers utilisent
        * le même nom "media".
-       *
-       * Backend :
-       * upload.array('media', ...)
        */
 
       mediaFiles.forEach((file) => {
@@ -756,12 +752,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         editText
       );
 
-      /*
-       * Médias existants conservés.
-       *
-       * On envoie chaque URL séparément.
-       */
-
       existingMediaUrls.forEach(
         (url) => {
           formData.append(
@@ -770,10 +760,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           );
         }
       );
-
-      /*
-       * Nouveaux fichiers
-       */
 
       editMediaFiles.forEach(
         (file) => {
@@ -898,12 +884,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   /* =========================================================
      MEDIA GRID
+     
+     INSTAGRAM-STYLE MIXED MEDIA
   ========================================================= */
 
-  const renderMediaGrid = (
-    mediaUrls
-  ) => {
-
+  const renderMediaGrid = (mediaUrls) => {
     if (
       !mediaUrls ||
       mediaUrls.length === 0
@@ -911,278 +896,467 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       return null;
     }
 
-    const visibleMedia =
-      mediaUrls.slice(0, 4);
+    /*
+     * We separate images from other file types.
+     * Images use the visual Instagram-style grid.
+     * Audio/documents are displayed as full-width cards.
+     */
 
-    const remaining =
-      mediaUrls.length - 4;
+    const imageItems = mediaUrls.filter(
+      (url) => isImage(url)
+    );
 
-    const count =
-      visibleMedia.length;
+    const otherItems = mediaUrls.filter(
+      (url) => !isImage(url)
+    );
 
     return (
-      <div
-        className={`
-          overflow-hidden
-          bg-slate-100
-          dark:bg-black
-          ${count === 1
-            ? 'rounded-none'
-            : 'grid grid-cols-2 gap-[2px]'
-          }
-        `}
-      >
+      <div className="w-full">
 
-        {visibleMedia.map(
-          (url, index) => {
+        {/* =====================================================
+            IMAGE GRID
+        ===================================================== */}
 
-            const fullUrl =
-              formatMediaUrl(url);
-
-            /*
-             * IMAGE
-             */
-
-            if (isImage(url)) {
-
-              let imageClass =
-                'w-full h-full object-cover';
-
-              if (count === 1) {
-                imageClass =
-                  'w-full max-h-[720px] object-contain bg-black/5 dark:bg-black/20';
+        {imageItems.length > 0 && (
+          <div
+            className={`
+              overflow-hidden
+              bg-black
+              ${
+                imageItems.length === 1
+                  ? 'block'
+                  : 'grid grid-cols-2 gap-[2px]'
               }
+            `}
+          >
 
-              if (
-                count === 2
-              ) {
-                imageClass =
-                  'w-full h-[300px] sm:h-[400px] object-cover';
-              }
+            {imageItems
+              .slice(0, 4)
+              .map((url, index) => {
 
-              if (
-                count >= 3
-              ) {
-                imageClass =
-                  index === 0
-                    ? 'w-full h-[360px] sm:h-[460px] object-cover'
-                    : 'w-full h-[178px] sm:h-[229px] object-cover';
-              }
+                const fullUrl =
+                  formatMediaUrl(url);
 
-              return (
-                <div
-                  key={`${url}-${index}`}
-                  className={`
-                    relative overflow-hidden
-                    ${count === 1
-                      ? ''
-                      : index === 0 &&
-                        count >= 3
-                      ? 'row-span-2'
-                      : ''
-                    }
-                  `}
-                >
-                  <img
-                    src={fullUrl}
-                    alt={`Publication ${index + 1}`}
-                    className={imageClass}
-                    loading="lazy"
-                    onError={(e) => {
-                      e.currentTarget.style.display =
-                        'none';
-                    }}
-                  />
+                const remaining =
+                  imageItems.length - 4;
 
-                  {index === 3 &&
-                    remaining > 0 && (
+                const count =
+                  Math.min(
+                    imageItems.length,
+                    4
+                  );
+
+                /*
+                 * SINGLE IMAGE
+                 */
+
+                if (count === 1) {
+                  return (
+                    <div
+                      key={`${url}-${index}`}
+                      className="
+                        relative
+                        w-full
+                        overflow-hidden
+                        bg-black
+                      "
+                    >
+                      <img
+                        src={fullUrl}
+                        alt="Publication"
+                        className="
+                          w-full
+                          max-h-[720px]
+                          object-contain
+                          bg-black
+                        "
+                        loading="lazy"
+                        onError={(e) => {
+                          e.currentTarget.style.display =
+                            'none';
+                        }}
+                      />
+
+                      {remaining > 0 && (
+                        <div
+                          className="
+                            absolute
+                            inset-0
+                            bg-black/55
+                            flex
+                            items-center
+                            justify-center
+                            text-white
+                            text-2xl
+                            font-bold
+                          "
+                        >
+                          +{remaining}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+
+                /*
+                 * TWO IMAGES
+                 */
+
+                if (count === 2) {
+                  return (
+                    <div
+                      key={`${url}-${index}`}
+                      className="
+                        relative
+                        overflow-hidden
+                        bg-black
+                      "
+                    >
+                      <img
+                        src={fullUrl}
+                        alt={`Publication ${index + 1}`}
+                        className="
+                          w-full
+                          h-[300px]
+                          sm:h-[400px]
+                          object-cover
+                        "
+                        loading="lazy"
+                      />
+                    </div>
+                  );
+                }
+
+                /*
+                 * THREE OR FOUR IMAGES
+                 */
+
+                return (
+                  <div
+                    key={`${url}-${index}`}
+                    className={`
+                      relative
+                      overflow-hidden
+                      bg-black
+                      ${
+                        index === 0
+                          ? 'row-span-2'
+                          : ''
+                      }
+                    `}
+                  >
+                    <img
+                      src={fullUrl}
+                      alt={`Publication ${index + 1}`}
+                      className={`
+                        w-full
+                        object-cover
+                        ${
+                          index === 0
+                            ? 'h-[360px] sm:h-[460px]'
+                            : 'h-[178px] sm:h-[229px]'
+                        }
+                      `}
+                      loading="lazy"
+                    />
+
+                    {index === 3 &&
+                      remaining > 0 && (
+                        <div
+                          className="
+                            absolute
+                            inset-0
+                            bg-black/60
+                            flex
+                            items-center
+                            justify-center
+                            text-white
+                            text-2xl
+                            font-bold
+                            backdrop-blur-[1px]
+                          "
+                        >
+                          +{remaining}
+                        </div>
+                      )}
+                  </div>
+                );
+              })}
+          </div>
+        )}
+
+        {/* =====================================================
+            ADDITIONAL IMAGES BEYOND FIRST 4
+        ===================================================== */}
+
+        {imageItems.length > 4 && (
+          <div
+            className="
+              px-4
+              py-2
+              bg-white
+              dark:bg-[#030014]
+              border-t
+              border-slate-200
+              dark:border-indigo-950
+              text-center
+            "
+          >
+            <span
+              className="
+                text-[11px]
+                font-semibold
+                text-indigo-600
+                dark:text-indigo-400
+              "
+            >
+              +{imageItems.length - 4} autre
+              {imageItems.length - 4 > 1
+                ? 's'
+                : ''}{' '}
+              image
+              {imageItems.length - 4 > 1
+                ? 's'
+                : ''}
+            </span>
+          </div>
+        )}
+
+        {/* =====================================================
+            AUDIO + DOCUMENTS
+        ===================================================== */}
+
+        {otherItems.length > 0 && (
+          <div className="w-full">
+
+            {otherItems.map(
+              (url, index) => {
+
+                const fullUrl =
+                  formatMediaUrl(url);
+
+                /*
+                 * AUDIO
+                 */
+
+                if (isAudio(url)) {
+                  return (
+                    <div
+                      key={`audio-${url}-${index}`}
+                      className="
+                        w-full
+                        p-4
+                        bg-slate-50
+                        dark:bg-[#030014]
+                        border-t
+                        border-slate-200
+                        dark:border-indigo-950
+                      "
+                    >
                       <div
                         className="
-                          absolute inset-0
-                          bg-black/55
-                          flex items-center justify-center
-                          text-white
-                          text-2xl
-                          font-bold
+                          flex
+                          items-center
+                          gap-3
+                          p-3
+                          rounded-xl
+                          bg-indigo-50
+                          dark:bg-indigo-950/30
+                          border
+                          border-indigo-100
+                          dark:border-indigo-900/50
                         "
                       >
-                        +{remaining}
+
+                        <div
+                          className="
+                            w-11
+                            h-11
+                            rounded-full
+                            bg-indigo-600
+                            text-white
+                            flex
+                            items-center
+                            justify-center
+                            flex-shrink-0
+                          "
+                        >
+                          <Music size={18} />
+                        </div>
+
+                        <div
+                          className="
+                            flex-1
+                            min-w-0
+                          "
+                        >
+
+                          <p
+                            className="
+                              text-xs
+                              font-semibold
+                              text-slate-700
+                              dark:text-zinc-300
+                              truncate
+                              mb-1
+                            "
+                          >
+                            {getFileName(url)}
+                          </p>
+
+                          <audio
+                            src={fullUrl}
+                            controls
+                            className="
+                              w-full
+                              h-9
+                            "
+                          />
+
+                        </div>
                       </div>
-                    )}
-                </div>
-              );
-            }
+                    </div>
+                  );
+                }
 
-            /*
-             * AUDIO
-             */
+                /*
+                 * DOCUMENT
+                 */
 
-            if (isAudio(url)) {
-              return (
-                <div
-                  key={`${url}-${index}`}
-                  className="
-                    col-span-2
-                    p-4
-                    bg-slate-50
-                    dark:bg-[#030014]
-                  "
-                >
+                if (isDocument(url)) {
+                  return (
+                    <a
+                      key={`document-${url}-${index}`}
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="
+                        w-full
+                        flex
+                        items-center
+                        gap-3
+                        p-4
+                        bg-white
+                        dark:bg-[#030014]
+                        border-t
+                        border-slate-200
+                        dark:border-indigo-950
+                        hover:bg-slate-50
+                        dark:hover:bg-[#0b081e]
+                        transition-colors
+                      "
+                    >
+
+                      <div
+                        className="
+                          w-12
+                          h-12
+                          rounded-xl
+                          bg-indigo-500/10
+                          text-indigo-600
+                          dark:text-indigo-400
+                          flex
+                          items-center
+                          justify-center
+                          flex-shrink-0
+                        "
+                      >
+                        <FileText size={23} />
+                      </div>
+
+                      <div
+                        className="
+                          flex-1
+                          min-w-0
+                        "
+                      >
+
+                        <p
+                          className="
+                            text-sm
+                            font-semibold
+                            text-slate-800
+                            dark:text-zinc-200
+                            truncate
+                          "
+                        >
+                          {getFileName(url)}
+                        </p>
+
+                        <p
+                          className="
+                            text-[11px]
+                            text-indigo-600
+                            dark:text-indigo-400
+                            mt-1
+                          "
+                        >
+                          Ouvrir le document →
+                        </p>
+
+                      </div>
+
+                    </a>
+                  );
+                }
+
+                /*
+                 * UNKNOWN FILE
+                 */
+
+                return (
                   <div
+                    key={`file-${url}-${index}`}
                     className="
-                      flex items-center gap-3
-                      bg-indigo-50
-                      dark:bg-indigo-950/30
-                      border border-indigo-100
-                      dark:border-indigo-900/50
-                      rounded-xl
-                      p-3
+                      w-full
+                      flex
+                      items-center
+                      gap-3
+                      p-4
+                      bg-white
+                      dark:bg-[#030014]
+                      border-t
+                      border-slate-200
+                      dark:border-indigo-950
                     "
                   >
+
                     <div
                       className="
-                        w-10 h-10
-                        rounded-full
-                        bg-indigo-600
-                        text-white
-                        flex items-center
+                        w-11
+                        h-11
+                        rounded-xl
+                        bg-slate-100
+                        dark:bg-zinc-900
+                        flex
+                        items-center
                         justify-center
                         flex-shrink-0
                       "
                     >
-                      <Music size={18} />
+                      <File size={19} />
                     </div>
 
-                    <audio
-                      src={fullUrl}
-                      controls
-                      className="
-                        w-full
-                        h-9
-                        accent-indigo-500
-                      "
-                    />
-                  </div>
-                </div>
-              );
-            }
-
-            /*
-             * DOCUMENT
-             */
-
-            if (isDocument(url)) {
-              return (
-                <a
-                  key={`${url}-${index}`}
-                  href={fullUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                  className="
-                    col-span-2
-                    flex items-center gap-3
-                    p-4
-                    bg-white
-                    dark:bg-[#030014]
-                    hover:bg-slate-50
-                    dark:hover:bg-[#0b081e]
-                    transition-colors
-                  "
-                >
-                  <div
-                    className="
-                      w-11 h-11
-                      rounded-xl
-                      bg-indigo-500/10
-                      text-indigo-600
-                      dark:text-indigo-400
-                      flex items-center
-                      justify-center
-                      flex-shrink-0
-                    "
-                  >
-                    <FileText
-                      size={22}
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p
+                    <span
                       className="
                         text-sm
-                        font-semibold
-                        text-slate-800
-                        dark:text-zinc-200
+                        text-slate-700
+                        dark:text-zinc-300
                         truncate
                       "
                     >
-                      {getFileName(
-                        url
-                      )}
-                    </p>
+                      {getFileName(url)}
+                    </span>
 
-                    <p
-                      className="
-                        text-[11px]
-                        text-indigo-600
-                        dark:text-indigo-400
-                        mt-0.5
-                      "
-                    >
-                      Ouvrir le document →
-                    </p>
                   </div>
-                </a>
-              );
-            }
+                );
+              }
+            )}
 
-            /*
-             * AUTRE FICHIER
-             */
-
-            return (
-              <div
-                key={`${url}-${index}`}
-                className="
-                  col-span-2
-                  p-4
-                  flex items-center gap-3
-                  bg-white
-                  dark:bg-[#030014]
-                "
-              >
-                <div
-                  className="
-                    w-10 h-10
-                    rounded-xl
-                    bg-slate-100
-                    dark:bg-zinc-900
-                    flex items-center
-                    justify-center
-                  "
-                >
-                  <File
-                    size={18}
-                  />
-                </div>
-
-                <span
-                  className="
-                    text-sm
-                    truncate
-                    text-slate-700
-                    dark:text-zinc-300
-                  "
-                >
-                  {getFileName(
-                    url
-                  )}
-                </span>
-              </div>
-            );
-          }
+          </div>
         )}
+
       </div>
     );
   };
@@ -1214,14 +1388,17 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
         <div
           className="
-            flex items-center
+            flex
+            items-center
             justify-between
-            px-3 py-2
+            px-3
+            py-2
             border-b
             border-slate-200
             dark:border-indigo-950
           "
         >
+
           <span
             className="
               text-[11px]
@@ -1253,6 +1430,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           >
             Tout retirer
           </button>
+
         </div>
 
         <div
@@ -1269,6 +1447,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               const preview =
                 mediaPreviews[index];
 
+              /*
+               * IMAGE
+               */
+
               if (
                 file.type.startsWith(
                   'image/'
@@ -1283,6 +1465,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       overflow-hidden
                     "
                   >
+
                     <img
                       src={preview}
                       alt="Aperçu"
@@ -1304,22 +1487,27 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                         absolute
                         top-2
                         right-2
-                        w-7 h-7
+                        w-7
+                        h-7
                         rounded-full
                         bg-black/70
                         text-white
-                        flex items-center
+                        flex
+                        items-center
                         justify-center
                         backdrop-blur-md
                       "
                     >
-                      <X
-                        size={14}
-                      />
+                      <X size={14} />
                     </button>
+
                   </div>
                 );
               }
+
+              /*
+               * AUDIO / DOCUMENT
+               */
 
               return (
                 <div
@@ -1330,10 +1518,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     p-4
                     bg-white
                     dark:bg-[#0b081e]
-                    flex flex-col
+                    flex
+                    flex-col
                     justify-center
                   "
                 >
+
                   <button
                     type="button"
                     onClick={() =>
@@ -1345,17 +1535,17 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       absolute
                       top-2
                       right-2
-                      w-7 h-7
+                      w-7
+                      h-7
                       rounded-full
                       bg-red-500/10
                       text-red-500
-                      flex items-center
+                      flex
+                      items-center
                       justify-center
                     "
                   >
-                    <X
-                      size={14}
-                    />
+                    <X size={14} />
                   </button>
 
                   {file.type.startsWith(
@@ -1369,6 +1559,18 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           mb-2
                         "
                       />
+
+                      <p
+                        className="
+                          text-[10px]
+                          text-slate-600
+                          dark:text-zinc-400
+                          truncate
+                          mb-1
+                        "
+                      >
+                        {file.name}
+                      </p>
 
                       <audio
                         src={preview}
@@ -1401,12 +1603,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       </span>
                     </>
                   )}
+
                 </div>
               );
             }
           )}
 
         </div>
+
       </div>
     );
   };
@@ -1425,7 +1629,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         selection:bg-indigo-500
         selection:text-white
         antialiased
-        flex flex-col
+        flex
+        flex-col
         transition-colors
         duration-300
       "
@@ -1480,6 +1685,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             md:text-left
           "
         >
+
           <h1
             className="
               text-4xl
@@ -1510,6 +1716,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             guides et aperçus de vos
             stages au quotidien.
           </p>
+
         </div>
 
         {/* =====================================================
@@ -1624,8 +1831,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               }
             />
 
-            {/* PREVIEWS */}
-
             {renderCreatePreviews()}
 
             <div
@@ -1667,6 +1872,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     rounded-xl
                   "
                 >
+
                   <label
                     htmlFor="category-select"
                     className="
@@ -1699,6 +1905,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       )
                     }
                   >
+
                     <option value="General">
                       Général
                     </option>
@@ -1714,7 +1921,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     <option value="Logement">
                       Logement
                     </option>
+
                   </select>
+
                 </div>
 
                 {/* FILE BUTTON */}
@@ -1746,6 +1955,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     hover:border-indigo-800
                   "
                 >
+
                   <Paperclip
                     size={16}
                     className="
@@ -1761,6 +1971,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           : ''
                       }`
                     : 'Ajouter des fichiers'}
+
                 </button>
 
                 <input
@@ -1814,14 +2025,13 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   Publier
                 </span>
 
-                <Send
-                  size={14}
-                />
+                <Send size={14} />
               </button>
 
             </div>
 
           </form>
+
         </div>
 
         {/* =====================================================
@@ -1835,6 +2045,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               relative
             "
           >
+
             <span
               className="
                 absolute
@@ -1890,6 +2101,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             />
 
           </div>
+
         </div>
 
         {/* =====================================================
@@ -1908,6 +2120,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             pb-5
           "
         >
+
           {[
             'Tous',
             'General',
@@ -1965,6 +2178,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
             </button>
           ))}
+
         </div>
 
         {/* =====================================================
@@ -2242,9 +2456,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     post
                                   )
                                 }
-                                className="
-                                  p-1
-                                "
+                                className="p-1"
                               >
                                 <Pencil
                                   size={15}
@@ -2260,9 +2472,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     post._id
                                   )
                                 }
-                                className="
-                                  p-1
-                                "
+                                className="p-1"
                               >
                                 <Trash2
                                   size={15}
@@ -2641,11 +2851,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               gap-2
                             "
                           >
-                            <Plus
-                              size={15}
-                            />
+
+                            <Plus size={15} />
 
                             Ajouter des fichiers
+
                           </button>
 
                           <input
@@ -2729,6 +2939,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       ) : (
 
                         <>
+
                           {/* =================================================
                               TEXT
                           ================================================= */}
