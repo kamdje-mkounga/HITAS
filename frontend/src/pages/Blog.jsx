@@ -482,7 +482,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   <div 
                     key={post._id} 
                     id={`post-${post._id}`}
-                    className="bg-white/85 dark:bg-[#0b081e]/85 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 dark:border-indigo-900/60 transition-all duration-300 hover:border-indigo-700/50 shadow-xl shadow-slate-200/50 dark:shadow-black/40"
+                    className="
+  bg-white/90 dark:bg-[#0b081e]/90
+  backdrop-blur-xl
+  rounded-2xl
+  border border-slate-200 dark:border-indigo-900/60
+  overflow-hidden
+  transition-all duration-300
+  hover:border-indigo-700/50
+  shadow-xl shadow-slate-200/50 dark:shadow-black/40
+"
                   >
                     {/* Post Header */}
                     <div className="flex justify-between items-start mb-4">
@@ -606,48 +615,105 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                         )}
                         
                         {post.mediaUrl && (
-  <div className="mt-3 mb-2 rounded-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 max-h-[440px] w-full flex items-center justify-center p-1 shadow-inner">
-    
-    {post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) ? (
-      <audio
-        src={formatMediaUrl(post.mediaUrl)}
-        controls
-        className="w-full max-w-md my-3 accent-indigo-500"
-      />
-    ) : post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) ? (
-      <div className="flex items-center gap-3 p-4 w-full bg-indigo-50 dark:bg-indigo-950/40 rounded-lg border border-indigo-200 dark:border-indigo-900/60 m-2 backdrop-blur-sm">
-        
-        <span className="text-2xl text-indigo-600 dark:text-indigo-400">
-          <FileText size={28} className="text-indigo-600 dark:text-indigo-400" />
-        </span>
+  <div className="mt-3 mb-3 overflow-hidden rounded-2xl border border-slate-200 dark:border-indigo-900/40 bg-slate-50 dark:bg-[#030014]">
 
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-slate-800 dark:text-zinc-200 truncate">
-            {post.mediaUrl.split('/').pop()}
-          </p>
+    {/* IMAGE */}
+    {!post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) &&
+      !post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) && (
+        <div className="w-full bg-black/5 dark:bg-black/20">
+          <img
+            src={formatMediaUrl(post.mediaUrl)}
+            alt="Publication"
+            className="
+              block
+              w-full
+              h-auto
+              max-h-[650px]
+              object-contain
+              mx-auto
+            "
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
 
-          <a
-            href={formatMediaUrl(post.mediaUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
-            download
-            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 mt-0.5"
-          >
-            Télécharger / Ouvrir le document ↗
-          </a>
+    {/* AUDIO */}
+    {post.mediaUrl.match(/\.(mp3|wav|m4a|ogg)$/i) && (
+      <div className="px-4 py-4">
+        <div className="
+          flex items-center gap-3
+          bg-indigo-50 dark:bg-indigo-950/30
+          border border-indigo-100 dark:border-indigo-900/50
+          rounded-xl px-4 py-3
+        ">
+          <div className="
+            w-9 h-9 rounded-full
+            bg-indigo-600
+            text-white
+            flex items-center justify-center
+            flex-shrink-0
+          ">
+            🔊
+          </div>
+
+          <audio
+            src={formatMediaUrl(post.mediaUrl)}
+            controls
+            className="w-full h-9 accent-indigo-500"
+          />
         </div>
       </div>
-    ) : (
-      <img
-        src={formatMediaUrl(post.mediaUrl)}
-        alt="Média"
-        className="w-full h-auto max-h-[420px] object-contain rounded-lg shadow-md"
-        onError={(e) => {
-          e.target.parentNode.style.display = 'none';
-        }}
-      />
     )}
 
+    {/* DOCUMENT */}
+    {post.mediaUrl.match(/\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i) && (
+      <a
+        href={formatMediaUrl(post.mediaUrl)}
+        target="_blank"
+        rel="noopener noreferrer"
+        download
+        className="
+          flex items-center gap-3
+          p-4
+          hover:bg-slate-100 dark:hover:bg-[#0b081e]
+          transition-colors
+          group
+        "
+      >
+        <div className="
+          w-11 h-11
+          rounded-xl
+          bg-indigo-500/10
+          text-indigo-600 dark:text-indigo-400
+          flex items-center justify-center
+          flex-shrink-0
+        ">
+          <FileText size={22} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <p className="
+            text-sm font-semibold
+            text-slate-800 dark:text-zinc-200
+            truncate
+          ">
+            {decodeURIComponent(
+              post.mediaUrl.split('/').pop().split('?')[0]
+            )}
+          </p>
+
+          <p className="
+            text-[11px]
+            text-indigo-600 dark:text-indigo-400
+            mt-0.5
+          ">
+            Ouvrir le document →
+          </p>
+        </div>
+      </a>
+    )}
   </div>
 )}
 
