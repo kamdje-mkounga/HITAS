@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
-import { GraduationCap, MapPin, Briefcase } from 'lucide-react';
+import { GraduationCap, MapPin, Briefcase, GitBranch } from 'lucide-react';
 
 function Annuaire({ hasNewNotification, clearNotifications }) {
   const navigate = useNavigate();
@@ -116,7 +116,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
 
   return (
     <div 
-      className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative"
+      className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300"
       style={{
         backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
         backgroundSize: 'contain',
@@ -125,11 +125,11 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
     >
       <style>{`
         @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(10px); filter: blur(2px); }
+          from { opacity: 0; transform: translateY(12px); filter: blur(3px); }
           to { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
         .animate-card-fade {
-          animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+          animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
 
@@ -141,11 +141,11 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
           <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(129,140,248,0.3)]">
             Annuaire de la Diaspora
           </h1>
-          <p className="text-zinc-300 text-sm font-medium">Connecte-toi avec les étudiants et alumni de HITAS à travers le monde.</p>
+          <p className="text-zinc-300 text-sm font-medium drop-shadow-sm">Connecte-toi avec les étudiants et alumni de HITAS à travers le monde.</p>
         </div>
 
         {!loading && !error && profiles.length > 0 && (
-          <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-500/30 rounded-3xl shadow-2xl mb-8 space-y-4">
+          <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-500/30 rounded-3xl shadow-2xl shadow-indigo-950/40 mb-8 space-y-4">
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">
                 Recherche globale
@@ -252,111 +252,115 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 )}
               </div>
             ) : (
-              <div className="relative">
-                {/* Lignes directrices de fond en filigrane (structure de réseau / arbre global) */}
-                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                  <div className="w-full h-full border-t border-b border-indigo-500/10 absolute top-1/2"></div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredProfiles.map((profile, index) => {
+                  const skillsArray = profile.skills 
+                    ? (Array.isArray(profile.skills) ? profile.skills : typeof profile.skills === 'string' ? profile.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()) : [])
+                    : [];
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-                  {filteredProfiles.map((profile, index) => {
-                    const skillsArray = profile.skills 
-                      ? (Array.isArray(profile.skills) ? profile.skills : typeof profile.skills === 'string' ? profile.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()) : [])
-                      : [];
+                  return (
+                    <div 
+                      key={profile._id} 
+                      onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
+                      className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 rounded-[2.5rem] p-6 shadow-2xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(99,102,241,0.35)] flex flex-col items-center text-center overflow-hidden"
+                      style={{ animationDelay: `${index * 0.05}s` }}
+                    >
+                      {/* En-tête de carte (Racine de l'arbre personnel) */}
+                      <div className="relative mb-3">
+                        <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-300"></div>
+                        <div className="relative w-20 h-20 rounded-full bg-[#030014] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-xl">
+                          {profile.avatar ? (
+                            <img 
+                              src={formatMediaUrl(profile.avatar)} 
+                              alt={`${profile.firstName} ${profile.lastName}`} 
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.parentNode.innerHTML = `<span class="text-indigo-300 font-bold text-xs uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
+                              }}
+                            />
+                          ) : (
+                            <span className="text-indigo-300 font-bold text-xs uppercase">
+                              {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                    return (
-                      <div 
-                        key={profile._id} 
-                        onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
-                        className="relative bg-[#0b081e]/90 backdrop-blur-xl border border-indigo-500/30 rounded-3xl p-5 shadow-xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1.5 hover:shadow-[0_0_30px_rgba(99,102,241,0.25)] flex flex-col items-center text-center overflow-hidden"
-                        style={{ animationDelay: `${index * 0.05}s` }}
-                      >
-                        {/* Ligne fine de connexion horizontale et verticale sur chaque carte (style schéma technique) */}
-                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-indigo-500/30"></div>
-                        <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-indigo-500/20 -z-10"></div>
+                      <h2 className="text-base font-black text-white group-hover:text-indigo-300 transition-colors uppercase tracking-tight mb-1">
+                        {profile.firstName} {profile.lastName}
+                      </h2>
+                      
+                      {profile.status && (
+                        <span className="inline-block text-[10px] font-bold px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3">
+                          {profile.status}
+                        </span>
+                      )}
 
-                        {/* Photo de profil professionnelle (sans halo coloré excessif) */}
-                        <div className="relative mb-3 mt-1">
-                          <div className="w-16 h-16 rounded-full bg-[#030014] border border-indigo-500/40 overflow-hidden flex items-center justify-center shadow-md">
-                            {profile.avatar ? (
-                              <img 
-                                src={formatMediaUrl(profile.avatar)} 
-                                alt={`${profile.firstName} ${profile.lastName}`} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  e.target.parentNode.innerHTML = `<span class="text-indigo-300 font-bold text-xs uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
-                                }}
-                              />
-                            ) : (
-                              <span className="text-indigo-300 font-bold text-xs uppercase">
-                                {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
+                      {/* =========================================================
+                          STRUCTURE EN BRANCHES (CONNECTEURS GRAPHIQUES)
+                      ========================================================= */}
+                      <div className="w-full relative pl-6 my-2 text-left space-y-3">
+                        {/* Ligne verticale centrale simulant le tronc des branches */}
+                        <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-indigo-500/20"></div>
+
+                        {/* Branche 1 : Formation */}
+                        <div className="relative flex items-start gap-3 group/branch">
+                          <div className="absolute -left-3.5 top-2 w-2 h-2 rounded-full bg-indigo-400 ring-4 ring-[#0b081e] group-hover/branch:scale-125 transition-transform"></div>
+                          <div className="w-full bg-[#030014]/70 p-2.5 rounded-2xl border border-indigo-900/50 group-hover/branch:border-indigo-500/40 transition-colors">
+                            <p className="text-[9px] text-indigo-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                              <GraduationCap className="w-3 h-3" /> Formation
+                            </p>
+                            <p className="text-zinc-200 text-xs font-semibold truncate mt-0.5">{profile.specialty || 'Informatique'} (Promo {profile.promotion || '-'})</p>
+                          </div>
+                        </div>
+
+                        {/* Branche 2 : Localisation */}
+                        <div className="relative flex items-start gap-3 group/branch">
+                          <div className="absolute -left-3.5 top-2 w-2 h-2 rounded-full bg-pink-400 ring-4 ring-[#0b081e] group-hover/branch:scale-125 transition-transform"></div>
+                          <div className="w-full bg-[#030014]/70 p-2.5 rounded-2xl border border-indigo-900/50 group-hover/branch:border-indigo-500/40 transition-colors">
+                            <p className="text-[9px] text-pink-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> Localisation
+                            </p>
+                            <p className="text-zinc-200 text-xs font-semibold truncate mt-0.5">{profile.country || 'Non renseigné'} {profile.currentLocation ? `- ${profile.currentLocation}` : ''}</p>
+                          </div>
+                        </div>
+
+                        {/* Branche 3 : Situation Pro (si présente) */}
+                        {(profile.jobTitle || profile.currentCompany) && (
+                          <div className="relative flex items-start gap-3 group/branch">
+                            <div className="absolute -left-3.5 top-2 w-2 h-2 rounded-full bg-purple-400 ring-4 ring-[#0b081e] group-hover/branch:scale-125 transition-transform"></div>
+                            <div className="w-full bg-[#030014]/70 p-2.5 rounded-2xl border border-indigo-900/50 group-hover/branch:border-indigo-500/40 transition-colors">
+                              <p className="text-[9px] text-purple-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                                <Briefcase className="w-3 h-3" /> Poste
+                              </p>
+                              <p className="text-zinc-200 text-xs font-semibold truncate mt-0.5">{profile.jobTitle || 'Poste'} {profile.currentCompany ? `chez ${profile.currentCompany}` : ''}</p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Feuille finale : Compétences en puces */}
+                      {skillsArray.length > 0 && (
+                        <div className="w-full pt-3 border-t border-indigo-900/40 mt-3">
+                          <div className="flex flex-wrap justify-center gap-1.5">
+                            {skillsArray.slice(0, 3).map((skill, sIdx) => (
+                              <span key={sIdx} className="bg-indigo-500/10 text-indigo-200 border border-indigo-500/20 px-2.5 py-0.5 rounded-xl text-[10px] font-medium">
+                                {skill}
+                              </span>
+                            ))}
+                            {skillsArray.length > 3 && (
+                              <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded-xl text-[10px] font-bold">
+                                +{skillsArray.length - 3}
                               </span>
                             )}
                           </div>
                         </div>
+                      )}
 
-                        <h2 className="text-sm font-black text-white group-hover:text-indigo-300 transition-colors uppercase tracking-tight mb-0.5">
-                          {profile.firstName} {profile.lastName}
-                        </h2>
-                        
-                        {profile.status && (
-                          <span className="inline-block text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2.5">
-                            {profile.status}
-                          </span>
-                        )}
-
-                        {/* Informations ramifiées compactes */}
-                        <div className="w-full space-y-2 text-left text-xs mb-3">
-                          <div className="bg-[#030014]/60 p-2 rounded-xl border border-indigo-900/30 flex items-center gap-2">
-                            <GraduationCap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">Formation</p>
-                              <p className="text-zinc-200 text-[11px] font-medium truncate">{profile.specialty || 'Informatique'} ({profile.promotion || '-'})</p>
-                            </div>
-                          </div>
-
-                          <div className="bg-[#030014]/60 p-2 rounded-xl border border-indigo-900/30 flex items-center gap-2">
-                            <MapPin className="w-3.5 h-3.5 text-pink-400 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">Localisation</p>
-                              <p className="text-zinc-200 text-[11px] font-medium truncate">{profile.country || 'Non renseigné'} {profile.currentLocation ? `- ${profile.currentLocation}` : ''}</p>
-                            </div>
-                          </div>
-
-                          {(profile.jobTitle || profile.currentCompany) && (
-                            <div className="bg-[#030014]/60 p-2 rounded-xl border border-indigo-900/30 flex items-center gap-2">
-                              <Briefcase className="w-3.5 h-3.5 text-purple-400 flex-shrink-0" />
-                              <div className="min-w-0">
-                                <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-wider">Poste</p>
-                                <p className="text-zinc-200 text-[11px] font-medium truncate">{profile.jobTitle || 'Poste'} {profile.currentCompany ? `chez ${profile.currentCompany}` : ''}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Compétences en puces discrètes */}
-                        {skillsArray.length > 0 && (
-                          <div className="w-full pt-2.5 border-t border-indigo-900/30 mt-auto">
-                            <div className="flex flex-wrap justify-center gap-1">
-                              {skillsArray.slice(0, 3).map((skill, sIdx) => (
-                                <span key={sIdx} className="bg-indigo-500/10 text-indigo-200 border border-indigo-500/20 px-2 py-0.5 rounded-lg text-[9px] font-medium">
-                                  {skill}
-                                </span>
-                              ))}
-                              {skillsArray.length > 3 && (
-                                <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-1.5 py-0.5 rounded-lg text-[9px] font-bold">
-                                  +{skillsArray.length - 3}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        )}
-
-                      </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
