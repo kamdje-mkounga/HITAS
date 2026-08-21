@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
+import Navbar from './Navbar'; // Adjust the relative path if Navbar is in a different folder
 import tradPattern from '../assets/traditional.jpg';
 import { 
   ArrowLeft, 
@@ -146,17 +147,19 @@ const PublicProfile = () => {
 
   return (
     <div 
-      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-10 relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
       style={{
-        // Lowered opacity values (e.g., 0.45 and 0.55) make the background pattern brighter and clearer
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
     >
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+      {/* Integrated Navbar */}
+      <Navbar />
 
-      <div className="max-w-4xl mx-auto px-4 relative z-10">
+      <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+      <div className="max-w-4xl mx-auto px-4 py-10 relative z-10">
         
         {/* Back Button */}
         <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/60 backdrop-blur-md border border-indigo-900/40 px-3.5 py-2 rounded-xl w-fit">
