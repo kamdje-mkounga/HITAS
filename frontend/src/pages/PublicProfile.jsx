@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
-import Navbar from '../components/Navbar';// Adjust the relative path if Navbar is in a different folder
+import Navbar from '../components/Navbar';
 import tradPattern from '../assets/traditional.jpg';
 import { 
   ArrowLeft, 
@@ -19,7 +19,8 @@ import {
   ChevronRight, 
   X, 
   FileCode, 
-  AlertTriangle 
+  AlertTriangle,
+  Code2
 } from 'lucide-react';
 
 const PublicProfile = () => {
@@ -109,8 +110,8 @@ const PublicProfile = () => {
     return (
       <div className="bg-[#030014] min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">Chargement du profil...</span>
+          <div className="w-12 h-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
+          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase animate-pulse">Chargement du profil...</span>
         </div>
       </div>
     );
@@ -119,12 +120,12 @@ const PublicProfile = () => {
   if (error || !userProfile) {
     return (
       <div className="w-full min-h-screen bg-[#030014] text-zinc-100 flex items-center justify-center p-4">
-        <div className="bg-[#0b081e]/90 backdrop-blur-xl p-8 rounded-3xl border border-indigo-900/60 text-center max-w-sm w-full shadow-2xl">
-          <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
-            <AlertTriangle className="w-6 h-6" />
+        <div className="bg-[#0b081e]/90 backdrop-blur-2xl p-8 rounded-[2.5rem] border border-indigo-500/30 text-center max-w-sm w-full shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+          <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4">
+            <AlertTriangle className="w-7 h-7" />
           </div>
           <p className="text-red-300 text-xs mb-6 font-medium">{error || "Profil introuvable."}</p>
-          <button onClick={() => navigate(-1)} className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/20">Retour</button>
+          <button onClick={() => navigate(-1)} className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 px-4 rounded-2xl text-xs transition-all shadow-lg shadow-indigo-600/30">Retour</button>
         </div>
       </div>
     );
@@ -139,8 +140,8 @@ const PublicProfile = () => {
         : [];
     
     return skillsArray.filter(Boolean).map((skill, index) => (
-      <span key={index} className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-3 py-1.5 rounded-xl text-xs font-medium tracking-wide transition-all hover:bg-indigo-500/20 flex items-center gap-1.5 w-fit">
-        <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> {skill}
+      <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+        <Sparkles className="w-3.5 h-3.5 text-indigo-400 group-hover/skill:rotate-12 transition-transform" /> {skill}
       </span>
     ));
   };
@@ -154,158 +155,169 @@ const PublicProfile = () => {
         backgroundRepeat: 'repeat',
       }}
     >
-      {/* Integrated Navbar */}
       <Navbar />
 
-      <div className="absolute top-16 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+      {/* Orbes lumineux d'ambiance */}
+      <div className="absolute top-20 left-1/4 w-[450px] h-[450px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none"></div>
+      <div className="absolute top-96 right-1/4 w-[400px] h-[400px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none"></div>
 
-      <div className="max-w-4xl mx-auto px-4 py-10 relative z-10">
+      <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         
         {/* Back Button */}
-        <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/60 backdrop-blur-md border border-indigo-900/40 px-3.5 py-2 rounded-xl w-fit">
-          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" /> Retour
+        <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/80 backdrop-blur-xl border border-indigo-500/20 hover:border-indigo-500/40 px-4 py-2.5 rounded-2xl w-fit shadow-lg shadow-indigo-950/20">
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour
         </button>
 
-        {/* Profil Header */}
-        <div className="bg-[#0b081e]/80 backdrop-blur-2xl p-8 rounded-3xl border border-indigo-500/20 shadow-2xl mb-8 flex flex-col sm:flex-row items-center gap-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
+        {/* Profil Header - Plus fluide, arrondi et asymétrique */}
+        <div className="bg-gradient-to-br from-[#0b081e]/90 via-[#0b081e]/70 to-[#120e2e]/80 backdrop-blur-3xl p-8 sm:p-10 rounded-[2.5rem] border border-indigo-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-8 flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden group">
+          <div className="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700"></div>
           
-          <div className="w-28 h-28 rounded-2xl flex items-center justify-center text-3xl font-extrabold uppercase shadow-xl overflow-hidden border-2 border-indigo-500/30 flex-shrink-0 bg-gradient-to-tr from-indigo-950 to-indigo-900/50">
-            {userProfile.avatar ? (
-              <img 
-                src={formatMediaUrl(userProfile.avatar)} 
-                alt={`${userProfile.firstName} ${userProfile.lastName}`} 
-                className="w-full h-full object-cover" 
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-indigo-300">
-                {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
-              </div>
-            )}
+          {/* Avatar avec halo lumineux */}
+          <div className="relative flex-shrink-0">
+            <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2.2rem] blur opacity-50 group-hover:opacity-80 transition duration-500"></div>
+            <div className="relative w-32 h-32 rounded-[2rem] flex items-center justify-center text-3xl font-extrabold uppercase overflow-hidden border-2 border-indigo-500/40 bg-[#030014] shadow-2xl">
+              {userProfile.avatar ? (
+                <img 
+                  src={formatMediaUrl(userProfile.avatar)} 
+                  alt={`${userProfile.firstName} ${userProfile.lastName}`} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-indigo-300 bg-gradient-to-tr from-indigo-950 to-purple-950">
+                  {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="text-center sm:text-left flex-1 min-w-0">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white uppercase break-words bg-gradient-to-r from-white via-zinc-100 to-indigo-200 bg-clip-text text-transparent">
+          <div className="text-center sm:text-left flex-1 min-w-0 z-10">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2.5">
+              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white uppercase break-words bg-gradient-to-r from-white via-zinc-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-sm">
                 {userProfile.firstName} {userProfile.lastName}
               </h1>
               {userProfile.status && (
-                <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm shadow-emerald-500/10 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> {userProfile.status}
+                <span className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm shadow-emerald-500/10 flex items-center gap-1.5 backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> {userProfile.status}
                 </span>
               )}
             </div>
 
-            <p className="text-indigo-400 text-xs font-semibold tracking-wide mb-1 flex items-center justify-center sm:justify-start gap-1.5">
-              <GraduationCap className="w-4 h-4" /> {userProfile.specialty || 'Informatique'} <span className="text-indigo-600">•</span> Promo {userProfile.promotion || 'Non renseignée'}
+            <p className="text-indigo-300 text-xs font-semibold tracking-wide mb-2 flex items-center justify-center sm:justify-start gap-2">
+              <GraduationCap className="w-4 h-4 text-indigo-400" /> {userProfile.specialty || 'Informatique'} <span className="text-indigo-500">•</span> Promo {userProfile.promotion || 'Non renseignée'}
             </p>
             
-            <p className="text-zinc-400 text-xs font-medium mb-3 flex items-center justify-center sm:justify-start gap-1.5">
+            <p className="text-zinc-400 text-xs font-medium mb-4 flex items-center justify-center sm:justify-start gap-2">
               <MapPin className="w-4 h-4 text-zinc-500" /> {userProfile.country || userProfile.currentLocation || 'Localisation non renseignée'}
               {userProfile.degreeLevel && <span className="text-zinc-600">• <span className="text-zinc-300">{userProfile.degreeLevel}</span></span>}
             </p>
 
             {(userProfile.jobTitle || userProfile.currentCompany) && (
-              <p className="text-zinc-300 text-xs font-medium mb-4 flex items-center justify-center sm:justify-start gap-1.5 bg-[#030014]/50 border border-indigo-900/30 px-3 py-1.5 rounded-xl w-fit mx-auto sm:mx-0">
+              <p className="text-zinc-200 text-xs font-medium mb-5 flex items-center justify-center sm:justify-start gap-2 bg-[#030014]/60 border border-indigo-500/20 px-3.5 py-2 rounded-2xl w-fit mx-auto sm:mx-0 shadow-inner">
                 <Briefcase className="w-4 h-4 text-indigo-400" /> {userProfile.jobTitle || 'Poste'} {userProfile.currentCompany ? `chez ${userProfile.currentCompany}` : ''}
               </p>
             )}
 
             <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              <span className="bg-indigo-950/40 border border-indigo-900/50 text-indigo-300 text-xs font-bold px-3.5 py-1.5 rounded-xl flex items-center gap-2 shadow-inner">
+              <span className="bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 text-indigo-200 text-xs font-bold px-4 py-2 rounded-2xl flex items-center gap-2 shadow-inner backdrop-blur-md">
                 <Rocket className="w-4 h-4 text-indigo-400" /> {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="flex border-b border-indigo-900/40 mb-8 gap-8 text-xs font-bold tracking-wider overflow-x-auto scrollbar-none">
+        {/* Navigation Tabs - Style pilule moderne */}
+        <div className="flex p-1.5 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-2xl mb-8 gap-2 text-xs font-bold tracking-wider">
           <button 
             type="button"
             onClick={() => setActiveTab('compte')}
-            className={`pb-4 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap relative ${activeTab === 'compte' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${
+              activeTab === 'compte' 
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30' 
+                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
           >
             <User className="w-4 h-4" /> L'Étudiant
-            {activeTab === 'compte' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
           </button>
           <button 
             type="button"
             onClick={() => setActiveTab('projets')}
-            className={`pb-4 flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap relative ${activeTab === 'projets' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'}`}
+            className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${
+              activeTab === 'projets' 
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30' 
+                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+            }`}
           >
             <Rocket className="w-4 h-4" /> Ses Projets ({userProjects.length})
-            {activeTab === 'projets' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
           </button>
         </div>
 
         {/* Tab: Compte */}
         {activeTab === 'compte' && (
           <div className="space-y-6">
-            <div className="bg-[#0b081e]/80 backdrop-blur-2xl p-6 sm:p-8 rounded-3xl border border-indigo-500/20 shadow-xl overflow-hidden">
-              <h2 className="text-xs font-bold mb-6 text-indigo-300 uppercase tracking-widest flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Informations Générales
+            <div className="bg-[#0b081e]/80 backdrop-blur-3xl p-6 sm:p-8 rounded-[2.5rem] border border-indigo-500/20 shadow-2xl overflow-hidden">
+              <h2 className="text-xs font-bold mb-6 text-indigo-300 uppercase tracking-widest flex items-center gap-2.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></span> Informations Générales
               </h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Prénom</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Prénom</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.firstName || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Nom de famille</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Nom de famille</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.lastName || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Promotion</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Promotion</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.promotion || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Spécialité</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Spécialité</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.specialty || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Statut Actuel</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Statut Actuel</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.status || 'Non renseigné'}</span>
                 </div>
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Niveau d'étude</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Niveau d'étude</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.degreeLevel || 'Non renseigné'}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Pays</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Pays</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.country || '-'}</span>
                 </div>
-                <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                  <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Ville / Emplacement</span>
+                <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                  <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Ville / Emplacement</span>
                   <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.currentLocation || '-'}</span>
                 </div>
               </div>
 
               {(userProfile.jobTitle || userProfile.currentCompany) && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mb-4">
-                  <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                    <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Intitulé du Poste</span>
+                  <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                    <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Intitulé du Poste</span>
                     <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.jobTitle || '-'}</span>
                   </div>
-                  <div className="bg-[#030014]/70 p-4 rounded-2xl border border-indigo-900/40 hover:border-indigo-500/30 transition-all">
-                    <span className="text-zinc-500 block mb-1 uppercase text-[10px] font-bold tracking-wider">Entreprise</span>
+                  <div className="bg-[#030014]/60 p-4.5 rounded-2xl border border-indigo-900/30 hover:border-indigo-500/40 transition-all group">
+                    <span className="text-zinc-500 block mb-1.5 uppercase text-[10px] font-bold tracking-widest group-hover:text-indigo-400 transition-colors">Entreprise</span>
                     <span className="text-zinc-100 font-semibold text-sm break-words">{userProfile.currentCompany || '-'}</span>
                   </div>
                 </div>
               )}
 
-              <div className="bg-[#030014]/70 p-4 sm:p-5 rounded-2xl border border-indigo-900/40 text-xs mb-4">
-                <span className="text-zinc-500 block mb-2 uppercase text-[10px] font-bold tracking-wider">Biographie</span>
+              <div className="bg-[#030014]/60 p-5 rounded-2xl border border-indigo-900/30 text-xs mb-4">
+                <span className="text-zinc-500 block mb-2 uppercase text-[10px] font-bold tracking-widest">Biographie</span>
                 <p className="text-zinc-200 leading-relaxed text-sm whitespace-pre-line break-words">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
               </div>
 
-              <div className="bg-[#030014]/70 p-4 sm:p-5 rounded-2xl border border-indigo-900/40 text-xs">
-                <span className="text-zinc-500 block mb-3 uppercase text-[10px] font-bold tracking-wider">Compétences</span>
-                <div className="flex flex-wrap gap-2">
+              <div className="bg-[#030014]/60 p-5 rounded-2xl border border-indigo-900/30 text-xs">
+                <span className="text-zinc-500 block mb-3 uppercase text-[10px] font-bold tracking-widest">Compétences</span>
+                <div className="flex flex-wrap gap-2.5">
                   {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
                 </div>
               </div>
@@ -317,14 +329,14 @@ const PublicProfile = () => {
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
-              <div className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 p-12 rounded-3xl text-center shadow-xl">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3">
-                  <FolderKanban className="w-6 h-6" />
+              <div className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 p-12 rounded-[2.5rem] text-center shadow-xl">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
+                  <FolderKanban className="w-7 h-7" />
                 </div>
                 <p className="text-zinc-400 text-xs italic">Cet étudiant n'a pas encore publié de projet.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-5">
                 {userProjects.map((project) => {
                   const potentialMedia = project.media || project.file || project.pdf || project.image || project.attachments;
                   const mediaCount = Array.isArray(potentialMedia) ? potentialMedia.length : (potentialMedia ? 1 : 0);
@@ -333,12 +345,12 @@ const PublicProfile = () => {
                     <div 
                       key={project._id} 
                       onClick={() => handleOpenProject(project)}
-                      className="bg-[#0b081e]/80 backdrop-blur-2xl p-6 rounded-3xl border border-indigo-500/20 hover:border-indigo-500/50 cursor-pointer transition-all duration-300 flex flex-col md:flex-row gap-6 group shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-0.5"
+                      className="bg-[#0b081e]/85 backdrop-blur-3xl p-6 sm:p-7 rounded-[2.2rem] border border-indigo-500/20 hover:border-indigo-500/60 cursor-pointer transition-all duration-300 flex flex-col md:flex-row gap-6 group shadow-2xl hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] hover:-translate-y-1"
                     >
-                      <div className="w-full md:w-52 h-36 bg-[#030014]/80 rounded-2xl border border-indigo-900/50 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:border-indigo-500/40 transition-colors relative overflow-hidden">
-                        <div className="absolute inset-0 bg-indigo-600/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <FolderKanban className="w-8 h-8 text-amber-400" />
-                        <span className="text-[11px] text-zinc-300 font-bold tracking-wider uppercase bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-900/50">
+                      <div className="w-full md:w-48 h-36 bg-gradient-to-br from-[#030014] to-[#120e2e] rounded-2xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:border-indigo-500/50 transition-colors relative overflow-hidden shadow-inner">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <Code2 className="w-9 h-9 text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
+                        <span className="text-[10px] text-indigo-200 font-bold tracking-wider uppercase bg-indigo-950/80 px-3 py-1 rounded-xl border border-indigo-500/30 backdrop-blur-md">
                           {mediaCount > 1 ? `${mediaCount} Fichiers` : '1 Fichier'}
                         </span>
                       </div>
@@ -346,8 +358,8 @@ const PublicProfile = () => {
                       <div className="flex-1 flex flex-col justify-between min-w-0">
                         <div>
                           <div className="flex justify-between items-start gap-3">
-                            <h3 className="font-black text-base sm:text-lg text-white group-hover:text-indigo-400 transition-colors uppercase tracking-wide break-words">{project.title}</h3>
-                            <span className="text-[11px] text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-xl font-bold whitespace-nowrap shadow-sm flex items-center gap-1">Voir détails <ChevronRight className="w-3.5 h-3.5" /></span>
+                            <h3 className="font-black text-base sm:text-lg text-white group-hover:text-indigo-300 transition-colors tracking-wide break-words">{project.title}</h3>
+                            <span className="text-[11px] text-indigo-300 bg-indigo-500/15 border border-indigo-500/30 px-3.5 py-1.5 rounded-2xl font-bold whitespace-nowrap shadow-sm flex items-center gap-1.5 group-hover:bg-indigo-500/25 transition-all">Voir détails <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
                           </div>
                           <p className="text-zinc-400 text-xs leading-relaxed mt-2.5 line-clamp-2 break-words">{project.description}</p>
                         </div>
@@ -365,7 +377,7 @@ const PublicProfile = () => {
 
       </div>
 
-      {/* Modal */}
+      {/* Modal - Style moderne et épuré */}
       {selectedProject && (() => {
         const potentialMedia = selectedProject.media || selectedProject.file || selectedProject.pdf || selectedProject.image || selectedProject.attachments;
         const mediaList = Array.isArray(potentialMedia) ? potentialMedia : (potentialMedia ? [potentialMedia] : []);
@@ -380,49 +392,49 @@ const PublicProfile = () => {
         const isPdf = urlLower && urlLower.endsWith('.pdf');
 
         return (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn" onClick={() => setSelectedProject(null)}>
-            <div className="bg-[#0b081e] border border-indigo-500/30 w-full max-w-2xl rounded-3xl max-h-[90vh] overflow-y-auto flex flex-col shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn" onClick={() => setSelectedProject(null)}>
+            <div className="bg-[#0b081e] border border-indigo-500/30 w-full max-w-2xl rounded-[2.5rem] max-h-[90vh] overflow-y-auto flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.9)]" onClick={(e) => e.stopPropagation()}>
               
-              <div className="p-6 border-b border-indigo-900/60 flex justify-between items-center bg-[#0b081e]/90 sticky top-0 z-20 backdrop-blur-xl">
+              <div className="p-6 border-b border-indigo-900/40 flex justify-between items-center bg-[#0b081e]/90 sticky top-0 z-20 backdrop-blur-2xl">
                 <div className="min-w-0 pr-4">
-                  <span className="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-lg font-bold uppercase tracking-wider">Détails du projet</span>
-                  <h2 className="text-lg sm:text-xl font-black text-white mt-1.5 uppercase tracking-wide break-words">{selectedProject.title}</h2>
+                  <span className="text-[10px] bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-xl font-bold uppercase tracking-widest">Détails du projet</span>
+                  <h2 className="text-lg sm:text-xl font-black text-white mt-2 tracking-wide break-words">{selectedProject.title}</h2>
                 </div>
-                <button onClick={() => setSelectedProject(null)} className="w-9 h-9 rounded-2xl bg-[#030014] border border-indigo-900 text-zinc-400 hover:text-white flex items-center justify-center text-sm transition-colors flex-shrink-0 shadow-md">
+                <button onClick={() => setSelectedProject(null)} className="w-10 h-10 rounded-2xl bg-[#030014] border border-indigo-500/30 text-zinc-400 hover:text-white flex items-center justify-center transition-all hover:border-indigo-400 flex-shrink-0 shadow-md">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="p-6 space-y-6">
+              <div className="p-6 sm:p-8 space-y-6">
                 <div>
-                  <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2.5">Description complète</h4>
-                  <div className="bg-[#030014]/70 border border-indigo-900/50 rounded-2xl p-4 text-sm text-zinc-200 leading-relaxed whitespace-pre-line break-words">
+                  <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Description complète</h4>
+                  <div className="bg-[#030014]/80 border border-indigo-900/40 rounded-2xl p-5 text-sm text-zinc-200 leading-relaxed whitespace-pre-line break-words shadow-inner">
                     {selectedProject.description || "Aucune description fournie."}
                   </div>
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-2.5">
+                  <div className="flex justify-between items-center mb-3">
                     <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Fichiers joints</h4>
                     {mediaList.length > 1 && (
-                      <span className="text-xs text-indigo-400 font-semibold bg-indigo-500/10 px-2.5 py-0.5 rounded-full border border-indigo-500/20">
+                      <span className="text-xs text-indigo-300 font-semibold bg-indigo-500/15 px-3 py-1 rounded-full border border-indigo-500/30">
                         Fichier {currentFileIndex + 1} sur {mediaList.length}
                       </span>
                     )}
                   </div>
 
                   {fullMediaUrl ? (
-                    <div className="bg-[#030014]/70 border border-indigo-900/50 rounded-2xl p-4 space-y-4">
+                    <div className="bg-[#030014]/80 border border-indigo-900/40 rounded-2xl p-5 space-y-4 shadow-inner">
                       
-                      <div className="flex items-center gap-2.5 bg-[#030014] px-3.5 py-2.5 rounded-xl border border-indigo-900/40 text-xs text-indigo-200 shadow-inner">
+                      <div className="flex items-center gap-3 bg-[#030014] px-4 py-3 rounded-xl border border-indigo-500/20 text-xs text-indigo-200 shadow-inner">
                         <FileText className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                         <span className="truncate font-medium">{fileName}</span>
                       </div>
 
-                      <div className="w-full bg-[#030014] rounded-xl border border-indigo-900/60 overflow-hidden flex items-center justify-center min-h-[180px] max-h-[350px] relative shadow-inner">
-                        {isImage ? <img src={fullMediaUrl} alt={fileName} className="w-full max-h-[350px] object-contain" /> : 
-                         isVideo ? <video src={fullMediaUrl} className="w-full max-h-[350px] object-contain" controls /> : 
-                         isPdf ? <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[320px] rounded border-0" title="PDF" /> : 
+                      <div className="w-full bg-[#030014] rounded-2xl border border-indigo-900/50 overflow-hidden flex items-center justify-center min-h-[200px] max-h-[380px] relative shadow-inner">
+                        {isImage ? <img src={fullMediaUrl} alt={fileName} className="w-full max-h-[380px] object-contain" /> : 
+                         isVideo ? <video src={fullMediaUrl} className="w-full max-h-[380px] object-contain" controls /> : 
+                         isPdf ? <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[340px] rounded border-0" title="PDF" /> : 
                          <div className="text-center p-6"><FileCode className="w-12 h-12 text-indigo-400 mx-auto" /></div>}
                       </div>
 
@@ -432,7 +444,7 @@ const PublicProfile = () => {
                             type="button"
                             disabled={currentFileIndex === 0}
                             onClick={() => setCurrentFileIndex(prev => Math.max(0, prev - 1))}
-                            className="px-3.5 py-2 bg-indigo-950/80 border border-indigo-900 text-zinc-200 text-xs font-semibold rounded-xl hover:bg-indigo-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow flex items-center gap-1"
+                            className="px-4 py-2 bg-indigo-950/80 border border-indigo-500/30 text-zinc-200 text-xs font-semibold rounded-xl hover:bg-indigo-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow flex items-center gap-1.5"
                           >
                             <ChevronLeft className="w-3.5 h-3.5" /> Précédent
                           </button>
@@ -443,25 +455,25 @@ const PublicProfile = () => {
                             type="button"
                             disabled={currentFileIndex === mediaList.length - 1}
                             onClick={() => setCurrentFileIndex(prev => Math.min(mediaList.length - 1, prev + 1))}
-                            className="px-3.5 py-2 bg-indigo-950/80 border border-indigo-900 text-zinc-200 text-xs font-semibold rounded-xl hover:bg-indigo-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow flex items-center gap-1"
+                            className="px-4 py-2 bg-indigo-950/80 border border-indigo-500/30 text-zinc-200 text-xs font-semibold rounded-xl hover:bg-indigo-900 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow flex items-center gap-1.5"
                           >
                             Suivant <ChevronRight className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       )}
 
-                      <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/20">
+                      <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/30">
                         <Download className="w-4 h-4" /> Télécharger <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
                       </a>
                     </div>
                   ) : (
-                    <div className="bg-[#030014]/70 border border-indigo-900/50 rounded-2xl p-6 text-center text-xs text-zinc-500 italic">Aucun fichier joint.</div>
+                    <div className="bg-[#030014]/80 border border-indigo-900/40 rounded-2xl p-6 text-center text-xs text-zinc-500 italic">Aucun fichier joint.</div>
                   )}
                 </div>
               </div>
 
-              <div className="p-4 border-t border-indigo-900/60 bg-[#0b081e]/90 text-right backdrop-blur-xl rounded-b-3xl">
-                <button onClick={() => setSelectedProject(null)} className="bg-zinc-100 text-zinc-950 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-zinc-200 transition-all shadow-md">Fermer</button>
+              <div className="p-5 border-t border-indigo-900/40 bg-[#0b081e]/90 text-right backdrop-blur-2xl rounded-b-[2.5rem]">
+                <button onClick={() => setSelectedProject(null)} className="bg-zinc-100 text-zinc-950 text-xs font-bold px-6 py-3 rounded-2xl hover:bg-white transition-all shadow-lg">Fermer</button>
               </div>
             </div>
           </div>
