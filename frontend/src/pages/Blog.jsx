@@ -902,13 +902,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             INSTAGRAM-STYLE HORIZONTAL SCROLLING IMAGE CAROUSEL
         ===================================================== */}
         {imageItems.length > 0 && (
-          <div className="relative w-full bg-black group">
+          <div className="relative w-full bg-black group overflow-hidden">
             <div 
               className="
                 flex 
                 overflow-x-auto 
                 snap-x 
                 snap-mandatory 
+                scroll-smooth
                 scrollbar-none 
                 [-ms-overflow-style:none] 
                 [scrollbar-width:none]
@@ -923,6 +924,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     key={`${url}-${index}`}
                     className="
                       relative 
+                      min-w-full 
                       w-full 
                       flex-shrink-0 
                       snap-center 
@@ -947,10 +949,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       }}
                     />
                     
-                    {/* Optional: Indicator Badge (e.g., 1/3) */}
-                    <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none">
-                      {index + 1} / {imageItems.length}
-                    </div>
+                    {imageItems.length > 1 && (
+                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none">
+                        {index + 1} / {imageItems.length}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -2616,8 +2619,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     </button>
 
                                   </div>
-                                )
-                              )}
+                                ))}
 
                             </div>
                           )}
