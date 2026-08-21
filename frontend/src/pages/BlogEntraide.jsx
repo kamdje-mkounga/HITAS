@@ -242,7 +242,7 @@ const BlogEntraide = ({
 
     return (
       <div className="mb-6 overflow-hidden px-4">
-        {/* Top Header Bar for File Name and Counter */}
+        {/* Top Header Bar */}
         <div className="flex items-center justify-between gap-3 bg-slate-100/80 dark:bg-[#030014] px-4 py-3 rounded-t-2xl border-x border-t border-slate-200 dark:border-white/[0.06]">
           <div className="flex items-center gap-2 min-w-0">
             <div className="h-7 w-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
@@ -269,9 +269,10 @@ const BlogEntraide = ({
                 href={mediaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                download
                 className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
               >
-                Ouvrir le document PDF
+                Télécharger / Ouvrir le fichier
               </a>
             </div>
           ) : mediaType === 'audio' ? (
@@ -312,7 +313,7 @@ const BlogEntraide = ({
           )}
         </div>
 
-        {/* Thumbnails Bar (Showcase Style) */}
+        {/* Thumbnails Bar */}
         {hasMultipleMedia && media.length > 1 && (
           <div className="flex gap-2.5 overflow-x-auto pb-2 mt-3 scrollbar-none">
             {media.map((mediaItem, index) => (
