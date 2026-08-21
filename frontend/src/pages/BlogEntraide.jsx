@@ -226,7 +226,7 @@ const BlogEntraide = ({
   };
 
   /* =========================================================
-     RENDER MEDIA (STRUCTURED LIKE SHOWCASE.JSX)
+     RENDER MEDIA (SHOWCASE-STYLE LAYOUT WITH THUMBNAILS)
   ========================================================= */
 
   const renderMedia = (post) => {
@@ -237,10 +237,12 @@ const BlogEntraide = ({
     const currentMedia = media[activeIndex] || media[0];
     const currentFileName = currentMedia.originalName || 'Fichier joint';
     const hasMultipleMedia = media.length > 1;
+    const mediaType = currentMedia.type || 'image';
+    const mediaUrl = formatMediaUrl(currentMedia.url);
 
     return (
       <div className="mb-6 overflow-hidden px-4">
-        {/* Top Header Bar for File/Counter */}
+        {/* Top Header Bar for File Name and Counter */}
         <div className="flex items-center justify-between gap-3 bg-slate-100/80 dark:bg-[#030014] px-4 py-3 rounded-t-2xl border-x border-t border-slate-200 dark:border-white/[0.06]">
           <div className="flex items-center gap-2 min-w-0">
             <div className="h-7 w-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
@@ -255,33 +257,33 @@ const BlogEntraide = ({
           </span>
         </div>
 
-        {/* Main Media Display Viewport */}
+        {/* Main Media Viewport Box */}
         <div className="rounded-b-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 h-[260px] sm:h-[400px] w-full flex items-center justify-center relative shadow-inner">
-          {currentMedia.type === 'pdf' || currentMedia.type === 'document' ? (
+          {mediaType === 'pdf' || mediaType === 'document' ? (
             <div className="w-full h-full flex flex-col items-center justify-center bg-white/40 dark:bg-[#0b081e]/40 p-6 text-center">
               <span className="text-5xl mb-4">📄</span>
               <p className="text-xs text-slate-600 dark:text-zinc-400 mb-4 font-medium truncate max-w-xs">
                 {currentFileName}
               </p>
               <a
-                href={formatMediaUrl(currentMedia.url)}
+                href={mediaUrl}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
               >
-                Ouvrir le document
+                Ouvrir le document PDF
               </a>
             </div>
-          ) : currentMedia.type === 'audio' ? (
+          ) : mediaType === 'audio' ? (
             <div className="w-full h-full flex flex-col items-center justify-center p-6 gap-4">
               <div className="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500">
                 <Music size={24} />
               </div>
-              <audio controls src={formatMediaUrl(currentMedia.url)} className="w-full max-w-sm" />
+              <audio controls src={mediaUrl} className="w-full max-w-sm" />
             </div>
           ) : (
             <img
-              src={formatMediaUrl(currentMedia.url)}
+              src={mediaUrl}
               alt=""
               className="w-full h-full object-contain select-none"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
@@ -310,7 +312,7 @@ const BlogEntraide = ({
           )}
         </div>
 
-        {/* Thumbnail Selector Bar (Exact Showcase Style) */}
+        {/* Thumbnails Bar (Showcase Style) */}
         {hasMultipleMedia && media.length > 1 && (
           <div className="flex gap-2.5 overflow-x-auto pb-2 mt-3 scrollbar-none">
             {media.map((mediaItem, index) => (
