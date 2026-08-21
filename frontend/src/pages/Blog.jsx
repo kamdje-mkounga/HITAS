@@ -19,10 +19,9 @@ import {
   Megaphone,
   Briefcase,
   Music,
+  File,
   ChevronLeft,
-  ChevronRight,
-  ThumbsUp,
-  ThumbsDown
+  ChevronRight
 } from 'lucide-react';
 
 const Blog = ({ hasNewNotification, clearNotifications }) => {
@@ -48,8 +47,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   // Commentaires
   const [commentTexts, setCommentTexts] = useState({});
   const [showComments, setShowComments] = useState({});
-  const [replyingTo, setReplyingTo] = useState({}); // Pour gérer l'ouverture du champ de réponse par commentaire
-  const [replyTexts, setReplyTexts] = useState({}); // Textes des réponses
 
   // Modification
   const [editingId, setEditingId] = useState(null);
@@ -122,6 +119,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
+  /*
+   * Supporte :
+   * - ancien backend : mediaUrl
+   * - nouveau backend : mediaFiles[]
+   */
+
   const getPostMedia = (post) => {
     if (!post) return [];
 
@@ -154,6 +157,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     const type = item?.type || '';
     const url = typeof item === 'string' ? item : (item?.url || '');
     return type === 'audio' || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(url);
+  };
+
+  const isDocument = (item) => {
+    const type = item?.type || '';
+    const url = typeof item === 'string' ? item : (item?.url || '');
+    return type === 'pdf' || type === 'document' || /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url);
   };
 
   const getFileName = (url) => {
@@ -242,6 +251,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     if (!files.length) return;
 
+    /* 🚫 VIDEOS */
+
     const hasVideo = files.some((file) =>
       file.type.startsWith('video/')
     );
@@ -255,6 +266,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       return;
     }
 
+    /* FICHIERS AUTORISÉS */
+
     const allowedFiles = files.filter((file) => {
       return (
         file.type.startsWith('image/') ||
@@ -265,6 +278,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         )
       );
     });
+
+    if (
+      allowedFiles.length !== files.length
+    ) {
+      setError(
+        'Certains fichiers ne sont pas autorisés. Utilise des images, fichiers audio ou documents.'
+      );
+    }
 
     const newPreviews = allowedFiles.map(
       (file) => URL.createObjectURL(file)
@@ -330,12 +351,17 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     if (!files.length) return;
 
+    /* 🚫 VIDEOS */
+
     const hasVideo = files.some((file) =>
       file.type.startsWith('video/')
     );
 
     if (hasVideo) {
-      alert('Les vidéos ne sont pas autorisées.');
+      alert(
+        'Les vidéos ne sont pas autorisées.'
+      );
+
       e.target.value = '';
       return;
     }
@@ -368,12 +394,18 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     e.target.value = '';
   };
 
+  /* =========================================================
+     START EDITING
+  ========================================================= */
+
   const startEditing = (post) => {
     setEditingId(post._id);
     setEditText(post.text || '');
 
     const existing = getPostMedia(post);
+
     setExistingMediaUrls(existing);
+
     setEditMediaFiles([]);
 
     editMediaPreviews.forEach((url) => {
@@ -382,6 +414,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     setEditMediaPreviews([]);
   };
+
+  /* =========================================================
+     FETCH POSTS
+  ========================================================= */
 
   const fetchPosts = async () => {
     try {
@@ -394,10 +430,18 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     } catch (err) {
       console.error(err);
-      setError('Impossible de charger les publications.');
+
+      setError(
+        'Impossible de charger les publications.'
+      );
+
       setLoading(false);
     }
   };
+
+  /* =========================================================
+     INITIAL EFFECT
+  ========================================================= */
 
   useEffect(() => {
     fetchPosts();
@@ -415,6 +459,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         URL.revokeObjectURL(url)
       );
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearNotifications]);
 
@@ -485,26 +530,62 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       );
     };
 
-    socket.on('posts_created', handleCreated);
-    socket.on('posts_deleted', handleDeleted);
-    socket.on('posts_updated', handleUpdated);
-    socket.on('posts_updated_interactions', handleInteractions);
+    socket.on(
+      'posts_created',
+      handleCreated
+    );
+
+    socket.on(
+      'posts_deleted',
+      handleDeleted
+    );
+
+    socket.on(
+      'posts_updated',
+      handleUpdated
+    );
+
+    socket.on(
+      'posts_updated_interactions',
+      handleInteractions
+    );
 
     return () => {
-      socket.off('posts_created', handleCreated);
-      socket.off('posts_deleted', handleDeleted);
-      socket.off('posts_updated', handleUpdated);
-      socket.off('posts_updated_interactions', handleInteractions);
+      socket.off(
+        'posts_created',
+        handleCreated
+      );
+
+      socket.off(
+        'posts_deleted',
+        handleDeleted
+      );
+
+      socket.off(
+        'posts_updated',
+        handleUpdated
+      );
+
+      socket.off(
+        'posts_updated_interactions',
+        handleInteractions
+      );
+
       socket.disconnect();
     };
   }, []);
+
+  /* =========================================================
+     LIKE
+  ========================================================= */
 
   const handleLike = async (postId) => {
     try {
       const response = await axios.put(
         `${BACKEND_URL}/api/posts/like/${postId}`,
         {
-          socketId: socketRef.current?.id
+          socketId:
+            socketRef.current?.id
         },
         getAuthHeader()
       );
@@ -527,23 +608,34 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     }
   };
 
-  const handleAddComment = async (postId, parentCommentId = null) => {
-    const textComment = parentCommentId ? replyTexts[parentCommentId] : commentTexts[postId];
+  /* =========================================================
+     COMMENT
+  ========================================================= */
 
-    if (!textComment || !textComment.trim()) {
+  const handleAddComment = async (
+    postId
+  ) => {
+    const textComment =
+      commentTexts[postId];
+
+    if (
+      !textComment ||
+      !textComment.trim()
+    ) {
       return;
     }
 
     try {
-      const response = await axios.post(
-        `${BACKEND_URL}/api/posts/comment/${postId}`,
-        {
-          text: textComment,
-          parentCommentId,
-          socketId: socketRef.current?.id
-        },
-        getAuthHeader()
-      );
+      const response =
+        await axios.post(
+          `${BACKEND_URL}/api/posts/comment/${postId}`,
+          {
+            text: textComment,
+            socketId:
+              socketRef.current?.id
+          },
+          getAuthHeader()
+        );
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
@@ -558,43 +650,71 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         )
       );
 
-      if (parentCommentId) {
-        setReplyTexts((prev) => ({ ...prev, [parentCommentId]: '' }));
-        setReplyingTo((prev) => ({ ...prev, [parentCommentId]: false }));
-      } else {
-        setCommentTexts((prev) => ({ ...prev, [postId]: '' }));
-      }
+      setCommentTexts((prev) => ({
+        ...prev,
+        [postId]: ''
+      }));
 
     } catch (err) {
       console.error(err);
     }
   };
 
+  /* =========================================================
+     CREATE POST
+  ========================================================= */
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setError('');
     setSuccess('');
 
-    if (!text.trim() && mediaFiles.length === 0) {
-      setError('Le corps du message ne peut pas être vide ou doit contenir un média.');
+    if (
+      !text.trim() &&
+      mediaFiles.length === 0
+    ) {
+      setError(
+        'Le corps du message ne peut pas être vide ou doit contenir un média.'
+      );
+
       return;
     }
 
     try {
-      const formData = new FormData();
+      const formData =
+        new FormData();
 
-      if (socketRef.current?.id) {
-        formData.append('socketId', socketRef.current.id);
+      if (
+        socketRef.current?.id
+      ) {
+        formData.append(
+          'socketId',
+          socketRef.current.id
+        );
       }
 
-      formData.append('text', text);
-      formData.append('category', category);
+      formData.append(
+        'text',
+        text
+      );
+
+      formData.append(
+        'category',
+        category
+      );
 
       mediaFiles.forEach((file) => {
-        formData.append('media', file);
+        formData.append(
+          'media',
+          file
+        );
       });
 
-      const token = localStorage.getItem('token');
+      const token =
+        localStorage.getItem(
+          'token'
+        );
 
       await axios.post(
         `${BACKEND_URL}/api/posts`,
@@ -602,18 +722,27 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         {
           headers: {
             'x-auth-token': token,
-            'Content-Type': 'multipart/form-data'
+            'Content-Type':
+              'multipart/form-data'
           }
         }
       );
 
       setText('');
       clearMedia();
-      setSuccess('Publication partagée avec succès !');
-      setTimeout(() => setSuccess(''), 3000);
+
+      setSuccess(
+        'Publication partagée avec succès !'
+      );
+
+      setTimeout(
+        () => setSuccess(''),
+        3000
+      );
 
     } catch (err) {
       console.error(err);
+
       setError(
         err.response?.data?.message ||
         'Erreur lors de la publication.'
@@ -621,37 +750,66 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     }
   };
 
-  const handleEditSubmit = async (postId) => {
+  /* =========================================================
+     EDIT POST
+  ========================================================= */
+
+  const handleEditSubmit = async (
+    postId
+  ) => {
+
     if (
       !editText.trim() &&
       editMediaFiles.length === 0 &&
       existingMediaUrls.length === 0
     ) {
-      alert('La publication ne peut pas être complètement vide.');
+      alert(
+        'La publication ne peut pas être complètement vide.'
+      );
+
       return;
     }
 
     try {
-      const formData = new FormData();
+      const formData =
+        new FormData();
 
-      if (socketRef.current?.id) {
-        formData.append('socketId', socketRef.current.id);
+      if (
+        socketRef.current?.id
+      ) {
+        formData.append(
+          'socketId',
+          socketRef.current.id
+        );
       }
 
-      formData.append('text', editText);
+      formData.append(
+        'text',
+        editText
+      );
 
-      existingMediaUrls.forEach((url) => {
-        formData.append(
-          'existingMediaUrls',
-          typeof url === 'string' ? url : url.url
+      existingMediaUrls.forEach(
+        (url) => {
+          formData.append(
+            'existingMediaUrls',
+            typeof url === 'string' ? url : url.url
+          );
+        }
+      );
+
+      editMediaFiles.forEach(
+        (file) => {
+          formData.append(
+            'media',
+            file
+          );
+        }
+      );
+
+      const token =
+        localStorage.getItem(
+          'token'
         );
-      });
-
-      editMediaFiles.forEach((file) => {
-        formData.append('media', file);
-      });
-
-      const token = localStorage.getItem('token');
 
       await axios.put(
         `${BACKEND_URL}/api/posts/${postId}`,
@@ -659,21 +817,33 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         {
           headers: {
             'x-auth-token': token,
-            'Content-Type': 'multipart/form-data'
+            'Content-Type':
+              'multipart/form-data'
           }
         }
       );
 
       setEditingId(null);
+
       clearEditMedia();
 
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de la modification de la publication.');
+
+      alert(
+        'Erreur lors de la modification de la publication.'
+      );
     }
   };
 
-  const handleDelete = async (postId) => {
+  /* =========================================================
+     DELETE
+  ========================================================= */
+
+  const handleDelete = async (
+    postId
+  ) => {
+
     if (
       window.confirm(
         'Es-tu sûr de vouloir supprimer cette publication ?'
@@ -684,48 +854,86 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           `${BACKEND_URL}/api/posts/${postId}`,
           getAuthHeader()
         );
+
       } catch (err) {
-        alert('Erreur lors de la suppression.');
+        alert(
+          'Erreur lors de la suppression.'
+        );
       }
     }
   };
+
+  /* =========================================================
+     FILTER
+  ========================================================= */
 
   const filteredPosts = posts
     .filter((post) =>
       selectedFilter === 'Tous'
         ? true
-        : normalizeStr(post.category) === normalizeStr(selectedFilter)
+        : normalizeStr(
+            post.category
+          ) ===
+          normalizeStr(
+            selectedFilter
+          )
     )
     .filter((post) => {
-      if (!searchQuery.trim()) return true;
-      const query = searchQuery.toLowerCase();
+      if (!searchQuery.trim()) {
+        return true;
+      }
+
+      const query =
+        searchQuery.toLowerCase();
+
       return (
-        post.text?.toLowerCase().includes(query) ||
-        `${post.firstName} ${post.lastName}`.toLowerCase().includes(query)
+        post.text
+          ?.toLowerCase()
+          .includes(query) ||
+        `${post.firstName} ${post.lastName}`
+          .toLowerCase()
+          .includes(query)
       );
     });
 
+  /* =========================================================
+     BADGE
+  ========================================================= */
+
   const getBadgeColor = (cat) => {
-    switch (normalizeStr(cat)) {
+    switch (
+      normalizeStr(cat)
+    ) {
       case 'entraide':
         return 'bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/20';
+
       case 'stageemploi':
         return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+
       case 'logement':
         return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+
       default:
         return 'bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-300 dark:border-zinc-700';
     }
   };
 
+  /* =========================================================
+     INSTAGRAM-STYLE SLIDING TRACK CAROUSEL RENDER
+  ========================================================= */
+
   const renderMediaGrid = (post) => {
     const mediaItems = getPostMedia(post);
-    if (!mediaItems || mediaItems.length === 0) return null;
+
+    if (!mediaItems || mediaItems.length === 0) {
+      return null;
+    }
 
     const activeIndex = activeMediaIndexes[post._id] || 0;
 
     return (
       <div className="w-full bg-black">
+        {/* Carousel Container */}
         <div className="relative w-full overflow-hidden bg-black flex items-center justify-center">
           <div 
             className="flex w-full transition-transform duration-300 ease-out"
@@ -747,6 +955,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       alt={`Publication ${index + 1}`}
                       className="w-full max-h-[720px] object-contain bg-black select-none"
                       loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
                   ) : mediaType === 'audio' || isAudio(url) ? (
                     <div className="w-full p-6 bg-slate-50 dark:bg-[#030014]">
@@ -788,380 +999,2007 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             })}
           </div>
 
+          {/* Previous Arrow */}
           {mediaItems.length > 1 && activeIndex > 0 && (
             <button
               type="button"
               onClick={() => previousMedia(post._id, mediaItems.length)}
               className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10 shadow-lg"
+              aria-label="Précédent"
             >
               <ChevronLeft size={18} />
             </button>
           )}
 
+          {/* Next Arrow */}
           {mediaItems.length > 1 && activeIndex < mediaItems.length - 1 && (
             <button
               type="button"
               onClick={() => nextMedia(post._id, mediaItems.length)}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10 shadow-lg"
+              aria-label="Suivant"
             >
               <ChevronRight size={18} />
             </button>
           )}
-        </div>
-      </div>
-    );
-  };
 
-  // Composant récursif pour afficher les commentaires et leurs réponses imbriquées (style YouTube)
-  const renderCommentThread = (comment, postId) => {
-    const commentAvatarPath =
-      comment.avatar ||
-      (comment.user && typeof comment.user === 'object' ? comment.user.avatar : null);
-    
-    const commentId = comment._id || comment.id;
-    const isReplying = replyingTo[commentId];
-
-    return (
-      <div key={commentId} className="relative text-xs text-zinc-100 mt-3">
-        <div className="flex items-start gap-3">
-          {/* Avatar */}
-          <Link to={`/profile/${getUserId(comment.user)}`} className="w-8 h-8 rounded-full overflow-hidden bg-indigo-950 border border-indigo-500/30 flex-shrink-0 flex items-center justify-center font-bold text-indigo-300">
-            {commentAvatarPath ? (
-              <img src={formatMediaUrl(commentAvatarPath)} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              <span>{comment.firstName?.[0] || 'U'}</span>
-            )}
-          </Link>
-
-          {/* Corps du commentaire */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <Link to={`/profile/${getUserId(comment.user)}`} className="font-bold text-white uppercase text-[11px] tracking-wide hover:underline">
-                @{comment.firstName} {comment.lastName}
-              </Link>
-              <span className="text-zinc-500 text-[10px]">
-                {comment.date ? new Date(comment.date).toLocaleDateString('fr-FR') : 'Récemment'}
-              </span>
+          {/* Counter Badge (e.g., 1/3) */}
+          {mediaItems.length > 1 && (
+            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none z-10">
+              {activeIndex + 1} / {mediaItems.length}
             </div>
-
-            <p className="text-zinc-200 text-xs leading-relaxed break-words mb-2">
-              {comment.text}
-            </p>
-
-            {/* Boutons d'action (Likes & Répondre) */}
-            <div className="flex items-center gap-4 text-zinc-400 text-xs">
-              <button className="flex items-center gap-1 hover:text-indigo-400 transition-colors">
-                <ThumbsUp className="w-3.5 h-3.5" />
-                <span>{comment.likes?.length || 0}</span>
-              </button>
-              <button className="hover:text-indigo-400 transition-colors">
-                <ThumbsDown className="w-3.5 h-3.5" />
-              </button>
-              <button 
-                onClick={() => setReplyingTo(prev => ({ ...prev, [commentId]: !isReplying }))}
-                className="font-bold text-zinc-300 hover:text-white transition-colors"
-              >
-                Répondre
-              </button>
-            </div>
-
-            {/* Formulaire de réponse rapide imbriqué */}
-            {isReplying && (
-              <div className="mt-3 flex gap-2">
-                <input
-                  type="text"
-                  value={replyTexts[commentId] || ''}
-                  onChange={(e) => setReplyTexts(prev => ({ ...prev, [commentId]: e.target.value }))}
-                  placeholder="Ajouter une réponse..."
-                  className="flex-1 bg-[#030014] border border-indigo-900/60 rounded-xl px-3 py-2 text-xs text-zinc-100 focus:outline-none focus:border-indigo-500"
-                />
-                <button 
-                  onClick={() => handleAddComment(postId, commentId)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-xl font-bold transition-all"
-                >
-                  Envoyer
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
-        {/* Sous-commentaires / Réponses avec la ligne verticale caractéristique */}
-        {comment.replies && comment.replies.length > 0 && (
-          <div className="relative pl-6 sm:pl-8 mt-3 ml-4 border-l border-indigo-900/60 space-y-3">
-            {comment.replies.map((reply) => renderCommentThread(reply, postId))}
+        {/* Instagram Pagination Dots */}
+        {mediaItems.length > 1 && (
+          <div className="flex items-center justify-center gap-1.5 py-2.5 bg-black">
+            {mediaItems.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setMediaIndex(post._id, index)}
+                className={`rounded-full transition-all ${
+                  index === activeIndex
+                    ? 'w-4 h-1.5 bg-indigo-500'
+                    : 'w-1.5 h-1.5 bg-zinc-600'
+                }`}
+                aria-label={`Aller au média ${index + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>
     );
   };
 
-  return (
-    <div
-      className="w-full min-h-screen text-slate-900 dark:text-zinc-100 selection:bg-indigo-500 selection:text-white antialiased flex flex-col transition-colors duration-300"
-      style={{
-        backgroundColor: 'var(--bg-color)',
-        backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'repeat'
-      }}
-    >
-      <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
+  /* =========================================================
+     CREATE PREVIEW
+  ========================================================= */
 
-      <div className="max-w-3xl mx-auto px-4 py-10 flex-1 w-full">
-        
-        {/* Header */}
-        <div className="mb-8 text-center md:text-left">
-          <h1 className="text-4xl font-extrabold mb-2 tracking-tight text-slate-900 dark:text-transparent dark:bg-gradient-to-r dark:from-white dark:via-indigo-200 dark:to-purple-400 dark:bg-clip-text">
-            Espace Entraide & Blog
-          </h1>
-          <p className="text-slate-600 dark:text-zinc-400 text-sm max-w-xl">
-            Partages d'expériences, guides et aperçus de vos stages au quotidien.
-          </p>
+  const renderCreatePreviews = () => {
+
+    if (
+      mediaFiles.length === 0
+    ) {
+      return null;
+    }
+
+    return (
+      <div
+        className="
+          rounded-2xl
+          overflow-hidden
+          border
+          border-slate-200
+          dark:border-indigo-950
+          bg-slate-100
+          dark:bg-[#030014]
+        "
+      >
+
+        <div
+          className="
+            flex
+            items-center
+            justify-between
+            px-3
+            py-2
+            border-b
+            border-slate-200
+            dark:border-indigo-950
+          "
+        >
+
+          <span
+            className="
+              text-[11px]
+              font-semibold
+              text-slate-600
+              dark:text-zinc-400
+            "
+          >
+            {mediaFiles.length}{' '}
+            fichier
+            {mediaFiles.length > 1
+              ? 's'
+              : ''}{' '}
+            sélectionné
+            {mediaFiles.length > 1
+              ? 's'
+              : ''}
+          </span>
+
+          <button
+            type="button"
+            onClick={clearMedia}
+            className="
+              text-[11px]
+              font-semibold
+              text-red-500
+              hover:text-red-600
+            "
+          >
+            Tout retirer
+          </button>
+
         </div>
 
-        {/* Create Post Card */}
-        <div className="bg-white/80 dark:bg-[#0b081e]/85 backdrop-blur-xl p-5 rounded-2xl border border-slate-200 dark:border-indigo-900/60 shadow-2xl mb-7">
-          <h2 className="text-xs font-bold mb-4 text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+        <div
+          className="
+            grid
+            grid-cols-2
+            gap-[2px]
+          "
+        >
+
+          {mediaFiles.map(
+            (file, index) => {
+
+              const preview =
+                mediaPreviews[index];
+
+              /*
+               * IMAGE
+               */
+
+              if (
+                file.type.startsWith(
+                  'image/'
+                )
+              ) {
+                return (
+                  <div
+                    key={`${file.name}-${index}`}
+                    className="
+                      relative
+                      h-40
+                      overflow-hidden
+                    "
+                  >
+
+                    <img
+                      src={preview}
+                      alt="Aperçu"
+                      className="
+                        w-full
+                        h-full
+                        object-cover
+                      "
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeMediaFile(
+                          index
+                        )
+                      }
+                      className="
+                        absolute
+                        top-2
+                        right-2
+                        w-7
+                        h-7
+                        rounded-full
+                        bg-black/70
+                        text-white
+                        flex
+                        items-center
+                        justify-center
+                        backdrop-blur-md
+                      "
+                    >
+                      <X size={14} />
+                    </button>
+
+                  </div>
+                );
+              }
+
+              /*
+               * AUDIO / DOCUMENT
+               */
+
+              return (
+                <div
+                  key={`${file.name}-${index}`}
+                  className="
+                    relative
+                    min-h-32
+                    p-4
+                    bg-white
+                    dark:bg-[#0b081e]
+                    flex
+                    flex-col
+                    justify-center
+                  "
+                >
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeMediaFile(
+                        index
+                      )
+                    }
+                    className="
+                      absolute
+                      top-2
+                      right-2
+                      w-7
+                      h-7
+                      rounded-full
+                      bg-red-500/10
+                      text-red-500
+                      flex
+                      items-center
+                      justify-center
+                    "
+                  >
+                    <X size={14} />
+                  </button>
+
+                  {file.type.startsWith(
+                    'audio/'
+                  ) ? (
+                    <>
+                      <Music
+                        size={22}
+                        className="
+                          text-indigo-500
+                          mb-2
+                        "
+                      />
+
+                      <p
+                        className="
+                          text-[10px]
+                          text-slate-600
+                          dark:text-zinc-400
+                          truncate
+                          mb-1
+                        "
+                      >
+                        {file.name}
+                      </p>
+
+                      <audio
+                        src={preview}
+                        controls
+                        className="
+                          w-full
+                          h-8
+                        "
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <FileText
+                        size={24}
+                        className="
+                          text-indigo-500
+                          mb-2
+                        "
+                      />
+
+                      <span
+                        className="
+                          text-xs
+                          truncate
+                          text-slate-700
+                          dark:text-zinc-300
+                        "
+                      >
+                        {file.name}
+                      </span>
+                    </>
+                  )}
+
+                </div>
+              );
+            }
+          )}
+
+        </div>
+
+      </div>
+    );
+  };
+
+  /* =========================================================
+     RETURN
+  ========================================================= */
+
+  return (
+    <div
+      className="
+        w-full
+        min-h-screen
+        text-slate-900
+        dark:text-zinc-100
+        selection:bg-indigo-500
+        selection:text-white
+        antialiased
+        flex
+        flex-col
+        transition-colors
+        duration-300
+      "
+      style={{
+        backgroundColor:
+          'var(--bg-color)',
+
+        backgroundImage:
+          `linear-gradient(
+            to bottom,
+            var(--home-overlay-1),
+            var(--home-overlay-2)
+          ),
+          url(${tradPattern})`,
+
+        backgroundSize:
+          'contain',
+
+        backgroundRepeat:
+          'repeat'
+      }}
+    >
+
+      <Navbar
+        hasNewNotification={
+          hasNewNotification
+        }
+        clearNotifications={
+          clearNotifications
+        }
+      />
+
+      <div
+        className="
+          max-w-3xl
+          mx-auto
+          px-4
+          py-10
+          flex-1
+          w-full
+        "
+      >
+
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
+
+        <div
+          className="
+            mb-8
+            text-center
+            md:text-left
+          "
+        >
+
+          <h1
+            className="
+              text-4xl
+              font-extrabold
+              mb-2
+              tracking-tight
+              text-slate-900
+              dark:text-transparent
+              dark:bg-gradient-to-r
+              dark:from-white
+              dark:via-indigo-200
+              dark:to-purple-400
+              dark:bg-clip-text
+            "
+          >
+            Espace Entraide & Blog
+          </h1>
+
+          <p
+            className="
+              text-slate-600
+              dark:text-zinc-400
+              text-sm
+              max-w-xl
+            "
+          >
+            Partages d'expériences,
+            guides et aperçus de vos
+            stages au quotidien.
+          </p>
+
+        </div>
+
+        {/* =====================================================
+            CREATE POST
+        ===================================================== */}
+
+        <div
+          className="
+            bg-white/80
+            dark:bg-[#0b081e]/85
+            backdrop-blur-xl
+            p-5
+            rounded-2xl
+            border
+            border-slate-200
+            dark:border-indigo-900/60
+            shadow-2xl
+            shadow-slate-200/50
+            dark:shadow-black/40
+            mb-7
+          "
+        >
+
+          <h2
+            className="
+              text-xs
+              font-bold
+              mb-4
+              text-indigo-600
+              dark:text-indigo-400
+              uppercase
+              tracking-widest
+            "
+          >
             Créer une nouvelle publication
           </h2>
 
-          {error && <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-xl mb-4 text-xs font-medium">{error}</div>}
-          {success && <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 p-3 rounded-xl mb-4 text-xs font-medium">{success}</div>}
+          {error && (
+            <div
+              className="
+                bg-red-500/10
+                border
+                border-red-500/20
+                text-red-500
+                dark:text-red-400
+                p-3
+                rounded-xl
+                mb-4
+                text-xs
+                font-medium
+              "
+            >
+              {error}
+            </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {success && (
+            <div
+              className="
+                bg-emerald-500/10
+                border
+                border-emerald-500/20
+                text-emerald-500
+                dark:text-emerald-400
+                p-3
+                rounded-xl
+                mb-4
+                text-xs
+                font-medium
+              "
+            >
+              {success}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
+
             <textarea
               rows="3"
-              className="w-full bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl p-4 text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:border-indigo-500/50 transition-all resize-none text-sm leading-relaxed"
-              placeholder="Un truc cool à l'école ou en stage ? Raconte ou ajoute des fichiers..."
+              className="
+                w-full
+                bg-slate-50
+                dark:bg-[#030014]/80
+                border
+                border-slate-200
+                dark:border-indigo-950/80
+                rounded-xl
+                p-4
+                text-slate-900
+                dark:text-zinc-100
+                placeholder-slate-400
+                dark:placeholder-zinc-500
+                focus:outline-none
+                focus:border-indigo-500/50
+                focus:ring-4
+                focus:ring-indigo-500/10
+                transition-all
+                resize-none
+                text-sm
+                leading-relaxed
+              "
+              placeholder="
+                Un truc cool à l'école ou en stage ?
+                Raconte ou ajoute des fichiers...
+              "
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) =>
+                setText(e.target.value)
+              }
             />
 
-            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 pt-1">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 bg-slate-100 dark:bg-[#030014] border border-slate-200 dark:border-indigo-950 px-3 py-1.5 rounded-xl">
-                  <label htmlFor="category-select" className="text-[11px] font-medium text-slate-500 dark:text-zinc-500 uppercase tracking-wider">
+            {renderCreatePreviews()}
+
+            <div
+              className="
+                flex
+                flex-col
+                sm:flex-row
+                justify-between
+                items-stretch
+                sm:items-center
+                gap-4
+                pt-1
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  flex-wrap
+                  items-center
+                  gap-3
+                "
+              >
+
+                {/* CATEGORY */}
+
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    bg-slate-100
+                    dark:bg-[#030014]
+                    border
+                    border-slate-200
+                    dark:border-indigo-950
+                    px-3
+                    py-1.5
+                    rounded-xl
+                  "
+                >
+
+                  <label
+                    htmlFor="category-select"
+                    className="
+                      text-[11px]
+                      font-medium
+                      text-slate-500
+                      dark:text-zinc-500
+                      uppercase
+                      tracking-wider
+                    "
+                  >
                     Catégorie :
                   </label>
+
                   <select
                     id="category-select"
-                    className="bg-transparent text-xs font-semibold text-slate-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
+                    className="
+                      bg-transparent
+                      text-xs
+                      font-semibold
+                      text-slate-800
+                      dark:text-zinc-200
+                      focus:outline-none
+                      cursor-pointer
+                    "
                     value={category}
-                    onChange={(e) => setCategory(e.target.value)}
+                    onChange={(e) =>
+                      setCategory(
+                        e.target.value
+                      )
+                    }
                   >
-                    <option value="General">Général</option>
-                    <option value="Entraide">Entraide</option>
-                    <option value="Stage/Emploi">Stage / Emploi</option>
-                    <option value="Logement">Logement</option>
+
+                    <option value="General">
+                      Général
+                    </option>
+
+                    <option value="Entraide">
+                      Entraide
+                    </option>
+
+                    <option value="Stage/Emploi">
+                      Stage / Emploi
+                    </option>
+
+                    <option value="Logement">
+                      Logement
+                    </option>
+
                   </select>
+
                 </div>
+
+                {/* FILE BUTTON */}
 
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-3 py-1.5 border rounded-xl text-xs font-medium border-slate-200 dark:border-indigo-950 bg-slate-100 dark:bg-[#030014] text-slate-600 dark:text-zinc-400"
+                  onClick={() =>
+                    fileInputRef.current?.click()
+                  }
+                  className="
+                    flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-1.5
+                    border
+                    rounded-xl
+                    text-xs
+                    font-medium
+                    transition-all
+                    border-slate-200
+                    dark:border-indigo-950
+                    bg-slate-100
+                    dark:bg-[#030014]
+                    text-slate-600
+                    dark:text-zinc-400
+                    hover:text-slate-900
+                    dark:hover:text-zinc-200
+                    hover:border-indigo-800
+                  "
                 >
-                  <Paperclip size={16} className="text-indigo-600 dark:text-indigo-400" />
-                  {mediaFiles.length > 0 ? `${mediaFiles.length} fichier(s)` : 'Ajouter des fichiers'}
+
+                  <Paperclip
+                    size={16}
+                    className="
+                      text-indigo-600
+                      dark:text-indigo-400
+                    "
+                  />
+
+                  {mediaFiles.length > 0
+                    ? `${mediaFiles.length} fichier${
+                        mediaFiles.length > 1
+                          ? 's'
+                          : ''
+                      }`
+                    : 'Ajouter des fichiers'}
+
                 </button>
 
                 <input
                   type="file"
                   ref={fileInputRef}
                   multiple
-                  accept="image/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
-                  onChange={handleFileChange}
+                  accept="
+                    image/*,
+                    audio/*,
+                    application/pdf,
+                    .doc,
+                    .docx,
+                    .xls,
+                    .xlsx,
+                    .ppt,
+                    .pptx
+                  "
+                  onChange={
+                    handleFileChange
+                  }
                   className="hidden"
                 />
+
               </div>
+
+              {/* PUBLISH */}
 
               <button
                 type="submit"
-                className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-5 py-2 rounded-xl text-xs transition-all shadow-md flex items-center justify-center gap-2"
+                className="
+                  bg-gradient-to-r
+                  from-indigo-600
+                  to-purple-600
+                  hover:from-indigo-500
+                  hover:to-purple-500
+                  text-white
+                  font-bold
+                  px-5
+                  py-2
+                  rounded-xl
+                  text-xs
+                  transition-all
+                  shadow-md
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                "
               >
-                <span>Publier</span>
+                <span>
+                  Publier
+                </span>
+
                 <Send size={14} />
               </button>
+
             </div>
+
           </form>
+
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-5 relative">
-          <span className="absolute inset-y-0 left-3 flex items-center">
-            <Search size={16} className="text-indigo-600 dark:text-indigo-400" />
-          </span>
-          <input
-            type="text"
-            placeholder="Rechercher un mot-clé, un sujet, un étudiant..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white/80 dark:bg-[#0b081e]/80 backdrop-blur-md border border-slate-200 dark:border-indigo-900/60 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-900 dark:text-zinc-200 focus:outline-none"
-          />
+        {/* =====================================================
+            SEARCH
+        ===================================================== */}
+
+        <div className="mb-5">
+
+          <div
+            className="
+              relative
+            "
+          >
+
+            <span
+              className="
+                absolute
+                inset-y-0
+                left-3
+                flex
+                items-center
+              "
+            >
+              <Search
+                size={16}
+                className="
+                  text-indigo-600
+                  dark:text-indigo-400
+                "
+              />
+            </span>
+
+            <input
+              type="text"
+              placeholder="
+                Rechercher un mot-clé,
+                un sujet, un étudiant...
+              "
+              value={searchQuery}
+              onChange={(e) =>
+                setSearchQuery(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                bg-white/80
+                dark:bg-[#0b081e]/80
+                backdrop-blur-md
+                border
+                border-slate-200
+                dark:border-indigo-900/60
+                rounded-xl
+                pl-10
+                pr-4
+                py-3
+                text-sm
+                text-slate-900
+                dark:text-zinc-200
+                placeholder-slate-400
+                dark:placeholder-zinc-500
+                focus:outline-none
+                focus:border-indigo-500/50
+                focus:ring-4
+                focus:ring-indigo-500/10
+              "
+            />
+
+          </div>
+
         </div>
 
-        {/* Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mb-7 border-b border-slate-200 dark:border-indigo-950/40 pb-5">
-          {['Tous', 'General', 'Entraide', 'Stage/Emploi', 'Logement'].map((cat) => (
+        {/* =====================================================
+            FILTERS
+        ===================================================== */}
+
+        <div
+          className="
+            flex
+            flex-wrap
+            gap-2
+            mb-7
+            border-b
+            border-slate-200
+            dark:border-indigo-950/40
+            pb-5
+          "
+        >
+
+          {[
+            'Tous',
+            'General',
+            'Entraide',
+            'Stage/Emploi',
+            'Logement'
+          ].map((cat) => (
+
             <button
               key={cat}
               type="button"
-              onClick={() => setSelectedFilter(cat)}
-              className={`px-4 py-1.5 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 ${
-                selectedFilter === cat
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md'
-                  : 'bg-white/80 dark:bg-[#0b081e]/80 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-indigo-900/60'
-              }`}
+              onClick={() =>
+                setSelectedFilter(cat)
+              }
+              className={`
+                px-4
+                py-1.5
+                rounded-xl
+                text-xs
+                font-semibold
+                border
+                transition-all
+                flex
+                items-center
+                gap-1.5
+                ${
+                  selectedFilter === cat
+                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md'
+                    : 'bg-white/80 dark:bg-[#0b081e]/80 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-indigo-900/60'
+                }
+              `}
             >
-              {cat === 'Tous' && <Megaphone size={14} />}
-              {cat === 'Stage/Emploi' && <Briefcase size={14} />}
-              <span>{cat === 'General' ? 'Général' : cat === 'Stage/Emploi' ? 'Stage / Emploi' : cat}</span>
+
+              {cat === 'Tous' && (
+                <Megaphone
+                  size={14}
+                />
+              )}
+
+              {cat ===
+                'Stage/Emploi' && (
+                <Briefcase
+                  size={14}
+                />
+              )}
+
+              <span>
+                {cat === 'General'
+                  ? 'Général'
+                  : cat ===
+                    'Stage/Emploi'
+                  ? 'Stage / Emploi'
+                  : cat}
+              </span>
+
             </button>
           ))}
+
         </div>
 
-        {/* Posts Stream */}
+        {/* =====================================================
+            POSTS
+        ===================================================== */}
+
         {loading ? (
-          <div className="text-center text-slate-500 dark:text-zinc-500 py-16 text-xs font-bold tracking-widest animate-pulse">
+
+          <div
+            className="
+              text-center
+              text-slate-500
+              dark:text-zinc-500
+              py-16
+              text-xs
+              font-bold
+              tracking-widest
+              animate-pulse
+            "
+          >
             CHARGEMENT EN COURS...
           </div>
+
         ) : (
-          <div className="space-y-5">
+
+          <div
+            className="
+              space-y-5
+            "
+          >
+
             {filteredPosts.length === 0 ? (
-              <div className="text-center text-slate-600 dark:text-zinc-400 py-16 bg-white/80 dark:bg-[#0b081e]/80 rounded-2xl text-sm border border-slate-200 dark:border-indigo-900/60">
-                Aucune publication ne correspond à ta recherche.
+
+              <div
+                className="
+                  text-center
+                  text-slate-600
+                  dark:text-zinc-400
+                  py-16
+                  bg-white/80
+                  dark:bg-[#0b081e]/80
+                  backdrop-blur-md
+                  border
+                  border-slate-200
+                  dark:border-indigo-900/60
+                  rounded-2xl
+                  text-sm
+                "
+              >
+                Aucune publication ne
+                correspond à ta recherche.
               </div>
+
             ) : (
-              filteredPosts.map((post) => {
-                const hasLiked = post.likes?.some(
-                  (like) => getUserId(like.user) === loggedInUserId
-                );
-                const avatarPath = post.avatar || (post.user && typeof post.user === 'object' ? post.user.avatar : null);
 
-                return (
-                  <div key={post._id} className="bg-white/90 dark:bg-[#0b081e]/90 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-indigo-900/60 overflow-hidden shadow-xl">
-                    
-                    {/* Post Header */}
-                    <div className="flex justify-between items-start px-4 sm:px-5 pt-4 pb-2">
-                      <Link to={`/profile/${getUserId(post.user)}`} className="flex items-center gap-3 group/author">
-                        <div className="relative w-10 h-10 flex-shrink-0">
-                          {avatarPath ? (
-                            <img src={formatMediaUrl(avatarPath)} alt={post.firstName} className="absolute inset-0 w-full h-full rounded-full object-cover border border-slate-300 dark:border-indigo-950 z-10" />
-                          ) : null}
-                          <div className="w-full h-full bg-gradient-to-br from-indigo-100 dark:from-indigo-950 to-slate-200 dark:to-slate-900 rounded-full flex items-center justify-center font-bold text-xs">
-                            {post.firstName?.[0] || 'U'}{post.lastName?.[0] || ''}
-                          </div>
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-sm text-slate-900 dark:text-zinc-200 group-hover/author:text-indigo-600 transition-all">
-                            {post.firstName} {post.lastName}
-                          </h3>
-                          <p className="text-[11px] text-slate-500 dark:text-zinc-500">
-                            {new Date(post.date).toLocaleDateString('fr-FR')}
-                          </p>
-                        </div>
-                      </Link>
+              filteredPosts.map(
+                (post) => {
 
-                      <div className="flex items-center gap-2">
-                        <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-lg border ${getBadgeColor(post.category)}`}>
-                          {post.category}
-                        </span>
+                  const hasLiked =
+                    post.likes?.some(
+                      (like) =>
+                        getUserId(
+                          like.user
+                        ) ===
+                        loggedInUserId
+                    );
 
-                        {getUserId(post.user) === loggedInUserId && (
-                          <div className="flex gap-1 bg-slate-100 dark:bg-[#030014] border border-slate-200 dark:border-indigo-950 rounded-lg p-1">
-                            <button onClick={() => startEditing(post)} className="p-1"><Pencil size={15} className="text-amber-500" /></button>
-                            <button onClick={() => handleDelete(post._id)} className="p-1"><Trash2 size={15} className="text-red-500" /></button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                  const avatarPath =
+                    post.avatar ||
+                    (
+                      post.user &&
+                      typeof post.user ===
+                        'object'
+                        ? post.user.avatar
+                        : null
+                    );
 
-                    {/* Edit or Display Post */}
-                    {editingId === post._id ? (
-                      <div className="m-4 space-y-4 bg-slate-50 dark:bg-[#030014]/60 p-4 rounded-xl border border-slate-200 dark:border-indigo-950">
-                        <h4 className="text-[11px] font-bold text-slate-500 dark:text-zinc-500 uppercase">Modifier la publication</h4>
-                        <textarea
-                          className="w-full bg-white dark:bg-[#0b081e] border border-slate-200 dark:border-indigo-900 rounded-xl p-3 text-sm resize-none"
-                          rows="3"
-                          value={editText}
-                          onChange={(e) => setEditText(e.target.value)}
-                        />
-                        <div className="flex justify-end gap-2 pt-3">
-                          <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1.5 border rounded-lg text-xs">Annuler</button>
-                          <button type="button" onClick={() => handleEditSubmit(post._id)} className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold">Sauvegarder</button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        {post.text?.trim() && (
-                          <p className="px-4 sm:px-5 pb-2 text-slate-800 dark:text-zinc-200 text-sm whitespace-pre-wrap leading-relaxed">
-                            {post.text}
-                          </p>
-                        )}
+                  return (
 
-                        {renderMediaGrid(post)}
+                    <div
+                      key={post._id}
+                      id={`post-${post._id}`}
+                      className="
+                        bg-white/90
+                        dark:bg-[#0b081e]/90
+                        backdrop-blur-xl
+                        rounded-2xl
+                        border
+                        border-slate-200
+                        dark:border-indigo-900/60
+                        overflow-hidden
+                        shadow-xl
+                        shadow-slate-200/50
+                        dark:shadow-black/40
+                      "
+                    >
 
-                        {/* Actions Bar */}
-                        <div className="flex gap-2 px-4 sm:px-5 py-3 border-t border-slate-200 dark:border-indigo-900/40">
-                          <button
-                            onClick={() => handleLike(post._id)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs ${
-                              hasLiked ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300' : 'border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-300'
-                            }`}
+                      {/* =================================================
+                          POST HEADER
+                      ================================================= */}
+
+                      <div
+                        className="
+                          flex
+                          justify-between
+                          items-start
+                          px-4
+                          sm:px-5
+                          pt-4
+                          pb-2
+                        "
+                      >
+
+                        <Link
+                          to={`/profile/${getUserId(
+                            post.user
+                          )}`}
+                          className="
+                            flex
+                            items-center
+                            gap-3
+                            group/author
+                          "
+                        >
+
+                          <div
+                            className="
+                              relative
+                              w-10
+                              h-10
+                              flex-shrink-0
+                            "
                           >
-                            <Heart size={15} className={hasLiked ? 'fill-current text-pink-500' : 'text-slate-400'} />
-                            <span className="text-[11px]">{post.likes?.length || 0}</span>
-                          </button>
 
-                          <button
-                            onClick={() => setShowComments((prev) => ({ ...prev, [post._id]: !prev[post._id] }))}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-300"
-                          >
-                            <MessageCircle size={15} />
-                            <span className="text-[11px]">{post.comments?.length || 0}</span>
-                          </button>
-                        </div>
-
-                        {/* Comments Section */}
-                        {showComments[post._id] && (
-                          <div className="border-t border-slate-200 dark:border-indigo-900/40 p-4 bg-slate-50 dark:bg-[#0b081e]/80">
-                            
-                            {/* Main Comment Input */}
-                            <div className="flex gap-2 mb-4">
-                              <input
-                                type="text"
-                                placeholder="Écrire un commentaire..."
-                                value={commentTexts[post._id] || ''}
-                                onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post._id]: e.target.value }))}
-                                className="w-full bg-white dark:bg-[#030014] border border-slate-200 dark:border-indigo-900 rounded-xl p-2.5 text-xs focus:outline-none"
+                            {avatarPath ? (
+                              <img
+                                src={formatMediaUrl(
+                                  avatarPath
+                                )}
+                                alt={
+                                  post.firstName
+                                }
+                                className="
+                                  absolute
+                                  inset-0
+                                  w-full
+                                  h-full
+                                  rounded-full
+                                  object-cover
+                                  border
+                                  border-slate-300
+                                  dark:border-indigo-950
+                                  z-10
+                                "
+                                onError={(e) => {
+                                  e.target.style.display =
+                                    'none';
+                                }}
                               />
-                              <button
-                                onClick={() => handleAddComment(post._id)}
-                                className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 rounded-xl text-xs font-bold"
-                              >
-                                Envoyer
-                              </button>
-                            </div>
+                            ) : null}
 
-                            {/* Threaded Comments List */}
-                            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
-                              {post.comments && post.comments.length > 0 ? (
-                                post.comments.map((comment) => renderCommentThread(comment, post._id))
-                              ) : (
-                                <p className="text-zinc-500 text-xs italic text-center py-2">Aucun commentaire pour le moment.</p>
-                              )}
+                            <div
+                              className="
+                                w-full
+                                h-full
+                                bg-gradient-to-br
+                                from-indigo-100
+                                dark:from-indigo-950
+                                to-slate-200
+                                dark:to-slate-900
+                                text-slate-800
+                                dark:text-zinc-200
+                                rounded-full
+                                flex
+                                items-center
+                                justify-center
+                                font-bold
+                                text-xs
+                              "
+                            >
+                              {post.firstName?.[0] ||
+                                'U'}
+
+                              {post.lastName?.[0] ||
+                                ''}
                             </div>
 
                           </div>
-                        )}
-                      </>
-                    )}
 
-                  </div>
-                );
-              })
+                          <div>
+
+                            <h3
+                              className="
+                                font-bold
+                                text-sm
+                                text-slate-900
+                                dark:text-zinc-200
+                                group-hover/author:text-indigo-600
+                                transition-all
+                              "
+                            >
+                              {post.firstName}{' '}
+                              {post.lastName}
+                            </h3>
+
+                            <p
+                              className="
+                                text-[11px]
+                                text-slate-500
+                                dark:text-zinc-500
+                              "
+                            >
+                              {new Date(
+                                post.date
+                              ).toLocaleDateString(
+                                'fr-FR'
+                              )}
+                            </p>
+
+                          </div>
+
+                        </Link>
+
+                        <div
+                          className="
+                            flex
+                            items-center
+                            gap-2
+                          "
+                        >
+
+                          <span
+                            className={`
+                              text-[10px]
+                              uppercase
+                              tracking-wider
+                              font-bold
+                              px-2.5
+                              py-0.5
+                              rounded-lg
+                              border
+                              ${getBadgeColor(
+                                post.category
+                              )}
+                            `}
+                          >
+                            {post.category}
+                          </span>
+
+                          {getUserId(
+                            post.user
+                          ) ===
+                            loggedInUserId && (
+
+                            <div
+                              className="
+                                flex
+                                gap-1
+                                bg-slate-100
+                                dark:bg-[#030014]
+                                border
+                                border-slate-200
+                                dark:border-indigo-950
+                                rounded-lg
+                                p-1
+                              "
+                            >
+
+                              <button
+                                onClick={() =>
+                                  startEditing(
+                                    post
+                                  )
+                                }
+                                className="p-1"
+                              >
+                                <Pencil
+                                  size={15}
+                                  className="
+                                    text-amber-500
+                                  "
+                                />
+                              </button>
+
+                              <button
+                                onClick={() =>
+                                  handleDelete(
+                                    post._id
+                                  )
+                                }
+                                className="p-1"
+                              >
+                                <Trash2
+                                  size={15}
+                                  className="
+                                    text-red-500
+                                  "
+                                />
+                              </button>
+
+                            </div>
+                          )}
+
+                        </div>
+
+                      </div>
+
+                      {/* =================================================
+                          EDIT MODE
+                      ================================================= */}
+
+                      {editingId ===
+                      post._id ? (
+
+                        <div
+                          className="
+                            m-4
+                            space-y-4
+                            bg-slate-50
+                            dark:bg-[#030014]/60
+                            p-4
+                            rounded-xl
+                            border
+                            border-slate-200
+                            dark:border-indigo-950
+                          "
+                        >
+
+                          <h4
+                            className="
+                              text-[11px]
+                              font-bold
+                              text-slate-500
+                              dark:text-zinc-500
+                              uppercase
+                            "
+                          >
+                            Modifier la publication
+                          </h4>
+
+                          <textarea
+                            className="
+                              w-full
+                              bg-white
+                              dark:bg-[#0b081e]
+                              border
+                              border-slate-200
+                              dark:border-indigo-900
+                              rounded-xl
+                              p-3
+                              text-sm
+                              resize-none
+                            "
+                            rows="3"
+                            value={editText}
+                            onChange={(e) =>
+                              setEditText(
+                                e.target.value
+                              )
+                            }
+                          />
+
+                          {/* EXISTING MEDIA */}
+
+                          {existingMediaUrls.length >
+                            0 && (
+
+                            <div
+                              className="
+                                space-y-2
+                              "
+                            >
+
+                              <p
+                                className="
+                                  text-[11px]
+                                  font-semibold
+                                  text-slate-500
+                                  dark:text-zinc-400
+                                "
+                              >
+                                Médias actuels
+                              </p>
+
+                              <div
+                                className="
+                                  grid
+                                  grid-cols-2
+                                  gap-2
+                                "
+                              >
+
+                                {existingMediaUrls.map(
+                                  (
+                                    item,
+                                    index
+                                  ) => {
+                                    const url = typeof item === 'string' ? item : item.url;
+                                    return (
+                                    <div
+                                      key={`${url}-${index}`}
+                                      className="
+                                        relative
+                                        rounded-xl
+                                        overflow-hidden
+                                        border
+                                        border-slate-200
+                                        dark:border-indigo-900
+                                        bg-white
+                                        dark:bg-[#0b081e]
+                                      "
+                                    >
+
+                                      {isImage(
+                                        item
+                                      ) ? (
+
+                                        <img
+                                          src={formatMediaUrl(
+                                            url
+                                          )}
+                                          alt="Média actuel"
+                                          className="
+                                            w-full
+                                            h-32
+                                            object-cover
+                                          "
+                                        />
+
+                                      ) : (
+
+                                        <div
+                                          className="
+                                            h-32
+                                            flex
+                                            flex-col
+                                            items-center
+                                            justify-center
+                                            gap-2
+                                            p-3
+                                          "
+                                        >
+
+                                          {isAudio(
+                                            item
+                                          ) ? (
+                                            <Music
+                                              size={
+                                                22
+                                              }
+                                              className="
+                                                text-indigo-500
+                                              "
+                                            />
+                                          ) : (
+                                            <FileText
+                                              size={
+                                                22
+                                              }
+                                              className="
+                                                text-indigo-500
+                                              "
+                                            />
+                                          )}
+
+                                          <span
+                                            className="
+                                              text-[10px]
+                                              truncate
+                                              max-w-full
+                                            "
+                                          >
+                                            {item.originalName || getFileName(
+                                              url
+                                            )}
+                                          </span>
+
+                                        </div>
+                                      )}
+
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeExistingMedia(
+                                            index
+                                          )
+                                        }
+                                        className="
+                                          absolute
+                                          top-2
+                                          right-2
+                                          w-7
+                                          h-7
+                                          rounded-full
+                                          bg-black/70
+                                          text-white
+                                          flex
+                                          items-center
+                                          justify-center
+                                        "
+                                      >
+                                        <X
+                                          size={
+                                            14
+                                          }
+                                        />
+                                      </button>
+
+                                    </div>
+                                  );
+                                  }
+                                )}
+
+                              </div>
+
+                            </div>
+                          )}
+
+                          {/* NEW MEDIA */}
+
+                          {editMediaFiles.length >
+                            0 && (
+
+                            <div
+                              className="
+                                grid
+                                grid-cols-2
+                                gap-2
+                              "
+                            >
+
+                              {editMediaFiles.map(
+                                (
+                                  file,
+                                  index
+                                ) => (
+
+                                  <div
+                                    key={`${file.name}-${index}`}
+                                    className="
+                                      relative
+                                      rounded-xl
+                                      overflow-hidden
+                                      border
+                                      border-indigo-500/30
+                                    "
+                                  >
+
+                                    {file.type.startsWith(
+                                      'image/'
+                                    ) ? (
+
+                                      <img
+                                        src={
+                                          editMediaPreviews[
+                                            index
+                                          ]
+                                        }
+                                        alt="Nouveau média"
+                                        className="
+                                          w-full
+                                          h-32
+                                          object-cover
+                                        "
+                                      />
+
+                                    ) : (
+
+                                      <div
+                                        className="
+                                          h-32
+                                          flex
+                                          flex-col
+                                          items-center
+                                          justify-center
+                                          p-3
+                                          bg-white
+                                          dark:bg-[#0b081e]
+                                        "
+                                      >
+
+                                        {file.type.startsWith(
+                                          'audio/'
+                                        ) ? (
+                                          <Music
+                                            size={
+                                              22
+                                            }
+                                            className="
+                                              text-indigo-500
+                                              mb-2
+                                            "
+                                          />
+                                        ) : (
+                                          <FileText
+                                            size={
+                                              22
+                                            }
+                                            className="
+                                              text-indigo-500
+                                              mb-2
+                                            "
+                                          />
+                                        )}
+
+                                        <span
+                                          className="
+                                            text-[10px]
+                                            truncate
+                                            max-w-full
+                                          "
+                                        >
+                                          {file.name}
+                                        </span>
+
+                                      </div>
+                                    )}
+
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        removeEditMediaFile(
+                                          index
+                                        )
+                                      }
+                                      className="
+                                        absolute
+                                        top-2
+                                        right-2
+                                        w-7
+                                        h-7
+                                        rounded-full
+                                        bg-black/70
+                                        text-white
+                                        flex
+                                        items-center
+                                        justify-center
+                                      "
+                                    >
+                                      <X
+                                        size={
+                                          14
+                                        }
+                                      />
+                                    </button>
+
+                                  </div>
+                                ))}
+
+                            </div>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              editFileInputRef.current?.click()
+                            }
+                            className="
+                              text-xs
+                              border
+                              border-slate-200
+                              dark:border-indigo-900
+                              px-3
+                              py-2
+                              rounded-lg
+                              flex
+                              items-center
+                              gap-2
+                            "
+                          >
+
+                            <Plus size={15} />
+
+                            Ajouter des fichiers
+
+                          </button>
+
+                          <input
+                            type="file"
+                            ref={
+                              editFileInputRef
+                            }
+                            multiple
+                            accept="
+                              image/*,
+                              audio/*,
+                              application/pdf,
+                              .doc,
+                              .docx,
+                              .xls,
+                              .xlsx,
+                              .ppt,
+                              .pptx
+                            "
+                            onChange={
+                              handleEditFileChange
+                            }
+                            className="hidden"
+                          />
+
+                          <div
+                            className="
+                              flex
+                              justify-end
+                              gap-2
+                              pt-3
+                              border-t
+                              border-slate-200
+                              dark:border-indigo-950
+                            "
+                          >
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditingId(
+                                  null
+                                );
+                                clearEditMedia();
+                              }}
+                              className="
+                                px-3
+                                py-1.5
+                                border
+                                rounded-lg
+                                text-xs
+                              "
+                            >
+                              Annuler
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleEditSubmit(
+                                  post._id
+                                )
+                              }
+                              className="
+                                px-3
+                                py-1.5
+                                bg-indigo-600
+                                text-white
+                                rounded-lg
+                                text-xs
+                                font-bold
+                              "
+                            >
+                              Sauvegarder
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                      ) : (
+
+                        <>
+
+                          {/* =================================================
+                              TEXT
+                          ================================================= */}
+
+                          {post.text?.trim() && (
+
+                            <p
+                              className="
+                                px-4
+                                sm:px-5
+                                pb-2
+                                text-slate-800
+                                dark:text-zinc-200
+                                text-sm
+                                whitespace-pre-wrap
+                                leading-relaxed
+                              "
+                            >
+                              {post.text}
+                            </p>
+
+                          )}
+
+                          {/* =================================================
+                              MEDIA CAROUSEL
+                          ================================================= */}
+
+                          {renderMediaGrid(post)}
+
+                          {/* =================================================
+                              ACTIONS
+                          ================================================= */}
+
+                          <div
+                            className="
+                              flex
+                              gap-2
+                              px-4
+                              sm:px-5
+                              py-3
+                              border-t
+                              border-slate-200
+                              dark:border-indigo-900/40
+                            "
+                          >
+
+                            <button
+                              onClick={() =>
+                                handleLike(
+                                  post._id
+                                )
+                              }
+                              className={`
+                                flex
+                                items-center
+                                gap-1.5
+                                px-3
+                                py-1.5
+                                rounded-xl
+                                border
+                                text-xs
+                                ${
+                                  hasLiked
+                                    ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
+                                    : 'border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-300'
+                                }
+                              `}
+                            >
+
+                              <Heart
+                                size={15}
+                                className={
+                                  hasLiked
+                                    ? 'fill-current text-pink-500'
+                                    : 'text-slate-400'
+                                }
+                              />
+
+                              <span
+                                className="
+                                  text-[11px]
+                                "
+                              >
+                                {post.likes
+                                  ?.length ||
+                                  0}
+                              </span>
+
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                setShowComments(
+                                  (prev) => ({
+                                    ...prev,
+                                    [post._id]:
+                                      !prev[
+                                        post._id
+                                      ]
+                                  })
+                                )
+                              }
+                              className="
+                                flex
+                                items-center
+                                gap-1.5
+                                px-3
+                                py-1.5
+                                rounded-xl
+                                border
+                                border-slate-200
+                                dark:border-indigo-900/60
+                                text-slate-700
+                                dark:text-zinc-300
+                              "
+                            >
+
+                              <MessageCircle
+                                size={15}
+                              />
+
+                              <span
+                                className="
+                                  text-[11px]
+                                "
+                              >
+                                {post.comments
+                                  ?.length ||
+                                  0}
+                              </span>
+
+                            </button>
+
+                          </div>
+
+                          {/* =================================================
+                              COMMENTS
+                          ================================================= */}
+
+                          {showComments[
+                            post._id
+                          ] && (
+
+                            <div
+                              className="
+                                border-t
+                                border-slate-200
+                                dark:border-indigo-900/40
+                                p-4
+                                bg-slate-50
+                                dark:bg-[#0b081e]/80
+                              "
+                            >
+
+                              <div
+                                className="
+                                  flex
+                                  gap-2
+                                  mb-3
+                                "
+                              >
+
+                                <input
+                                  type="text"
+                                  placeholder="
+                                    Écrire un commentaire...
+                                  "
+                                  value={
+                                    commentTexts[
+                                      post._id
+                                    ] || ''
+                                  }
+                                  onChange={(e) =>
+                                    setCommentTexts(
+                                      (prev) => ({
+                                        ...prev,
+                                        [post._id]:
+                                          e.target.value
+                                      })
+                                    )
+                                  }
+                                  className="
+                                    w-full
+                                    bg-white
+                                    dark:bg-[#030014]
+                                    border
+                                    border-slate-200
+                                    dark:border-indigo-900
+                                    rounded-xl
+                                    p-2.5
+                                    text-xs
+                                    focus:outline-none
+                                  "
+                                />
+
+                                <button
+                                  onClick={() =>
+                                    handleAddComment(
+                                      post._id
+                                    )
+                                  }
+                                  className="
+                                    bg-gradient-to-r
+                                    from-indigo-600
+                                    to-purple-600
+                                    text-white
+                                    px-4
+                                    rounded-xl
+                                    text-xs
+                                    font-bold
+                                  "
+                                >
+                                  Envoyer
+                                </button>
+
+                              </div>
+
+                              <div
+                                className="
+                                  space-y-2
+                                  max-h-[280px]
+                                  overflow-y-auto
+                                "
+                              >
+
+                                {post.comments?.map(
+                                  (
+                                    comment,
+                                    i
+                                  ) => {
+
+                                    const commentAvatarPath =
+                                      comment.avatar ||
+                                      (
+                                        comment.user &&
+                                        typeof comment.user ===
+                                          'object'
+                                          ? comment
+                                              .user
+                                              .avatar
+                                          : null
+                                      );
+
+                                    return (
+
+                                      <Link
+                                        key={i}
+                                        to={`/profile/${getUserId(
+                                          comment.user
+                                        )}`}
+                                        className="
+                                          bg-white/80
+                                          dark:bg-[#0b081e]/60
+                                          p-3
+                                          rounded-xl
+                                          border
+                                          border-slate-200
+                                          dark:border-indigo-900/50
+                                          flex
+                                          gap-3
+                                        "
+                                      >
+
+                                        <div
+                                          className="
+                                            w-7
+                                            h-7
+                                            flex-shrink-0
+                                            relative
+                                          "
+                                        >
+
+                                          {commentAvatarPath ? (
+
+                                            <img
+                                              src={formatMediaUrl(
+                                                commentAvatarPath
+                                              )}
+                                              alt="Author"
+                                              className="
+                                                w-full
+                                                h-full
+                                                rounded-full
+                                                object-cover
+                                              "
+                                            />
+
+                                          ) : (
+
+                                            <div
+                                              className="
+                                                w-full
+                                                h-full
+                                                rounded-full
+                                                bg-indigo-100
+                                                dark:bg-indigo-950
+                                                text-indigo-600
+                                                flex
+                                                items-center
+                                                justify-center
+                                                font-bold
+                                                text-[9px]
+                                              "
+                                            >
+                                              {comment.firstName?.[0] ||
+                                                'U'}
+                                            </div>
+
+                                          )}
+
+                                        </div>
+
+                                        <div
+                                          className="
+                                            flex-1
+                                            min-w-0
+                                          "
+                                        >
+
+                                          <p
+                                            className="
+                                              font-bold
+                                              text-xs
+                                              text-slate-800
+                                              dark:text-zinc-300
+                                            "
+                                          >
+                                            {
+                                              comment.firstName
+                                            }{' '}
+                                            {
+                                              comment.lastName
+                                            }
+                                          </p>
+
+                                          <p
+                                            className="
+                                              text-xs
+                                              text-slate-600
+                                              dark:text-zinc-400
+                                              leading-relaxed
+                                            "
+                                          >
+                                            {
+                                              comment.text
+                                            }
+                                          </p>
+
+                                        </div>
+
+                                      </Link>
+
+                                    );
+                                  }
+                                )}
+
+                              </div>
+
+                            </div>
+                          )}
+
+                        </>
+                      )}
+
+                    </div>
+                  );
+                }
+              )
             )}
+
           </div>
         )}
 
