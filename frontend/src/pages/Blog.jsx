@@ -19,7 +19,9 @@ import {
   Megaphone,
   Briefcase,
   Music,
-  File
+  File,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 const Blog = ({ hasNewNotification, clearNotifications }) => {
@@ -54,6 +56,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   const [editMediaPreviews, setEditMediaPreviews] = useState([]);
 
   const [existingMediaUrls, setExistingMediaUrls] = useState([]);
+
+  // Carousel Active Index tracking per post
+  const [activeMediaIndexes, setActiveMediaIndexes] = useState({});
 
   // Refs
   const fileInputRef = useRef(null);
@@ -117,42 +122,47 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   /*
    * Supporte :
    * - ancien backend : mediaUrl
-   * - nouveau backend : mediaUrls[]
+   * - nouveau backend : mediaFiles[]
    */
 
   const getPostMedia = (post) => {
     if (!post) return [];
 
     if (
-      Array.isArray(post.mediaUrls) &&
-      post.mediaUrls.length > 0
+      Array.isArray(post.mediaFiles) &&
+      post.mediaFiles.length > 0
     ) {
-      return post.mediaUrls;
+      return post.mediaFiles;
     }
 
     if (post.mediaUrl) {
-      return [post.mediaUrl];
+      return [{
+        url: post.mediaUrl,
+        path: post.mediaPath || '',
+        type: post.mediaType || 'image',
+        originalName: post.mediaOriginalName || ''
+      }];
     }
 
     return [];
   };
 
-  const isImage = (url) => {
-    return /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(
-      url || ''
-    );
+  const isImage = (item) => {
+    const type = item?.type || '';
+    const url = typeof item === 'string' ? item : (item?.url || '');
+    return type === 'image' || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url);
   };
 
-  const isAudio = (url) => {
-    return /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(
-      url || ''
-    );
+  const isAudio = (item) => {
+    const type = item?.type || '';
+    const url = typeof item === 'string' ? item : (item?.url || '');
+    return type === 'audio' || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(url);
   };
 
-  const isDocument = (url) => {
-    return /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i.test(
-      url || ''
-    );
+  const isDocument = (item) => {
+    const type = item?.type || '';
+    const url = typeof item === 'string' ? item : (item?.url || '');
+    return type === 'pdf' || type === 'document' || /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url);
   };
 
   const getFileName = (url) => {
@@ -166,6 +176,37 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     } catch {
       return 'Fichier';
     }
+  };
+
+  /* =========================================================
+     CAROUSEL HANDLERS
+  ========================================================= */
+
+  const setMediaIndex = (postId, index) => {
+    setActiveMediaIndexes((prev) => ({
+      ...prev,
+      [postId]: index
+    }));
+  };
+
+  const nextMedia = (postId, mediaCount) => {
+    setActiveMediaIndexes((prev) => {
+      const current = prev[postId] || 0;
+      return {
+        ...prev,
+        [postId]: (current + 1) % mediaCount
+      };
+    });
+  };
+
+  const previousMedia = (postId, mediaCount) => {
+    setActiveMediaIndexes((prev) => {
+      const current = prev[postId] || 0;
+      return {
+        ...prev,
+        [postId]: (current - 1 + mediaCount) % mediaCount
+      };
+    });
   };
 
   /* =========================================================
@@ -663,11 +704,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         category
       );
 
-      /*
-       * Tous les fichiers utilisent
-       * le même nom "media".
-       */
-
       mediaFiles.forEach((file) => {
         formData.append(
           'media',
@@ -756,7 +792,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         (url) => {
           formData.append(
             'existingMediaUrls',
-            url
+            typeof url === 'string' ? url : url.url
           );
         }
       );
@@ -883,270 +919,134 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   };
 
   /* =========================================================
-     MEDIA GRID
-     
-     INSTAGRAM-STYLE MIXED MEDIA
+     INSTAGRAM-STYLE SLIDING TRACK CAROUSEL RENDER
   ========================================================= */
 
-  const renderMediaGrid = (mediaUrls) => {
-    if (!mediaUrls || mediaUrls.length === 0) {
+  const renderMediaGrid = (post) => {
+    const mediaItems = getPostMedia(post);
+
+    if (!mediaItems || mediaItems.length === 0) {
       return null;
     }
 
-    const imageItems = mediaUrls.filter((url) => isImage(url));
-    const otherItems = mediaUrls.filter((url) => !isImage(url));
+    const activeIndex = activeMediaIndexes[post._id] || 0;
 
     return (
-      <div className="w-full">
-        {/* =====================================================
-            INSTAGRAM-STYLE HORIZONTAL SCROLLING IMAGE CAROUSEL
-        ===================================================== */}
-        {imageItems.length > 0 && (
-          <div className="relative w-full bg-black group overflow-hidden">
-            <div 
-              className="
-                flex 
-                overflow-x-auto 
-                snap-x 
-                snap-mandatory 
-                scroll-smooth
-                scrollbar-none 
-                [-ms-overflow-style:none] 
-                [scrollbar-width:none]
-                [&::-webkit-scrollbar]:hidden
-              "
-            >
-              {imageItems.map((url, index) => {
-                const fullUrl = formatMediaUrl(url);
+      <div className="w-full bg-black">
+        {/* Carousel Container */}
+        <div className="relative w-full overflow-hidden bg-black flex items-center justify-center">
+          <div 
+            className="flex w-full transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          >
+            {mediaItems.map((item, index) => {
+              const url = typeof item === 'string' ? item : item.url;
+              const fullUrl = formatMediaUrl(url);
+              const mediaType = typeof item === 'string' ? (isImage(item) ? 'image' : 'file') : (item.type || 'image');
 
-                return (
-                  <div
-                    key={`${url}-${index}`}
-                    className="
-                      relative 
-                      min-w-full 
-                      w-full 
-                      flex-shrink-0 
-                      snap-center 
-                      bg-black 
-                      flex 
-                      items-center 
-                      justify-center
-                    "
-                  >
+              return (
+                <div
+                  key={`${url}-${index}`}
+                  className="min-w-full w-full flex-shrink-0 flex items-center justify-center bg-black"
+                >
+                  {mediaType === 'image' || isImage(url) ? (
                     <img
                       src={fullUrl}
                       alt={`Publication ${index + 1}`}
-                      className="
-                        w-full 
-                        max-h-[720px] 
-                        object-contain 
-                        bg-black
-                      "
+                      className="w-full max-h-[720px] object-contain bg-black select-none"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
-                    
-                    {imageItems.length > 1 && (
-                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none">
-                        {index + 1} / {imageItems.length}
+                  ) : mediaType === 'audio' || isAudio(url) ? (
+                    <div className="w-full p-6 bg-slate-50 dark:bg-[#030014]">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50">
+                        <div className="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+                          <Music size={18} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-slate-700 dark:text-zinc-300 truncate mb-1">
+                            {item.originalName || getFileName(url)}
+                          </p>
+                          <audio src={fullUrl} controls className="w-full h-9" />
+                        </div>
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* =====================================================
-            AUDIO + DOCUMENTS
-        ===================================================== */}
-        {otherItems.length > 0 && (
-          <div className="w-full">
-            {otherItems.map((url, index) => {
-              const fullUrl = formatMediaUrl(url);
-
-              if (isAudio(url)) {
-                return (
-                  <div
-                    key={`audio-${url}-${index}`}
-                    className="
-                      w-full 
-                      p-4 
-                      bg-slate-50 
-                      dark:bg-[#030014] 
-                      border-t 
-                      border-slate-200 
-                      dark:border-indigo-950
-                    "
-                  >
-                    <div
-                      className="
-                        flex 
-                        items-center 
-                        gap-3 
-                        p-3 
-                        rounded-xl 
-                        bg-indigo-50 
-                        dark:bg-indigo-950/30 
-                        border 
-                        border-indigo-100 
-                        dark:border-indigo-900/50
-                      "
+                    </div>
+                  ) : (
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      className="w-full flex items-center gap-3 p-4 bg-white dark:bg-[#030014] hover:bg-slate-50 dark:hover:bg-[#0b081e] transition-colors"
                     >
-                      <div
-                        className="
-                          w-11 
-                          h-11 
-                          rounded-full 
-                          bg-indigo-600 
-                          text-white 
-                          flex 
-                          items-center 
-                          justify-center 
-                          flex-shrink-0
-                        "
-                      >
-                        <Music size={18} />
+                      <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                        <FileText size={23} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p
-                          className="
-                            text-xs 
-                            font-semibold 
-                            text-slate-700 
-                            dark:text-zinc-300 
-                            truncate 
-                            mb-1
-                          "
-                        >
-                          {getFileName(url)}
+                        <p className="text-sm font-semibold text-slate-800 dark:text-zinc-200 truncate">
+                          {item.originalName || getFileName(url)}
                         </p>
-                        <audio
-                          src={fullUrl}
-                          controls
-                          className="w-full h-9"
-                        />
+                        <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-1">
+                          Ouvrir le document →
+                        </p>
                       </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              if (isDocument(url)) {
-                return (
-                  <a
-                    key={`document-${url}-${index}`}
-                    href={fullUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    download
-                    className="
-                      w-full 
-                      flex 
-                      items-center 
-                      gap-3 
-                      p-4 
-                      bg-white 
-                      dark:bg-[#030014] 
-                      border-t 
-                      border-slate-200 
-                      dark:border-indigo-950 
-                      hover:bg-slate-50 
-                      dark:hover:bg-[#0b081e] 
-                      transition-colors
-                    "
-                  >
-                    <div
-                      className="
-                        w-12 
-                        h-12 
-                        rounded-xl 
-                        bg-indigo-500/10 
-                        text-indigo-600 
-                        dark:text-indigo-400 
-                        flex 
-                        items-center 
-                        justify-center 
-                        flex-shrink-0
-                      "
-                    >
-                      <FileText size={23} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className="
-                          text-sm 
-                          font-semibold 
-                          text-slate-800 
-                          dark:text-zinc-200 
-                          truncate
-                        "
-                      >
-                        {getFileName(url)}
-                      </p>
-                      <p
-                        className="
-                          text-[11px] 
-                          text-indigo-600 
-                          dark:text-indigo-400 
-                          mt-1
-                        "
-                      >
-                        Ouvrir le document →
-                      </p>
-                    </div>
-                  </a>
-                );
-              }
-
-              return (
-                <div
-                  key={`file-${url}-${index}`}
-                  className="
-                    w-full 
-                    flex 
-                    items-center 
-                    gap-3 
-                    p-4 
-                    bg-white 
-                    dark:bg-[#030014] 
-                    border-t 
-                    border-slate-200 
-                    dark:border-indigo-950
-                  "
-                >
-                  <div
-                    className="
-                      w-11 
-                      h-11 
-                      rounded-xl 
-                      bg-slate-100 
-                      dark:bg-zinc-900 
-                      flex 
-                      items-center 
-                      justify-center 
-                      flex-shrink-0
-                    "
-                  >
-                    <File size={19} />
-                  </div>
-                  <span
-                    className="
-                      text-sm 
-                      text-slate-700 
-                      dark:text-zinc-300 
-                      truncate
-                    "
-                  >
-                    {getFileName(url)}
-                  </span>
+                    </a>
+                  )}
                 </div>
               );
             })}
+          </div>
+
+          {/* Previous Arrow */}
+          {mediaItems.length > 1 && activeIndex > 0 && (
+            <button
+              type="button"
+              onClick={() => previousMedia(post._id, mediaItems.length)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10 shadow-lg"
+              aria-label="Précédent"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          )}
+
+          {/* Next Arrow */}
+          {mediaItems.length > 1 && activeIndex < mediaItems.length - 1 && (
+            <button
+              type="button"
+              onClick={() => nextMedia(post._id, mediaItems.length)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10 shadow-lg"
+              aria-label="Suivant"
+            >
+              <ChevronRight size={18} />
+            </button>
+          )}
+
+          {/* Counter Badge (e.g., 1/3) */}
+          {mediaItems.length > 1 && (
+            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none z-10">
+              {activeIndex + 1} / {mediaItems.length}
+            </div>
+          )}
+        </div>
+
+        {/* Instagram Pagination Dots */}
+        {mediaItems.length > 1 && (
+          <div className="flex items-center justify-center gap-1.5 py-2.5 bg-black">
+            {mediaItems.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setMediaIndex(post._id, index)}
+                className={`rounded-full transition-all ${
+                  index === activeIndex
+                    ? 'w-4 h-1.5 bg-indigo-500'
+                    : 'w-1.5 h-1.5 bg-zinc-600'
+                }`}
+                aria-label={`Aller au média ${index + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -2048,9 +1948,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                         : null
                     );
 
-                  const postMedia =
-                    getPostMedia(post);
-
                   return (
 
                     <div
@@ -2368,10 +2265,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
                                 {existingMediaUrls.map(
                                   (
-                                    url,
+                                    item,
                                     index
-                                  ) => (
-
+                                  ) => {
+                                    const url = typeof item === 'string' ? item : item.url;
+                                    return (
                                     <div
                                       key={`${url}-${index}`}
                                       className="
@@ -2387,7 +2285,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     >
 
                                       {isImage(
-                                        url
+                                        item
                                       ) ? (
 
                                         <img
@@ -2417,7 +2315,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                         >
 
                                           {isAudio(
-                                            url
+                                            item
                                           ) ? (
                                             <Music
                                               size={
@@ -2445,7 +2343,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                               max-w-full
                                             "
                                           >
-                                            {getFileName(
+                                            {item.originalName || getFileName(
                                               url
                                             )}
                                           </span>
@@ -2482,7 +2380,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                       </button>
 
                                     </div>
-                                  )
+                                  );
+                                  }
                                 )}
 
                               </div>
@@ -2755,13 +2654,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           )}
 
                           {/* =================================================
-                              MEDIA
+                              MEDIA CAROUSEL
                           ================================================= */}
 
-                          {postMedia.length > 0 &&
-                            renderMediaGrid(
-                              postMedia
-                            )}
+                          {renderMediaGrid(post)}
 
                           {/* =================================================
                               ACTIONS
