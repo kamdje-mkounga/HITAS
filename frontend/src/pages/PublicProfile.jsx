@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
-import Navbar from './Navbar'; // Adjust the relative path if Navbar is in a different folder
+import Navbar from '../components/Navbar';// Adjust the relative path if Navbar is in a different folder
 import tradPattern from '../assets/traditional.jpg';
 import { 
   ArrowLeft, 
