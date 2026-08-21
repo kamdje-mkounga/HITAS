@@ -540,6 +540,7 @@ const BlogEntraide = ({
         );
       }
 
+      // 🟢 Loop through all selected files and append them to 'media'
       selectedFiles.forEach(
         (file) => {
           formData.append(
