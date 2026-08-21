@@ -6,7 +6,8 @@ import {
   FolderOpen,
   CalendarDays,
   UserRound,
-  Sparkles
+  Sparkles,
+  GitBranch
 } from 'lucide-react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
@@ -244,7 +245,6 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
       setMediaPreviews
     );
 
-    // Allow selecting the same file again
     e.target.value = '';
   };
 
@@ -514,7 +514,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
 
   return (
     <div
-      className="min-h-screen text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden flex flex-col transition-colors duration-300"
+      className="min-h-screen text-slate-900 dark:text-slate-100 antialiased overflow-x-hidden flex flex-col transition-colors duration-300 relative"
       style={{
         backgroundColor: 'var(--bg-color)',
         backgroundImage: `
@@ -534,12 +534,24 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
         clearNotifications={clearNotifications}
       />
 
-      <div className="max-w-5xl mx-auto px-4 py-10 w-full overflow-hidden flex-1">
+      <div className="max-w-5xl mx-auto px-4 py-10 w-full overflow-hidden flex-1 relative">
+
+        {/* LIGNES DE CONNEXION EXTÉRIEURES (STRENGTH LINES - En arrière-plan entre les projets) */}
+        <div className="absolute inset-0 pointer-events-none hidden lg:block z-0">
+          <div className="w-full h-full absolute inset-0 flex flex-col justify-around">
+            <div className="w-full h-[1px] bg-indigo-500/25 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+            <div className="w-full h-[1px] bg-indigo-500/25 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+          </div>
+          <div className="w-full h-full absolute inset-0 flex justify-around">
+            <div className="h-full w-[1px] bg-indigo-500/25 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+            <div className="h-full w-[1px] bg-indigo-500/25 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+          </div>
+        </div>
 
         {/* ==============================
             PAGE HEADER
         ============================== */}
-        <div className="mb-10 relative overflow-hidden">
+        <div className="mb-10 relative overflow-hidden z-10">
 
           <div className="absolute -top-20 -left-20 w-48 h-48 bg-indigo-500/10 blur-3xl rounded-full pointer-events-none" />
 
@@ -572,7 +584,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
         {/* ==============================
             CREATE PROJECT
         ============================== */}
-        <div className="bg-white/80 dark:bg-[#0b081e]/85 backdrop-blur-xl p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-indigo-900/60 shadow-2xl shadow-slate-200/50 dark:shadow-black/40 mb-12 transition-all duration-300 overflow-hidden">
+        <div className="bg-white/80 dark:bg-[#0b081e]/85 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-indigo-900/60 shadow-2xl mb-12 transition-all duration-300 overflow-hidden relative z-10">
 
           <div className="flex items-start justify-between gap-4 mb-7">
 
@@ -620,7 +632,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
               <input
                 type="text"
                 placeholder="Nom du projet, de la recherche ou de la réalisation"
-                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-900 dark:text-zinc-100 shadow-inner"
+                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 shadow-inner text-slate-900 dark:text-zinc-100"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
@@ -628,7 +640,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
               <input
                 type="text"
                 placeholder="Outils, matières, technologies ou compétences..."
-                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-900 dark:text-zinc-100 shadow-inner"
+                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 shadow-inner text-slate-900 dark:text-zinc-100"
                 value={technologies}
                 onChange={(e) => setTechnologies(e.target.value)}
               />
@@ -638,7 +650,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             <textarea
               rows="3"
               placeholder="Décrivez votre projet, vos objectifs ou votre accomplissement..."
-              className="w-full bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-900 dark:text-zinc-100 resize-none leading-relaxed shadow-inner"
+              className="w-full bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500/50 text-slate-900 dark:text-zinc-100 resize-none leading-relaxed shadow-inner"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -648,7 +660,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
               <input
                 type="text"
                 placeholder="Lien du projet / Rapport / Documentation"
-                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-700 dark:text-zinc-300 shadow-inner"
+                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 text-slate-700 dark:text-zinc-300 shadow-inner"
                 value={githubUrl}
                 onChange={(e) => setGithubUrl(e.target.value)}
               />
@@ -656,86 +668,56 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
               <input
                 type="text"
                 placeholder="Lien de démonstration ou portfolio externe"
-                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all placeholder-slate-400 dark:placeholder-zinc-500 text-slate-700 dark:text-zinc-300 shadow-inner"
+                className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 text-slate-700 dark:text-zinc-300 shadow-inner"
                 value={demoUrl}
                 onChange={(e) => setDemoUrl(e.target.value)}
               />
 
             </div>
 
-            {/* ==============================
-                CREATE PREVIEWS
-            ============================== */}
             {mediaPreviews.length > 0 && (
               <div className="bg-slate-100 dark:bg-[#030014]/60 border border-slate-200 dark:border-indigo-950/60 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 shadow-inner">
-
                 {mediaPreviews.map((preview, index) => (
-
                   <div
                     key={index}
                     className="relative bg-white dark:bg-[#030014] rounded-xl border border-slate-200 dark:border-indigo-950 overflow-hidden flex flex-col p-2 shadow-md"
                   >
-
                     <button
                       type="button"
                       onClick={() => removeSelectedFile(index)}
-                      className="absolute top-2 right-2 bg-rose-600/90 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[9px] z-10 transition shadow-lg active:scale-90"
+                      className="absolute top-2 right-2 bg-rose-600/90 hover:bg-rose-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[9px] z-10 transition shadow-lg"
                     >
                       ✕
                     </button>
-
                     <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/40 flex items-center justify-center mb-2">
-
                       {preview.type === 'image' && (
-                        <img
-                          src={preview.url}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={preview.url} alt="" className="w-full h-full object-cover" />
                       )}
-
                       {preview.type === 'pdf' && (
-                        <span className="text-3xl">
-                          📄
-                        </span>
+                        <span className="text-3xl">📄</span>
                       )}
-
                     </div>
-
                     <span className="text-[10px] text-slate-700 dark:text-zinc-300 font-medium truncate w-full px-1 text-center">
                       {preview.name}
                     </span>
-
                   </div>
-
                 ))}
-
               </div>
             )}
 
-            {/* ==============================
-                FILE UPLOAD
-            ============================== */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-3 border-t border-slate-200 dark:border-indigo-950/60">
-
-              <label className="group relative flex flex-col sm:flex-row items-center justify-center gap-3 w-full min-h-[100px] px-5 py-5 rounded-2xl border border-dashed border-slate-300 dark:border-indigo-900/70 bg-slate-50/70 dark:bg-[#030014]/50 hover:border-indigo-500/60 hover:bg-indigo-500/[0.04] cursor-pointer transition-all duration-300">
-
-                <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
-                  <Upload size={20} />
+              <label className="group relative flex flex-col sm:flex-row items-center justify-center gap-3 w-full min-h-[90px] px-5 py-4 rounded-2xl border border-dashed border-slate-300 dark:border-indigo-900/70 bg-slate-50/70 dark:bg-[#030014]/50 hover:border-indigo-500/60 hover:bg-indigo-500/[0.04] cursor-pointer transition-all">
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
+                  <Upload size={18} />
                 </div>
-
                 <div className="text-center sm:text-left">
-
                   <p className="text-xs font-bold text-slate-800 dark:text-zinc-200">
                     Ajouter des fichiers
                   </p>
-
-                  <p className="text-[10px] text-slate-500 dark:text-zinc-500 mt-1">
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-500 mt-0.5">
                     Images ou PDF · maximum 6 fichiers
                   </p>
-
                 </div>
-
                 <input
                   type="file"
                   multiple
@@ -743,597 +725,201 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-
               </label>
 
               <button
                 type="submit"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl text-xs font-bold transition-all hover:-translate-y-0.5 active:scale-95 shadow-lg shadow-indigo-500/20"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20"
               >
                 <Upload size={14} />
                 Publier le projet
               </button>
-
             </div>
 
           </form>
-
         </div>
 
         {/* ==============================
-            PROJECT LIST
+            PROJECT LIST (STYLE COMPACT & BRANCHÉ)
         ============================== */}
         {loading ? (
-
           <div className="flex flex-col items-center justify-center py-24 gap-3 bg-white/40 dark:bg-[#0b081e]/40 backdrop-blur-sm rounded-2xl">
-
             <div className="h-6 w-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-
             <div className="text-slate-500 dark:text-zinc-400 text-xs font-bold tracking-widest uppercase animate-pulse">
               Chargement de la galerie...
             </div>
-
           </div>
-
         ) : (
-
-          <div className="space-y-8">
-
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
             {projects.map((project) => {
-
-              const activeIndex =
-                selectedMediaIndex[project._id] ?? 0;
-
-              const hasMultipleMedia =
-                project.media &&
-                project.media.length > 0;
-
-              const currentMedia =
-                hasMultipleMedia
-                  ? project.media[activeIndex]
-                  : null;
-
-              const currentFileName =
-                getFileName(currentMedia);
+              const activeIndex = selectedMediaIndex[project._id] ?? 0;
+              const hasMultipleMedia = project.media && project.media.length > 0;
+              const currentMedia = hasMultipleMedia ? project.media[activeIndex] : null;
+              const currentFileName = getFileName(currentMedia);
 
               return (
-
                 <div
                   key={project._id}
                   id={`project-${project._id}`}
-                  className="group relative overflow-hidden bg-white/80 dark:bg-[#090719]/85 backdrop-blur-2xl rounded-3xl border border-slate-200/80 dark:border-white/[0.07] shadow-xl shadow-slate-200/40 dark:shadow-black/30 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/[0.06] p-5 sm:p-7 lg:p-8"
+                  className="group relative overflow-hidden bg-[#0b081e]/95 backdrop-blur-2xl rounded-3xl border border-indigo-500/30 shadow-xl hover:border-indigo-400 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] flex flex-col p-6 text-left"
                 >
+                  {/* Lignes directrices de structure (Croix de liaison fine) */}
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-indigo-500/40"></div>
+                  <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-indigo-500/20 -z-10"></div>
+                  <div className="absolute left-0 right-0 top-16 h-[1px] bg-indigo-500/25"></div>
 
-                  {/* META */}
-
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-slate-500 dark:text-zinc-500 mb-5">
-
-                    <span className="inline-flex items-center gap-1.5">
-                      <UserRound size={11} />
-                      {project.firstName} {project.lastName}
+                  {/* Bannière supérieure de la carte */}
+                  <div className="h-14 -mx-6 -mt-6 mb-4 bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-indigo-950/80 relative border-b border-indigo-500/20 flex items-center justify-between px-6">
+                    <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest flex items-center gap-1.5">
+                      <GitBranch size={12} /> Projet Étudiant
                     </span>
-
-                    <span className="inline-flex items-center gap-1.5">
-                      <CalendarDays size={11} />
-                      {new Date(project.date).toLocaleDateString()}
-                    </span>
-
-                  </div>
-
-                  {/* ACTIONS */}
-
-                  {project.user === loggedInUserId &&
-                    editingId !== project._id && (
-
-                      <div className="absolute top-6 right-6 flex gap-2 z-10 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-
+                    
+                    {/* ACTIONS */}
+                    {project.user === loggedInUserId && editingId !== project._id && (
+                      <div className="flex gap-2 z-10">
                         <button
                           onClick={() => startEditing(project)}
-                          className="text-[11px] text-slate-700 dark:text-zinc-300 hover:text-white bg-slate-100 dark:bg-[#0b081e]/80 hover:bg-indigo-600 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-indigo-900/60 transition-all font-medium backdrop-blur shadow-md"
+                          className="text-[10px] text-zinc-300 hover:text-white bg-[#030014]/80 px-2.5 py-1 rounded-lg border border-indigo-500/30 transition"
                         >
                           ✏️ Modifier
                         </button>
-
                         <button
                           onClick={() => handleDelete(project._id)}
-                          className="text-[11px] text-slate-700 dark:text-zinc-400 hover:text-rose-400 bg-slate-100 dark:bg-[#0b081e]/80 hover:bg-rose-950/40 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-indigo-900/60 transition-all font-medium backdrop-blur shadow-md"
+                          className="text-[10px] text-zinc-400 hover:text-rose-400 bg-[#030014]/80 px-2.5 py-1 rounded-lg border border-indigo-500/30 transition"
                         >
-                          🗑️ Supprimer
+                          🗑️
                         </button>
-
                       </div>
                     )}
+                  </div>
 
-                  {/* ==============================
-                      EDIT MODE
-                  ============================== */}
-
+                  {/* EDIT MODE */}
                   {editingId === project._id ? (
-
-                    <div className="space-y-5 mt-2 bg-slate-50 dark:bg-[#030014]/60 backdrop-blur-sm p-5 rounded-xl border border-slate-200 dark:border-indigo-950/80 overflow-hidden">
-
-                      <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2">
-                        Modifier votre Portfolio
+                    <div className="space-y-4 mt-2 bg-[#030014]/80 p-4 rounded-2xl border border-indigo-900/50">
+                      <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-2">
+                        Modifier le projet
                       </h4>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                        <div>
-
-                          <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 block mb-1 uppercase tracking-wider">
-                            Titre du projet
-                          </label>
-
-                          <input
-                            type="text"
-                            className="w-full bg-white dark:bg-[#0b081e]/80 border border-slate-200 dark:border-indigo-900/60 px-3 py-2 text-sm rounded-xl text-slate-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500/50 shadow-inner"
-                            value={editTitle}
-                            onChange={(e) =>
-                              setEditTitle(e.target.value)
-                            }
-                          />
-
-                        </div>
-
-                        <div>
-
-                          <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 block mb-1 uppercase tracking-wider">
-                            Technologies
-                          </label>
-
-                          <input
-                            type="text"
-                            className="w-full bg-white dark:bg-[#0b081e]/80 border border-slate-200 dark:border-indigo-900/60 px-3 py-2 text-sm rounded-xl text-slate-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500/50 shadow-inner"
-                            value={editTechs}
-                            onChange={(e) =>
-                              setEditTechs(e.target.value)
-                            }
-                          />
-
-                        </div>
-
-                      </div>
-
-                      <div>
-
-                        <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 block mb-1 uppercase tracking-wider">
-                          Description
-                        </label>
-
-                        <textarea
-                          className="w-full bg-white dark:bg-[#0b081e]/80 border border-slate-200 dark:border-indigo-900/60 px-3 py-2 text-sm rounded-xl text-slate-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500/50 resize-none leading-relaxed shadow-inner"
-                          rows="3"
-                          value={editDescription}
-                          onChange={(e) =>
-                            setEditDescription(e.target.value)
-                          }
-                        />
-
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
-                        <input
-                          type="text"
-                          className="w-full bg-white dark:bg-[#0b081e]/80 border border-slate-200 dark:border-indigo-900/60 px-3 py-2 text-xs rounded-xl text-slate-700 dark:text-zinc-300 focus:outline-none focus:border-indigo-500/50 shadow-inner"
-                          value={editGithub}
-                          onChange={(e) =>
-                            setEditGithub(e.target.value)
-                          }
-                          placeholder="GitHub URL"
-                        />
-
-                        <input
-                          type="text"
-                          className="w-full bg-white dark:bg-[#0b081e]/80 border border-slate-200 dark:border-indigo-900/60 px-3 py-2 text-xs rounded-xl text-slate-700 dark:text-zinc-300 focus:outline-none focus:border-indigo-500/50 shadow-inner"
-                          value={editDemo}
-                          onChange={(e) =>
-                            setEditDemo(e.target.value)
-                          }
-                          placeholder="Démo Live URL"
-                        />
-
-                      </div>
-
-                      {/* ==============================
-                          EXISTING MEDIA
-                      ============================== */}
-
-                      <div className="border-t border-slate-200 dark:border-indigo-950/60 pt-4">
-
-                        <label className="text-[10px] font-bold text-slate-500 dark:text-zinc-400 block mb-2 uppercase tracking-widest">
-                          📁 Gestion des fichiers
-                        </label>
-
-                        <div className="mb-4 bg-white dark:bg-[#030014] p-4 rounded-xl border border-slate-200 dark:border-indigo-950/60 shadow-inner">
-
-                          <p className="text-[10px] text-slate-500 dark:text-zinc-400 mb-2.5">
-                            Fichiers sauvegardés :
-                          </p>
-
-                          {existingMedia.length === 0 ? (
-
-                            <p className="text-xs text-slate-400 dark:text-zinc-500 italic">
-                              Aucun fichier persistant.
-                            </p>
-
-                          ) : (
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-
-                              {existingMedia.map(
-                                (mediaItem, idx) => (
-
-                                  <div
-                                    key={idx}
-                                    className="relative bg-slate-50 dark:bg-[#0b081e] rounded-lg border border-slate-200 dark:border-indigo-900/50 overflow-hidden flex flex-col p-2"
-                                  >
-
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        removeExistingMediaLocal(
-                                          mediaItem
-                                        )
-                                      }
-                                      className="absolute top-1.5 right-1.5 bg-rose-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-20 shadow hover:bg-rose-700 transition"
-                                    >
-                                      ✕
-                                    </button>
-
-                                    <div className="aspect-video w-full rounded bg-black/40 flex items-center justify-center mb-1 overflow-hidden">
-
-                                      {mediaItem.type === 'image' && (
-                                        <img
-                                          src={formatMediaUrl(
-                                            mediaItem.url
-                                          )}
-                                          className="w-full h-full object-cover"
-                                          alt=""
-                                        />
-                                      )}
-
-                                      {mediaItem.type === 'pdf' && (
-                                        <span className="text-xl">
-                                          📄
-                                        </span>
-                                      )}
-
-                                    </div>
-
-                                    <span className="text-[9px] text-slate-700 dark:text-zinc-300 truncate text-center">
-                                      {getFileName(mediaItem)}
-                                    </span>
-
-                                  </div>
-
-                                )
-                              )}
-
-                            </div>
-                          )}
-
-                        </div>
-
-                        {/* ==============================
-                            ADD NEW MEDIA
-                        ============================== */}
-
-                        <div className="bg-slate-100 dark:bg-[#0b081e]/80 p-4 rounded-xl border border-slate-200 dark:border-indigo-900/60 flex flex-col gap-3 shadow-inner">
-
-                          <span className="text-[10px] text-slate-600 dark:text-zinc-400">
-                            Ajouter de nouveaux fichiers :
-                          </span>
-
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*,application/pdf"
-                            onChange={handleEditFileChange}
-                            className="text-xs text-slate-600 dark:text-zinc-400 file:bg-white dark:file:bg-[#030014] file:text-slate-700 dark:file:text-zinc-300 file:border file:border-slate-300 dark:file:border-indigo-950 file:px-2.5 file:py-1 file:rounded-lg cursor-pointer hover:file:border-indigo-800 transition"
-                          />
-
-                          {editMediaPreviews.length > 0 && (
-
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-white dark:bg-[#030014] p-2 rounded-lg border border-indigo-500/20 mt-1">
-
-                              {editMediaPreviews.map(
-                                (preview, idx) => (
-
-                                  <div
-                                    key={idx}
-                                    className="relative bg-slate-50 dark:bg-[#0b081e] border border-amber-500/40 rounded-lg overflow-hidden flex flex-col p-2"
-                                  >
-
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        removeEditSelectedFile(
-                                          idx
-                                        )
-                                      }
-                                      className="absolute top-1.5 right-1.5 bg-zinc-800 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-10 hover:bg-rose-600 transition"
-                                    >
-                                      ✕
-                                    </button>
-
-                                    <div className="aspect-video w-full rounded bg-black/40 flex items-center justify-center mb-1 overflow-hidden">
-
-                                      {preview.type === 'image' && (
-                                        <img
-                                          src={preview.url}
-                                          className="w-full h-full object-cover"
-                                          alt=""
-                                        />
-                                      )}
-
-                                      {preview.type === 'pdf' && (
-                                        <span className="text-xl">
-                                          📄
-                                        </span>
-                                      )}
-
-                                    </div>
-
-                                    <span className="text-[9px] text-amber-600 dark:text-amber-300 truncate text-center">
-                                      {preview.name}
-                                    </span>
-
-                                  </div>
-
-                                )
-                              )}
-
-                            </div>
-                          )}
-
-                        </div>
-
-                      </div>
-
-                      {/* EDIT BUTTONS */}
-
-                      <div className="flex gap-2 justify-end text-xs pt-3 border-t border-slate-200 dark:border-indigo-950/60">
-
+                      <input
+                        type="text"
+                        className="w-full bg-[#0b081e] border border-indigo-500/30 px-3 py-2 text-xs rounded-xl text-zinc-100 focus:outline-none"
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                      />
+                      <input
+                        type="text"
+                        className="w-full bg-[#0b081e] border border-indigo-500/30 px-3 py-2 text-xs rounded-xl text-zinc-100 focus:outline-none"
+                        value={editTechs}
+                        onChange={(e) => setEditTechs(e.target.value)}
+                        placeholder="Technologies"
+                      />
+                      <textarea
+                        className="w-full bg-[#0b081e] border border-indigo-500/30 px-3 py-2 text-xs rounded-xl text-zinc-100 focus:outline-none resize-none"
+                        rows="2"
+                        value={editDescription}
+                        onChange={(e) => setEditDescription(e.target.value)}
+                      />
+                      <div className="flex gap-2 justify-end text-xs pt-2">
                         <button
                           type="button"
                           onClick={cancelEditing}
-                          className="px-4 py-2 bg-transparent border border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-400 rounded-xl hover:text-slate-900 dark:hover:text-white transition"
+                          className="px-3 py-1.5 border border-indigo-500/30 rounded-xl text-zinc-400"
                         >
                           Annuler
                         </button>
-
                         <button
                           type="button"
-                          onClick={() =>
-                            handleEditSubmit(project._id)
-                          }
-                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold rounded-xl shadow-md transition hover:scale-[1.01] active:scale-95"
+                          onClick={() => handleEditSubmit(project._id)}
+                          className="px-3 py-1.5 bg-indigo-600 text-white font-bold rounded-xl"
                         >
                           Sauvegarder
                         </button>
-
                       </div>
-
                     </div>
-
                   ) : (
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex flex-wrap items-center gap-3 text-[10px] text-zinc-400 mb-2">
+                          <span className="inline-flex items-center gap-1">
+                            <UserRound size={11} /> {project.firstName} {project.lastName}
+                          </span>
+                          <span>•</span>
+                          <span className="inline-flex items-center gap-1">
+                            <CalendarDays size={11} /> {new Date(project.date).toLocaleDateString()}
+                          </span>
+                        </div>
 
-                    /* ==============================
-                        NORMAL PROJECT VIEW
-                    ============================== */
-
-                    <div className="overflow-hidden">
-
-                      <div className="pr-0 sm:pr-24 overflow-hidden">
-
-                        <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50 mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors break-words">
+                        <h3 className="text-base font-black text-white mb-2 uppercase tracking-wide">
                           {project.title}
                         </h3>
 
-                        <p className="text-[10px] font-bold text-slate-500 dark:text-zinc-500 mb-4 uppercase tracking-widest flex items-center gap-1.5 truncate">
-                          <span>
-                            Par {project.firstName}{' '}
-                            {project.lastName}
-                          </span>
-
-                          <span>•</span>
-
-                          <span>
-                            {new Date(
-                              project.date
-                            ).toLocaleDateString()}
-                          </span>
+                        <p className="text-zinc-300 text-xs leading-relaxed mb-4 whitespace-pre-wrap">
+                          {project.description}
                         </p>
 
-                      </div>
-
-                      <p className="text-slate-700 dark:text-zinc-300 text-sm leading-relaxed mb-5 whitespace-pre-wrap font-normal break-words">
-                        {project.description}
-                      </p>
-
-                      {/* TECHNOLOGIES */}
-
-                      {project.technologies &&
-                        project.technologies.length > 0 && (
-
-                          <div className="flex flex-wrap gap-1.5 mb-5 overflow-hidden">
-
-                            {project.technologies.map(
-                              (tech, i) => (
-
-                                <span
-                                  key={i}
-                                  className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20 text-[10px] px-2.5 py-0.5 rounded-md font-medium break-all"
-                                >
-                                  {tech}
-                                </span>
-
-                              )
-                            )}
-
+                        {/* TECHNOLOGIES */}
+                        {project.technologies && project.technologies.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mb-4">
+                            {project.technologies.map((tech, i) => (
+                              <span
+                                key={i}
+                                className="bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[10px] px-2.5 py-0.5 rounded-lg font-medium"
+                              >
+                                {tech}
+                              </span>
+                            ))}
                           </div>
                         )}
 
-                      {/* ==============================
-                          MEDIA
-                      ============================== */}
-
-                      {currentMedia &&
-                        currentMedia.url && (
-
-                          <div className="mb-6 overflow-hidden">
-
-                            <div className="flex items-center justify-between gap-3 bg-slate-100/80 dark:bg-[#030014] px-4 py-3 rounded-t-2xl border-x border-t border-slate-200 dark:border-white/[0.06]">
-
-                              <div className="flex items-center gap-2 min-w-0">
-
-                                <div className="h-7 w-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
-                                  <FileText size={13} />
-                                </div>
-
-                                <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-zinc-300">
-                                  {currentFileName}
-                                </span>
-
-                              </div>
-
-                              <span className="text-[9px] text-slate-400 dark:text-zinc-600 shrink-0">
-                                {activeIndex + 1} /{' '}
-                                {project.media.length}
-                              </span>
-
-                            </div>
-
-                            <div className="rounded-b-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 h-[260px] sm:h-[400px] w-full flex items-center justify-center relative shadow-inner">
-
+                        {/* MEDIA */}
+                        {currentMedia && currentMedia.url && (
+                          <div className="mb-4 rounded-2xl overflow-hidden border border-indigo-900/50 bg-[#030014]">
+                            <div className="h-[200px] w-full flex items-center justify-center relative">
                               {currentMedia.type === 'pdf' ? (
-
-                                <div className="w-full h-full flex flex-col items-center justify-center bg-white/40 dark:bg-[#0b081e]/40 p-6 text-center">
-
-                                  <span className="text-5xl mb-4">
-                                    📄
-                                  </span>
-
-                                  <p className="text-xs text-slate-600 dark:text-zinc-400 mb-4 font-medium truncate max-w-xs">
-                                    {currentFileName}
-                                  </p>
-
+                                <div className="p-4 text-center">
+                                  <span className="text-3xl mb-2 block">📄</span>
                                   <a
-                                    href={formatMediaUrl(
-                                      currentMedia.url
-                                    )}
+                                    href={formatMediaUrl(currentMedia.url)}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
+                                    className="text-xs text-indigo-400 underline font-bold"
                                   >
-                                    Ouvrir le document PDF
+                                    Ouvrir le PDF
                                   </a>
-
                                 </div>
-
                               ) : (
-
                                 <img
-                                  src={formatMediaUrl(
-                                    currentMedia.url
-                                  )}
+                                  src={formatMediaUrl(currentMedia.url)}
                                   alt=""
-                                  className="w-full h-full object-contain"
+                                  className="w-full h-full object-cover"
                                 />
-
                               )}
-
                             </div>
-
-                            {/* THUMBNAILS */}
-
-                            {hasMultipleMedia &&
-                              project.media.length > 1 && (
-
-                                <div className="flex gap-2.5 overflow-x-auto pb-2 mt-3 scrollbar-none">
-
-                                  {project.media.map(
-                                    (mediaItem, index) => (
-
-                                      <button
-                                        key={index}
-                                        type="button"
-                                        onClick={() =>
-                                          setSelectedMediaIndex(
-                                            (prev) => ({
-                                              ...prev,
-                                              [project._id]:
-                                                index
-                                            })
-                                          )
-                                        }
-                                        className={`w-16 h-11 rounded-lg border overflow-hidden bg-white dark:bg-[#030014] shrink-0 flex items-center justify-center transition-all ${
-                                          activeIndex === index
-                                            ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 scale-102 shadow-md'
-                                            : 'border-slate-300 dark:border-indigo-950 opacity-40 hover:opacity-70'
-                                        }`}
-                                      >
-
-                                        {mediaItem.type ===
-                                          'image' && (
-                                          <img
-                                            src={formatMediaUrl(
-                                              mediaItem.url
-                                            )}
-                                            alt=""
-                                            className="w-full h-full object-cover"
-                                          />
-                                        )}
-
-                                        {mediaItem.type ===
-                                          'pdf' && (
-                                          <span className="text-xs">
-                                            📄
-                                          </span>
-                                        )}
-
-                                      </button>
-
-                                    )
-                                  )}
-
-                                </div>
-                              )}
-
                           </div>
                         )}
+                      </div>
 
                       {/* LINKS */}
-
-                      <div className="flex flex-col sm:flex-row gap-3 pt-2">
-
+                      <div className="flex gap-2 pt-3 border-t border-indigo-900/40 mt-auto">
                         {project.githubUrl && (
-
                           <a
                             href={project.githubUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex-1 bg-slate-100 dark:bg-[#0b081e]/60 hover:bg-slate-200 dark:hover:bg-[#0b081e] border border-slate-200 dark:border-indigo-900/60 text-center text-xs py-2.5 rounded-xl text-slate-700 dark:text-zinc-300 font-bold transition shadow-sm hover:text-slate-900 dark:hover:text-white truncate px-2"
+                            className="flex-1 bg-[#030014]/60 border border-indigo-500/20 text-center text-xs py-2 rounded-xl text-zinc-300 font-bold hover:border-indigo-400 transition truncate px-2"
                           >
-                            Lien du projet / Rapport
+                            Lien / Rapport
                           </a>
-
                         )}
-
                         {project.demoUrl && (
-
                           <a
                             href={project.demoUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-center text-xs py-2.5 rounded-xl font-bold text-white shadow-lg shadow-indigo-500/10 hover:opacity-95 hover:scale-[1.01] active:scale-98 transition truncate px-2"
+                            className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-xs py-2 rounded-xl font-bold text-white shadow-md hover:opacity-95 transition truncate px-2"
                           >
-                            🌐 Lien externe
+                            🌐 Démo Live
                           </a>
-
                         )}
-
                       </div>
 
                     </div>
@@ -1342,7 +928,6 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                 </div>
               );
             })}
-
           </div>
         )}
 
