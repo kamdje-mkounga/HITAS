@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
-import { Sparkles, GraduationCap, MapPin, Briefcase, User } from 'lucide-react';
+import { GraduationCap, MapPin, Briefcase, GitBranch } from 'lucide-react';
 
 function Annuaire({ hasNewNotification, clearNotifications }) {
   const navigate = useNavigate();
@@ -147,7 +147,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
         {!loading && !error && profiles.length > 0 && (
           <div className="bg-[#0b081e]/85 backdrop-blur-xl p-6 border border-indigo-500/30 rounded-3xl shadow-2xl shadow-indigo-950/40 mb-8 space-y-4">
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5 drop-shadow-[0_0_5px_rgba(129,140,248,0.5)]">
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-300 mb-1.5">
                 Recherche globale
               </label>
               <input
@@ -155,7 +155,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Nom, entreprise, poste, mots-clés..."
-                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-500/30 rounded-2xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 transition-all shadow-inner"
+                className="w-full px-4 py-2.5 bg-[#030014]/80 border border-indigo-500/30 rounded-2xl text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none focus:border-indigo-400 shadow-inner"
               />
             </div>
 
@@ -165,7 +165,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 <select
                   value={selectedSpecialty}
                   onChange={(e) => setSelectedSpecialty(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 cursor-pointer"
                 >
                   <option value="" className="bg-[#0b081e]">Toutes</option>
                   {uniqueSpecialties.map((spec, idx) => (
@@ -179,7 +179,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 <select
                   value={selectedPromotion}
                   onChange={(e) => setSelectedPromotion(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 cursor-pointer"
                 >
                   <option value="" className="bg-[#0b081e]">Toutes</option>
                   {uniquePromotions.map((promo, idx) => (
@@ -193,7 +193,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 <select
                   value={selectedCountry}
                   onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 cursor-pointer"
                 >
                   <option value="" className="bg-[#0b081e]">Tous les pays</option>
                   {uniqueCountries.map((country, idx) => (
@@ -207,7 +207,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 <select
                   value={selectedStatus}
                   onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 cursor-pointer"
                 >
                   <option value="" className="bg-[#0b081e]">Tous</option>
                   <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
@@ -221,7 +221,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 <select
                   value={selectedDegree}
                   onChange={(e) => setSelectedDegree(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 transition-all cursor-pointer shadow-inner"
+                  className="w-full px-3 py-2 bg-[#030014]/80 border border-indigo-500/30 rounded-xl text-zinc-100 text-xs focus:outline-none focus:border-indigo-400 cursor-pointer"
                 >
                   <option value="" className="bg-[#0b081e]">Tous les niveaux</option>
                   <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
@@ -234,8 +234,8 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
           </div>
         )}
 
-        {loading && <p className="text-zinc-300 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl text-center shadow-xl border border-indigo-500/30">Recherche des profils...</p>}
-        {error && <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl mb-6 text-sm font-medium backdrop-blur-md shadow-lg">{error}</div>}
+        {loading && <p className="text-zinc-300 text-sm font-semibold tracking-wide animate-pulse py-6 bg-[#0b081e]/80 backdrop-blur-md rounded-2xl text-center border border-indigo-500/30">Recherche des profils...</p>}
+        {error && <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-2xl mb-6 text-sm font-medium">{error}</div>}
 
         {!loading && !error && (
           <div>
@@ -245,7 +245,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 {(searchTerm || selectedSpecialty || selectedPromotion || selectedCountry || selectedStatus || selectedDegree) && (
                   <button 
                     onClick={handleResetFilters}
-                    className="mt-4 text-xs font-bold text-indigo-300 hover:text-white px-4 py-2 border border-indigo-500/40 rounded-xl hover:bg-indigo-950/60 transition-all shadow-md"
+                    className="mt-4 text-xs font-bold text-indigo-300 hover:text-white px-4 py-2 border border-indigo-500/40 rounded-xl hover:bg-indigo-950/60 transition-all"
                   >
                     Réinitialiser les filtres
                   </button>
@@ -262,15 +262,12 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                     <div 
                       key={profile._id} 
                       onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
-                      className="relative bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/30 rounded-[2.5rem] p-6 shadow-2xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1.5 hover:shadow-[0_0_35px_rgba(99,102,241,0.3)] flex flex-col items-center text-center overflow-hidden"
+                      className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 rounded-[2.5rem] p-6 shadow-2xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-2 hover:shadow-[0_0_40px_rgba(99,102,241,0.35)] flex flex-col items-center text-center overflow-hidden"
                       style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                      {/* Effet lumineux de fond */}
-                      <div className="absolute -top-16 -right-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
-
-                      {/* Racine de l'arbre : Avatar et Nom au sommet */}
-                      <div className="relative mb-4">
-                        <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-40 group-hover:opacity-80 transition duration-300"></div>
+                      {/* En-tête de carte (Racine de l'arbre personnel) */}
+                      <div className="relative mb-3">
+                        <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-md opacity-40 group-hover:opacity-80 transition duration-300"></div>
                         <div className="relative w-20 h-20 rounded-full bg-[#030014] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-xl">
                           {profile.avatar ? (
                             <img 
@@ -300,50 +297,60 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                         </span>
                       )}
 
-                      {/* Ligne de séparation centrale */}
-                      <div className="w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent my-3"></div>
+                      {/* =========================================================
+                          STRUCTURE EN BRANCHES (CONNECTEURS GRAPHIQUES)
+                      ========================================================= */}
+                      <div className="w-full relative pl-6 my-2 text-left space-y-3">
+                        {/* Ligne verticale centrale simulant le tronc des branches */}
+                        <div className="absolute left-2.5 top-2 bottom-2 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-indigo-500/20"></div>
 
-                      {/* Branches de données (Mind-Map compacte) */}
-                      <div className="w-full space-y-2.5 text-left text-xs mb-4">
-                        <div className="bg-[#030014]/70 p-2.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
-                          <GraduationCap className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Formation</p>
-                            <p className="text-zinc-200 font-semibold truncate">{profile.specialty || 'Informatique'} (Promo {profile.promotion || '-'})</p>
+                        {/* Branche 1 : Formation */}
+                        <div className="relative flex items-start gap-3 group/branch">
+                          <div className="absolute -left-3.5 top-2 w-2 h-2 rounded-full bg-indigo-400 ring-4 ring-[#0b081e] group-hover/branch:scale-125 transition-transform"></div>
+                          <div className="w-full bg-[#030014]/70 p-2.5 rounded-2xl border border-indigo-900/50 group-hover/branch:border-indigo-500/40 transition-colors">
+                            <p className="text-[9px] text-indigo-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                              <GraduationCap className="w-3 h-3" /> Formation
+                            </p>
+                            <p className="text-zinc-200 text-xs font-semibold truncate mt-0.5">{profile.specialty || 'Informatique'} (Promo {profile.promotion || '-'})</p>
                           </div>
                         </div>
 
-                        <div className="bg-[#030014]/70 p-2.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-pink-400 flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Localisation</p>
-                            <p className="text-zinc-200 font-semibold truncate">{profile.country || 'Non renseigné'} {profile.currentLocation ? `- ${profile.currentLocation}` : ''}</p>
+                        {/* Branche 2 : Localisation */}
+                        <div className="relative flex items-start gap-3 group/branch">
+                          <div className="absolute -left-3.5 top-2 w-2 h-2 rounded-full bg-pink-400 ring-4 ring-[#0b081e] group-hover/branch:scale-125 transition-transform"></div>
+                          <div className="w-full bg-[#030014]/70 p-2.5 rounded-2xl border border-indigo-900/50 group-hover/branch:border-indigo-500/40 transition-colors">
+                            <p className="text-[9px] text-pink-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                              <MapPin className="w-3 h-3" /> Localisation
+                            </p>
+                            <p className="text-zinc-200 text-xs font-semibold truncate mt-0.5">{profile.country || 'Non renseigné'} {profile.currentLocation ? `- ${profile.currentLocation}` : ''}</p>
                           </div>
                         </div>
 
+                        {/* Branche 3 : Situation Pro (si présente) */}
                         {(profile.jobTitle || profile.currentCompany) && (
-                          <div className="bg-[#030014]/70 p-2.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
-                            <Briefcase className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                            <div className="min-w-0">
-                              <p className="text-[10px] text-zinc-500 uppercase font-bold tracking-widest">Poste Actuel</p>
-                              <p className="text-zinc-200 font-semibold truncate">{profile.jobTitle || 'Poste'} {profile.currentCompany ? `chez ${profile.currentCompany}` : ''}</p>
+                          <div className="relative flex items-start gap-3 group/branch">
+                            <div className="absolute -left-3.5 top-2 w-2 h-2 rounded-full bg-purple-400 ring-4 ring-[#0b081e] group-hover/branch:scale-125 transition-transform"></div>
+                            <div className="w-full bg-[#030014]/70 p-2.5 rounded-2xl border border-indigo-900/50 group-hover/branch:border-indigo-500/40 transition-colors">
+                              <p className="text-[9px] text-purple-400 uppercase font-bold tracking-widest flex items-center gap-1">
+                                <Briefcase className="w-3 h-3" /> Poste
+                              </p>
+                              <p className="text-zinc-200 text-xs font-semibold truncate mt-0.5">{profile.jobTitle || 'Poste'} {profile.currentCompany ? `chez ${profile.currentCompany}` : ''}</p>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      {/* Feuille finale : Compétences */}
+                      {/* Feuille finale : Compétences en puces */}
                       {skillsArray.length > 0 && (
-                        <div className="w-full pt-3 border-t border-indigo-900/40 mt-auto">
-                          <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-2 text-center">Compétences</p>
+                        <div className="w-full pt-3 border-t border-indigo-900/40 mt-3">
                           <div className="flex flex-wrap justify-center gap-1.5">
                             {skillsArray.slice(0, 3).map((skill, sIdx) => (
-                              <span key={sIdx} className="bg-indigo-500/10 text-indigo-200 border border-indigo-500/20 px-2.5 py-1 rounded-xl text-[10px] font-medium">
+                              <span key={sIdx} className="bg-indigo-500/10 text-indigo-200 border border-indigo-500/20 px-2.5 py-0.5 rounded-xl text-[10px] font-medium">
                                 {skill}
                               </span>
                             ))}
                             {skillsArray.length > 3 && (
-                              <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-1 rounded-xl text-[10px] font-bold">
+                              <span className="bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded-xl text-[10px] font-bold">
                                 +{skillsArray.length - 3}
                               </span>
                             )}
