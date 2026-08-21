@@ -133,17 +133,46 @@ const PublicProfile = () => {
 
   const renderSkills = () => {
     if (!userProfile.skills) return null;
-    const skillsArray = Array.isArray(userProfile.skills) 
-      ? userProfile.skills 
-      : typeof userProfile.skills === 'string'
-        ? userProfile.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim())
-        : [];
     
-    return skillsArray.filter(Boolean).map((skill, index) => (
-      <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
-        <Sparkles className="w-3.5 h-3.5 text-indigo-400 group-hover/skill:rotate-12 transition-transform" /> {skill}
-      </span>
-    ));
+    let skillsArray = [];
+
+    try {
+      // Si c'est déjà un tableau
+      if (Array.isArray(userProfile.skills)) {
+        skillsArray = userProfile.skills;
+      } 
+      // Si c'est une chaîne de caractères
+      else if (typeof userProfile.skills === 'string') {
+        let raw = userProfile.skills.trim();
+
+        // Si la chaîne commence par '[' et finit par ']', on essaie de la parser en JSON
+        if (raw.startsWith('[') && raw.endsWith(']')) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              skillsArray = parsed.flat(); // Aplatit au cas où il y a des tableaux imbriqués
+            }
+          } catch (e) {
+            // Si le JSON.parse échoue, on nettoie manuellement les caractères indésirables
+            skillsArray = raw.replace(/[\[\]"'\\]/g, '').split(',');
+          }
+        } else {
+          // Sinon, c'est une simple liste séparée par des virgules
+          skillsArray = raw.replace(/[\[\]"'\\]/g, '').split(',');
+        }
+      }
+    } catch (err) {
+      skillsArray = [];
+    }
+
+    return skillsArray
+      .map(s => typeof s === 'string' ? s.replace(/[\/\\]/g, '').trim() : String(s)) // Nettoie les antislashs résiduels
+      .filter(Boolean)
+      .map((skill, index) => (
+        <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+          <Sparkles className="w-3.5 h-3.5 text-indigo-400 group-hover/skill:rotate-12 transition-transform" /> {skill}
+        </span>
+      ));
   };
 
   return (
