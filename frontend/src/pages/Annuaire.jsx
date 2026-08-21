@@ -254,19 +254,21 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
             ) : (
               <div className="relative">
                 
-                {/* LIGNES DIRECTRICES DE RÉSEAU (STRENGTH LINES - Horizontales et Verticales entre les boîtes) */}
+                {/* LIGNES DE CONNEXION EXTÉRIEURES (STRENGTH LINES - Entre les boîtes de profil en arrière-plan) */}
                 <div className="absolute inset-0 pointer-events-none hidden lg:block z-0">
+                  {/* Lignes horizontales reliant les rangées */}
                   <div className="w-full h-full absolute inset-0 flex flex-col justify-around">
-                    <div className="w-full h-[1px] bg-indigo-500/20"></div>
-                    <div className="w-full h-[1px] bg-indigo-500/20"></div>
+                    <div className="w-full h-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                    <div className="w-full h-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
                   </div>
+                  {/* Lignes verticales reliant les colonnes */}
                   <div className="w-full h-full absolute inset-0 flex justify-around">
-                    <div className="h-full w-[1px] bg-indigo-500/20"></div>
-                    <div className="h-full w-[1px] bg-indigo-500/20"></div>
+                    <div className="h-full w-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
+                    <div className="h-full w-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
                   </div>
                 </div>
 
-                {/* Grille de cartes compactes (Style LinkedIn) avec lignes de liaison */}
+                {/* Grille de cartes compactes et interconnectées */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                   {filteredProfiles.map((profile, index) => {
                     const skillsArray = profile.skills 
@@ -280,17 +282,12 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                         className="relative bg-[#0b081e]/95 backdrop-blur-2xl border border-indigo-500/30 rounded-3xl shadow-xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1.5 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] flex flex-col overflow-hidden text-center"
                         style={{ animationDelay: `${index * 0.05}s` }}
                       >
-                        {/* Lignes directrices internes sur chaque carte (Croix de liaison fine) */}
-                        <div className="absolute top-0 left-0 right-0 h-[1px] bg-indigo-500/40"></div>
-                        <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-indigo-500/25 -z-10"></div>
-                        <div className="absolute left-0 right-0 top-16 h-[1px] bg-indigo-500/25"></div>
-
-                        {/* Bannière supérieure de la carte (Style LinkedIn) */}
+                        {/* Bannière supérieure de la carte */}
                         <div className="h-16 bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-indigo-950/80 relative border-b border-indigo-500/20"></div>
 
-                        {/* Photo de profil ronde à cheval sur la bannière */}
-                        <div className="flex justify-center -mt-8 mb-2 px-4">
-                          <div className="w-16 h-16 rounded-full bg-[#030014] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-lg">
+                        {/* Photo de profil clairement visible (fond opaque et bordure nette) */}
+                        <div className="flex justify-center -mt-8 mb-2 px-4 relative z-10">
+                          <div className="w-16 h-16 rounded-full bg-[#0b081e] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-2xl ring-4 ring-[#030014]">
                             {profile.avatar ? (
                               <img 
                                 src={formatMediaUrl(profile.avatar)} 
@@ -298,11 +295,11 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 onError={(e) => {
                                   e.target.style.display = 'none';
-                                  e.target.parentNode.innerHTML = `<span class="text-indigo-300 font-bold text-xs uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
+                                  e.target.parentNode.innerHTML = `<span class="text-indigo-200 font-bold text-xs uppercase">${(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}</span>`;
                                 }}
                               />
                             ) : (
-                              <span className="text-indigo-300 font-bold text-xs uppercase">
+                              <span className="text-indigo-200 font-bold text-xs uppercase">
                                 {(profile.firstName?.[0] || '') + (profile.lastName?.[0] || '')}
                               </span>
                             )}
