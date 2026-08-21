@@ -228,7 +228,7 @@ function Home() {
         {/* En-tête principal animé avec titres lumineux */}
         <div className="text-center max-w-2xl mx-auto mb-14 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2 bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent leading-tight drop-shadow-[0_0_25px_rgba(129,140,248,0.35)]">
-            Le hub de la communauté étudiante de HITAS
+            Le Hub de la Communauté étudiante de HITAS
           </h1>
           
           <OrbitingLogo />
