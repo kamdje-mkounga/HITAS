@@ -113,16 +113,6 @@ const BlogEntraide = ({
      MEDIA UTILITIES
   ========================================================= */
 
-  /*
-   * Retourne la liste des médias d'un post.
-   *
-   * Nouveau format :
-   * post.mediaFiles = [...]
-   *
-   * Ancien format :
-   * post.mediaUrl
-   */
-
   const getPostMedia = (post) => {
     if (
       post.mediaFiles &&
@@ -344,7 +334,6 @@ const BlogEntraide = ({
 
     setError('');
 
-    // Vérification du nombre maximum
     if (
       selectedFiles.length +
         files.length >
@@ -359,7 +348,6 @@ const BlogEntraide = ({
       return;
     }
 
-    // Vérification des tailles
     const oversizedFile =
       files.find(
         (file) =>
@@ -377,7 +365,6 @@ const BlogEntraide = ({
       return;
     }
 
-    // 🚫 Vidéos interdites
     const videoFile =
       files.find((file) =>
         file.type?.startsWith(
@@ -402,10 +389,6 @@ const BlogEntraide = ({
 
     setSelectedFiles(newFiles);
 
-    /*
-     * Générer uniquement les previews
-     * pour les images.
-     */
     const newPreviews =
       files.map((file) => {
         if (
@@ -437,7 +420,6 @@ const BlogEntraide = ({
       ...newPreviews
     ]);
 
-    // Permet de sélectionner à nouveau le même fichier
     e.target.value = '';
   };
 
@@ -497,10 +479,6 @@ const BlogEntraide = ({
     }
   };
 
-  /* =========================================================
-     NETTOYAGE DES OBJECT URL
-  ========================================================= */
-
   useEffect(() => {
     return () => {
       previewUrls.forEach(
@@ -540,13 +518,6 @@ const BlogEntraide = ({
     }
 
     try {
-      /*
-       * IMPORTANT :
-       * Le backend utilise upload.array('media')
-       * donc il faut envoyer les fichiers
-       * dans FormData avec la clé "media".
-       */
-
       const formData =
         new FormData();
 
@@ -755,377 +726,131 @@ const BlogEntraide = ({
   };
 
   /* =========================================================
-     RENDER MEDIA
+     RENDER MEDIA (INSTAGRAM-STYLE SLIDING TRACK)
   ========================================================= */
 
-  const renderMedia = (
-    post
-  ) => {
-    const media =
-      getPostMedia(post);
+  const renderMedia = (post) => {
+    const media = getPostMedia(post);
 
     if (!media.length) {
       return null;
     }
 
     const activeIndex =
-      activeMediaIndexes[
-        post._id
-      ] || 0;
-
-    const currentMedia =
-      media[activeIndex];
-
-    if (!currentMedia) {
-      return null;
-    }
-
-    const mediaType =
-      currentMedia.type ||
-      'image';
-
-    const mediaUrl =
-      formatMediaUrl(
-        currentMedia.url
-      );
-
-    const isImage =
-      mediaType === 'image';
-
-    const isAudio =
-      mediaType === 'audio';
-
-    const isPdf =
-      mediaType === 'pdf';
-
-    const isDocument =
-      mediaType ===
-      'document';
+      activeMediaIndexes[post._id] || 0;
 
     return (
-      <div
-        className="
-          w-full
-          bg-slate-50
-          dark:bg-black
-          border-y
-          border-slate-100
-          dark:border-zinc-800
-        "
-      >
+      <div className="w-full bg-slate-50 dark:bg-black border-y border-slate-100 dark:border-zinc-800">
+        <div className="relative w-full overflow-hidden bg-black flex items-center justify-center">
+          <div 
+            className="flex w-full transition-transform duration-300 ease-out"
+            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+          >
+            {media.map((item, idx) => {
+              const mediaType = item.type || 'image';
+              const mediaUrl = formatMediaUrl(item.url);
 
-        {/* =============================================
-            MEDIA DISPLAY
-        ============================================= */}
+              return (
+                <div 
+                  key={idx} 
+                  className="min-w-full w-full flex-shrink-0 flex items-center justify-center bg-black"
+                >
+                  {mediaType === 'image' && (
+                    <img
+                      src={mediaUrl}
+                      alt={item.originalName || 'Publication'}
+                      className="block w-full max-h-[700px] object-contain bg-black select-none"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  )}
 
-        <div
-          className="
-            relative
-            w-full
-            min-h-[220px]
-            flex
-            items-center
-            justify-center
-            overflow-hidden
-          "
-        >
+                  {mediaType === 'audio' && (
+                    <div className="w-full px-6 py-12 flex flex-col items-center gap-4">
+                      <div className="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center">
+                        <Music size={24} className="text-indigo-500" />
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-zinc-400 text-center truncate max-w-[80%]">
+                        {item.originalName || 'Fichier audio'}
+                      </p>
+                      <audio controls src={mediaUrl} className="w-full max-w-lg" />
+                    </div>
+                  )}
 
-          {isImage && (
-            <img
-              src={mediaUrl}
-              alt={
-                currentMedia.originalName ||
-                'Publication'
-              }
-              className="
-                block
-                w-full
-                max-h-[700px]
-                object-contain
-              "
-              onError={(e) => {
-                e.currentTarget.style.display =
-                  'none';
-              }}
-            />
-          )}
+                  {(mediaType === 'pdf' || mediaType === 'document' || mediaType === 'file') && (
+                    <div className="w-full px-6 py-12 flex flex-col items-center gap-3">
+                      <div className="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center">
+                        <FileText size={24} className="text-indigo-500" />
+                      </div>
+                      <p className="text-xs text-slate-700 dark:text-zinc-300 text-center max-w-[80%] truncate">
+                        {item.originalName || 'Fichier'}
+                      </p>
+                      <a
+                        href={mediaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition-colors"
+                      >
+                        Ouvrir le fichier
+                      </a>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
-          {isAudio && (
-            <div
-              className="
-                w-full
-                px-6
-                py-12
-                flex
-                flex-col
-                items-center
-                gap-4
-              "
-            >
-              <div
-                className="
-                  w-14
-                  h-14
-                  rounded-full
-                  bg-indigo-500/10
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                <Music
-                  size={24}
-                  className="text-indigo-500"
-                />
-              </div>
-
-              <p
-                className="
-                  text-xs
-                  text-slate-600
-                  dark:text-zinc-400
-                  text-center
-                  truncate
-                  max-w-[80%]
-                "
-              >
-                {currentMedia.originalName ||
-                  'Fichier audio'}
-              </p>
-
-              <audio
-                controls
-                src={mediaUrl}
-                className="w-full max-w-lg"
-              />
-            </div>
-          )}
-
-          {(isPdf ||
-            isDocument ||
-            mediaType === 'file') && (
-            <div
-              className="
-                w-full
-                px-6
-                py-12
-                flex
-                flex-col
-                items-center
-                justify-center
-                gap-3
-              "
-            >
-              <div
-                className="
-                  w-14
-                  h-14
-                  rounded-full
-                  bg-indigo-500/10
-                  flex
-                  items-center
-                  justify-center
-                "
-              >
-                <FileText
-                  size={24}
-                  className="text-indigo-500"
-                />
-              </div>
-
-              <p
-                className="
-                  text-xs
-                  text-slate-700
-                  dark:text-zinc-300
-                  text-center
-                  max-w-[80%]
-                  truncate
-                "
-              >
-                {currentMedia.originalName ||
-                  'Fichier'}
-              </p>
-
-              <a
-                href={mediaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="
-                  px-4
-                  py-2
-                  rounded-lg
-                  bg-indigo-600
-                  hover:bg-indigo-500
-                  text-white
-                  text-xs
-                  font-semibold
-                  transition-colors
-                "
-              >
-                Ouvrir le fichier
-              </a>
-            </div>
-          )}
-
-          {/* =============================================
-              PREVIOUS
-          ============================================= */}
-
-          {media.length > 1 && (
+          {/* PREVIOUS BUTTON */}
+          {media.length > 1 && activeIndex > 0 && (
             <button
               type="button"
-              onClick={() =>
-                previousMedia(
-                  post._id,
-                  media.length
-                )
-              }
-              className="
-                absolute
-                left-3
-                top-1/2
-                -translate-y-1/2
-                w-9
-                h-9
-                rounded-full
-                bg-black/60
-                hover:bg-black/80
-                text-white
-                flex
-                items-center
-                justify-center
-                backdrop-blur-sm
-                transition-all
-                z-10
-              "
+              onClick={() => previousMedia(post._id, media.length)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-all z-10"
               aria-label="Média précédent"
             >
-              <ChevronLeft
-                size={20}
-              />
+              <ChevronLeft size={20} />
             </button>
           )}
 
-          {/* =============================================
-              NEXT
-          ============================================= */}
-
-          {media.length > 1 && (
+          {/* NEXT BUTTON */}
+          {media.length > 1 && activeIndex < media.length - 1 && (
             <button
               type="button"
-              onClick={() =>
-                nextMedia(
-                  post._id,
-                  media.length
-                )
-              }
-              className="
-                absolute
-                right-3
-                top-1/2
-                -translate-y-1/2
-                w-9
-                h-9
-                rounded-full
-                bg-black/60
-                hover:bg-black/80
-                text-white
-                flex
-                items-center
-                justify-center
-                backdrop-blur-sm
-                transition-all
-                z-10
-              "
+              onClick={() => nextMedia(post._id, media.length)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-all z-10"
               aria-label="Média suivant"
             >
-              <ChevronRight
-                size={20}
-              />
+              <ChevronRight size={20} />
             </button>
           )}
 
-          {/* =============================================
-              COUNTER
-          ============================================= */}
-
+          {/* COUNTER BADGE */}
           {media.length > 1 && (
-            <div
-              className="
-                absolute
-                top-3
-                right-3
-                bg-black/60
-                backdrop-blur-sm
-                text-white
-                text-[10px]
-                font-semibold
-                px-2.5
-                py-1
-                rounded-full
-              "
-            >
-              {activeIndex + 1} /{' '}
-              {media.length}
+            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-1 rounded-full z-10 pointer-events-none">
+              {activeIndex + 1} / {media.length}
             </div>
           )}
-
         </div>
 
-        {/* =============================================
-            DOTS
-        ============================================= */}
-
+        {/* DOTS NAVIGATION */}
         {media.length > 1 && (
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-1.5
-              py-2.5
-            "
-          >
-            {media.map(
-              (_, index) => (
-                <button
-                  key={index}
-                  type="button"
-                  onClick={() =>
-                    setMediaIndex(
-                      post._id,
-                      index
-                    )
-                  }
-                  className={`
-                    rounded-full
-                    transition-all
-                    ${
-                      index ===
-                      activeIndex
-                        ? `
-                          w-5
-                          h-1.5
-                          bg-indigo-500
-                        `
-                        : `
-                          w-1.5
-                          h-1.5
-                          bg-slate-300
-                          dark:bg-zinc-700
-                        `
-                    }
-                  `}
-                  aria-label={`Afficher le média ${
-                    index + 1
-                  }`}
-                />
-              )
-            )}
+          <div className="flex items-center justify-center gap-1.5 py-2.5">
+            {media.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setMediaIndex(post._id, index)}
+                className={`rounded-full transition-all ${
+                  index === activeIndex
+                    ? 'w-5 h-1.5 bg-indigo-500'
+                    : 'w-1.5 h-1.5 bg-slate-300 dark:bg-zinc-700'
+                }`}
+                aria-label={`Afficher le média ${index + 1}`}
+              />
+            ))}
           </div>
         )}
-
       </div>
     );
   };
@@ -1170,10 +895,6 @@ const BlogEntraide = ({
       }}
     >
 
-      {/* =====================================================
-          NAVBAR
-      ===================================================== */}
-
       <Navbar
         hasNewNotification={
           hasNewNotification
@@ -1196,10 +917,7 @@ const BlogEntraide = ({
         "
       >
 
-        {/* ===================================================
-            HEADER
-        =================================================== */}
-
+        {/* HEADER */}
         <div className="mb-6">
 
           <h1
@@ -1236,10 +954,7 @@ const BlogEntraide = ({
 
         </div>
 
-        {/* ===================================================
-            FORMULAIRE
-        =================================================== */}
-
+        {/* FORMULAIRE */}
         <div
           className="
             bg-white/90
@@ -1259,8 +974,6 @@ const BlogEntraide = ({
             onSubmit={handleSubmit}
             className="p-4 sm:p-5"
           >
-
-            {/* TEXTAREA */}
 
             <textarea
               rows="3"
@@ -1284,10 +997,6 @@ const BlogEntraide = ({
                 setText(e.target.value)
               }
             />
-
-            {/* =================================================
-                PREVIEW DES FICHIERS
-            ================================================= */}
 
             {selectedFiles.length >
               0 && (
@@ -1452,8 +1161,6 @@ const BlogEntraide = ({
 
                         )}
 
-                        {/* REMOVE */}
-
                         <button
                           type="button"
                           onClick={() =>
@@ -1492,10 +1199,6 @@ const BlogEntraide = ({
 
             )}
 
-            {/* =================================================
-                ERROR / SUCCESS
-            ================================================= */}
-
             {error && (
               <div
                 className="
@@ -1532,10 +1235,6 @@ const BlogEntraide = ({
               </div>
             )}
 
-            {/* =================================================
-                TOOLBAR
-            ================================================= */}
-
             <div
               className="
                 flex
@@ -1560,8 +1259,6 @@ const BlogEntraide = ({
                   gap-2
                 "
               >
-
-                {/* CATEGORY */}
 
                 <div
                   className="
@@ -1649,8 +1346,6 @@ const BlogEntraide = ({
 
                 </div>
 
-                {/* FILE BUTTON */}
-
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1719,8 +1414,6 @@ const BlogEntraide = ({
 
               </div>
 
-              {/* PUBLISH */}
-
               <button
                 type="submit"
                 className="
@@ -1758,10 +1451,7 @@ const BlogEntraide = ({
 
         </div>
 
-        {/* ===================================================
-            FILTRES
-        =================================================== */}
-
+        {/* FILTRES */}
         <div
           className="
             flex
@@ -1836,10 +1526,7 @@ const BlogEntraide = ({
 
         </div>
 
-        {/* ===================================================
-            POSTS
-        =================================================== */}
-
+        {/* POSTS */}
         {loading ? (
 
           <div
@@ -1920,10 +1607,6 @@ const BlogEntraide = ({
                       transition-shadow
                     "
                   >
-
-                    {/* =====================================
-                        POST HEADER
-                    ===================================== */}
 
                     <div
                       className="
@@ -2060,8 +1743,6 @@ const BlogEntraide = ({
 
                       </div>
 
-                      {/* MENU */}
-
                       {isOwner ? (
 
                         <button
@@ -2108,10 +1789,6 @@ const BlogEntraide = ({
 
                     </div>
 
-                    {/* =====================================
-                        POST TEXT
-                    ===================================== */}
-
                     {post.text?.trim() && (
 
                       <div
@@ -2137,18 +1814,9 @@ const BlogEntraide = ({
 
                     )}
 
-                    {/* =====================================
-                        POST MEDIA
-                    ===================================== */}
-
                     {getPostMedia(post).length >
-                      0 && (
-                      renderMedia(post)
-                    )}
-
-                    {/* =====================================
-                        POST FOOTER
-                    ===================================== */}
+                      0 &&
+                      renderMedia(post)}
 
                     <div
                       className="
