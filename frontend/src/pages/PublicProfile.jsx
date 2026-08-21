@@ -19,8 +19,7 @@ import {
   ChevronRight, 
   X, 
   FileCode, 
-  AlertTriangle,
-  Code2
+  AlertTriangle 
 } from 'lucide-react';
 
 const PublicProfile = () => {
@@ -64,7 +63,7 @@ const PublicProfile = () => {
 
       } catch (err) {
         console.error("Erreur lors du chargement :", err);
-        setError("Impossible de charger le profil de cet étudiant.");
+        setError("Impossible de charger le profil de cet utilisateur.");
       } finally {
         setLoading(false);
       }
@@ -137,27 +136,21 @@ const PublicProfile = () => {
     let skillsArray = [];
 
     try {
-      // Si c'est déjà un tableau
       if (Array.isArray(userProfile.skills)) {
         skillsArray = userProfile.skills;
-      } 
-      // Si c'est une chaîne de caractères
-      else if (typeof userProfile.skills === 'string') {
+      } else if (typeof userProfile.skills === 'string') {
         let raw = userProfile.skills.trim();
 
-        // Si la chaîne commence par '[' et finit par ']', on essaie de la parser en JSON
         if (raw.startsWith('[') && raw.endsWith(']')) {
           try {
             const parsed = JSON.parse(raw);
             if (Array.isArray(parsed)) {
-              skillsArray = parsed.flat(); // Aplatit au cas où il y a des tableaux imbriqués
+              skillsArray = parsed.flat();
             }
           } catch (e) {
-            // Si le JSON.parse échoue, on nettoie manuellement les caractères indésirables
             skillsArray = raw.replace(/[\[\]"'\\]/g, '').split(',');
           }
         } else {
-          // Sinon, c'est une simple liste séparée par des virgules
           skillsArray = raw.replace(/[\[\]"'\\]/g, '').split(',');
         }
       }
@@ -166,7 +159,7 @@ const PublicProfile = () => {
     }
 
     return skillsArray
-      .map(s => typeof s === 'string' ? s.replace(/[\/\\]/g, '').trim() : String(s)) // Nettoie les antislashs résiduels
+      .map(s => typeof s === 'string' ? s.replace(/[\/\\]/g, '').trim() : String(s))
       .filter(Boolean)
       .map((skill, index) => (
         <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
@@ -237,7 +230,7 @@ const PublicProfile = () => {
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <User className="w-4 h-4" /> L'Étudiant
+            <User className="w-4 h-4" /> Le Membre
           </button>
           <button 
             type="button"
@@ -248,7 +241,7 @@ const PublicProfile = () => {
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <Rocket className="w-4 h-4" /> Ses Projets ({userProjects.length})
+            <Rocket className="w-4 h-4" /> Réalisations ({userProjects.length})
           </button>
         </div>
 
@@ -276,7 +269,6 @@ const PublicProfile = () => {
                 )}
               </div>
               <div className="mt-3 text-center bg-[#0b081e]/90 backdrop-blur-md px-5 py-2 rounded-2xl border border-indigo-500/30 shadow-xl">
-                <span className="text-[10px] text-indigo-400 uppercase font-bold tracking-widest block">Étudiant</span>
                 <span className="text-white font-black text-sm uppercase">{userProfile.firstName} {userProfile.lastName}</span>
               </div>
             </div>
@@ -322,7 +314,7 @@ const PublicProfile = () => {
               {/* Biographie (Pleine largeur - Apparition douce) */}
               <div className="sm:col-span-2 relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all opacity-0 animate-fade-center" style={{ animationDelay: '0.9s' }}>
                 <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1">📝 Biographie</span>
-                <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-line">{userProfile.bio || "Cet étudiant n'a pas encore rédigé de biographie."}</p>
+                <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-line">{userProfile.bio || "Ce membre n'a pas encore rédigé de biographie."}</p>
               </div>
 
             </div>
@@ -330,7 +322,7 @@ const PublicProfile = () => {
             {/* Feuille finale de l'arbre : Compétences Clés */}
             <div className="mt-12 relative z-10 w-full max-w-lg bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-6 rounded-[2.5rem] shadow-2xl text-center opacity-0 animate-fade-center" style={{ animationDelay: '1.0s' }}>
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
-              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest block mb-4">⚡ Compétences Techniques</span>
+              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest block mb-4">⚡ Compétences & Domaines</span>
               <div className="flex flex-wrap justify-center gap-2.5">
                 {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
               </div>
@@ -347,7 +339,7 @@ const PublicProfile = () => {
                 <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
                   <FolderKanban className="w-7 h-7" />
                 </div>
-                <p className="text-zinc-400 text-xs italic">Cet étudiant n'a pas encore publié de projet.</p>
+                <p className="text-zinc-400 text-xs italic">Ce membre n'a pas encore partagé de réalisation.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-5">
@@ -363,7 +355,7 @@ const PublicProfile = () => {
                     >
                       <div className="w-full md:w-48 h-36 bg-gradient-to-br from-[#030014] to-[#120e2e] rounded-2xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:border-indigo-500/50 transition-colors relative overflow-hidden shadow-inner">
                         <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <Code2 className="w-9 h-9 text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
+                        <FolderKanban className="w-9 h-9 text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
                         <span className="text-[10px] text-indigo-200 font-bold tracking-wider uppercase bg-indigo-950/80 px-3 py-1 rounded-xl border border-indigo-500/30 backdrop-blur-md">
                           {mediaCount > 1 ? `${mediaCount} Fichiers` : '1 Fichier'}
                         </span>
