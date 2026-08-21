@@ -168,62 +168,6 @@ const PublicProfile = () => {
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour
         </button>
 
-        {/* Profil Header (Haut de page inchangé et élégant) */}
-        <div className="bg-gradient-to-br from-[#0b081e]/90 via-[#0b081e]/70 to-[#120e2e]/80 backdrop-blur-3xl p-8 sm:p-10 rounded-[2.5rem] border border-indigo-500/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mb-8 flex flex-col sm:flex-row items-center gap-8 relative overflow-hidden group">
-          <div className="absolute -top-24 -right-24 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-700"></div>
-          
-          <div className="relative flex-shrink-0">
-            <div className="absolute -inset-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-[2.2rem] blur opacity-50 group-hover:opacity-80 transition duration-500"></div>
-            <div className="relative w-32 h-32 rounded-[2rem] flex items-center justify-center text-3xl font-extrabold uppercase overflow-hidden border-2 border-indigo-500/40 bg-[#030014] shadow-2xl">
-              {userProfile.avatar ? (
-                <img 
-                  src={formatMediaUrl(userProfile.avatar)} 
-                  alt={`${userProfile.firstName} ${userProfile.lastName}`} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-indigo-300 bg-gradient-to-tr from-indigo-950 to-purple-950">
-                  {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="text-center sm:text-left flex-1 min-w-0 z-10">
-            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2.5">
-              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white uppercase break-words bg-gradient-to-r from-white via-zinc-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-sm">
-                {userProfile.firstName} {userProfile.lastName}
-              </h1>
-              {userProfile.status && (
-                <span className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap shadow-sm shadow-emerald-500/10 flex items-center gap-1.5 backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> {userProfile.status}
-                </span>
-              )}
-            </div>
-
-            <p className="text-indigo-300 text-xs font-semibold tracking-wide mb-2 flex items-center justify-center sm:justify-start gap-2">
-              <GraduationCap className="w-4 h-4 text-indigo-400" /> {userProfile.specialty || 'Informatique'} <span className="text-indigo-500">•</span> Promo {userProfile.promotion || 'Non renseignée'}
-            </p>
-            
-            <p className="text-zinc-400 text-xs font-medium mb-4 flex items-center justify-center sm:justify-start gap-2">
-              <MapPin className="w-4 h-4 text-zinc-500" /> {userProfile.country || userProfile.currentLocation || 'Localisation non renseignée'}
-              {userProfile.degreeLevel && <span className="text-zinc-600">• <span className="text-zinc-300">{userProfile.degreeLevel}</span></span>}
-            </p>
-
-            {(userProfile.jobTitle || userProfile.currentCompany) && (
-              <p className="text-zinc-200 text-xs font-medium mb-5 flex items-center justify-center sm:justify-start gap-2 bg-[#030014]/60 border border-indigo-500/20 px-3.5 py-2 rounded-2xl w-fit mx-auto sm:mx-0 shadow-inner">
-                <Briefcase className="w-4 h-4 text-indigo-400" /> {userProfile.jobTitle || 'Poste'} {userProfile.currentCompany ? `chez ${userProfile.currentCompany}` : ''}
-              </p>
-            )}
-
-            <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-              <span className="bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 text-indigo-200 text-xs font-bold px-4 py-2 rounded-2xl flex items-center gap-2 shadow-inner backdrop-blur-md">
-                <Rocket className="w-4 h-4 text-indigo-400" /> {userProjects.length} {userProjects.length > 1 ? 'Projets partagés' : 'Projet partagé'}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* Navigation Tabs - Style pilule moderne */}
         <div className="flex p-1.5 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-2xl mb-8 gap-2 text-xs font-bold tracking-wider">
           <button 
@@ -337,7 +281,7 @@ const PublicProfile = () => {
           </div>
         )}
 
-        {/* Tab: Projets (Inchangé et fluide) */}
+        {/* Tab: Projets */}
         {activeTab === 'projets' && (
           <div className="space-y-4">
             {userProjects.length === 0 ? (
@@ -496,3 +440,4 @@ const PublicProfile = () => {
 };
 
 export default PublicProfile;
+
