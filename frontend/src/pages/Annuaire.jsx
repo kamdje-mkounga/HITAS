@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
-import { GraduationCap, MapPin, Briefcase } from 'lucide-react';
+import { GraduationCap, MapPin, Briefcase, FileText, Pencil, Trash2 } from 'lucide-react';
 
 function Annuaire({ hasNewNotification, clearNotifications }) {
   const navigate = useNavigate();
@@ -256,12 +256,10 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 
                 {/* LIGNES DE CONNEXION EXTÉRIEURES (STRENGTH LINES - Entre les boîtes de profil en arrière-plan) */}
                 <div className="absolute inset-0 pointer-events-none hidden lg:block z-0">
-                  {/* Lignes horizontales reliant les rangées */}
                   <div className="w-full h-full absolute inset-0 flex flex-col justify-around">
                     <div className="w-full h-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
                     <div className="w-full h-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
                   </div>
-                  {/* Lignes verticales reliant les colonnes */}
                   <div className="w-full h-full absolute inset-0 flex justify-around">
                     <div className="h-full w-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
                     <div className="h-full w-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
@@ -285,7 +283,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                         {/* Bannière supérieure de la carte */}
                         <div className="h-16 bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-indigo-950/80 relative border-b border-indigo-500/20"></div>
 
-                        {/* Photo de profil clairement visible (fond opaque et bordure nette) */}
+                        {/* Photo de profil clairement visible */}
                         <div className="flex justify-center -mt-8 mb-2 px-4 relative z-10">
                           <div className="w-16 h-16 rounded-full bg-[#0b081e] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-2xl ring-4 ring-[#030014]">
                             {profile.avatar ? (
