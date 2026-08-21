@@ -494,7 +494,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 "
                   >
                     {/* Post Header */}
-                    <div className="flex justify-between items-start mb-4">
+                    <div className="flex justify-between items-start px-4 sm:px-5 pt-4 pb-2">
                       <Link 
                         to={`/profile/${getUserId(post.user)}`} 
                         className="flex items-center gap-3 group/author cursor-pointer"
@@ -609,7 +609,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     ) : (
                       <> 
                         {post.text?.trim() && (
-                          <p className="text-slate-800 dark:text-zinc-200 text-sm whitespace-pre-wrap pl-0.5 leading-relaxed font-normal mb-3">
+                          <p className="px-4 sm:px-5 text-slate-800 dark:text-zinc-200 text-sm whitespace-pre-wrap leading-relaxed font-normal mb-3">
                             {post.text}
                           </p>
                         )}
@@ -718,7 +718,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 )}
 
                         {/* Actions / Boutons */}
-                        <div className="flex gap-3 mt-4 pt-3 border-t border-slate-200 dark:border-indigo-900/40 text-xs">
+                        <div className="
+  flex gap-2
+  px-4 sm:px-5
+  py-3
+  mt-2
+  border-t border-slate-200 dark:border-indigo-900/40
+  text-xs
+">
                           <button 
                             onClick={() => handleLike(post._id)} 
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-indigo-900/60 hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white transition-all ${hasLiked ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 font-bold' : 'bg-white/40 dark:bg-[#0b081e]/40'}`}
