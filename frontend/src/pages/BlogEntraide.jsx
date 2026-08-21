@@ -77,18 +77,6 @@ const BlogEntraide = ({
     return [];
   };
 
-  const isImage = (item) => {
-    const type = item?.type || '';
-    const url = typeof item === 'string' ? item : (item?.url || '');
-    return type === 'image' || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(url);
-  };
-
-  const isAudio = (item) => {
-    const type = item?.type || '';
-    const url = typeof item === 'string' ? item : (item?.url || '');
-    return type === 'audio' || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(url);
-  };
-
   const fetchPosts = async () => {
     try {
       setLoading(true);
@@ -222,22 +210,8 @@ const BlogEntraide = ({
     }
   };
 
-  const setMediaIndex = (postId, index) => {
-    setActiveMediaIndexes((prev) => ({ ...prev, [postId]: index }));
-  };
-
-  const nextMedia = (postId, mediaCount) => {
-    setActiveMediaIndexes((prev) => {
-      const current = prev[postId] || 0;
-      return { ...prev, [postId]: (current + 1) % mediaCount };
-    });
-  };
-
-  const previousMedia = (postId, mediaCount) => {
-    setActiveMediaIndexes((prev) => {
-      const current = prev[postId] || 0;
-      return { ...prev, [postId]: (current - 1 + mediaCount) % mediaCount };
-    });
+  const setSelectedMediaIndex = (updater) => {
+    setActiveMediaIndexes(updater);
   };
 
   const filteredPosts = selectedFilter === 'Tous' ? posts : posts.filter((p) => p.category === selectedFilter);
@@ -251,90 +225,120 @@ const BlogEntraide = ({
     }
   };
 
+  /* =========================================================
+     RENDER MEDIA (STRUCTURED LIKE SHOWCASE.JSX)
+  ========================================================= */
+
   const renderMedia = (post) => {
     const media = getPostMedia(post);
     if (!media.length) return null;
 
     const activeIndex = activeMediaIndexes[post._id] || 0;
+    const currentMedia = media[activeIndex] || media[0];
+    const currentFileName = currentMedia.originalName || 'Fichier joint';
+    const hasMultipleMedia = media.length > 1;
 
     return (
-      <div className="w-full bg-black border-y border-zinc-800">
-        <div className="relative w-full overflow-hidden bg-black flex items-center justify-center">
-          <div 
-            className="flex w-full transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(-${activeIndex * 100}%)` }}
-          >
-            {media.map((item, idx) => {
-              const mediaType = item.type || 'image';
-              const mediaUrl = formatMediaUrl(item.url);
-
-              return (
-                <div key={idx} className="min-w-full w-full flex-shrink-0 flex items-center justify-center bg-black">
-                  {mediaType === 'image' || isImage(item) ? (
-                    <img
-                      src={mediaUrl}
-                      alt={item.originalName || 'Publication'}
-                      className="block w-full max-h-[700px] object-contain bg-black select-none"
-                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    />
-                  ) : mediaType === 'audio' || isAudio(item) ? (
-                    <div className="w-full px-6 py-12 flex flex-col items-center gap-4">
-                      <div className="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center">
-                        <Music size={24} className="text-indigo-500" />
-                      </div>
-                      <audio controls src={mediaUrl} className="w-full max-w-lg" />
-                    </div>
-                  ) : (
-                    <div className="w-full px-6 py-12 flex flex-col items-center gap-3">
-                      <FileText size={24} className="text-indigo-500" />
-                      <a href={mediaUrl} target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold">
-                        Ouvrir le fichier
-                      </a>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+      <div className="mb-6 overflow-hidden px-4">
+        {/* Top Header Bar for File/Counter */}
+        <div className="flex items-center justify-between gap-3 bg-slate-100/80 dark:bg-[#030014] px-4 py-3 rounded-t-2xl border-x border-t border-slate-200 dark:border-white/[0.06]">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="h-7 w-7 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-500 shrink-0">
+              <FileText size={13} />
+            </div>
+            <span className="truncate text-[11px] font-semibold text-slate-700 dark:text-zinc-300">
+              {currentFileName}
+            </span>
           </div>
+          <span className="text-[9px] text-slate-400 dark:text-zinc-600 shrink-0">
+            {activeIndex + 1} / {media.length}
+          </span>
+        </div>
 
-          {media.length > 1 && activeIndex > 0 && (
+        {/* Main Media Display Viewport */}
+        <div className="rounded-b-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 h-[260px] sm:h-[400px] w-full flex items-center justify-center relative shadow-inner">
+          {currentMedia.type === 'pdf' || currentMedia.type === 'document' ? (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-white/40 dark:bg-[#0b081e]/40 p-6 text-center">
+              <span className="text-5xl mb-4">📄</span>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 mb-4 font-medium truncate max-w-xs">
+                {currentFileName}
+              </p>
+              <a
+                href={formatMediaUrl(currentMedia.url)}
+                target="_blank"
+                rel="noreferrer"
+                className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
+              >
+                Ouvrir le document
+              </a>
+            </div>
+          ) : currentMedia.type === 'audio' ? (
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 gap-4">
+              <div className="w-14 h-14 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                <Music size={24} />
+              </div>
+              <audio controls src={formatMediaUrl(currentMedia.url)} className="w-full max-w-sm" />
+            </div>
+          ) : (
+            <img
+              src={formatMediaUrl(currentMedia.url)}
+              alt=""
+              className="w-full h-full object-contain select-none"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
+          )}
+
+          {/* Left / Right Carousel Navigation Buttons */}
+          {hasMultipleMedia && activeIndex > 0 && (
             <button
               type="button"
-              onClick={() => previousMedia(post._id, media.length)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm z-10"
+              onClick={() => setSelectedMediaIndex((prev) => ({ ...prev, [post._id]: activeIndex - 1 }))}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10 shadow-lg"
             >
               <ChevronLeft size={18} />
             </button>
           )}
 
-          {media.length > 1 && activeIndex < media.length - 1 && (
+          {hasMultipleMedia && activeIndex < media.length - 1 && (
             <button
               type="button"
-              onClick={() => nextMedia(post._id, media.length)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm z-10"
+              onClick={() => setSelectedMediaIndex((prev) => ({ ...prev, [post._id]: activeIndex + 1 }))}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-md transition-all z-10 shadow-lg"
             >
               <ChevronRight size={18} />
             </button>
           )}
-
-          {media.length > 1 && (
-            <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-[10px] font-semibold px-2 py-0.5 rounded-full z-10 pointer-events-none">
-              {activeIndex + 1} / {media.length}
-            </div>
-          )}
         </div>
 
-        {media.length > 1 && (
-          <div className="flex items-center justify-center gap-1.5 py-2.5 bg-black">
-            {media.map((_, index) => (
+        {/* Thumbnail Selector Bar (Exact Showcase Style) */}
+        {hasMultipleMedia && media.length > 1 && (
+          <div className="flex gap-2.5 overflow-x-auto pb-2 mt-3 scrollbar-none">
+            {media.map((mediaItem, index) => (
               <button
                 key={index}
                 type="button"
-                onClick={() => setMediaIndex(post._id, index)}
-                className={`rounded-full transition-all ${
-                  index === activeIndex ? 'w-4 h-1.5 bg-indigo-500' : 'w-1.5 h-1.5 bg-zinc-600'
+                onClick={() =>
+                  setSelectedMediaIndex((prev) => ({
+                    ...prev,
+                    [post._id]: index
+                  }))
+                }
+                className={`w-16 h-11 rounded-lg border overflow-hidden bg-white dark:bg-[#030014] shrink-0 flex items-center justify-center transition-all ${
+                  activeIndex === index
+                    ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 shadow-md'
+                    : 'border-slate-300 dark:border-indigo-950 opacity-40 hover:opacity-70'
                 }`}
-              />
+              >
+                {mediaItem.type === 'image' || !mediaItem.type ? (
+                  <img
+                    src={formatMediaUrl(mediaItem.url)}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs">📄</span>
+                )}
+              </button>
             ))}
           </div>
         )}
