@@ -155,6 +155,16 @@ const PublicProfile = () => {
         backgroundRepeat: 'repeat',
       }}
     >
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(16px); filter: blur(4px); }
+          to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
+
       <Navbar />
 
       {/* Orbes lumineux d'ambiance */}
@@ -164,12 +174,12 @@ const PublicProfile = () => {
       <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         
         {/* Back Button */}
-        <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/80 backdrop-blur-xl border border-indigo-500/20 hover:border-indigo-500/40 px-4 py-2.5 rounded-2xl w-fit shadow-lg shadow-indigo-950/20">
+        <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/80 backdrop-blur-xl border border-indigo-500/20 hover:border-indigo-500/40 px-4 py-2.5 rounded-2xl w-fit shadow-lg shadow-indigo-950/20 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour
         </button>
 
         {/* Navigation Tabs - Style pilule moderne */}
-        <div className="flex p-1.5 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-2xl mb-8 gap-2 text-xs font-bold tracking-wider">
+        <div className="flex p-1.5 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-2xl mb-8 gap-2 text-xs font-bold tracking-wider opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           <button 
             type="button"
             onClick={() => setActiveTab('compte')}
@@ -198,7 +208,7 @@ const PublicProfile = () => {
             TAB: COMPTE - STRUCTURE EN ARBRE / BRANCHES (MIND-MAP)
         ========================================================= */}
         {activeTab === 'compte' && (
-          <div className="relative py-8 flex flex-col items-center">
+          <div className="relative py-8 flex flex-col items-center opacity-0 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             
             {/* Titre de section stylisé */}
             <h2 className="text-xs font-bold mb-12 text-indigo-300 uppercase tracking-widest flex items-center gap-2.5 bg-[#0b081e]/90 px-5 py-2 rounded-full border border-indigo-500/30 shadow-lg relative z-20">
@@ -283,7 +293,7 @@ const PublicProfile = () => {
 
         {/* Tab: Projets */}
         {activeTab === 'projets' && (
-          <div className="space-y-4">
+          <div className="space-y-4 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
             {userProjects.length === 0 ? (
               <div className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 p-12 rounded-[2.5rem] text-center shadow-xl">
                 <div className="w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-3 shadow-inner">
