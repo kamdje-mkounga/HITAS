@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 
 const PostSchema = new mongoose.Schema({
 
+  // ============================================================
+  // UTILISATEUR
+  // ============================================================
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
@@ -22,6 +26,11 @@ const PostSchema = new mongoose.Schema({
     type: String
   },
 
+
+  // ============================================================
+  // CONTENU
+  // ============================================================
+
   text: {
     type: String,
     required: false
@@ -29,14 +38,21 @@ const PostSchema = new mongoose.Schema({
 
   category: {
     type: String,
-    enum: ['General', 'Entraide', 'Stage/Emploi', 'Logement'],
+    enum: [
+      'General',
+      'Entraide',
+      'Stage/Emploi',
+      'Logement'
+    ],
     default: 'General'
   },
 
+
   // ============================================================
-  // 📸 MULTIPLE MEDIA FILES
+  // 📁 PLUSIEURS FICHIERS
   // ============================================================
-  media: [
+
+  mediaFiles: [
     {
       url: {
         type: String,
@@ -45,34 +61,41 @@ const PostSchema = new mongoose.Schema({
 
       path: {
         type: String,
+        default: ''
+      },
+
+      type: {
+        type: String,
+        enum: [
+          'image',
+          'audio',
+          'pdf',
+          'document',
+          'file'
+        ],
         required: true
       },
 
       originalName: {
         type: String,
         default: ''
-      },
-
-      type: {
-        type: String,
-        enum: ['image', 'audio', 'pdf', 'document', 'file'],
-        required: true
       }
     }
   ],
 
+
   // ============================================================
-  // 🔄 ANCIENS CHAMPS
-  // Gardés pour assurer la compatibilité avec les anciennes
-  // publications déjà enregistrées dans MongoDB.
+  // 🔄 COMPATIBILITÉ AVEC LES ANCIENS POSTS
   // ============================================================
 
   mediaUrl: {
-    type: String
+    type: String,
+    default: ''
   },
 
   mediaPath: {
-    type: String
+    type: String,
+    default: ''
   },
 
   mediaOriginalName: {
@@ -82,9 +105,16 @@ const PostSchema = new mongoose.Schema({
 
   mediaType: {
     type: String,
-    enum: ['image', 'audio', 'pdf', 'document', 'file'],
+    enum: [
+      'image',
+      'audio',
+      'pdf',
+      'document',
+      'file'
+    ],
     default: null
   },
+
 
   // ============================================================
   // ❤️ LIKES
@@ -99,8 +129,9 @@ const PostSchema = new mongoose.Schema({
     }
   ],
 
+
   // ============================================================
-  // 💬 COMMENTS
+  // 💬 COMMENTAIRES
   // ============================================================
 
   comments: [
@@ -133,6 +164,7 @@ const PostSchema = new mongoose.Schema({
       }
     }
   ],
+
 
   // ============================================================
   // 📅 DATE
