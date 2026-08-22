@@ -168,6 +168,34 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   };
 
   /* =========================================================
+     SECURE DOWNLOAD HELPER (BLOB)
+  ========================================================= */
+
+  const handleDownload = async (url, fileName) => {
+    try {
+      const fullUrl = formatMediaUrl(url);
+      const response = await axios.get(fullUrl, {
+        responseType: 'blob',
+      });
+      
+      const blob = new Blob([response.data]);
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      link.href = downloadUrl;
+      link.setAttribute('download', fileName || 'fichier');
+      document.body.appendChild(link);
+      link.click();
+      
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement :", error);
+      window.open(formatMediaUrl(url), '_blank');
+    }
+  };
+
+  /* =========================================================
      CAROUSEL HANDLERS
   ========================================================= */
 
@@ -951,15 +979,13 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                         >
                           <ExternalLink size={14} /> Ouvrir
                         </a>
-                        <a
-                          href={fullUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
-                          className="bg-[#030014] hover:bg-indigo-950/60 border border-indigo-500/30 text-zinc-300 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-inner"
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(url, currentFileName)}
+                          className="bg-[#030014] hover:bg-indigo-950/60 border border-indigo-500/30 text-zinc-300 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-inner cursor-pointer"
                         >
                           <Download size={14} /> Télécharger
-                        </a>
+                        </button>
                       </div>
                     </div>
                   )}
