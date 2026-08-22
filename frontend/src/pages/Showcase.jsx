@@ -72,11 +72,6 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
   const [editMediaPreviews, setEditMediaPreviews] = useState([]);
 
   // ==============================
-  // CAROUSEL
-  // ==============================
-  const [selectedMediaIndex, setSelectedMediaIndex] = useState({});
-
-  // ==============================
   // STATUS
   // ==============================
   const [loading, setLoading] = useState(true);
@@ -360,11 +355,6 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
       setMediaToDelete([]);
       setExistingMedia([]);
 
-      setSelectedMediaIndex((prev) => ({
-        ...prev,
-        [projectId]: 0
-      }));
-
       setSuccess('Portfolio mis à jour avec succès !');
     } catch (err) {
       console.error(err);
@@ -395,7 +385,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
   };
 
   // ==============================
-  // START EDIT (CORRECTED)
+  // START EDIT
   // ==============================
   const startEditing = (project) => {
     setEditingId(project._id);
@@ -412,7 +402,6 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
     setEditGithub(project.githubUrl || '');
     setEditDemo(project.demoUrl || '');
 
-    // Gestion propre des médias existants pour l'édition
     if (project.media && Array.isArray(project.media)) {
       setExistingMedia(project.media);
     } else if (project.mediaUrl) {
@@ -612,10 +601,10 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
             {projects.map((project) => {
-              const activeIndex = selectedMediaIndex[project._id] ?? 0;
-              const hasMultipleMedia = project.media && project.media.length > 0;
-              const currentMedia = hasMultipleMedia ? project.media[activeIndex] : null;
-              const currentFileName = getFileName(currentMedia);
+              // Récupération de tous les médias du projet (qu'ils soient dans .media ou .mediaUrl)
+              const projectMediaList = project.media && project.media.length > 0 
+                ? project.media 
+                : project.mediaUrl ? [{ url: project.mediaUrl, type: project.mediaType || 'image' }] : [];
 
               return (
                 <div
@@ -723,18 +712,33 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                           </div>
                         )}
 
-                        {currentMedia && currentMedia.url && (
-                          <div className="mb-4 rounded-2xl overflow-hidden border border-indigo-900/50 bg-[#030014]">
-                            <div className="h-[200px] w-full flex items-center justify-center relative">
-                              {currentMedia.type === 'pdf' ? (
-                                <div className="p-4 text-center">
-                                  <span className="text-3xl mb-2 block">📄</span>
-                                  <a href={formatMediaUrl(currentMedia.url)} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 underline font-bold">Ouvrir le PDF</a>
+                        {/* AFFICHAGE DE TOUS LES FICHIERS DU PROJET (GRILLE OU LISTE) */}
+                        {projectMediaList.length > 0 && (
+                          <div className="mb-4 space-y-3">
+                            {projectMediaList.map((mediaItem, mIdx) => {
+                              const mediaUrl = typeof mediaItem === 'string' ? mediaItem : mediaItem.url;
+                              const mediaType = typeof mediaItem === 'string' ? 'image' : (mediaItem.type || 'image');
+                              const fileName = getFileName(mediaItem);
+
+                              return (
+                                <div key={mIdx} className="rounded-2xl overflow-hidden border border-indigo-900/50 bg-[#030014]">
+                                  <div className="flex items-center justify-between bg-[#030014] px-3 py-2 border-b border-indigo-900/30 text-[10px] text-zinc-400">
+                                    <span className="truncate max-w-[200px]">{fileName}</span>
+                                    <span>Fichier {mIdx + 1} / {projectMediaList.length}</span>
+                                  </div>
+                                  <div className="h-[220px] w-full flex items-center justify-center relative bg-black/40">
+                                    {mediaType === 'pdf' ? (
+                                      <div className="p-4 text-center">
+                                        <span className="text-3xl mb-2 block">📄</span>
+                                        <a href={formatMediaUrl(mediaUrl)} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 underline font-bold">Ouvrir le document PDF</a>
+                                      </div>
+                                    ) : (
+                                      <img src={formatMediaUrl(mediaUrl)} alt="" className="w-full h-full object-cover" />
+                                    )}
+                                  </div>
                                 </div>
-                              ) : (
-                                <img src={formatMediaUrl(currentMedia.url)} alt="" className="w-full h-full object-cover" />
-                              )}
-                            </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
