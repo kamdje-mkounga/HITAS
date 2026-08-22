@@ -469,7 +469,7 @@ const PublicProfile = () => {
                       )}
 
                       <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/30">
-                        <Download className="w-4 h-4" /> Télécharger <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+                        <Download className="w-4 h-4" /> Ouvrir <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
                       </a>
                     </div>
                   ) : (
