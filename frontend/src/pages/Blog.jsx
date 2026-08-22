@@ -19,9 +19,10 @@ import {
   Megaphone,
   Briefcase,
   Music,
-  File,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 
 const Blog = ({ hasNewNotification, clearNotifications }) => {
@@ -413,6 +414,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     }
   };
 
+  /* =========================================================
+     INITIAL EFFECT
+  ========================================================= */
+
   useEffect(() => {
     fetchPosts();
 
@@ -727,7 +732,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         editText
       );
 
-      // On envoie explicitement les URLs des médias conservés
       existingMediaUrls.forEach(
         (item) => {
           const urlVal = typeof item === 'string' ? item : (item.url || item.path || '');
@@ -766,7 +770,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         }
       );
 
-      // Met à jour la liste des posts localement avec la réponse du serveur
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post._id === postId ? res.data : post
@@ -868,7 +871,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   };
 
   /* =========================================================
-     INSTAGRAM-STYLE SLIDING TRACK CAROUSEL RENDER
+     RENDER MEDIA (AVEC STYLE PDF MODERNE & GLASSMORPHISM)
   ========================================================= */
 
   const renderMediaGrid = (post) => {
@@ -892,56 +895,73 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               const url = typeof item === 'string' ? item : item.url;
               const fullUrl = formatMediaUrl(url);
               const mediaType = typeof item === 'string' ? (isImage(item) ? 'image' : 'file') : (item.type || 'image');
+              const currentFileName = item.originalName || getFileName(url);
 
               return (
                 <div
                   key={`${url}-${index}`}
-                  className="min-w-full w-full flex-shrink-0 flex items-center justify-center bg-black"
+                  className="min-w-full w-full flex-shrink-0 flex items-center justify-center bg-black p-4"
                 >
                   {mediaType === 'image' || isImage(url) ? (
                     <img
                       src={fullUrl}
                       alt={`Publication ${index + 1}`}
-                      className="w-full max-h-[720px] object-contain bg-black select-none"
+                      className="w-full max-h-[720px] object-contain bg-black select-none rounded-xl"
                       loading="lazy"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                       }}
                     />
                   ) : mediaType === 'audio' || isAudio(url) ? (
-                    <div className="w-full p-6 bg-slate-50 dark:bg-[#030014]">
+                    <div className="w-full p-6 bg-slate-50 dark:bg-[#030014] rounded-xl">
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50">
                         <div className="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
                           <Music size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-slate-700 dark:text-zinc-300 truncate mb-1">
-                            {item.originalName || getFileName(url)}
+                            {currentFileName}
                           </p>
                           <audio src={fullUrl} controls className="w-full h-9" />
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <a
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                      className="w-full flex items-center gap-3 p-4 bg-white dark:bg-[#030014] hover:bg-slate-50 dark:hover:bg-[#0b081e] transition-colors"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                        <FileText size={23} />
+                    <div className="w-full max-w-md bg-gradient-to-br from-[#0b081e] via-[#120e2e] to-[#030014] border border-indigo-500/30 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-center relative overflow-hidden group my-4">
+                      <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
+                      
+                      <div className="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                        <FileText size={32} />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 dark:text-zinc-200 truncate">
-                          {item.originalName || getFileName(url)}
-                        </p>
-                        <p className="text-[11px] text-indigo-600 dark:text-indigo-400 mt-1">
-                          Ouvrir le document →
-                        </p>
+                      
+                      <span className="inline-block bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
+                        Document PDF
+                      </span>
+                      
+                      <p className="text-xs font-bold text-white mb-6 truncate px-2">
+                        {currentFileName}
+                      </p>
+
+                      <div className="flex gap-2">
+                        <a
+                          href={fullUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all"
+                        >
+                          <ExternalLink size={14} /> Ouvrir
+                        </a>
+                        <a
+                          href={fullUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download
+                          className="bg-[#030014] hover:bg-indigo-950/60 border border-indigo-500/30 text-zinc-300 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-inner"
+                        >
+                          <Download size={14} /> Télécharger
+                        </a>
                       </div>
-                    </a>
+                    </div>
                   )}
                 </div>
               );
@@ -972,7 +992,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             </button>
           )}
 
-          {/* Counter Badge (e.g., 1/3) */}
+          {/* Counter Badge */}
           {mediaItems.length > 1 && (
             <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none z-10">
               {activeIndex + 1} / {mediaItems.length}
@@ -1088,10 +1108,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               const preview =
                 mediaPreviews[index];
 
-              /*
-               * IMAGE
-               */
-
               if (
                 file.type.startsWith(
                   'image/'
@@ -1145,10 +1161,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   </div>
                 );
               }
-
-              /*
-               * AUDIO / DOCUMENT
-               */
 
               return (
                 <div
