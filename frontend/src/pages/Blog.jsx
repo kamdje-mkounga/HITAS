@@ -119,12 +119,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
-  /*
-   * Supporte :
-   * - ancien backend : mediaUrl
-   * - nouveau backend : mediaFiles[]
-   */
-
   const getPostMedia = (post) => {
     if (!post) return [];
 
@@ -157,12 +151,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     const type = item?.type || '';
     const url = typeof item === 'string' ? item : (item?.url || '');
     return type === 'audio' || /\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(url);
-  };
-
-  const isDocument = (item) => {
-    const type = item?.type || '';
-    const url = typeof item === 'string' ? item : (item?.url || '');
-    return type === 'pdf' || type === 'document' || /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i.test(url);
   };
 
   const getFileName = (url) => {
@@ -251,8 +239,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     if (!files.length) return;
 
-    /* 🚫 VIDEOS */
-
     const hasVideo = files.some((file) =>
       file.type.startsWith('video/')
     );
@@ -266,8 +252,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       return;
     }
 
-    /* FICHIERS AUTORISÉS */
-
     const allowedFiles = files.filter((file) => {
       return (
         file.type.startsWith('image/') ||
@@ -278,14 +262,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         )
       );
     });
-
-    if (
-      allowedFiles.length !== files.length
-    ) {
-      setError(
-        'Certains fichiers ne sont pas autorisés. Utilise des images, fichiers audio ou documents.'
-      );
-    }
 
     const newPreviews = allowedFiles.map(
       (file) => URL.createObjectURL(file)
@@ -350,8 +326,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     );
 
     if (!files.length) return;
-
-    /* 🚫 VIDEOS */
 
     const hasVideo = files.some((file) =>
       file.type.startsWith('video/')
@@ -438,10 +412,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       setLoading(false);
     }
   };
-
-  /* =========================================================
-     INITIAL EFFECT
-  ========================================================= */
 
   useEffect(() => {
     fetchPosts();
@@ -530,47 +500,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       );
     };
 
-    socket.on(
-      'posts_created',
-      handleCreated
-    );
-
-    socket.on(
-      'posts_deleted',
-      handleDeleted
-    );
-
-    socket.on(
-      'posts_updated',
-      handleUpdated
-    );
-
-    socket.on(
-      'posts_updated_interactions',
-      handleInteractions
-    );
+    socket.on('posts_created', handleCreated);
+    socket.on('posts_deleted', handleDeleted);
+    socket.on('posts_updated', handleUpdated);
+    socket.on('posts_updated_interactions', handleInteractions);
 
     return () => {
-      socket.off(
-        'posts_created',
-        handleCreated
-      );
-
-      socket.off(
-        'posts_deleted',
-        handleDeleted
-      );
-
-      socket.off(
-        'posts_updated',
-        handleUpdated
-      );
-
-      socket.off(
-        'posts_updated_interactions',
-        handleInteractions
-      );
-
+      socket.off('posts_created', handleCreated);
+      socket.off('posts_deleted', handleDeleted);
+      socket.off('posts_updated', handleUpdated);
+      socket.off('posts_updated_interactions', handleInteractions);
       socket.disconnect();
     };
   }, []);
@@ -788,12 +727,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         editText
       );
 
+      // On envoie explicitement les URLs des médias conservés
       existingMediaUrls.forEach(
-        (url) => {
-          formData.append(
-            'existingMediaUrls',
-            typeof url === 'string' ? url : url.url
-          );
+        (item) => {
+          const urlVal = typeof item === 'string' ? item : (item.url || item.path || '');
+          if (urlVal) {
+            formData.append(
+              'existingMediaUrls',
+              urlVal
+            );
+          }
         }
       );
 
@@ -811,7 +754,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           'token'
         );
 
-      await axios.put(
+      const res = await axios.put(
         `${BACKEND_URL}/api/posts/${postId}`,
         formData,
         {
@@ -823,8 +766,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         }
       );
 
-      setEditingId(null);
+      // Met à jour la liste des posts localement avec la réponse du serveur
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === postId ? res.data : post
+        )
+      );
 
+      setEditingId(null);
       clearEditMedia();
 
     } catch (err) {
@@ -2380,7 +2329,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                       </button>
 
                                     </div>
-                                  );
+                                    );
                                   }
                                 )}
 
