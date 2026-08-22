@@ -533,7 +533,7 @@ router.delete(
 
 
 // ============================================================
-// PUT /api/posts/:id
+// PUT /api/posts/:id (MIS À JOUR POUR GÉRER LA SUPPRESSION CIBLÉE)
 // ============================================================
 
 router.put(
@@ -578,27 +578,34 @@ router.put(
             post.category = req.body.category;
           }
 
+          // 1. Suppression ciblée des fichiers demandés par le frontend
+          if (req.body.mediaToDelete) {
+            try {
+              const pathsToDelete = JSON.parse(req.body.mediaToDelete);
+              if (Array.isArray(pathsToDelete) && pathsToDelete.length > 0) {
+                for (const pathToDelete of pathsToDelete) {
+                  // Supprimer physiquement du stockage Supabase
+                  try {
+                    await deleteFile(pathToDelete);
+                  } catch (delErr) {
+                    console.error('Erreur suppression stockage:', delErr.message);
+                  }
+                }
+                // Filtrer le tableau mediaFiles pour retirer les éléments supprimés
+                post.mediaFiles = post.mediaFiles.filter(
+                  (m) => !pathsToDelete.includes(m.path) && !pathsToDelete.includes(m.url)
+                );
+              }
+            } catch (parseErr) {
+              console.error('Erreur parsing mediaToDelete:', parseErr);
+            }
+          }
+
+          // 2. Ajout des nouveaux fichiers s'il y en a
           if (
             req.files &&
             req.files.length > 0
           ) {
-            if (
-              post.mediaFiles &&
-              post.mediaFiles.length > 0
-            ) {
-              for (const media of post.mediaFiles) {
-                if (media.path) {
-                  try {
-                    await deleteFile(media.path);
-                  } catch (e) {
-                    console.error(e.message);
-                  }
-                }
-              }
-            }
-
-            const newMediaFiles = [];
-
             for (const file of req.files) {
               if (file.mimetype.startsWith('video/')) {
                 return res.status(400).json({
@@ -609,22 +616,28 @@ router.put(
               const mediaType = getMediaType(file);
               const uploaded = await uploadFile(file, 'posts');
 
-              newMediaFiles.push({
+              post.mediaFiles.push({
                 url: uploaded.url,
                 path: uploaded.path,
                 type: mediaType,
                 originalName: file.originalname
               });
             }
-
-            post.mediaFiles = newMediaFiles;
-            post.mediaUrl = newMediaFiles[0]?.url || '';
-            post.mediaType = newMediaFiles[0]?.type || null;
-            post.mediaPath = newMediaFiles[0]?.path || null;
-            post.mediaOriginalName = newMediaFiles[0]?.originalName || '';
           }
 
+          // 3. Mise à jour des champs de rétrocompatibilité
+          post.mediaUrl = post.mediaFiles[0]?.url || '';
+          post.mediaType = post.mediaFiles[0]?.type || null;
+          post.mediaPath = post.mediaFiles[0]?.path || null;
+          post.mediaOriginalName = post.mediaFiles[0]?.originalName || '';
+
           await post.save();
+
+          const io = req.app.get('io');
+          if (io) {
+            io.emit('posts_updated', post);
+          }
+
           res.json(post);
 
         } catch (err) {
