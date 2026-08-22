@@ -14,7 +14,9 @@ import {
   ChevronRight,
   FileText,
   Music,
-  Paperclip
+  Paperclip,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 
 import Navbar from '../components/Navbar';
@@ -226,7 +228,7 @@ const BlogEntraide = ({
   };
 
   /* =========================================================
-     RENDER MEDIA (CORRIGÉ POUR GÉRER TOUS LES FICHIERS ET LE CAROUSEL)
+     RENDER MEDIA (AVEC APERÇU PDF MODERNE ET DESIGN GLASSMORPHISM)
   ========================================================= */
 
   const renderMedia = (post) => {
@@ -258,22 +260,42 @@ const BlogEntraide = ({
         </div>
 
         {/* Main Media Viewport Box */}
-        <div className="rounded-b-xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/60 h-[260px] sm:h-[400px] w-full flex items-center justify-center relative shadow-inner">
+        <div className="rounded-b-2xl overflow-hidden border border-slate-200 dark:border-indigo-900/40 bg-slate-100 dark:bg-[#030014]/80 min-h-[260px] sm:min-h-[350px] w-full flex items-center justify-center relative shadow-inner p-4">
           {mediaType === 'pdf' || mediaType === 'document' ? (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-white/40 dark:bg-[#0b081e]/40 p-6 text-center">
-              <span className="text-5xl mb-4">📄</span>
-              <p className="text-xs text-slate-600 dark:text-zinc-400 mb-4 font-medium truncate max-w-xs">
+            <div className="w-full max-w-md bg-gradient-to-br from-[#0b081e] via-[#120e2e] to-[#030014] border border-indigo-500/30 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-center relative overflow-hidden group">
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
+              
+              <div className="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                <FileText size={32} />
+              </div>
+              
+              <span className="inline-block bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
+                Document PDF
+              </span>
+              
+              <p className="text-xs font-bold text-white mb-6 truncate px-2">
                 {currentFileName}
               </p>
-              <a
-                href={mediaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                download
-                className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 hover:bg-indigo-500 transition active:scale-95"
-              >
-                Télécharger / Ouvrir le fichier
-              </a>
+
+              <div className="flex gap-2">
+                <a
+                  href={mediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <ExternalLink size={14} /> Ouvrir
+                </a>
+                <a
+                  href={mediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  download
+                  className="bg-[#030014] hover:bg-indigo-950/60 border border-indigo-500/30 text-zinc-300 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-inner"
+                >
+                  <Download size={14} /> Télécharger
+                </a>
+              </div>
             </div>
           ) : mediaType === 'audio' ? (
             <div className="w-full h-full flex flex-col items-center justify-center p-6 gap-4">
@@ -286,7 +308,7 @@ const BlogEntraide = ({
             <img
               src={mediaUrl}
               alt=""
-              className="w-full h-full object-contain select-none"
+              className="max-h-[380px] w-full object-contain select-none rounded-xl"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
           )}
