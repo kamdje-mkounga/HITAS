@@ -226,7 +226,7 @@ const BlogEntraide = ({
   };
 
   /* =========================================================
-     RENDER MEDIA (SHOWCASE-STYLE LAYOUT WITH THUMBNAILS)
+     RENDER MEDIA (CORRIGÉ POUR GÉRER TOUS LES FICHIERS ET LE CAROUSEL)
   ========================================================= */
 
   const renderMedia = (post) => {
@@ -235,7 +235,7 @@ const BlogEntraide = ({
 
     const activeIndex = activeMediaIndexes[post._id] || 0;
     const currentMedia = media[activeIndex] || media[0];
-    const currentFileName = currentMedia.originalName || 'Fichier joint';
+    const currentFileName = currentMedia.originalName || currentMedia.name || 'Fichier joint';
     const hasMultipleMedia = media.length > 1;
     const mediaType = currentMedia.type || 'image';
     const mediaUrl = formatMediaUrl(currentMedia.url);
