@@ -521,7 +521,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <input
                 type="text"
-                placeholder="Nom du projet, de la recherche ou de la réalisation"
+                placeholder="Nom du projet, de la recherche, de la réalisation ou de la conference"
                 className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-sm w-full focus:outline-none focus:border-indigo-500/50 shadow-inner text-slate-900 dark:text-zinc-100"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -551,7 +551,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
               />
               <input
                 type="text"
-                placeholder="Lien de démonstration ou portfolio externe"
+                placeholder="Lien de démonstration"
                 className="bg-slate-50 dark:bg-[#030014]/80 border border-slate-200 dark:border-indigo-950/80 rounded-xl px-4 py-3 text-xs focus:outline-none focus:border-indigo-500/50 text-slate-700 dark:text-zinc-300 shadow-inner"
                 value={demoUrl}
                 onChange={(e) => setDemoUrl(e.target.value)}
