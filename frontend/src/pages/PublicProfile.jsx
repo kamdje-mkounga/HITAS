@@ -19,7 +19,9 @@ import {
   ChevronRight, 
   X, 
   FileCode, 
-  AlertTriangle 
+  AlertTriangle,
+  Fingerprint,
+  Globe2
 } from 'lucide-react';
 
 const PublicProfile = () => {
@@ -135,7 +137,6 @@ const PublicProfile = () => {
     
     let skillsArray = [];
 
-    // Fonction récursive pour extraire proprement les compétences peu importe l'imbrication
     const extractSkills = (item) => {
       if (typeof item === 'string') {
         try {
@@ -163,7 +164,6 @@ const PublicProfile = () => {
 
     extractSkills(userProfile.skills);
 
-    // Dédoublonner et filtrer les résidus
     const uniqueSkills = [...new Set(skillsArray)].filter(s => s && s !== '[' && s !== ']' && s !== '\\');
 
     if (uniqueSkills.length === 0) return <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>;
@@ -215,18 +215,15 @@ const PublicProfile = () => {
 
       <Navbar />
 
-      {/* Orbes lumineux d'ambiance */}
       <div className="absolute top-20 left-1/4 w-[450px] h-[450px] bg-indigo-600/15 blur-[140px] rounded-full pointer-events-none"></div>
       <div className="absolute top-96 right-1/4 w-[400px] h-[400px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         
-        {/* Back Button */}
         <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/80 backdrop-blur-xl border border-indigo-500/20 hover:border-indigo-500/40 px-4 py-2.5 rounded-2xl w-fit shadow-lg shadow-indigo-950/20 opacity-0 animate-fade-center" style={{ animationDelay: '0.1s' }}>
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour
         </button>
 
-        {/* Navigation Tabs - Style pilule moderne */}
         <div className="flex p-1.5 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-2xl mb-8 gap-2 text-xs font-bold tracking-wider opacity-0 animate-fade-center" style={{ animationDelay: '0.2s' }}>
           <button 
             type="button"
@@ -252,18 +249,13 @@ const PublicProfile = () => {
           </button>
         </div>
 
-        {/* =========================================================
-            TAB: COMPTE - STRUCTURE EN ARBRE / BRANCHES (MIND-MAP)
-        ========================================================= */}
         {activeTab === 'compte' && (
           <div className="relative py-8 flex flex-col items-center">
             
-            {/* Titre de section stylisé */}
             <h2 className="text-xs font-bold mb-12 text-indigo-300 uppercase tracking-widest flex items-center gap-2.5 bg-[#0b081e]/90 px-5 py-2 rounded-full border border-indigo-500/30 shadow-lg relative z-20 opacity-0 animate-fade-center" style={{ animationDelay: '0.3s' }}>
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></span> Arbre de Profil & Compétences
             </h2>
 
-            {/* Racine de l'arbre (Avatar et Nom) */}
             <div className="relative z-20 flex flex-col items-center mb-16 opacity-0 animate-fade-center" style={{ animationDelay: '0.4s' }}>
               <div className="absolute -inset-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-lg opacity-40 animate-pulse"></div>
               <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-indigo-400 bg-[#030014] shadow-2xl">
@@ -280,16 +272,16 @@ const PublicProfile = () => {
               </div>
             </div>
 
-            {/* Ligne verticale centrale principale de l'arbre */}
             <div className="absolute top-36 bottom-20 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-transparent pointer-events-none"></div>
 
-            {/* Les Branches de l'Arbre (Apparition en cascade : Left-Up, Right-Up, Left-Down, Right-Down) */}
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-10 relative z-10 px-4">
               
               {/* 1. Left Up (Identité) */}
               <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[-15px] group opacity-0 animate-cascade-tl" style={{ animationDelay: '0.5s' }}>
                 <div className="absolute -left-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
-                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-1">👤 Identité</span>
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                  <Fingerprint className="w-3.5 h-3.5 text-indigo-400" /> Identité
+                </span>
                 <p className="text-zinc-100 text-xs font-semibold">Prénom : <span className="text-indigo-200 font-normal">{userProfile.firstName || '-'}</span></p>
                 <p className="text-zinc-100 text-xs font-semibold mt-1">Nom : <span className="text-indigo-200 font-normal">{userProfile.lastName || '-'}</span></p>
               </div>
@@ -297,7 +289,9 @@ const PublicProfile = () => {
               {/* 2. Right Up (Formation & Promo) */}
               <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[15px] group opacity-0 animate-cascade-tr" style={{ animationDelay: '0.6s' }}>
                 <div className="absolute -right-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
-                <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest block mb-1">📚 Formation & Promo</span>
+                <span className="text-[10px] font-bold text-purple-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                  <GraduationCap className="w-3.5 h-3.5 text-purple-400" /> Formation & Promo
+                </span>
                 <p className="text-zinc-100 text-xs font-semibold">{userProfile.specialty || 'Spécialité non renseignée'}</p>
                 <p className="text-zinc-400 text-[11px] mt-1">Promo {userProfile.promotion || '-'} • {userProfile.degreeLevel || ''}</p>
               </div>
@@ -305,7 +299,9 @@ const PublicProfile = () => {
               {/* 3. Left Down (Localisation) */}
               <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[-15px] group opacity-0 animate-cascade-bl" style={{ animationDelay: '0.7s' }}>
                 <div className="absolute -left-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
-                <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest block mb-1">🌍 Localisation</span>
+                <span className="text-[10px] font-bold text-pink-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                  <MapPin className="w-3.5 h-3.5 text-pink-400" /> Localisation
+                </span>
                 <p className="text-zinc-100 text-xs font-semibold">{userProfile.country || 'Pays non renseigné'}</p>
                 <p className="text-zinc-400 text-[11px] mt-1">{userProfile.currentLocation || 'Ville non renseignée'}</p>
               </div>
@@ -313,23 +309,29 @@ const PublicProfile = () => {
               {/* 4. Right Down (Situation Professionnelle) */}
               <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[15px] group opacity-0 animate-cascade-br" style={{ animationDelay: '0.8s' }}>
                 <div className="absolute -right-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block mb-1">💼 Situation Pro</span>
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                  <Briefcase className="w-3.5 h-3.5 text-amber-400" /> Situation Pro
+                </span>
                 <p className="text-zinc-100 text-xs font-semibold">{userProfile.jobTitle || 'Statut / Poste non renseigné'}</p>
                 <p className="text-zinc-400 text-[11px] mt-1">{userProfile.currentCompany ? `chez ${userProfile.currentCompany}` : userProfile.status || ''}</p>
               </div>
 
-              {/* Biographie (Pleine largeur - Apparition douce) */}
+              {/* Biographie */}
               <div className="sm:col-span-2 relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all opacity-0 animate-fade-center" style={{ animationDelay: '0.9s' }}>
-                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest block mb-1">📝 Biographie</span>
+                <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest flex items-center gap-1.5 mb-1">
+                  <FileText className="w-3.5 h-3.5 text-emerald-400" /> Biographie
+                </span>
                 <p className="text-zinc-300 text-xs leading-relaxed whitespace-pre-line">{userProfile.bio || "Ce membre n'a pas encore rédigé de biographie."}</p>
               </div>
 
             </div>
 
-            {/* Feuille finale de l'arbre : Compétences Clés */}
+            {/* Compétences & Domaines */}
             <div className="mt-12 relative z-10 w-full max-w-lg bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-6 rounded-[2.5rem] shadow-2xl text-center opacity-0 animate-fade-center" style={{ animationDelay: '1.0s' }}>
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-indigo-500"></div>
-              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest block mb-4">⚡ Compétences & Domaines</span>
+              <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest flex items-center justify-center gap-1.5 mb-4">
+                <Sparkles className="w-3.5 h-3.5 text-indigo-400" /> Compétences & Domaines
+              </span>
               <div className="flex flex-wrap justify-center gap-2.5">
                 {renderSkills() || <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>}
               </div>
@@ -390,7 +392,6 @@ const PublicProfile = () => {
 
       </div>
 
-      {/* Modal - Style moderne et épuré */}
       {selectedProject && (() => {
         const potentialMedia = selectedProject.media || selectedProject.file || selectedProject.pdf || selectedProject.image || selectedProject.attachments;
         const mediaList = Array.isArray(potentialMedia) ? potentialMedia : (potentialMedia ? [potentialMedia] : []);
@@ -497,4 +498,3 @@ const PublicProfile = () => {
 };
 
 export default PublicProfile;
-
