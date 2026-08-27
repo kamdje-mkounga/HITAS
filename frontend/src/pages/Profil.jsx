@@ -622,7 +622,7 @@ function Profil() {
                     )}
 
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos (Ex: Contact)</label>
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos (Ex:Contact, email)</label>
                       <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                     </div>
 
