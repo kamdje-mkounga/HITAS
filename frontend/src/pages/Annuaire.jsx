@@ -114,6 +114,47 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
     setSelectedDegree('');
   };
 
+  // Fonction robuste de nettoyage et formatage des compétences
+  const getCleanSkillsArray = (rawSkills) => {
+    if (!rawSkills) return [];
+
+    let skillsArray = [];
+
+    // Fonction récursive pour extraire toutes les chaînes imbriquées au maximum
+    const extractStrings = (item) => {
+      if (typeof item === 'string') {
+        try {
+          const parsed = JSON.parse(item);
+          extractStrings(parsed);
+        } catch (e) {
+          // Si ce n'est pas du JSON, on nettoie les slashes, crochets, guillemets
+          const cleaned = item
+            .replace(/\\/g, '') // Enlève tous les backslashes \
+            .replace(/[\[\]"]/g, '') // Enlève [ ] et "
+            .trim();
+          
+          if (cleaned.includes(',')) {
+            cleaned.split(',').forEach(sub => {
+              const subClean = sub.replace(/['"]+/g, '').trim();
+              if (subClean) skillsArray.push(subClean);
+            });
+          } else if (cleaned) {
+            skillsArray.push(cleaned.replace(/['"]+/g, '').trim());
+          }
+        }
+      } else if (Array.isArray(item)) {
+        item.forEach(subItem => extractStrings(subItem));
+      }
+    };
+
+    extractStrings(rawSkills);
+
+    // Filtrer les valeurs vides ou aberrantes (comme les résidus de crochets seuls)
+    return skillsArray
+      .map(s => s.replace(/['"]+/g, '').trim())
+      .filter(s => s && s !== '[' && s !== ']' && s !== '\\');
+  };
+
   return (
     <div 
       className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative"
@@ -254,7 +295,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
             ) : (
               <div className="relative">
                 
-                {/* LIGNES DE CONNEXION EXTÉRIEURES (STRENGTH LINES - Entre les boîtes de profil en arrière-plan) */}
+                {/* LIGNES DE CONNEXION EXTÉRIEURES */}
                 <div className="absolute inset-0 pointer-events-none hidden lg:block z-0">
                   <div className="w-full h-full absolute inset-0 flex flex-col justify-around">
                     <div className="w-full h-[1px] bg-indigo-500/30 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
@@ -269,9 +310,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                 {/* Grille de cartes compactes et interconnectées */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                   {filteredProfiles.map((profile, index) => {
-                    const skillsArray = profile.skills 
-                      ? (Array.isArray(profile.skills) ? profile.skills : typeof profile.skills === 'string' ? profile.skills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()) : [])
-                      : [];
+                    const skillsArray = getCleanSkillsArray(profile.skills);
 
                     return (
                       <div 
@@ -344,7 +383,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                             )}
                           </div>
 
-                          {/* Compétences compactes */}
+                          {/* Compétences propres et formatées */}
                           {skillsArray.length > 0 && (
                             <div className="w-full pt-2.5 border-t border-indigo-900/30 mt-auto">
                               <div className="flex flex-wrap justify-center gap-1">

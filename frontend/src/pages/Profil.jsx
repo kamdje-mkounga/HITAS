@@ -107,19 +107,29 @@ function Profil() {
 
   const cleanSkillsData = (rawSkills) => {
     if (!rawSkills) return '';
+    
+    // Si c'est déjà un tableau (ex: ['React', 'Node'])
     if (Array.isArray(rawSkills)) {
-      return rawSkills.join(', ');
+      return rawSkills.flat(Infinity).join(', ');
     }
+
     if (typeof rawSkills === 'string') {
+      // Nettoyage préalable des caractères superflus si c'est une string mal formatée
+      let cleaned = rawSkills.trim();
+      
+      // Essayer de parser si c'est du JSON (ex: '["React", "Node"]')
       try {
-        const parsed = JSON.parse(rawSkills);
+        const parsed = JSON.parse(cleaned);
         if (Array.isArray(parsed)) {
-          return parsed.flat().join(', ');
+          return parsed.flat(Infinity).join(', ');
         }
       } catch (e) {
-        return rawSkills.replace(/[\[\]"'\\]/g, '').split(',').map(s => s.trim()).filter(Boolean).join(', ');
+        // Si ce n'est pas du JSON valide, on nettoie juste les crochets/guillemets restants
+        cleaned = cleaned.replace(/^\[+|\]+$/g, '').replace(/["']/g, '');
+        return cleaned;
       }
     }
+    
     return '';
   };
 

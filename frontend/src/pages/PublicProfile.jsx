@@ -135,39 +135,46 @@ const PublicProfile = () => {
     
     let skillsArray = [];
 
-    try {
-      if (Array.isArray(userProfile.skills)) {
-        skillsArray = userProfile.skills;
-      } else if (typeof userProfile.skills === 'string') {
-        let raw = userProfile.skills.trim();
-
-        if (raw.startsWith('[') && raw.endsWith(']')) {
-          try {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              skillsArray = parsed.flat();
-            }
-          } catch (e) {
-            skillsArray = raw.replace(/[\[\]"'\\]/g, '').split(',');
+    // Fonction récursive pour extraire proprement les compétences peu importe l'imbrication
+    const extractSkills = (item) => {
+      if (typeof item === 'string') {
+        try {
+          const parsed = JSON.parse(item);
+          extractSkills(parsed);
+        } catch (e) {
+          const cleaned = item
+            .replace(/\\/g, '')
+            .replace(/[\[\]"]/g, '')
+            .trim();
+          
+          if (cleaned.includes(',')) {
+            cleaned.split(',').forEach(sub => {
+              const subClean = sub.replace(/['"]+/g, '').trim();
+              if (subClean && subClean !== '[' && subClean !== ']') skillsArray.push(subClean);
+            });
+          } else if (cleaned && cleaned !== '[' && cleaned !== ']') {
+            skillsArray.push(cleaned.replace(/['"]+/g, '').trim());
           }
-        } else {
-          skillsArray = raw.replace(/[\[\]"'\\]/g, '').split(',');
         }
+      } else if (Array.isArray(item)) {
+        item.forEach(subItem => extractSkills(subItem));
       }
-    } catch (err) {
-      skillsArray = [];
-    }
+    };
 
-    return skillsArray
-      .map(s => typeof s === 'string' ? s.replace(/[\/\\]/g, '').trim() : String(s))
-      .filter(Boolean)
-      .map((skill, index) => (
-        <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400 group-hover/skill:rotate-12 transition-transform" /> {skill}
-        </span>
-      ));
+    extractSkills(userProfile.skills);
+
+    // Dédoublonner et filtrer les résidus
+    const uniqueSkills = [...new Set(skillsArray)].filter(s => s && s !== '[' && s !== ']' && s !== '\\');
+
+    if (uniqueSkills.length === 0) return <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>;
+
+    return uniqueSkills.map((skill, index) => (
+      <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+        <Sparkles className="w-3.5 h-3.5 text-indigo-400 group-hover/skill:rotate-12 transition-transform" /> {skill}
+      </span>
+    ));
   };
-
+  
   return (
     <div 
       className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
