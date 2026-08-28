@@ -20,22 +20,26 @@ const storage = new CloudinaryStorage({
         if (file.mimetype.startsWith('video/')) {
             resourceType = 'video';
         }
-        // Si c'est un PDF, on force le format pour que Cloudinary le serve proprement avec l'extension .pdf
+        // 🛠️ SOLUTION RADICALE POUR LES PDF : On utilise le type 'raw'
         else if (file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf')) {
-            resourceType = 'auto';
-            format = 'pdf';
+            resourceType = 'raw'; // Stocke le fichier tel quel sans tentative de transformation en image
         }
 
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
         const cleanFileName = file.originalname.substring(0, file.originalname.lastIndexOf('.')) || file.originalname;
 
-        return {
+        const uploadParams = {
             folder: 'hitas_projects',
             resource_type: resourceType,
-            format: format, // Force l'extension .pdf pour le rendu dans le navigateur
-            public_id: `${uniqueSuffix}-${cleanFileName}`,
-            allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'webm', 'pdf'],
+            public_id: `${uniqueSuffix}-${cleanFileName}`
         };
+
+        // Si ce n'est pas un fichier raw, on peut restreindre les formats
+        if (resourceType !== 'raw') {
+            uploadParams.allowed_formats = ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'webm'];
+        }
+
+        return uploadParams;
     },
 });
 
