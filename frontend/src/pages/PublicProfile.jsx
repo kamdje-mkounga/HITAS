@@ -3,22 +3,22 @@ import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
 import tradPattern from '../assets/traditional.jpg';
-import { 
-  ArrowLeft, 
-  GraduationCap, 
-  MapPin, 
-  Briefcase, 
-  Rocket, 
-  User, 
-  FolderKanban, 
-  FileText, 
-  Sparkles, 
-  Download, 
-  ExternalLink, 
-  ChevronLeft, 
-  ChevronRight, 
-  X, 
-  FileCode, 
+import {
+  ArrowLeft,
+  GraduationCap,
+  MapPin,
+  Briefcase,
+  Rocket,
+  User,
+  FolderKanban,
+  FileText,
+  Sparkles,
+  Download,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  FileCode,
   AlertTriangle,
   Fingerprint,
   Globe2
@@ -31,7 +31,7 @@ const PublicProfile = () => {
   const [userProjects, setUserProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  
+
   const [activeTab, setActiveTab] = useState('compte');
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
@@ -43,11 +43,11 @@ const PublicProfile = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem('token');
-        const headers = { 
-          headers: { 
+        const headers = {
+          headers: {
             'Authorization': `Bearer ${token}`,
-            'x-auth-token': token 
-          } 
+            'x-auth-token': token
+          }
         };
 
         const profileRes = await API.get(`/profile/${id}`, headers);
@@ -82,7 +82,7 @@ const PublicProfile = () => {
   const formatMediaUrl = (urlData) => {
     if (!urlData) return '';
     let cleanUrl = '';
-    
+
     if (typeof urlData === 'object' && urlData !== null) {
       cleanUrl = urlData.url || urlData.path || urlData.secure_url || '';
     } else if (typeof urlData === 'string') {
@@ -134,7 +134,7 @@ const PublicProfile = () => {
 
   const renderSkills = () => {
     if (!userProfile.skills) return null;
-    
+
     let skillsArray = [];
 
     const extractSkills = (item) => {
@@ -147,7 +147,7 @@ const PublicProfile = () => {
             .replace(/\\/g, '')
             .replace(/[\[\]"]/g, '')
             .trim();
-          
+
           if (cleaned.includes(',')) {
             cleaned.split(',').forEach(sub => {
               const subClean = sub.replace(/['"]+/g, '').trim();
@@ -174,9 +174,9 @@ const PublicProfile = () => {
       </span>
     ));
   };
-  
+
   return (
-    <div 
+    <div
       className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55)), url(${tradPattern})`,
@@ -219,31 +219,29 @@ const PublicProfile = () => {
       <div className="absolute top-96 right-1/4 w-[400px] h-[400px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none"></div>
 
       <div className="max-w-4xl mx-auto px-4 py-8 relative z-10">
-        
+
         <button onClick={() => navigate(-1)} className="mb-6 group text-xs text-zinc-400 hover:text-white flex items-center gap-2 transition-all bg-[#0b081e]/80 backdrop-blur-xl border border-indigo-500/20 hover:border-indigo-500/40 px-4 py-2.5 rounded-2xl w-fit shadow-lg shadow-indigo-950/20 opacity-0 animate-fade-center" style={{ animationDelay: '0.1s' }}>
           <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Retour
         </button>
 
         <div className="flex p-1.5 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 rounded-2xl mb-8 gap-2 text-xs font-bold tracking-wider opacity-0 animate-fade-center" style={{ animationDelay: '0.2s' }}>
-          <button 
+          <button
             type="button"
             onClick={() => setActiveTab('compte')}
-            className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${
-              activeTab === 'compte' 
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30' 
+            className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${activeTab === 'compte'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <User className="w-4 h-4" /> Le Membre
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => setActiveTab('projets')}
-            className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${
-              activeTab === 'projets' 
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30' 
+            className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${activeTab === 'projets'
+                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
                 : 'text-zinc-400 hover:text-white hover:bg-white/5'
-            }`}
+              }`}
           >
             <Rocket className="w-4 h-4" /> Réalisations ({userProjects.length})
           </button>
@@ -251,7 +249,7 @@ const PublicProfile = () => {
 
         {activeTab === 'compte' && (
           <div className="relative py-8 flex flex-col items-center">
-            
+
             <h2 className="text-xs font-bold mb-12 text-indigo-300 uppercase tracking-widest flex items-center gap-2.5 bg-[#0b081e]/90 px-5 py-2 rounded-full border border-indigo-500/30 shadow-lg relative z-20 opacity-0 animate-fade-center" style={{ animationDelay: '0.3s' }}>
               <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,1)]"></span> Arbre de Profil & Compétences
             </h2>
@@ -275,7 +273,7 @@ const PublicProfile = () => {
             <div className="absolute top-36 bottom-20 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-transparent pointer-events-none"></div>
 
             <div className="w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-10 relative z-10 px-4">
-              
+
               {/* 1. Left Up (Identité) */}
               <div className="relative bg-[#0b081e]/90 backdrop-blur-2xl border border-indigo-500/30 p-5 rounded-3xl shadow-2xl hover:border-indigo-400 transition-all sm:translate-x-[-15px] group opacity-0 animate-cascade-tl" style={{ animationDelay: '0.5s' }}>
                 <div className="absolute -left-6 top-1/2 w-6 h-0.5 bg-indigo-500/60 hidden sm:block"></div>
@@ -357,12 +355,14 @@ const PublicProfile = () => {
                   const mediaCount = Array.isArray(potentialMedia) ? potentialMedia.length : (potentialMedia ? 1 : 0);
 
                   return (
-                    <div 
-                      key={project._id} 
-                      onClick={() => handleOpenProject(project)}
-                      className="bg-[#0b081e]/85 backdrop-blur-3xl p-6 sm:p-7 rounded-[2.2rem] border border-indigo-500/20 hover:border-indigo-500/60 cursor-pointer transition-all duration-300 flex flex-col md:flex-row gap-6 group shadow-2xl hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] hover:-translate-y-1"
+                    <div
+                      key={project._id}
+                      className="bg-[#0b081e]/85 backdrop-blur-3xl p-6 sm:p-7 rounded-[2.2rem] border border-indigo-500/20 hover:border-indigo-500/60 transition-all duration-300 flex flex-col md:flex-row gap-6 group shadow-2xl hover:shadow-[0_0_30px_rgba(99,102,241,0.2)] hover:-translate-y-1"
                     >
-                      <div className="w-full md:w-48 h-36 bg-gradient-to-br from-[#030014] to-[#120e2e] rounded-2xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:border-indigo-500/50 transition-colors relative overflow-hidden shadow-inner">
+                      <div
+                        onClick={() => handleOpenProject(project)}
+                        className="w-full md:w-48 h-36 bg-gradient-to-br from-[#030014] to-[#120e2e] rounded-2xl border border-indigo-900/40 flex-shrink-0 flex flex-col items-center justify-center gap-2 group-hover:border-indigo-500/50 transition-colors relative overflow-hidden shadow-inner cursor-pointer"
+                      >
                         <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <FolderKanban className="w-9 h-9 text-indigo-400 group-hover:scale-110 transition-transform duration-300" />
                         <span className="text-[10px] text-indigo-200 font-bold tracking-wider uppercase bg-indigo-950/80 px-3 py-1 rounded-xl border border-indigo-500/30 backdrop-blur-md">
@@ -371,16 +371,25 @@ const PublicProfile = () => {
                       </div>
 
                       <div className="flex-1 flex flex-col justify-between min-w-0">
-                        <div>
+                        <div onClick={() => handleOpenProject(project)} className="cursor-pointer">
                           <div className="flex justify-between items-start gap-3">
                             <h3 className="font-black text-base sm:text-lg text-white group-hover:text-indigo-300 transition-colors tracking-wide break-words">{project.title}</h3>
                             <span className="text-[11px] text-indigo-300 bg-indigo-500/15 border border-indigo-500/30 px-3.5 py-1.5 rounded-2xl font-bold whitespace-nowrap shadow-sm flex items-center gap-1.5 group-hover:bg-indigo-500/25 transition-all">Voir détails <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" /></span>
                           </div>
                           <p className="text-zinc-400 text-xs leading-relaxed mt-2.5 line-clamp-2 break-words">{project.description}</p>
                         </div>
-                        <div className="text-[11px] text-zinc-500 font-medium mt-4 flex items-center gap-1.5">
-                          <span>💡</span> Cliquez n'importe où sur ce bloc pour approfondir et ouvrir les détails.
-                        </div>
+
+                        {/* LIENS EXTERNES CONDITIONNELS SUR LA CARTE */}
+                        {(project.githubUrl || project.demoUrl) && (
+                          <div className="flex flex-wrap gap-2 pt-4 mt-4 border-t border-indigo-900/40">
+                            {project.githubUrl && (
+                              <a href={project.githubUrl} target="_blank" rel="noreferrer" className="bg-[#030014]/60 border border-indigo-500/20 text-center text-xs py-2 px-4 rounded-xl text-zinc-300 font-bold hover:border-indigo-400 transition truncate">Lien / Rapport</a>
+                            )}
+                            {project.demoUrl && (
+                              <a href={project.demoUrl} target="_blank" rel="noreferrer" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-xs py-2 px-4 rounded-xl font-bold text-white shadow-md hover:opacity-95 transition truncate flex items-center gap-1.5"><Globe2 className="w-3.5 h-3.5" /> Démo Live</a>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -398,7 +407,7 @@ const PublicProfile = () => {
         const rawMedia = mediaList[currentFileIndex] || '';
         const fullMediaUrl = formatMediaUrl(rawMedia);
         const fileName = getFileName(rawMedia);
-        
+
         const mediaStringUrl = typeof rawMedia === 'object' && rawMedia !== null ? (rawMedia.url || rawMedia.path || '') : (typeof rawMedia === 'string' ? rawMedia : '');
         const urlLower = mediaStringUrl.toLowerCase();
         const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
@@ -408,7 +417,7 @@ const PublicProfile = () => {
         return (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn" onClick={() => setSelectedProject(null)}>
             <div className="bg-[#0b081e] border border-indigo-500/30 w-full max-w-2xl rounded-[2.5rem] max-h-[90vh] overflow-y-auto flex flex-col shadow-[0_0_80px_rgba(0,0,0,0.9)]" onClick={(e) => e.stopPropagation()}>
-              
+
               <div className="p-6 border-b border-indigo-900/40 flex justify-between items-center bg-[#0b081e]/90 sticky top-0 z-20 backdrop-blur-2xl">
                 <div className="min-w-0 pr-4">
                   <span className="text-[10px] bg-indigo-500/15 text-indigo-300 border border-indigo-500/30 px-3 py-1 rounded-xl font-bold uppercase tracking-widest">Détails du projet</span>
@@ -439,22 +448,22 @@ const PublicProfile = () => {
 
                   {fullMediaUrl ? (
                     <div className="bg-[#030014]/80 border border-indigo-900/40 rounded-2xl p-5 space-y-4 shadow-inner">
-                      
+
                       <div className="flex items-center gap-3 bg-[#030014] px-4 py-3 rounded-xl border border-indigo-500/20 text-xs text-indigo-200 shadow-inner">
                         <FileText className="w-4 h-4 text-indigo-400 flex-shrink-0" />
                         <span className="truncate font-medium">{fileName}</span>
                       </div>
 
                       <div className="w-full bg-[#030014] rounded-2xl border border-indigo-900/50 overflow-hidden flex items-center justify-center min-h-[200px] max-h-[380px] relative shadow-inner">
-                        {isImage ? <img src={fullMediaUrl} alt={fileName} className="w-full max-h-[380px] object-contain" /> : 
-                         isVideo ? <video src={fullMediaUrl} className="w-full max-h-[380px] object-contain" controls /> : 
-                         isPdf ? <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[340px] rounded border-0" title="PDF" /> : 
-                         <div className="text-center p-6"><FileCode className="w-12 h-12 text-indigo-400 mx-auto" /></div>}
+                        {isImage ? <img src={fullMediaUrl} alt={fileName} className="w-full max-h-[380px] object-contain" /> :
+                          isVideo ? <video src={fullMediaUrl} className="w-full max-h-[380px] object-contain" controls /> :
+                            isPdf ? <iframe src={`${fullMediaUrl}#toolbar=0`} className="w-full h-[340px] rounded border-0" title="PDF" /> :
+                              <div className="text-center p-6"><FileCode className="w-12 h-12 text-indigo-400 mx-auto" /></div>}
                       </div>
 
                       {mediaList.length > 1 && (
                         <div className="flex justify-between items-center pt-2">
-                          <button 
+                          <button
                             type="button"
                             disabled={currentFileIndex === 0}
                             onClick={() => setCurrentFileIndex(prev => Math.max(0, prev - 1))}
@@ -465,7 +474,7 @@ const PublicProfile = () => {
                           <span className="text-xs text-zinc-400 font-mono">
                             {currentFileIndex + 1} / {mediaList.length}
                           </span>
-                          <button 
+                          <button
                             type="button"
                             disabled={currentFileIndex === mediaList.length - 1}
                             onClick={() => setCurrentFileIndex(prev => Math.min(mediaList.length - 1, prev + 1))}
@@ -476,14 +485,29 @@ const PublicProfile = () => {
                         </div>
                       )}
 
-                      <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-600/30">
-                        <Download className="w-4 h-4" /> Ouvrir <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+                      <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-500/30 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all">
+                        <Download className="w-4 h-4" /> Télécharger / Ouvrir <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
                       </a>
                     </div>
                   ) : (
                     <div className="bg-[#030014]/80 border border-indigo-900/40 rounded-2xl p-6 text-center text-xs text-zinc-500 italic">Aucun fichier joint.</div>
                   )}
                 </div>
+
+                {/* BOUTONS LIENS EXTERNES CONDITIONNELS DANS LE MODAL */}
+                {(selectedProject.githubUrl || selectedProject.demoUrl) && (
+                  <div className="pt-2">
+                    <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Liens du projet</h4>
+                    <div className="flex gap-3">
+                      {selectedProject.githubUrl && (
+                        <a href={selectedProject.githubUrl} target="_blank" rel="noreferrer" className="flex-1 bg-[#030014]/80 border border-indigo-500/30 text-center text-xs py-3 px-4 rounded-xl text-zinc-200 font-bold hover:border-indigo-400 transition truncate">Lien / Rapport</a>
+                      )}
+                      {selectedProject.demoUrl && (
+                        <a href={selectedProject.demoUrl} target="_blank" rel="noreferrer" className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-xs py-3 px-4 rounded-xl font-bold text-white shadow-md hover:opacity-95 transition truncate flex items-center justify-center gap-1.5"><Globe2 className="w-4 h-4" /> Démo Live</a>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="p-5 border-t border-indigo-900/40 bg-[#0b081e]/90 text-right backdrop-blur-2xl rounded-b-[2.5rem]">

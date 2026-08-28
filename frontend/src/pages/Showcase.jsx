@@ -47,6 +47,81 @@ const getFileName = (rawMedia) => {
   return decodeURIComponent(fullName.split('?')[0]) || 'Fichier joint';
 };
 
+// ==============================
+// PROFESSIONAL MEDIA GALLERY COMPONENT
+// ==============================
+const PostMediaGallery = ({ projectMediaList }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  if (!projectMediaList || projectMediaList.length === 0) return null;
+
+  const currentItem = projectMediaList[currentIndex];
+  const mediaUrl = typeof currentItem === 'string' ? currentItem : currentItem.url;
+  const mediaType = typeof currentItem === 'string' ? 'image' : (currentItem.type || 'image');
+
+  return (
+    <div className="rounded-2xl overflow-hidden border border-indigo-900/50 bg-[#030014] my-3">
+      {/* Main Active Media Preview */}
+      <div className="h-[280px] w-full flex items-center justify-center relative bg-black/60">
+        {mediaType === 'pdf' ? (
+          <div className="p-4 text-center">
+            <span className="text-4xl mb-2 block">📄</span>
+            <a
+              href={formatMediaUrl(mediaUrl)}
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-indigo-400 underline font-bold"
+            >
+              Ouvrir le document PDF
+            </a>
+          </div>
+        ) : (
+          <img
+            src={formatMediaUrl(mediaUrl)}
+            alt="Project attachment preview"
+            className="w-full h-full object-contain transition-all duration-300"
+          />
+        )}
+
+        {/* Counter Badge */}
+        {projectMediaList.length > 1 && (
+          <span className="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-[10px] text-white px-2.5 py-1 rounded-full border border-indigo-500/30 font-medium">
+            {currentIndex + 1} / {projectMediaList.length}
+          </span>
+        )}
+      </div>
+
+      {/* Thumbnail Navigation Bar (If multiple files) */}
+      {projectMediaList.length > 1 && (
+        <div className="flex gap-2 p-2 bg-[#030014]/90 border-t border-indigo-950 overflow-x-auto">
+          {projectMediaList.map((item, idx) => {
+            const itemUrl = typeof item === 'string' ? item : item.url;
+            const itemType = typeof item === 'string' ? 'image' : (item.type || 'image');
+
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setCurrentIndex(idx)}
+                className={`w-12 h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${currentIndex === idx
+                    ? 'border-indigo-500 opacity-100 scale-105 shadow-lg shadow-indigo-500/30'
+                    : 'border-indigo-950 opacity-40 hover:opacity-80'
+                  }`}
+              >
+                {itemType === 'pdf' ? (
+                  <div className="w-full h-full bg-indigo-950 flex items-center justify-center text-xs">📄</div>
+                ) : (
+                  <img src={formatMediaUrl(itemUrl)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const Showcase = ({ hasNewNotification, clearNotifications }) => {
   const [projects, setProjects] = useState([]);
 
@@ -601,9 +676,8 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
             {projects.map((project) => {
-              // Récupération de tous les médias du projet (qu'ils soient dans .media ou .mediaUrl)
-              const projectMediaList = project.media && project.media.length > 0 
-                ? project.media 
+              const projectMediaList = project.media && project.media.length > 0
+                ? project.media
                 : project.mediaUrl ? [{ url: project.mediaUrl, type: project.mediaType || 'image' }] : [];
 
               return (
@@ -620,7 +694,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                     <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest flex items-center gap-1.5">
                       <GitBranch size={12} /> Projet Étudiant
                     </span>
-                    
+
                     {project.user === loggedInUserId && editingId !== project._id && (
                       <div className="flex gap-2 z-10">
                         <button onClick={() => startEditing(project)} className="text-[10px] text-zinc-300 hover:text-white bg-[#030014]/80 px-2.5 py-1 rounded-lg border border-indigo-500/30 transition">✏️ Modifier</button>
@@ -674,7 +748,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                       <div className="pt-2">
                         <label className="text-[10px] font-bold text-zinc-400 block mb-1 uppercase tracking-widest">Ajouter des fichiers</label>
                         <input type="file" multiple accept="image/*,application/pdf" onChange={handleEditFileChange} className="text-xs text-zinc-400" />
-                        
+
                         {editMediaPreviews.length > 0 && (
                           <div className="grid grid-cols-2 gap-2 mt-2">
                             {editMediaPreviews.map((p, idx) => (
@@ -712,34 +786,9 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                           </div>
                         )}
 
-                        {/* AFFICHAGE DE TOUS LES FICHIERS DU PROJET (GRILLE OU LISTE) */}
+                        {/* PROFESSIONAL MEDIA GALLERY COMPONENT */}
                         {projectMediaList.length > 0 && (
-                          <div className="mb-4 space-y-3">
-                            {projectMediaList.map((mediaItem, mIdx) => {
-                              const mediaUrl = typeof mediaItem === 'string' ? mediaItem : mediaItem.url;
-                              const mediaType = typeof mediaItem === 'string' ? 'image' : (mediaItem.type || 'image');
-                              const fileName = getFileName(mediaItem);
-
-                              return (
-                                <div key={mIdx} className="rounded-2xl overflow-hidden border border-indigo-900/50 bg-[#030014]">
-                                  <div className="flex items-center justify-between bg-[#030014] px-3 py-2 border-b border-indigo-900/30 text-[10px] text-zinc-400">
-                                    <span className="truncate max-w-[200px]">{fileName}</span>
-                                    <span>Fichier {mIdx + 1} / {projectMediaList.length}</span>
-                                  </div>
-                                  <div className="h-[220px] w-full flex items-center justify-center relative bg-black/40">
-                                    {mediaType === 'pdf' ? (
-                                      <div className="p-4 text-center">
-                                        <span className="text-3xl mb-2 block">📄</span>
-                                        <a href={formatMediaUrl(mediaUrl)} target="_blank" rel="noreferrer" className="text-xs text-indigo-400 underline font-bold">Ouvrir le document PDF</a>
-                                      </div>
-                                    ) : (
-                                      <img src={formatMediaUrl(mediaUrl)} alt="" className="w-full h-full object-cover" />
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
+                          <PostMediaGallery projectMediaList={projectMediaList} />
                         )}
                       </div>
 
