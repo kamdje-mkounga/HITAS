@@ -48,7 +48,7 @@ const getFileName = (rawMedia) => {
 };
 
 // ==============================
-// PROFESSIONAL MEDIA GALLERY COMPONENT
+// PROFESSIONAL MEDIA GALLERY COMPONENT (Mis à jour pour supporter les vidéos)
 // ==============================
 const PostMediaGallery = ({ projectMediaList }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -75,6 +75,12 @@ const PostMediaGallery = ({ projectMediaList }) => {
               Ouvrir le document PDF
             </a>
           </div>
+        ) : mediaType === 'video' ? (
+          <video
+            src={formatMediaUrl(mediaUrl)}
+            controls
+            className="w-full h-full object-contain"
+          />
         ) : (
           <img
             src={formatMediaUrl(mediaUrl)}
@@ -104,12 +110,14 @@ const PostMediaGallery = ({ projectMediaList }) => {
                 type="button"
                 onClick={() => setCurrentIndex(idx)}
                 className={`w-12 h-12 rounded-lg overflow-hidden border-2 flex-shrink-0 transition-all ${currentIndex === idx
-                    ? 'border-indigo-500 opacity-100 scale-105 shadow-lg shadow-indigo-500/30'
-                    : 'border-indigo-950 opacity-40 hover:opacity-80'
+                  ? 'border-indigo-500 opacity-100 scale-105 shadow-lg shadow-indigo-500/30'
+                  : 'border-indigo-950 opacity-40 hover:opacity-80'
                   }`}
               >
                 {itemType === 'pdf' ? (
                   <div className="w-full h-full bg-indigo-950 flex items-center justify-center text-xs">📄</div>
+                ) : itemType === 'video' ? (
+                  <div className="w-full h-full bg-indigo-950 flex items-center justify-center text-xs text-indigo-300">🎥</div>
                 ) : (
                   <img src={formatMediaUrl(itemUrl)} alt={`Thumbnail ${idx + 1}`} className="w-full h-full object-cover" />
                 )}
@@ -238,7 +246,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
   }, [location]);
 
   // ==============================
-  // FILE PROCESSING
+  // FILE PROCESSING (Mis à jour pour accepter les vidéos)
   // ==============================
   const processFiles = (
     files,
@@ -263,19 +271,13 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
       const fileName = file.name.toLowerCase();
 
       const isImage = fileType.startsWith('image/');
+      const isVideo = fileType.startsWith('video/');
       const isPdf =
         fileType === 'application/pdf' || fileName.endsWith('.pdf');
 
-      if (fileType.startsWith('video/')) {
+      if (!isImage && !isPdf && !isVideo) {
         setError(
-          'Les vidéos ne sont pas autorisées. Vous pouvez uniquement ajouter des images ou des fichiers PDF.'
-        );
-        return;
-      }
-
-      if (!isImage && !isPdf) {
-        setError(
-          'Format non supporté. Seules les images et les fichiers PDF sont autorisés.'
+          'Format non supporté. Seules les images, les vidéos et les fichiers PDF sont autorisés.'
         );
         return;
       }
@@ -284,7 +286,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
 
       newPreviews.push({
         url: URL.createObjectURL(file),
-        type: isImage ? 'image' : 'pdf',
+        type: isVideo ? 'video' : (isImage ? 'image' : 'pdf'),
         name: file.name
       });
     });
@@ -641,6 +643,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                     <div className="aspect-video w-full rounded-lg overflow-hidden bg-black/40 flex items-center justify-center mb-2">
                       {preview.type === 'image' && <img src={preview.url} alt="" className="w-full h-full object-cover" />}
                       {preview.type === 'pdf' && <span className="text-3xl">📄</span>}
+                      {preview.type === 'video' && <span className="text-3xl">🎥</span>}
                     </div>
                     <span className="text-[10px] text-slate-700 dark:text-zinc-300 font-medium truncate w-full px-1 text-center">{preview.name}</span>
                   </div>
@@ -655,9 +658,9 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                 </div>
                 <div className="text-center sm:text-left">
                   <p className="text-xs font-bold text-slate-800 dark:text-zinc-200">Ajouter des fichiers</p>
-                  <p className="text-[10px] text-slate-500 dark:text-zinc-500 mt-0.5">Images ou PDF · maximum 6 fichiers</p>
+                  <p className="text-[10px] text-slate-500 dark:text-zinc-500 mt-0.5">Images, PDF ou Vidéos · maximum 6 fichiers</p>
                 </div>
-                <input type="file" multiple accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" />
+                <input type="file" multiple accept="image/*,application/pdf,video/*" onChange={handleFileChange} className="hidden" />
               </label>
 
               <button type="submit" className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-indigo-500/20">
@@ -747,7 +750,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
                       {/* NEW MEDIA IN EDIT MODE */}
                       <div className="pt-2">
                         <label className="text-[10px] font-bold text-zinc-400 block mb-1 uppercase tracking-widest">Ajouter des fichiers</label>
-                        <input type="file" multiple accept="image/*,application/pdf" onChange={handleEditFileChange} className="text-xs text-zinc-400" />
+                        <input type="file" multiple accept="image/*,application/pdf,video/*" onChange={handleEditFileChange} className="text-xs text-zinc-400" />
 
                         {editMediaPreviews.length > 0 && (
                           <div className="grid grid-cols-2 gap-2 mt-2">
