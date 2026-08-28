@@ -36,9 +36,9 @@ const ProjectSchema = new mongoose.Schema({
             },
             type: {
                 type: String,
-                // On garde l'enum, mais on s'assure d'avoir une valeur par défaut "image" au cas où le parsing échoue
-                enum: ["image", "pdf", "audio"],
-                default: "image", 
+                // Ajout de "video" dans l'énumération pour supporter les vidéos Cloudinary
+                enum: ["image", "pdf", "audio", "video"],
+                default: "image",
                 required: true
             }
         }

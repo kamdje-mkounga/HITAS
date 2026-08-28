@@ -1,45 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth'); 
-const Project = require('../models/Project'); 
+const auth = require('../middleware/auth');
+const Project = require('../models/Project');
 const Profile = require('../models/Profile');
-const multer = require('multer');
-const { uploadFile, deleteFile } = require("../utils/supabaseStorage");
-
-// Configuration du stockage de Multer en mémoire
-const storage = multer.memoryStorage();
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max
-  fileFilter: (req, file, cb) => {
-    // 🚫 Videos are not allowed
-    if (file.mimetype.startsWith('video/')) {
-      return cb(new Error("Les vidéos ne sont pas autorisées pour les projets."));
-    }
-
-    const filetypes =
-      /jpeg|jpg|png|gif|webp|pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document/;
-
-    const ext = file.originalname.split('.').pop().toLowerCase();
-
-    const isExtValid =
-      filetypes.test(ext) || ['doc', 'docx'].includes(ext);
-
-    const isMimeValid = filetypes.test(file.mimetype);
-
-    if (isMimeValid || isExtValid) {
-      return cb(null, true);
-    }
-
-    cb(new Error(
-      'Format non supporté ! Choisissez des images, PDF ou documents Word.'
-    ));
-  }
-});
+const upload = require('../middleware/upload'); // Utilisation du middleware Cloudinary/Multer
 
 // @route   POST api/project
-// @desc    Créer un projet avec plusieurs médias/fichiers
+// @desc    Créer un projet avec plusieurs médias/fichiers (Images, Vidéos, PDF, etc.)
 // @access  Private
 router.post('/', auth, (req, res) => {
   upload.array('media', 6)(req, res, async (err) => {
@@ -59,19 +26,23 @@ router.post('/', auth, (req, res) => {
 
       let filesData = [];
 
+      // req.files contient les fichiers envoyés et stockés sur Cloudinary par le middleware
       if (req.files && req.files.length > 0) {
         for (let file of req.files) {
           const mime = file.mimetype.toLowerCase();
-          const ext = file.originalname.split('.').pop().toLowerCase();
           let type = 'image';
 
-          if (mime === 'application/pdf' || ext === 'pdf') {
+          if (mime.startsWith('video/')) {
+            type = 'video';
+          } else if (mime === 'application/pdf') {
             type = 'pdf';
           }
 
-          // Envoi sur Supabase Storage (dans un dossier/bucket "projects")
-          const uploaded = await uploadFile(file, "projects");
-          filesData.push({ url: uploaded.url, path: uploaded.path, type });
+          // file.path contient l'URL sécurisée renvoyée par Cloudinary
+          filesData.push({
+            url: file.path,
+            type
+          });
         }
       }
 
@@ -91,8 +62,7 @@ router.post('/', auth, (req, res) => {
         lastName: profile.lastName,
         media: filesData,
         mediaUrl: filesData.length > 0 ? filesData[0].url : '',
-        mediaType: filesData.length > 0 ? filesData[0].type : null,
-        mediaPath: filesData.length > 0 ? filesData[0].path : null
+        mediaType: filesData.length > 0 ? filesData[0].type : null
       });
 
       const project = await newProject.save();
@@ -109,11 +79,11 @@ router.post('/', auth, (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const projects = await Project.find().sort({ date: -1 }).lean();
-    
+
     const securedProjects = projects.map(project => {
       if (!project.media || !Array.isArray(project.media)) {
         if (project.mediaUrl) {
-          project.media = [{ url: project.mediaUrl, path: project.mediaPath || null, type: project.mediaType || 'image' }];
+          project.media = [{ url: project.mediaUrl, type: project.mediaType || 'image' }];
         } else {
           project.media = [];
         }
@@ -149,7 +119,7 @@ router.put('/:id', auth, (req, res) => {
       if (req.body.description) project.description = req.body.description;
       if (req.body.githubUrl !== undefined) project.githubUrl = req.body.githubUrl;
       if (req.body.demoUrl !== undefined) project.demoUrl = req.body.demoUrl;
-      
+
       if (req.body.technologies !== undefined) {
         if (typeof req.body.technologies === 'string' && req.body.technologies.trim() !== '') {
           project.technologies = req.body.technologies.split(',').map(tech => tech.trim());
@@ -160,23 +130,18 @@ router.put('/:id', auth, (req, res) => {
 
       if (!project.media || !Array.isArray(project.media)) {
         if (project.mediaUrl) {
-          project.media = [{ url: project.mediaUrl, path: project.mediaPath || null, type: project.mediaType || 'image' }];
+          project.media = [{ url: project.mediaUrl, type: project.mediaType || 'image' }];
         } else {
           project.media = [];
         }
       }
 
-      // ÉTAPE 1 : Supprimer des fichiers individuels ciblés
+      // ÉTAPE 1 : Supprimer des fichiers individuels ciblés de la liste
       if (req.body.mediaToDelete) {
         try {
           const toDelete = JSON.parse(req.body.mediaToDelete);
           if (Array.isArray(toDelete) && toDelete.length > 0) {
-            for (let fileUrl of toDelete) {
-              const targetItem = project.media.find(item => item.url === fileUrl);
-              if (targetItem && targetItem.path) {
-                await deleteFile(targetItem.path);
-              }
-            }
+            // Note: Avec Cloudinary, les fichiers restent sur le cloud (ou peuvent être supprimés via l'API Cloudinary si besoin)
             project.media = project.media.filter(item => !toDelete.includes(item.url));
           }
         } catch (parseErr) {
@@ -184,20 +149,23 @@ router.put('/:id', auth, (req, res) => {
         }
       }
 
-      // ÉTAPE 2 : Ajouter de nouveaux fichiers sur Supabase
+      // ÉTAPE 2 : Ajouter de nouveaux fichiers via Cloudinary
       if (req.files && req.files.length > 0) {
         let newFilesData = [];
         for (let file of req.files) {
           const mime = file.mimetype.toLowerCase();
-          const ext = file.originalname.split('.').pop().toLowerCase();
           let type = 'image';
 
-          if (mime === 'application/pdf' || ext === 'pdf') {
+          if (mime.startsWith('video/')) {
+            type = 'video';
+          } else if (mime === 'application/pdf') {
             type = 'pdf';
           }
 
-          const uploaded = await uploadFile(file, "projects");
-          newFilesData.push({ url: uploaded.url, path: uploaded.path, type });
+          newFilesData.push({
+            url: file.path,
+            type
+          });
         }
 
         project.media = [...project.media, ...newFilesData];
@@ -205,23 +173,16 @@ router.put('/:id', auth, (req, res) => {
 
       // ÉTAPE 3 : Suppression totale de la galerie si demandée
       if (req.body.deleteMedia === 'true') {
-        if (project.media && project.media.length > 0) {
-          for (let file of project.media) {
-            if (file.path) await deleteFile(file.path);
-          }
-        }
         project.media = [];
       }
 
-      // Recalcul de l'image principale de couverture
+      // Recalcul de l'élément principal de couverture
       if (project.media && project.media.length > 0) {
         project.mediaUrl = project.media[0].url;
         project.mediaType = project.media[0].type;
-        project.mediaPath = project.media[0].path || null;
       } else {
         project.mediaUrl = '';
         project.mediaType = null;
-        project.mediaPath = null;
       }
 
       const updatedProject = await project.save();
@@ -234,7 +195,7 @@ router.put('/:id', auth, (req, res) => {
 });
 
 // @route   DELETE api/project/:id
-// @desc    Supprimer un projet et nettoyer tous ses fichiers joints sur Supabase
+// @desc    Supprimer un projet
 router.delete('/:id', auth, async (req, res) => {
   try {
     if (!req.user || !req.user.userId) {
@@ -245,17 +206,8 @@ router.delete('/:id', auth, async (req, res) => {
     if (!project) return res.status(404).json({ message: 'Projet non trouvé.' });
     if (project.user.toString() !== req.user.userId) return res.status(401).json({ message: 'Non autorisé.' });
 
-    // Nettoyage de tous les fichiers sur Supabase Storage
-    if (project.media && project.media.length > 0) {
-      for (let file of project.media) {
-        if (file.path) await deleteFile(file.path);
-      }
-    } else if (project.mediaPath) {
-      await deleteFile(project.mediaPath);
-    }
-
     await project.deleteOne();
-    res.json({ message: 'Projet supprimé ainsi que tous ses médias.' });
+    res.json({ message: 'Projet supprimé avec succès.' });
   } catch (err) {
     console.error(err);
     res.status(500).send('Erreur serveur.');
