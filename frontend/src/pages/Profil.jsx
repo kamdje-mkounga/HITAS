@@ -4,21 +4,21 @@ import Cropper from 'react-easy-crop';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
-import { 
-  Settings, 
-  FileText, 
-  Rocket, 
-  AlertTriangle, 
-  Trash2, 
-  Save, 
-  Camera, 
-  User, 
-  MapPin, 
-  GraduationCap, 
-  GitBranch, 
-  Globe, 
-  CheckCircle2, 
-  XCircle, 
+import {
+  Settings,
+  FileText,
+  Rocket,
+  AlertTriangle,
+  Trash2,
+  Save,
+  Camera,
+  User,
+  MapPin,
+  GraduationCap,
+  GitBranch,
+  Globe,
+  CheckCircle2,
+  XCircle,
   Sparkles,
   ZoomIn,
   Check,
@@ -70,9 +70,9 @@ function Profil() {
     bio: '',
     skills: ''
   });
-  
-  const [avatarFile, setAvatarFile] = useState(null); 
-  const [avatarPreview, setAvatarPreview] = useState(''); 
+
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -83,12 +83,12 @@ function Profil() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false);
-  
+
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isIncomplete = searchParams.get('reason') === 'incomplete';
 
-  const [activeTab, setActiveTab] = useState('account'); 
+  const [activeTab, setActiveTab] = useState('account');
   const [myPosts, setMyPosts] = useState([]);
   const [myProjects, setMyProjects] = useState([]);
 
@@ -107,7 +107,7 @@ function Profil() {
 
   const cleanSkillsData = (rawSkills) => {
     if (!rawSkills) return '';
-    
+
     // Si c'est déjà un tableau (ex: ['React', 'Node'])
     if (Array.isArray(rawSkills)) {
       return rawSkills.flat(Infinity).join(', ');
@@ -116,7 +116,7 @@ function Profil() {
     if (typeof rawSkills === 'string') {
       // Nettoyage préalable des caractères superflus si c'est une string mal formatée
       let cleaned = rawSkills.trim();
-      
+
       // Essayer de parser si c'est du JSON (ex: '["React", "Node"]')
       try {
         const parsed = JSON.parse(cleaned);
@@ -129,7 +129,7 @@ function Profil() {
         return cleaned;
       }
     }
-    
+
     return '';
   };
 
@@ -155,7 +155,7 @@ function Profil() {
       try {
         setLoading(true);
         const loggedInUserId = localStorage.getItem('userId');
-        const token = localStorage.getItem('token'); 
+        const token = localStorage.getItem('token');
 
         try {
           const response = await API.get('/profile/me', {
@@ -178,7 +178,7 @@ function Profil() {
               bio: data.bio || '',
               skills: cleanSkillsData(data.skills)
             });
-            
+
             if (data.avatar) {
               setAvatarPreview(formatMediaUrl(data.avatar));
             }
@@ -237,7 +237,7 @@ function Profil() {
     try {
       const croppedBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
       const croppedFile = new File([croppedBlob], "avatar-cropped.jpg", { type: "image/jpeg" });
-      
+
       setAvatarFile(croppedFile);
       setAvatarPreview(URL.createObjectURL(croppedFile));
       setIsCroppingModalOpen(false);
@@ -267,7 +267,7 @@ function Profil() {
     data.append('country', formData.country);
     data.append('status', formData.status);
     data.append('degreeLevel', formData.degreeLevel);
-    
+
     if (formData.status === 'En poste') {
       data.append('jobTitle', formData.jobTitle);
       data.append('currentCompany', formData.currentCompany);
@@ -317,7 +317,7 @@ function Profil() {
       setSubmitting(false);
     }
   };
-  
+
   const handleDeleteAccount = async () => {
     const confirmDelete = window.confirm("🛑 Es-tu absolument sûr de vouloir supprimer ton compte ? Cette action est irréversible.");
     if (confirmDelete) {
@@ -334,7 +334,7 @@ function Profil() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55)), url(${tradPattern})`,
@@ -345,7 +345,7 @@ function Profil() {
       <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12 relative z-10 overflow-hidden">
-        
+
         {/* MODALE DE RECADRAGE INTERACTIVE */}
         {isCroppingModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
@@ -354,7 +354,7 @@ function Profil() {
                 <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                   <Camera className="w-4 h-4 text-indigo-400" /> Cadrer et ajuster votre photo
                 </h3>
-                <button 
+                <button
                   onClick={() => setIsCroppingModalOpen(false)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
@@ -378,14 +378,14 @@ function Profil() {
               {/* Contrôle du Zoom */}
               <div className="flex items-center gap-3 px-2">
                 <ZoomIn className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-                <input 
-                  type="range" 
-                  value={zoom} 
-                  min={1} 
-                  max={3} 
-                  step={0.1} 
+                <input
+                  type="range"
+                  value={zoom}
+                  min={1}
+                  max={3}
+                  step={0.1}
                   aria-label="Zoom de l'image"
-                  onChange={(e) => setZoom(Number(e.target.value))} 
+                  onChange={(e) => setZoom(Number(e.target.value))}
                   className="w-full accent-indigo-500 cursor-pointer"
                 />
                 <span className="text-xs text-zinc-400 font-bold w-10 text-right">{Math.round(zoom * 100)}%</span>
@@ -475,9 +475,8 @@ function Profil() {
               <button
                 type="button"
                 onClick={() => setActiveTab('account')}
-                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative ${
-                  activeTab === 'account' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
-                }`}
+                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative ${activeTab === 'account' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
               >
                 <Settings className="w-4 h-4" /> Paramètres du Profil
                 {activeTab === 'account' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
@@ -486,9 +485,8 @@ function Profil() {
                 type="button"
                 disabled={isIncomplete}
                 onClick={() => setActiveTab('posts')}
-                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${
-                  activeTab === 'posts' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
-                }`}
+                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === 'posts' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
               >
                 <FileText className="w-4 h-4" /> Mes Publications ({myPosts.length})
                 {activeTab === 'posts' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
@@ -497,9 +495,8 @@ function Profil() {
                 type="button"
                 disabled={isIncomplete}
                 onClick={() => setActiveTab('projects')}
-                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${
-                  activeTab === 'projects' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
-                }`}
+                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === 'projects' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
+                  }`}
               >
                 <Rocket className="w-4 h-4" /> Mes Projets ({myProjects.length})
                 {activeTab === 'projects' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
@@ -509,16 +506,15 @@ function Profil() {
             {activeTab === 'account' && (
               <div className="space-y-8">
                 <div className="p-6 sm:p-8 bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl shadow-2xl">
-                  
+
                   <h2 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-6 flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Éditer les informations du profil
                   </h2>
 
                   {message.text && (
-                    <div className={`mb-6 p-4 border text-xs font-bold rounded-2xl flex items-center gap-2.5 shadow-md ${
-                      message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'
-                    }`}>
-                      {message.type === 'success' ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <XCircle className="w-4 h-4 flex-shrink-0" />} 
+                    <div className={`mb-6 p-4 border text-xs font-bold rounded-2xl flex items-center gap-2.5 shadow-md ${message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'
+                      }`}>
+                      {message.type === 'success' ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <XCircle className="w-4 h-4 flex-shrink-0" />}
                       <span className="whitespace-pre-wrap">{message.text}</span>
                     </div>
                   )}
@@ -536,7 +532,7 @@ function Profil() {
                         <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1.5 flex items-center gap-1.5">
                           <Camera className="w-3.5 h-3.5" /> Changer la photo de profil
                         </label>
-                        <input 
+                        <input
                           type="file" accept="image/*" onChange={handleFileChange}
                           className="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
                         />
@@ -690,7 +686,7 @@ function Profil() {
                         <h3 className="text-base sm:text-lg font-black text-white mb-2 group-hover:text-indigo-400 transition-colors break-words uppercase tracking-wide">{project.title}</h3>
                         <p className="text-zinc-400 text-xs sm:text-sm mb-4 line-clamp-3 leading-relaxed break-words">{project.description}</p>
                       </div>
-                      
+
                       <div className="flex gap-3 text-center text-xs mt-4 pt-4 border-t border-indigo-900/40">
                         {project.githubLink && (
                           <a href={project.githubLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-[#030014]/80 border border-indigo-900/40 py-2.5 px-3 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold truncate flex items-center justify-center gap-1.5">
