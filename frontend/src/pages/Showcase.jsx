@@ -48,7 +48,7 @@ const getFileName = (rawMedia) => {
 };
 
 // ==============================
-// PROFESSIONAL MEDIA GALLERY COMPONENT (Mis à jour pour supporter les vidéos)
+// PROFESSIONAL MEDIA GALLERY COMPONENT (Supporte les vidéos)
 // ==============================
 const PostMediaGallery = ({ projectMediaList }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -246,7 +246,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
   }, [location]);
 
   // ==============================
-  // FILE PROCESSING (Mis à jour pour accepter les vidéos)
+  // FILE PROCESSING (Mis à jour pour supporter les vidéos et formats MOV/MP4)
   // ==============================
   const processFiles = (
     files,
@@ -271,7 +271,12 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
       const fileName = file.name.toLowerCase();
 
       const isImage = fileType.startsWith('image/');
-      const isVideo = fileType.startsWith('video/');
+      const isVideo =
+        fileType.startsWith('video/') ||
+        fileName.endsWith('.mov') ||
+        fileName.endsWith('.mp4') ||
+        fileName.endsWith('.webm');
+
       const isPdf =
         fileType === 'application/pdf' || fileName.endsWith('.pdf');
 
