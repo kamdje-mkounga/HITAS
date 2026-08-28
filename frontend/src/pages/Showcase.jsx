@@ -749,15 +749,39 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
 
                       {/* NEW MEDIA IN EDIT MODE */}
                       <div className="pt-2">
-                        <label className="text-[10px] font-bold text-zinc-400 block mb-1 uppercase tracking-widest">Ajouter des fichiers</label>
-                        <input type="file" multiple accept="image/*,application/pdf,video/*" onChange={handleEditFileChange} className="text-xs text-zinc-400" />
+                        <label className="text-[10px] font-bold text-zinc-400 block mb-1 uppercase tracking-widest">
+                          Ajouter des fichiers
+                        </label>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*,application/pdf,video/*"
+                          onChange={handleEditFileChange}
+                          className="text-xs text-zinc-400"
+                        />
 
                         {editMediaPreviews.length > 0 && (
-                          <div className="grid grid-cols-2 gap-2 mt-2">
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
                             {editMediaPreviews.map((p, idx) => (
-                              <div key={idx} className="relative bg-[#0b081e] p-2 rounded-lg border border-amber-500/40 flex items-center justify-between">
-                                <span className="text-[10px] text-amber-300 truncate">{p.name}</span>
-                                <button type="button" onClick={() => removeEditSelectedFile(idx)} className="bg-zinc-800 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px]">✕</button>
+                              <div
+                                key={idx}
+                                className="relative bg-[#0b081e] p-2 rounded-lg border border-amber-500/40 flex flex-col items-center justify-between"
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => removeEditSelectedFile(idx)}
+                                  className="absolute top-1 right-1 bg-rose-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] z-10"
+                                >
+                                  ✕
+                                </button>
+                                <div className="aspect-video w-full rounded overflow-hidden bg-black/40 flex items-center justify-center mb-1">
+                                  {p.type === 'image' && <img src={p.url} alt="" className="w-full h-full object-cover" />}
+                                  {p.type === 'pdf' && <span className="text-xl">📄</span>}
+                                  {p.type === 'video' && <span className="text-xl">🎥</span>}
+                                </div>
+                                <span className="text-[10px] text-amber-300 truncate w-full text-center">
+                                  {p.name}
+                                </span>
                               </div>
                             ))}
                           </div>
