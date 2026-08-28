@@ -107,6 +107,13 @@ const PublicProfile = () => {
     return decodeURIComponent(fullName.split('?')[0]) || 'Fichier joint';
   };
 
+  // Fonction de validation stricte d'un lien
+  const isValidUrl = (url) => {
+    if (!url) return false;
+    const str = String(url).trim();
+    return str !== '' && str.toLowerCase() !== 'null' && str.toLowerCase() !== 'undefined';
+  };
+
   if (loading) {
     return (
       <div className="bg-[#030014] min-h-screen flex items-center justify-center">
@@ -229,8 +236,8 @@ const PublicProfile = () => {
             type="button"
             onClick={() => setActiveTab('compte')}
             className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${activeTab === 'compte'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
-                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
+              : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
           >
             <User className="w-4 h-4" /> Le Membre
@@ -239,8 +246,8 @@ const PublicProfile = () => {
             type="button"
             onClick={() => setActiveTab('projets')}
             className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${activeTab === 'projets'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
-                : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
+              : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
           >
             <Rocket className="w-4 h-4" /> Réalisations ({userProjects.length})
@@ -354,6 +361,9 @@ const PublicProfile = () => {
                   const potentialMedia = project.media || project.file || project.pdf || project.image || project.attachments;
                   const mediaCount = Array.isArray(potentialMedia) ? potentialMedia.length : (potentialMedia ? 1 : 0);
 
+                  const hasGithub = isValidUrl(project.githubUrl);
+                  const hasDemo = isValidUrl(project.demoUrl);
+
                   return (
                     <div
                       key={project._id}
@@ -379,13 +389,11 @@ const PublicProfile = () => {
                           <p className="text-zinc-400 text-xs leading-relaxed mt-2.5 line-clamp-2 break-words">{project.description}</p>
                         </div>
 
-                        {/* LIENS EXTERNES CONDITIONNELS SUR LA CARTE */}
-                        {(project.githubUrl || project.demoUrl) && (
+                        {/* LIENS EXTERNES STRICTEMENT CONDITIONNELS SUR LA CARTE */}
+                        {(hasGithub || hasDemo) && (
                           <div className="flex flex-wrap gap-2 pt-4 mt-4 border-t border-indigo-900/40">
-                            {project.githubUrl && (
-                              <a href={project.githubUrl} target="_blank" rel="noreferrer" className="bg-[#030014]/60 border border-indigo-500/20 text-center text-xs py-2 px-4 rounded-xl text-zinc-300 font-bold hover:border-indigo-400 transition truncate">Lien / Rapport</a>
-                            )}
-                            {project.demoUrl && (
+
+                            {hasDemo && (
                               <a href={project.demoUrl} target="_blank" rel="noreferrer" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-xs py-2 px-4 rounded-xl font-bold text-white shadow-md hover:opacity-95 transition truncate flex items-center gap-1.5"><Globe2 className="w-3.5 h-3.5" /> Démo Live</a>
                             )}
                           </div>
@@ -413,6 +421,9 @@ const PublicProfile = () => {
         const isVideo = urlLower && (urlLower.endsWith('.mp4') || urlLower.endsWith('.webm') || urlLower.endsWith('.mov'));
         const isImage = urlLower && (urlLower.endsWith('.jpg') || urlLower.endsWith('.jpeg') || urlLower.endsWith('.png') || urlLower.endsWith('.gif') || urlLower.endsWith('.webp') || urlLower.includes('/uploads/'));
         const isPdf = urlLower && urlLower.endsWith('.pdf');
+
+        const hasGithub = isValidUrl(selectedProject.githubUrl);
+        const hasDemo = isValidUrl(selectedProject.demoUrl);
 
         return (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-xl z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn" onClick={() => setSelectedProject(null)}>
@@ -486,7 +497,7 @@ const PublicProfile = () => {
                       )}
 
                       <a href={fullMediaUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-indigo-950/80 hover:bg-indigo-900 border border-indigo-500/30 text-white text-xs font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all">
-                        <Download className="w-4 h-4" /> Télécharger / Ouvrir <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+                        Ouvrir <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
                       </a>
                     </div>
                   ) : (
@@ -494,15 +505,15 @@ const PublicProfile = () => {
                   )}
                 </div>
 
-                {/* BOUTONS LIENS EXTERNES CONDITIONNELS DANS LE MODAL */}
-                {(selectedProject.githubUrl || selectedProject.demoUrl) && (
+                {/* BOUTONS LIENS EXTERNES STRICTEMENT CONDITIONNELS DANS LE MODAL */}
+                {(hasGithub || hasDemo) && (
                   <div className="pt-2">
                     <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Liens du projet</h4>
                     <div className="flex gap-3">
-                      {selectedProject.githubUrl && (
+                      {hasGithub && (
                         <a href={selectedProject.githubUrl} target="_blank" rel="noreferrer" className="flex-1 bg-[#030014]/80 border border-indigo-500/30 text-center text-xs py-3 px-4 rounded-xl text-zinc-200 font-bold hover:border-indigo-400 transition truncate">Lien / Rapport</a>
                       )}
-                      {selectedProject.demoUrl && (
+                      {hasDemo && (
                         <a href={selectedProject.demoUrl} target="_blank" rel="noreferrer" className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-center text-xs py-3 px-4 rounded-xl font-bold text-white shadow-md hover:opacity-95 transition truncate flex items-center justify-center gap-1.5"><Globe2 className="w-4 h-4" /> Démo Live</a>
                       )}
                     </div>
