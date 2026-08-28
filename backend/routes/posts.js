@@ -6,123 +6,23 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
 const admin = require('../config/firebaseAdmin');
-const multer = require('multer');
-
-const {
-  uploadFile,
-  deleteFile
-} = require('../utils/supabaseStorage');
-
-
-// ============================================================
-// MULTER
-// ============================================================
-
-const storage = multer.memoryStorage();
+const upload = require('../middleware/upload'); // Utilisation du middleware Cloudinary/Multer
 
 const MAX_FILES = 10;
-const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB / fichier
-
-const upload = multer({
-  storage,
-
-  limits: {
-    fileSize: MAX_FILE_SIZE,
-    files: MAX_FILES
-  },
-
-  fileFilter: (req, file, cb) => {
-
-    // 🚫 VIDÉOS INTERDITES
-    if (file.mimetype && file.mimetype.startsWith('video/')) {
-      return cb(
-        new Error('Les vidéos ne sont pas autorisées sur HITAS.')
-      );
-    }
-
-    const allowedExtensions = [
-      'jpg',
-      'jpeg',
-      'png',
-      'gif',
-      'webp',
-      'mp3',
-      'wav',
-      'm4a',
-      'ogg',
-      'mpeg',
-      'pdf',
-      'doc',
-      'docx',
-      'xls',
-      'xlsx',
-      'ppt',
-      'pptx'
-    ];
-
-    const allowedMimeTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'audio/mpeg',
-      'audio/mp3',
-      'audio/wav',
-      'audio/x-wav',
-      'audio/ogg',
-      'audio/mp4',
-      'audio/x-m4a',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/vnd.ms-excel',
-      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'application/vnd.ms-powerpoint',
-      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      'application/octet-stream'
-    ];
-
-    const extension = file.originalname
-      .split('.')
-      .pop()
-      .toLowerCase();
-
-    const mime = file.mimetype.toLowerCase();
-
-    const validExtension =
-      allowedExtensions.includes(extension);
-
-    const validMimeType =
-      allowedMimeTypes.includes(mime);
-
-    if (validExtension || validMimeType) {
-      return cb(null, true);
-    }
-
-    return cb(
-      new Error(
-        `Format non supporté : ${extension}`
-      )
-    );
-  }
-});
-
 
 // ============================================================
 // HELPERS
 // ============================================================
 
 const getMediaType = (file) => {
-
-  const mime = file.mimetype.toLowerCase();
-
+  const mime = file.mimetype ? file.mimetype.toLowerCase() : '';
   const ext = file.originalname
     .split('.')
     .pop()
     .toLowerCase();
 
-  if (mime.startsWith('video/')) {
-    throw new Error('Les vidéos ne sont pas autorisées.');
+  if (mime.startsWith('video/') || ['mp4', 'mov', 'webm', 'avi', 'mkv'].includes(ext)) {
+    return 'video';
   }
 
   if (
@@ -163,20 +63,15 @@ const getMediaType = (file) => {
 // ============================================================
 
 router.get('/', async (req, res) => {
-
   try {
-
     const posts = await Post
       .find()
       .sort({ date: -1 })
       .lean();
 
     const updatedPosts = await Promise.all(
-
       posts.map(async (post) => {
-
         if (post.user) {
-
           const userProfile = await Profile
             .findOne({ user: post.user })
             .select('avatar');
@@ -190,13 +85,9 @@ router.get('/', async (req, res) => {
           post.comments &&
           post.comments.length > 0
         ) {
-
           post.comments = await Promise.all(
-
             post.comments.map(async (comment) => {
-
               if (comment.user) {
-
                 const commentProfile =
                   await Profile
                     .findOne({ user: comment.user })
@@ -206,7 +97,6 @@ router.get('/', async (req, res) => {
                   comment.avatar = commentProfile.avatar;
                 }
               }
-
               return comment;
             })
           );
@@ -217,7 +107,6 @@ router.get('/', async (req, res) => {
             post.mediaFiles.length === 0) &&
           post.mediaUrl
         ) {
-
           post.mediaFiles = [
             {
               url: post.mediaUrl,
@@ -236,7 +125,6 @@ router.get('/', async (req, res) => {
     res.json(updatedPosts);
 
   } catch (err) {
-
     console.error(
       'Erreur récupération posts:',
       err.message
@@ -259,16 +147,13 @@ router.post(
   '/',
   auth,
   (req, res) => {
-
     upload.array('media', MAX_FILES)(
       req,
       res,
       async (err) => {
-
         if (err) {
-
           console.error(
-            'Erreur Multer:',
+            'Erreur Multer/Cloudinary:',
             err.message
           );
 
@@ -278,13 +163,11 @@ router.post(
         }
 
         try {
-
           const profile = await Profile.findOne({
             user: req.user.userId
           });
 
           if (!profile) {
-
             return res.status(400).json({
               message:
                 'Tu dois créer un profil avant de pouvoir publier.'
@@ -295,7 +178,6 @@ router.post(
             !req.body.text?.trim() &&
             (!req.files || req.files.length === 0)
           ) {
-
             return res.status(400).json({
               message:
                 'La publication doit contenir du texte ou au moins un fichier.'
@@ -308,82 +190,34 @@ router.post(
             req.files &&
             req.files.length > 0
           ) {
-
             for (const file of req.files) {
-
-              if (
-                file.mimetype &&
-                file.mimetype.startsWith('video/')
-              ) {
-
-                return res.status(400).json({
-                  message:
-                    'Les vidéos ne sont pas autorisées sur HITAS.'
-                });
-              }
-
               const mediaType = getMediaType(file);
 
-              const uploaded =
-                await uploadFile(
-                  file,
-                  'posts'
-                );
-
+              // file.path contient l'URL Cloudinary renvoyée par le middleware
               mediaFiles.push({
-                url: uploaded.url,
-                path: uploaded.path,
+                url: file.path,
+                path: '', // Non nécessaire avec Cloudinary
                 type: mediaType,
-                originalName:
-                  file.originalname
+                originalName: file.originalname
               });
             }
           }
 
           const newPost = new Post({
-
             text: req.body.text || '',
-
-            category:
-              req.body.category || 'General',
-
-            firstName:
-              profile.firstName,
-
-            lastName:
-              profile.lastName,
-
-            avatar:
-              profile.avatar || '',
-
-            user:
-              req.user.userId,
-
+            category: req.body.category || 'General',
+            firstName: profile.firstName,
+            lastName: profile.lastName,
+            avatar: profile.avatar || '',
+            user: req.user.userId,
             mediaFiles,
-
-            mediaUrl:
-              mediaFiles.length > 0
-                ? mediaFiles[0].url
-                : '',
-
-            mediaType:
-              mediaFiles.length > 0
-                ? mediaFiles[0].type
-                : null,
-
-            mediaPath:
-              mediaFiles.length > 0
-                ? mediaFiles[0].path
-                : null,
-
-            mediaOriginalName:
-              mediaFiles.length > 0
-                ? mediaFiles[0].originalName
-                : ''
+            mediaUrl: mediaFiles.length > 0 ? mediaFiles[0].url : '',
+            mediaType: mediaFiles.length > 0 ? mediaFiles[0].type : null,
+            mediaPath: '',
+            mediaOriginalName: mediaFiles.length > 0 ? mediaFiles[0].originalName : ''
           });
 
-          const post =
-            await newPost.save();
+          const post = await newPost.save();
 
           // Notifications Firebase
           try {
@@ -427,27 +261,17 @@ router.post(
             console.error('🔥 Erreur Firebase:', firebaseErr);
           }
 
-          const postWithLean =
-            post.toObject();
-
-          const io =
-            req.app.get('io');
+          const postWithLean = post.toObject();
+          const io = req.app.get('io');
 
           if (io) {
-            io.emit(
-              'posts_created',
-              postWithLean
-            );
-            io.emit(
-              'article_published',
-              postWithLean
-            );
+            io.emit('posts_created', postWithLean);
+            io.emit('article_published', postWithLean);
           }
 
           res.json(post);
 
         } catch (dbErr) {
-
           console.error(
             'Erreur création post:',
             dbErr
@@ -472,11 +296,8 @@ router.delete(
   '/:id',
   auth,
   async (req, res) => {
-
     try {
-
-      const post =
-        await Post.findById(req.params.id);
+      const post = await Post.findById(req.params.id);
 
       if (!post) {
         return res.status(404).json({
@@ -491,25 +312,6 @@ router.delete(
         return res.status(401).json({
           message: 'Utilisateur non autorisé à supprimer ce post.'
         });
-      }
-
-      if (
-        post.mediaFiles &&
-        post.mediaFiles.length > 0
-      ) {
-        for (
-          const media of post.mediaFiles
-        ) {
-          if (media.path) {
-            try {
-              await deleteFile(media.path);
-            } catch (deleteErr) {
-              console.error('Erreur suppression fichier:', deleteErr.message);
-            }
-          }
-        }
-      } else if (post.mediaPath) {
-        await deleteFile(post.mediaPath);
       }
 
       const postId = post._id;
@@ -533,19 +335,17 @@ router.delete(
 
 
 // ============================================================
-// PUT /api/posts/:id (MIS À JOUR POUR GÉRER LA SUPPRESSION CIBLÉE)
+// PUT /api/posts/:id
 // ============================================================
 
 router.put(
   '/:id',
   auth,
   (req, res) => {
-
     upload.array('media', MAX_FILES)(
       req,
       res,
       async (err) => {
-
         if (err) {
           return res.status(400).json({
             message: err.message
@@ -583,15 +383,6 @@ router.put(
             try {
               const pathsToDelete = JSON.parse(req.body.mediaToDelete);
               if (Array.isArray(pathsToDelete) && pathsToDelete.length > 0) {
-                for (const pathToDelete of pathsToDelete) {
-                  // Supprimer physiquement du stockage Supabase
-                  try {
-                    await deleteFile(pathToDelete);
-                  } catch (delErr) {
-                    console.error('Erreur suppression stockage:', delErr.message);
-                  }
-                }
-                // Filtrer le tableau mediaFiles pour retirer les éléments supprimés
                 post.mediaFiles = post.mediaFiles.filter(
                   (m) => !pathsToDelete.includes(m.path) && !pathsToDelete.includes(m.url)
                 );
@@ -601,24 +392,17 @@ router.put(
             }
           }
 
-          // 2. Ajout des nouveaux fichiers s'il y en a
+          // 2. Ajout des nouveaux fichiers s'il y en a via Cloudinary
           if (
             req.files &&
             req.files.length > 0
           ) {
             for (const file of req.files) {
-              if (file.mimetype.startsWith('video/')) {
-                return res.status(400).json({
-                  message: 'Les vidéos ne sont pas autorisées sur HITAS.'
-                });
-              }
-
               const mediaType = getMediaType(file);
-              const uploaded = await uploadFile(file, 'posts');
 
               post.mediaFiles.push({
-                url: uploaded.url,
-                path: uploaded.path,
+                url: file.path,
+                path: '',
                 type: mediaType,
                 originalName: file.originalname
               });
@@ -628,7 +412,7 @@ router.put(
           // 3. Mise à jour des champs de rétrocompatibilité
           post.mediaUrl = post.mediaFiles[0]?.url || '';
           post.mediaType = post.mediaFiles[0]?.type || null;
-          post.mediaPath = post.mediaFiles[0]?.path || null;
+          post.mediaPath = '';
           post.mediaOriginalName = post.mediaFiles[0]?.originalName || '';
 
           await post.save();
@@ -683,7 +467,8 @@ router.post('/comment/:id', auth, async (req, res) => {
     const post = await Post.findById(req.params.id);
     const profile = await Profile.findOne({ user: req.user.userId });
 
-    if (!post) return res.status(404).json({ message: 'Publication non trouvée.' });
+    if (!post) return res.status(404).json({ message: 'Publication non trouvée tab.' });
+    cat
     if (!profile) return res.status(400).json({ message: 'Profil requis.' });
 
     const newComment = {
@@ -694,6 +479,7 @@ router.post('/comment/:id', auth, async (req, res) => {
       avatar: profile.avatar || ''
     };
 
+    post.comments.comments = post.comments || [];
     post.comments.unshift(newComment);
     await post.save();
     res.json(post.comments);

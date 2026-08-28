@@ -49,7 +49,7 @@ const PostSchema = new mongoose.Schema({
 
 
   // ============================================================
-  // 📁 PLUSIEURS FICHIERS
+  // 📁 PLUSIEURS FICHIERS (Images, Vidéos, PDF, etc.)
   // ============================================================
 
   mediaFiles: [
@@ -68,6 +68,7 @@ const PostSchema = new mongoose.Schema({
         type: String,
         enum: [
           'image',
+          'video', // <-- Ajouté pour supporter les vidéos Cloudinary
           'audio',
           'pdf',
           'document',
@@ -107,6 +108,7 @@ const PostSchema = new mongoose.Schema({
     type: String,
     enum: [
       'image',
+      'video', // <-- Ajouté ici aussi pour la compatibilité
       'audio',
       'pdf',
       'document',
