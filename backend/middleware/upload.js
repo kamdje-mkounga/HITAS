@@ -12,27 +12,30 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
         let resourceType = 'auto';
+        let format = undefined;
         let publicId = '';
 
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const cleanOriginalName = file.originalname.replace(/[^a-zA-Z0-9_.-]/g, '_');
+        const cleanOriginalName = file.originalname.substring(0, file.originalname.lastIndexOf('.')) || file.originalname;
+        const sanitizedName = cleanOriginalName.replace(/[^a-zA-Z0-9_.-]/g, '_');
 
         if (file.mimetype.startsWith('video/')) {
             resourceType = 'video';
-            publicId = `${uniqueSuffix}-${cleanOriginalName}`;
+            publicId = `${uniqueSuffix}-${sanitizedName}`;
         }
         else if (file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf')) {
-            resourceType = 'raw'; // Stockage brut pour garder l'intégrité du PDF
-            // 👈 On s'assure que le public_id se termine bien par .pdf
-            publicId = `${uniqueSuffix}-${cleanOriginalName.endsWith('.pdf') ? cleanOriginalName : cleanOriginalName + '.pdf'}`;
+            resourceType = 'image'; // 👈 On traite le PDF via le canal image de Cloudinary pour l'affichage direct
+            format = 'pdf';         // 👈 Force l'extension .pdf dans l'URL générée
+            publicId = `${uniqueSuffix}-${sanitizedName}`;
         } else {
             resourceType = 'image';
-            publicId = `${uniqueSuffix}-${cleanOriginalName}`;
+            publicId = `${uniqueSuffix}-${sanitizedName}`;
         }
 
         return {
             folder: 'hitas_projects',
             resource_type: resourceType,
+            format: format,
             public_id: publicId,
         };
     },
