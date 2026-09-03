@@ -61,6 +61,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   // Carousel Active Index tracking per post
   const [activeMediaIndexes, setActiveMediaIndexes] = useState({});
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // Refs
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
@@ -177,16 +179,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       const response = await axios.get(fullUrl, {
         responseType: 'blob',
       });
-      
+
       const blob = new Blob([response.data]);
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-      
+
       link.href = downloadUrl;
       link.setAttribute('download', fileName || 'fichier');
       document.body.appendChild(link);
       link.click();
-      
+
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
@@ -566,11 +568,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         prevPosts.map((post) =>
           post._id === postId
             ? {
-                ...post,
-                likes:
-                  response.data?.likes ||
-                  response.data
-              }
+              ...post,
+              likes:
+                response.data?.likes ||
+                response.data
+            }
             : post
         )
       );
@@ -613,11 +615,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         prevPosts.map((post) =>
           post._id === postId
             ? {
-                ...post,
-                comments:
-                  response.data?.comments ||
-                  response.data
-              }
+              ...post,
+              comments:
+                response.data?.comments ||
+                response.data
+            }
             : post
         )
       );
@@ -642,51 +644,28 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     setError('');
     setSuccess('');
 
-    if (
-      !text.trim() &&
-      mediaFiles.length === 0
-    ) {
-      setError(
-        'Le corps du message ne peut pas être vide ou doit contenir un média.'
-      );
-
+    if (!text.trim() && mediaFiles.length === 0) {
+      setError('Le corps du message ne peut pas être vide ou doit contenir un média.');
       return;
     }
 
-    try {
-      const formData =
-        new FormData();
+    setIsSubmitting(true); // Active le loader
 
-      if (
-        socketRef.current?.id
-      ) {
-        formData.append(
-          'socketId',
-          socketRef.current.id
-        );
+    try {
+      const formData = new FormData();
+
+      if (socketRef.current?.id) {
+        formData.append('socketId', socketRef.current.id);
       }
 
-      formData.append(
-        'text',
-        text
-      );
-
-      formData.append(
-        'category',
-        category
-      );
+      formData.append('text', text);
+      formData.append('category', category);
 
       mediaFiles.forEach((file) => {
-        formData.append(
-          'media',
-          file
-        );
+        formData.append('media', file);
       });
 
-      const token =
-        localStorage.getItem(
-          'token'
-        );
+      const token = localStorage.getItem('token');
 
       await axios.post(
         `${BACKEND_URL}/api/posts`,
@@ -694,8 +673,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         {
           headers: {
             'x-auth-token': token,
-            'Content-Type':
-              'multipart/form-data'
+            'Content-Type': 'multipart/form-data'
           }
         }
       );
@@ -703,9 +681,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       setText('');
       clearMedia();
 
-      setSuccess(
-        'Publication partagée avec succès !'
-      );
+      setSuccess('Publication partagée avec succès !');
 
       setTimeout(
         () => setSuccess(''),
@@ -714,11 +690,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     } catch (err) {
       console.error(err);
-
       setError(
         err.response?.data?.message ||
         'Erreur lors de la publication.'
       );
+    } finally {
+      setIsSubmitting(false); // Désactive le loader quoi qu'il arrive
     }
   };
 
@@ -852,11 +829,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       selectedFilter === 'Tous'
         ? true
         : normalizeStr(
-            post.category
-          ) ===
-          normalizeStr(
-            selectedFilter
-          )
+          post.category
+        ) ===
+        normalizeStr(
+          selectedFilter
+        )
     )
     .filter((post) => {
       if (!searchQuery.trim()) {
@@ -882,7 +859,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const getBadgeColor = (cat) => {
     switch (
-      normalizeStr(cat)
+    normalizeStr(cat)
     ) {
       case 'entraide':
         return 'bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/20';
@@ -915,7 +892,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       <div className="w-full bg-black">
         {/* Carousel Container */}
         <div className="relative w-full overflow-hidden bg-black flex items-center justify-center">
-          <div 
+          <div
             className="flex w-full transition-transform duration-300 ease-out"
             style={{ transform: `translateX(-${activeIndex * 100}%)` }}
           >
@@ -957,15 +934,15 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   ) : (
                     <div className="w-full max-w-md bg-gradient-to-br from-[#0b081e] via-[#120e2e] to-[#030014] border border-indigo-500/30 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-center relative overflow-hidden group my-4">
                       <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
-                      
+
                       <div className="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
                         <FileText size={32} />
                       </div>
-                      
+
                       <span className="inline-block bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
                         Document PDF
                       </span>
-                      
+
                       <p className="text-xs font-bold text-white mb-6 truncate px-2">
                         {currentFileName}
                       </p>
@@ -1034,11 +1011,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 key={index}
                 type="button"
                 onClick={() => setMediaIndex(post._id, index)}
-                className={`rounded-full transition-all ${
-                  index === activeIndex
-                    ? 'w-4 h-1.5 bg-indigo-500'
-                    : 'w-1.5 h-1.5 bg-zinc-600'
-                }`}
+                className={`rounded-full transition-all ${index === activeIndex
+                  ? 'w-4 h-1.5 bg-indigo-500'
+                  : 'w-1.5 h-1.5 bg-zinc-600'
+                  }`}
                 aria-label={`Aller au média ${index + 1}`}
               />
             ))}
@@ -1644,11 +1620,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   />
 
                   {mediaFiles.length > 0
-                    ? `${mediaFiles.length} fichier${
-                        mediaFiles.length > 1
-                          ? 's'
-                          : ''
-                      }`
+                    ? `${mediaFiles.length} fichier${mediaFiles.length > 1
+                      ? 's'
+                      : ''
+                    }`
                     : 'Ajouter des fichiers'}
 
                 </button>
@@ -1677,34 +1652,44 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               </div>
 
               {/* PUBLISH */}
-
               <button
                 type="submit"
-                className="
-                  bg-gradient-to-r
-                  from-indigo-600
-                  to-purple-600
-                  hover:from-indigo-500
-                  hover:to-purple-500
-                  text-white
-                  font-bold
-                  px-5
-                  py-2
-                  rounded-xl
-                  text-xs
-                  transition-all
-                  shadow-md
-                  flex
-                  items-center
-                  justify-center
-                  gap-2
-                "
+                disabled={isSubmitting}
+                className={`
+    bg-gradient-to-r
+    from-indigo-600
+    to-purple-600
+    hover:from-indigo-500
+    hover:to-purple-500
+    text-white
+    font-bold
+    px-5
+    py-2
+    rounded-xl
+    text-xs
+    transition-all
+    shadow-md
+    flex
+    items-center
+    justify-center
+    gap-2
+    ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}
+  `}
               >
-                <span>
-                  Publier
-                </span>
-
-                <Send size={14} />
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-1.5 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Envoi en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Publier</span>
+                    <Send size={14} />
+                  </>
+                )}
               </button>
 
             </div>
@@ -1825,10 +1810,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 flex
                 items-center
                 gap-1.5
-                ${
-                  selectedFilter === cat
-                    ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md'
-                    : 'bg-white/80 dark:bg-[#0b081e]/80 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-indigo-900/60'
+                ${selectedFilter === cat
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md'
+                  : 'bg-white/80 dark:bg-[#0b081e]/80 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-indigo-900/60'
                 }
               `}
             >
@@ -1841,18 +1825,18 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
               {cat ===
                 'Stage/Emploi' && (
-                <Briefcase
-                  size={14}
-                />
-              )}
+                  <Briefcase
+                    size={14}
+                  />
+                )}
 
               <span>
                 {cat === 'General'
                   ? 'Général'
                   : cat ===
                     'Stage/Emploi'
-                  ? 'Stage / Emploi'
-                  : cat}
+                    ? 'Stage / Emploi'
+                    : cat}
               </span>
 
             </button>
@@ -1929,7 +1913,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     post.avatar ||
                     (
                       post.user &&
-                      typeof post.user ===
+                        typeof post.user ===
                         'object'
                         ? post.user.avatar
                         : null
@@ -2100,8 +2084,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               rounded-lg
                               border
                               ${getBadgeColor(
-                                post.category
-                              )}
+                              post.category
+                            )}
                             `}
                           >
                             {post.category}
@@ -2112,8 +2096,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           ) ===
                             loggedInUserId && (
 
-                            <div
-                              className="
+                              <div
+                                className="
                                 flex
                                 gap-1
                                 bg-slate-100
@@ -2124,42 +2108,42 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 rounded-lg
                                 p-1
                               "
-                            >
-
-                              <button
-                                onClick={() =>
-                                  startEditing(
-                                    post
-                                  )
-                                }
-                                className="p-1"
                               >
-                                <Pencil
-                                  size={15}
-                                  className="
+
+                                <button
+                                  onClick={() =>
+                                    startEditing(
+                                      post
+                                    )
+                                  }
+                                  className="p-1"
+                                >
+                                  <Pencil
+                                    size={15}
+                                    className="
                                     text-amber-500
                                   "
-                                />
-                              </button>
+                                  />
+                                </button>
 
-                              <button
-                                onClick={() =>
-                                  handleDelete(
-                                    post._id
-                                  )
-                                }
-                                className="p-1"
-                              >
-                                <Trash2
-                                  size={15}
-                                  className="
+                                <button
+                                  onClick={() =>
+                                    handleDelete(
+                                      post._id
+                                    )
+                                  }
+                                  className="p-1"
+                                >
+                                  <Trash2
+                                    size={15}
+                                    className="
                                     text-red-500
                                   "
-                                />
-                              </button>
+                                  />
+                                </button>
 
-                            </div>
-                          )}
+                              </div>
+                            )}
 
                         </div>
 
@@ -2170,7 +2154,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       ================================================= */}
 
                       {editingId ===
-                      post._id ? (
+                        post._id ? (
 
                         <div
                           className="
@@ -2225,41 +2209,41 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           {existingMediaUrls.length >
                             0 && (
 
-                            <div
-                              className="
+                              <div
+                                className="
                                 space-y-2
                               "
-                            >
+                              >
 
-                              <p
-                                className="
+                                <p
+                                  className="
                                   text-[11px]
                                   font-semibold
                                   text-slate-500
                                   dark:text-zinc-400
                                 "
-                              >
-                                Médias actuels
-                              </p>
+                                >
+                                  Médias actuels
+                                </p>
 
-                              <div
-                                className="
+                                <div
+                                  className="
                                   grid
                                   grid-cols-2
                                   gap-2
                                 "
-                              >
+                                >
 
-                                {existingMediaUrls.map(
-                                  (
-                                    item,
-                                    index
-                                  ) => {
-                                    const url = typeof item === 'string' ? item : item.url;
-                                    return (
-                                    <div
-                                      key={`${url}-${index}`}
-                                      className="
+                                  {existingMediaUrls.map(
+                                    (
+                                      item,
+                                      index
+                                    ) => {
+                                      const url = typeof item === 'string' ? item : item.url;
+                                      return (
+                                        <div
+                                          key={`${url}-${index}`}
+                                          className="
                                         relative
                                         rounded-xl
                                         overflow-hidden
@@ -2269,28 +2253,28 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                         bg-white
                                         dark:bg-[#0b081e]
                                       "
-                                    >
+                                        >
 
-                                      {isImage(
-                                        item
-                                      ) ? (
+                                          {isImage(
+                                            item
+                                          ) ? (
 
-                                        <img
-                                          src={formatMediaUrl(
-                                            url
-                                          )}
-                                          alt="Média actuel"
-                                          className="
+                                            <img
+                                              src={formatMediaUrl(
+                                                url
+                                              )}
+                                              alt="Média actuel"
+                                              className="
                                             w-full
                                             h-32
                                             object-cover
                                           "
-                                        />
+                                            />
 
-                                      ) : (
+                                          ) : (
 
-                                        <div
-                                          className="
+                                            <div
+                                              className="
                                             h-32
                                             flex
                                             flex-col
@@ -2299,53 +2283,53 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                             gap-2
                                             p-3
                                           "
-                                        >
+                                            >
 
-                                          {isAudio(
-                                            item
-                                          ) ? (
-                                            <Music
-                                              size={
-                                                22
-                                              }
-                                              className="
+                                              {isAudio(
+                                                item
+                                              ) ? (
+                                                <Music
+                                                  size={
+                                                    22
+                                                  }
+                                                  className="
                                                 text-indigo-500
                                               "
-                                            />
-                                          ) : (
-                                            <FileText
-                                              size={
-                                                22
-                                              }
-                                              className="
+                                                />
+                                              ) : (
+                                                <FileText
+                                                  size={
+                                                    22
+                                                  }
+                                                  className="
                                                 text-indigo-500
                                               "
-                                            />
-                                          )}
+                                                />
+                                              )}
 
-                                          <span
-                                            className="
+                                              <span
+                                                className="
                                               text-[10px]
                                               truncate
                                               max-w-full
                                             "
-                                          >
-                                            {item.originalName || getFileName(
-                                              url
-                                            )}
-                                          </span>
+                                              >
+                                                {item.originalName || getFileName(
+                                                  url
+                                                )}
+                                              </span>
 
-                                        </div>
-                                      )}
+                                            </div>
+                                          )}
 
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          removeExistingMedia(
-                                            index
-                                          )
-                                        }
-                                        className="
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              removeExistingMedia(
+                                                index
+                                              )
+                                            }
+                                            className="
                                           absolute
                                           top-2
                                           right-2
@@ -2358,76 +2342,76 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                           items-center
                                           justify-center
                                         "
-                                      >
-                                        <X
-                                          size={
-                                            14
-                                          }
-                                        />
-                                      </button>
+                                          >
+                                            <X
+                                              size={
+                                                14
+                                              }
+                                            />
+                                          </button>
 
-                                    </div>
-                                    );
-                                  }
-                                )}
+                                        </div>
+                                      );
+                                    }
+                                  )}
+
+                                </div>
 
                               </div>
-
-                            </div>
-                          )}
+                            )}
 
                           {/* NEW MEDIA */}
 
                           {editMediaFiles.length >
                             0 && (
 
-                            <div
-                              className="
+                              <div
+                                className="
                                 grid
                                 grid-cols-2
                                 gap-2
                               "
-                            >
+                              >
 
-                              {editMediaFiles.map(
-                                (
-                                  file,
-                                  index
-                                ) => (
+                                {editMediaFiles.map(
+                                  (
+                                    file,
+                                    index
+                                  ) => (
 
-                                  <div
-                                    key={`${file.name}-${index}`}
-                                    className="
+                                    <div
+                                      key={`${file.name}-${index}`}
+                                      className="
                                       relative
                                       rounded-xl
                                       overflow-hidden
                                       border
                                       border-indigo-500/30
                                     "
-                                  >
+                                    >
 
-                                    {file.type.startsWith(
-                                      'image/'
-                                    ) ? (
+                                      {file.type.startsWith(
+                                        'image/'
+                                      ) ? (
 
-                                      <img
-                                        src={
-                                          editMediaPreviews[
+                                        <img
+                                          src={
+                                            editMediaPreviews[
                                             index
-                                          ]
-                                        }
-                                        alt="Nouveau média"
-                                        className="
+                                            ]
+                                          }
+                                          alt="Nouveau média"
+                                          className="
                                           w-full
                                           h-32
                                           object-cover
                                         "
-                                      />
+                                        />
 
-                                    ) : (
+                                      ) : (
 
-                                      <div
-                                        className="
+                                        <div
+                                          className="
                                           h-32
                                           flex
                                           flex-col
@@ -2437,53 +2421,53 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                           bg-white
                                           dark:bg-[#0b081e]
                                         "
-                                      >
+                                        >
 
-                                        {file.type.startsWith(
-                                          'audio/'
-                                        ) ? (
-                                          <Music
-                                            size={
-                                              22
-                                            }
-                                            className="
+                                          {file.type.startsWith(
+                                            'audio/'
+                                          ) ? (
+                                            <Music
+                                              size={
+                                                22
+                                              }
+                                              className="
                                               text-indigo-500
                                               mb-2
                                             "
-                                          />
-                                        ) : (
-                                          <FileText
-                                            size={
-                                              22
-                                            }
-                                            className="
+                                            />
+                                          ) : (
+                                            <FileText
+                                              size={
+                                                22
+                                              }
+                                              className="
                                               text-indigo-500
                                               mb-2
                                             "
-                                          />
-                                        )}
+                                            />
+                                          )}
 
-                                        <span
-                                          className="
+                                          <span
+                                            className="
                                             text-[10px]
                                             truncate
                                             max-w-full
                                           "
-                                        >
-                                          {file.name}
-                                        </span>
+                                          >
+                                            {file.name}
+                                          </span>
 
-                                      </div>
-                                    )}
+                                        </div>
+                                      )}
 
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        removeEditMediaFile(
-                                          index
-                                        )
-                                      }
-                                      className="
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          removeEditMediaFile(
+                                            index
+                                          )
+                                        }
+                                        className="
                                         absolute
                                         top-2
                                         right-2
@@ -2496,19 +2480,19 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                         items-center
                                         justify-center
                                       "
-                                    >
-                                      <X
-                                        size={
-                                          14
-                                        }
-                                      />
-                                    </button>
+                                      >
+                                        <X
+                                          size={
+                                            14
+                                          }
+                                        />
+                                      </button>
 
-                                  </div>
-                                ))}
+                                    </div>
+                                  ))}
 
-                            </div>
-                          )}
+                              </div>
+                            )}
 
                           <button
                             type="button"
@@ -2678,10 +2662,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 rounded-xl
                                 border
                                 text-xs
-                                ${
-                                  hasLiked
-                                    ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
-                                    : 'border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-300'
+                                ${hasLiked
+                                  ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
+                                  : 'border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-300'
                                 }
                               `}
                             >
@@ -2714,7 +2697,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     ...prev,
                                     [post._id]:
                                       !prev[
-                                        post._id
+                                      post._id
                                       ]
                                   })
                                 )
@@ -2760,8 +2743,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                             post._id
                           ] && (
 
-                            <div
-                              className="
+                              <div
+                                className="
                                 border-t
                                 border-slate-200
                                 dark:border-indigo-900/40
@@ -2769,36 +2752,36 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 bg-slate-50
                                 dark:bg-[#0b081e]/80
                               "
-                            >
+                              >
 
-                              <div
-                                className="
+                                <div
+                                  className="
                                   flex
                                   gap-2
                                   mb-3
                                 "
-                              >
+                                >
 
-                                <input
-                                  type="text"
-                                  placeholder="
+                                  <input
+                                    type="text"
+                                    placeholder="
                                     Écrire un commentaire...
                                   "
-                                  value={
-                                    commentTexts[
+                                    value={
+                                      commentTexts[
                                       post._id
-                                    ] || ''
-                                  }
-                                  onChange={(e) =>
-                                    setCommentTexts(
-                                      (prev) => ({
-                                        ...prev,
-                                        [post._id]:
-                                          e.target.value
-                                      })
-                                    )
-                                  }
-                                  className="
+                                      ] || ''
+                                    }
+                                    onChange={(e) =>
+                                      setCommentTexts(
+                                        (prev) => ({
+                                          ...prev,
+                                          [post._id]:
+                                            e.target.value
+                                        })
+                                      )
+                                    }
+                                    className="
                                     w-full
                                     bg-white
                                     dark:bg-[#030014]
@@ -2810,15 +2793,15 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     text-xs
                                     focus:outline-none
                                   "
-                                />
+                                  />
 
-                                <button
-                                  onClick={() =>
-                                    handleAddComment(
-                                      post._id
-                                    )
-                                  }
-                                  className="
+                                  <button
+                                    onClick={() =>
+                                      handleAddComment(
+                                        post._id
+                                      )
+                                    }
+                                    className="
                                     bg-gradient-to-r
                                     from-indigo-600
                                     to-purple-600
@@ -2828,46 +2811,46 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     text-xs
                                     font-bold
                                   "
-                                >
-                                  Envoyer
-                                </button>
+                                  >
+                                    Envoyer
+                                  </button>
 
-                              </div>
+                                </div>
 
-                              <div
-                                className="
+                                <div
+                                  className="
                                   space-y-2
                                   max-h-[280px]
                                   overflow-y-auto
                                 "
-                              >
+                                >
 
-                                {post.comments?.map(
-                                  (
-                                    comment,
-                                    i
-                                  ) => {
+                                  {post.comments?.map(
+                                    (
+                                      comment,
+                                      i
+                                    ) => {
 
-                                    const commentAvatarPath =
-                                      comment.avatar ||
-                                      (
-                                        comment.user &&
-                                        typeof comment.user ===
-                                          'object'
-                                          ? comment
+                                      const commentAvatarPath =
+                                        comment.avatar ||
+                                        (
+                                          comment.user &&
+                                            typeof comment.user ===
+                                            'object'
+                                            ? comment
                                               .user
                                               .avatar
-                                          : null
-                                      );
+                                            : null
+                                        );
 
-                                    return (
+                                      return (
 
-                                      <Link
-                                        key={i}
-                                        to={`/profile/${getUserId(
-                                          comment.user
-                                        )}`}
-                                        className="
+                                        <Link
+                                          key={i}
+                                          to={`/profile/${getUserId(
+                                            comment.user
+                                          )}`}
+                                          className="
                                           bg-white/80
                                           dark:bg-[#0b081e]/60
                                           p-3
@@ -2878,36 +2861,36 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                           flex
                                           gap-3
                                         "
-                                      >
+                                        >
 
-                                        <div
-                                          className="
+                                          <div
+                                            className="
                                             w-7
                                             h-7
                                             flex-shrink-0
                                             relative
                                           "
-                                        >
+                                          >
 
-                                          {commentAvatarPath ? (
+                                            {commentAvatarPath ? (
 
-                                            <img
-                                              src={formatMediaUrl(
-                                                commentAvatarPath
-                                              )}
-                                              alt="Author"
-                                              className="
+                                              <img
+                                                src={formatMediaUrl(
+                                                  commentAvatarPath
+                                                )}
+                                                alt="Author"
+                                                className="
                                                 w-full
                                                 h-full
                                                 rounded-full
                                                 object-cover
                                               "
-                                            />
+                                              />
 
-                                          ) : (
+                                            ) : (
 
-                                            <div
-                                              className="
+                                              <div
+                                                className="
                                                 w-full
                                                 h-full
                                                 rounded-full
@@ -2920,63 +2903,63 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                 font-bold
                                                 text-[9px]
                                               "
-                                            >
-                                              {comment.firstName?.[0] ||
-                                                'U'}
-                                            </div>
+                                              >
+                                                {comment.firstName?.[0] ||
+                                                  'U'}
+                                              </div>
 
-                                          )}
+                                            )}
 
-                                        </div>
+                                          </div>
 
-                                        <div
-                                          className="
+                                          <div
+                                            className="
                                             flex-1
                                             min-w-0
                                           "
-                                        >
+                                          >
 
-                                          <p
-                                            className="
+                                            <p
+                                              className="
                                               font-bold
                                               text-xs
                                               text-slate-800
                                               dark:text-zinc-300
                                             "
-                                          >
-                                            {
-                                              comment.firstName
-                                            }{' '}
-                                            {
-                                              comment.lastName
-                                            }
-                                          </p>
+                                            >
+                                              {
+                                                comment.firstName
+                                              }{' '}
+                                              {
+                                                comment.lastName
+                                              }
+                                            </p>
 
-                                          <p
-                                            className="
+                                            <p
+                                              className="
                                               text-xs
                                               text-slate-600
                                               dark:text-zinc-400
                                               leading-relaxed
                                             "
-                                          >
-                                            {
-                                              comment.text
-                                            }
-                                          </p>
+                                            >
+                                              {
+                                                comment.text
+                                              }
+                                            </p>
 
-                                        </div>
+                                          </div>
 
-                                      </Link>
+                                        </Link>
 
-                                    );
-                                  }
-                                )}
+                                      );
+                                    }
+                                  )}
+
+                                </div>
 
                               </div>
-
-                            </div>
-                          )}
+                            )}
 
                         </>
                       )}
