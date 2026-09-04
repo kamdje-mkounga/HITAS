@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
+import WelcomeIntro from './pages/WelcomeIntro';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
 import Annuaire from './pages/Annuaire';
 import Blog from './pages/Blog';
-import Showcase from './pages/Showcase'; 
-import Profil from './pages/Profil'; 
-import AutoLogout from './components/AutoLogout'; 
-import PublicProfile from './pages/PublicProfile'; 
+import Showcase from './pages/Showcase';
+import Profil from './pages/Profil';
+import AutoLogout from './components/AutoLogout';
+import PublicProfile from './pages/PublicProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import ProfileProtectedRoute from './components/ProfileProtectedRoute';
 import NotificationPermission from "./components/NotificationPermission";
@@ -82,7 +83,7 @@ function App() {
   return (
     <Router>
       {/* 🌟 Conteneur global avec l'image de fond et le filtre dynamique lié aux variables CSS */}
-      <div 
+      <div
         style={{
           backgroundImage: `url(${tradPattern})`,
           backgroundSize: 'cover',
@@ -96,11 +97,11 @@ function App() {
         }}
       >
         <NotificationPermission />
-        
+
         <AutoLogout>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} /> 
+            <Route path="/register" element={<Register />} />
             <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
             <Route path="/profil" element={<PrivateRoute><Profil /></PrivateRoute>} />
             <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
