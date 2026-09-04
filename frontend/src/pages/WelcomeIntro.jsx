@@ -75,7 +75,7 @@ const WelcomeIntro = () => {
 
     return (
         <div
-            className="relative w-full min-h-screen text-slate-50 flex flex-col items-center justify-center py-6 px-4 overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+            className="relative w-full min-h-screen text-slate-50 flex flex-col items-center justify-center py-8 px-4 overflow-x-hidden selection:bg-indigo-500 selection:text-white"
             style={{
                 backgroundColor: 'var(--bg-color)',
                 backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
@@ -100,7 +100,69 @@ const WelcomeIntro = () => {
                 .animate-fade-in-up {
                     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
+
+                /* 🌀 Motion Style compact et positionné en haut à droite */
+                .motion-container-top-right {
+                    position: absolute;
+                    top: 24px;
+                    right: 24px;
+                    width: 120px;
+                    height: 100px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    perspective: 600px;
+                    overflow: hidden;
+                    pointer-events: none;
+                    z-index: 20;
+                    opacity: 0.8;
+                }
+
+                .motion-tunnel-sm {
+                    position: relative;
+                    width: 100%;
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    transform-style: preserve-3d;
+                }
+
+                .motion-circle-sm {
+                    position: absolute;
+                    background: transparent;
+                    width: calc(var(--i) * 5px);
+                    height: calc(var(--i) * 5px);
+                    border-radius: 50%;
+                    border: 1.5px solid rgb(99, 102, 241);
+                    transform-style: preserve-3d;
+                    transform: rotateX(65deg);
+                    animation: motionAnimateSm 3s ease-in-out calc(var(--i) * 0.08s) infinite;
+                    box-shadow: 0 0 8px rgba(99, 102, 241, 0.5), inset 0 0 8px rgba(168, 85, 247, 0.5);
+                }
+
+                @keyframes motionAnimateSm {
+                    0%, 100% {
+                        transform: rotateX(65deg) translateY(0);
+                        filter: hue-rotate(0deg);
+                        border-color: rgba(99, 102, 241, 0.8);
+                    }
+                    50% {
+                        transform: rotateX(65deg) translateY(-20px);
+                        filter: hue-rotate(90deg);
+                        border-color: rgba(168, 85, 247, 1);
+                    }
+                }
             `}</style>
+
+            {/* 🌀 Animation CSS Motion Style en haut à droite (plus petite et stylée) */}
+            <div className="motion-container-top-right hidden sm:flex">
+                <div className="motion-tunnel-sm">
+                    {Array.from({ length: 12 }).map((_, index) => (
+                        <div key={index} className="motion-circle-sm" style={{ '--i': index + 1 }}></div>
+                    ))}
+                </div>
+            </div>
 
             {/* Lueur d'arrière-plan */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -123,8 +185,8 @@ const WelcomeIntro = () => {
                     </p>
                 </div>
 
-                {/* 🎥 SECTION VIDÉO ÉPURÉE AVEC ICONES LUCIDE AU SURVOL */}
-                <div className="relative w-full max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] group bg-black">
+                {/* 🎥 SECTION VIDÉO ÉPURÉE */}
+                <div className="relative w-full max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] group bg-black z-20">
                     <div className="relative aspect-video w-full flex items-center justify-center">
                         <video
                             ref={videoRef}
@@ -182,15 +244,15 @@ const WelcomeIntro = () => {
                 </div>
 
                 {/* Logo & Drapeaux en orbite compacts */}
-                <div className="relative flex items-center justify-center h-28 w-full overflow-hidden select-none">
-                    <div className="relative z-10 w-20 h-20 flex items-center justify-center pointer-events-none">
+                <div className="relative flex items-center justify-center h-24 w-full overflow-hidden select-none z-20">
+                    <div className="relative z-10 w-16 h-16 flex items-center justify-center pointer-events-none">
                         <img
                             src={hitasLogo}
                             alt="Logo HITAS"
                             className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]"
                         />
                     </div>
-                    <div className="absolute w-[240px] h-[54px] border border-dashed border-indigo-900/50 rounded-[50%] pointer-events-none"></div>
+                    <div className="absolute w-[220px] h-[48px] border border-dashed border-indigo-900/50 rounded-[50%] pointer-events-none"></div>
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         {flags.map((flag) => (
                             <div
@@ -205,7 +267,7 @@ const WelcomeIntro = () => {
                 </div>
 
                 {/* Bouton de redirection */}
-                <div>
+                <div className="z-20 relative pt-2">
                     <button
                         type="button"
                         onClick={handleEnterCommunity}
