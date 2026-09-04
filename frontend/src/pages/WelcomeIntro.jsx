@@ -1,17 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, Globe } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
 import tradPattern from '../assets/tradition.jpg';
-import hitasLogo from '../assets/hitas_logo.svg';
-
-// Import des drapeaux pour montrer la dimension internationale
-import franceFlag from '../assets/france.svg';
-import cameroonFlag from '../assets/cameroon.svg';
-import indiaFlag from '../assets/india.svg';
-import brazilFlag from '../assets/brazil.svg';
-import germanyFlag from '../assets/germany.svg';
-import uk from '../assets/uk.svg';
-import italia from '../assets/italia.svg';
+import gwm1 from '../assets/gem1.jpg';
+import gem2 from '../assets/gem2.jpg';
+import gem3 from '../assets/gem3.jpg';
 
 // Import de la vidéo
 import globalVideo from '../assets/videos/un.mp4';
@@ -25,24 +18,14 @@ const WelcomeIntro = () => {
     const [currentVideoSrc, setCurrentVideoSrc] = useState(globalVideo);
 
     const countries = [
-        { id: 'global', label: 'Global', flag: hitasLogo, src: globalVideo },
-        { id: 'france', label: 'France', flag: franceFlag, src: globalVideo },
-        { id: 'allemagne', label: 'Allemagne', flag: germanyFlag, src: globalVideo },
-        { id: 'inde', label: 'Inde', flag: indiaFlag, src: globalVideo },
-        { id: 'italie', label: 'Italie', flag: italia, src: globalVideo },
-        { id: 'cameroun', label: 'Cameroun', flag: cameroonFlag, src: globalVideo },
-        { id: 'uk', label: 'UK', flag: uk, src: globalVideo },
-        { id: 'bresil', label: 'Brésil', flag: brazilFlag, src: globalVideo },
-    ];
-
-    const flags = [
-        { id: 1, src: franceFlag, label: 'France', delay: '0s' },
-        { id: 2, src: cameroonFlag, label: 'Cameroun', delay: '-2s' },
-        { id: 3, src: indiaFlag, label: 'Inde', delay: '-4s' },
-        { id: 4, src: brazilFlag, label: 'Brésil', delay: '-6s' },
-        { id: 5, src: germanyFlag, label: 'Allemagne', delay: '-8s' },
-        { id: 6, src: uk, label: 'UK', delay: '-10s' },
-        { id: 7, src: italia, label: 'Italia', delay: '-12s' },
+        { id: 'global', label: 'Global', src: globalVideo },
+        { id: 'france', label: 'France', src: globalVideo },
+        { id: 'allemagne', label: 'Allemagne', src: globalVideo },
+        { id: 'inde', label: 'Inde', src: globalVideo },
+        { id: 'italie', label: 'Italie', src: globalVideo },
+        { id: 'cameroun', label: 'Cameroun', src: globalVideo },
+        { id: 'uk', label: 'UK', src: globalVideo },
+        { id: 'bresil', label: 'Brésil', src: globalVideo },
     ];
 
     const handleCountryChange = (country) => {
@@ -89,15 +72,6 @@ const WelcomeIntro = () => {
             </div>
 
             <style>{`
-                @keyframes ellipticOrbit {
-                    0% { transform: translate(130px, 0px) scale(1); z-index: 20; }
-                    25% { transform: translate(0px, 28px) scale(0.9); z-index: 20; }
-                    50% { transform: translate(-130px, 0px) scale(0.75); z-index: 5; }
-                    75% { transform: translate(0px, -28px) scale(0.9); z-index: 5; }
-                    100% { transform: translate(130px, 0px) scale(1); z-index: 20; }
-                }
-                .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
-                
                 @keyframes fadeInUp {
                     from { opacity: 0; transform: translateY(15px); filter: blur(4px); }
                     to { opacity: 1; transform: translateY(0); filter: blur(0); }
@@ -168,68 +142,44 @@ const WelcomeIntro = () => {
             <div className="relative z-20 max-w-4xl w-full mx-auto text-center space-y-6 animate-fade-in-up">
 
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md shadow-lg">
-                    <Globe size={13} className="text-indigo-400" />
-                    <span>Réseau International HITAS</span>
+                    <ShieldCheck size={13} className="text-indigo-400" />
+                    <span>Espace Réservé • Étudiants HITAS</span>
                 </div>
 
-                <div className="space-y-2 px-2">
+                <div className="space-y-3 px-2">
                     <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400 bg-clip-text leading-tight drop-shadow-[0_0_25px_rgba(99,102,241,0.4)]">
-                        Étudier partout. Réussir ensemble.
+                        Portail Officiel de la Communauté
                     </h1>
                     <p className="text-zinc-200 text-xs sm:text-sm max-w-lg mx-auto font-medium leading-relaxed drop-shadow-sm">
-                        Sélectionnez un campus pour vous immerger dans l'ambiance de notre communauté internationale.
+                        Accédez à votre espace d'échange, suivez l'actualité des campus à travers le monde et connectez-vous avec vos pairs.
                     </p>
                 </div>
 
-                {/* 🌍 SÉLECTEUR DE PAYS / CAMPUS */}
-                <div className="flex flex-wrap items-center justify-center gap-2 px-2 max-w-2xl mx-auto">
+                {/* 🌍 SÉLECTEUR DE CAMPUS / PAYS SIMPLIFIÉ */}
+                <div className="flex flex-wrap items-center justify-center gap-2 px-2 max-w-2xl mx-auto pt-2">
                     {countries.map((c) => (
                         <button
                             key={c.id}
                             onClick={() => handleCountryChange(c)}
-                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer border backdrop-blur-md ${activeCountry === c.id
+                            className={`px-3.5 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer border backdrop-blur-md ${activeCountry === c.id
                                 ? 'bg-indigo-600/90 border-indigo-400 text-white shadow-lg shadow-indigo-600/40 scale-105'
                                 : 'bg-[#0b081e]/60 border-indigo-900/50 text-zinc-300 hover:border-indigo-500/50 hover:bg-indigo-950/60'
                                 }`}
                         >
-                            <img src={c.flag} alt={c.label} className="w-3.5 h-3.5 rounded-full object-cover" />
                             <span>{c.label}</span>
                         </button>
                     ))}
                 </div>
 
-                {/* Logo & Drapeaux en orbite compacts */}
-                <div className="relative flex items-center justify-center h-28 w-full overflow-hidden select-none">
-                    <div className="relative z-10 w-16 h-16 flex items-center justify-center pointer-events-none">
-                        <img
-                            src={hitasLogo}
-                            alt="Logo HITAS"
-                            className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]"
-                        />
-                    </div>
-                    <div className="absolute w-[220px] h-[48px] border border-dashed border-indigo-900/50 rounded-[50%] pointer-events-none"></div>
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        {flags.map((flag) => (
-                            <div
-                                key={flag.id}
-                                className="absolute w-5 h-5 rounded-full overflow-hidden border border-indigo-500/40 bg-[#0b081e] shadow-md shadow-indigo-500/20 flex items-center justify-center animate-ellipse-orbit"
-                                style={{ animationDelay: flag.delay }}
-                            >
-                                <img src={flag.src} alt={flag.label} className="w-full h-full object-cover" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
                 {/* Bouton de redirection vers le Hub principal */}
-                <div className="pt-2">
+                <div className="pt-6">
                     <button
                         type="button"
                         onClick={handleEnterCommunity}
                         className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-8 py-3.5 rounded-xl text-xs sm:text-sm shadow-xl shadow-indigo-600/40 transition-all transform hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] cursor-pointer"
                     >
                         <Sparkles size={16} className="text-indigo-200" />
-                        <span>Rejoindre la communauté</span>
+                        <span>Entrer sur la plateforme</span>
                         <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
