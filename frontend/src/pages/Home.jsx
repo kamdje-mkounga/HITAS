@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; 
+import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Users, MessageSquareText, Rocket, Bell } from 'lucide-react';
 import tradPattern from '../assets/traditional.jpg';
 
 // 🌐 CONFIGURATION DE L'URL DU BACKEND
-const BACKEND_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:5000' 
-  : 'https://hitas.onrender.com'; 
+const BACKEND_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000'
+  : 'https://hitas.onrender.com';
 
 const socket = io(BACKEND_URL, {
   transports: ['websocket', 'polling'],
@@ -52,9 +52,9 @@ const OrbitingLogo = () => {
 
       {/* 🔮 Lueur indigo diffuse harmonisée */}
       <div className="relative z-10 w-36 h-36 flex items-center justify-center pointer-events-none">
-        <img 
-          src={hitasLogo} 
-          alt="Logo HITAS" 
+        <img
+          src={hitasLogo}
+          alt="Logo HITAS"
           className="w-full h-full object-contain filter drop-shadow-[0_0_30px_rgba(99,102,241,0.5)]"
         />
       </div>
@@ -78,8 +78,8 @@ const OrbitingLogo = () => {
 
 function Home() {
   const [unreadCount, setUnreadCount] = useState(0);
-  const currentUserId = localStorage.getItem('userId'); 
-  
+  const currentUserId = localStorage.getItem('userId');
+
   // 🍏 État pour suivre la permission de notification native
   const [permissionStatus, setPermissionStatus] = useState(
     'Notification' in window ? Notification.permission : 'default'
@@ -91,7 +91,7 @@ function Home() {
       try {
         const permission = await Notification.requestPermission();
         setPermissionStatus(permission);
-        
+
         if (permission === 'granted' && 'serviceWorker' in navigator) {
           await navigator.serviceWorker.ready;
           console.log("iOS PWA : Autorisation validée !");
@@ -116,10 +116,10 @@ function Home() {
   useEffect(() => {
     const fetchArticlesAndCalculateUnread = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/api/posts`); 
+        const response = await axios.get(`${BACKEND_URL}/api/posts`);
         const articles = response.data || [];
         const lastViewedBlog = localStorage.getItem('last_viewed_blog');
-        
+
         if (!lastViewedBlog) {
           const othersArticles = articles.filter(article => {
             const authorId = typeof article.user === 'object' ? article.user._id : article.user;
@@ -128,12 +128,12 @@ function Home() {
           setUnreadCount(othersArticles.length);
           return;
         }
- 
+
         const lastViewedDate = new Date(lastViewedBlog);
-        
+
         const unreadArticles = articles.filter(article => {
           if (!article.date) return false;
-          
+
           const authorId = typeof article.user === 'object' ? article.user._id : article.user;
           if (String(authorId).trim() === String(currentUserId).trim()) {
             return false;
@@ -142,13 +142,13 @@ function Home() {
           const articleDate = new Date(article.date);
           return articleDate > lastViewedDate;
         });
- 
+
         setUnreadCount(unreadArticles.length);
       } catch (error) {
         console.error("Erreur initialisation des notifications:", error);
       }
     };
- 
+
     fetchArticlesAndCalculateUnread();
 
     const handlePageShow = (event) => {
@@ -156,7 +156,7 @@ function Home() {
     };
 
     window.addEventListener('pageshow', handlePageShow);
- 
+
     return () => {
       window.removeEventListener('pageshow', handlePageShow);
     };
@@ -165,7 +165,7 @@ function Home() {
   useEffect(() => {
     socket.on('article_published', (newArticle) => {
       const authorId = typeof newArticle.user === 'object' ? newArticle.user._id : newArticle.user;
-      if (String(authorId).trim() === String(currentUserId).trim()) return; 
+      if (String(authorId).trim() === String(currentUserId).trim()) return;
       setUnreadCount(prev => prev + 1);
     });
 
@@ -180,7 +180,7 @@ function Home() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300"
       style={{
         backgroundColor: 'var(--bg-color)',
@@ -198,7 +198,7 @@ function Home() {
           animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}</style>
-      
+
       <Navbar />
 
       {/* 🔔 COMPOSANT DE SUGGESTION DESIGN DES NOTIFICATIONS */}
@@ -208,7 +208,7 @@ function Home() {
             <Bell className="h-4 w-4 text-indigo-400 animate-bounce" />
             <span>Activez les notifications pour recevoir les alertes du blog en temps réel.</span>
           </div>
-          <button 
+          <button
             onClick={handleEnableNotifications}
             className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs transition-all shadow-md shadow-indigo-600/30 hover:shadow-[0_0_12px_rgba(99,102,241,0.5)] active:scale-95"
           >
@@ -224,13 +224,13 @@ function Home() {
 
       {/* Contenu principal */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 pt-12 pb-24 md:pb-12 flex flex-col justify-center relative z-10">
-        
+
         {/* En-tête principal animé avec titres lumineux */}
         <div className="text-center max-w-2xl mx-auto mb-14 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2 bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent leading-tight drop-shadow-[0_0_25px_rgba(129,140,248,0.35)]">
             Le Hub de la Communauté Estudiantine de HITAS
           </h1>
-          
+
           <OrbitingLogo />
 
           <p className="text-zinc-300 text-base md:text-lg mt-4 px-4 max-w-xl mx-auto font-medium leading-relaxed drop-shadow-sm">
@@ -240,10 +240,10 @@ function Home() {
 
         {/* Grille des fonctionnalités principales avec effets de cartes lumineuses */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
+
           {/* Carte Annuaire */}
-          <Link 
-            to="/annuaire" 
+          <Link
+            to="/annuaire"
             className="group p-6 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 hover:border-indigo-500/60 rounded-3xl transition-all duration-300 shadow-2xl shadow-indigo-950/30 flex flex-col justify-between opacity-0 animate-fade-in-up hover:shadow-[0_0_25px_rgba(99,102,241,0.25)] hover:-translate-y-1"
             style={{ animationDelay: '0.2s' }}
           >
@@ -260,8 +260,8 @@ function Home() {
           </Link>
 
           {/* Carte Blog d'Entraide */}
-          <Link 
-            to="/blog" 
+          <Link
+            to="/blog"
             onClick={handleBlogClick}
             className="group p-6 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 hover:border-purple-500/60 rounded-3xl transition-all duration-300 shadow-2xl shadow-purple-950/30 flex flex-col justify-between opacity-0 animate-fade-in-up hover:shadow-[0_0_25px_rgba(168,85,247,0.25)] hover:-translate-y-1"
             style={{ animationDelay: '0.3s' }}
@@ -271,7 +271,7 @@ function Home() {
                 <div className="w-full h-full rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center group-hover:bg-purple-500/25 transition-all duration-300 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
                   <MessageSquareText className="h-5 w-5 text-purple-300 drop-shadow-[0_0_6px_rgba(216,180,254,0.8)]" />
                 </div>
-                
+
                 {unreadCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-black text-white animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)] border-2 border-[#030014]">
                     {unreadCount}
@@ -288,8 +288,8 @@ function Home() {
           </Link>
 
           {/* Carte Showcase */}
-          <Link 
-            to="/showcase" 
+          <Link
+            to="/showcase"
             className="group p-6 bg-[#0b081e]/70 backdrop-blur-xl border border-indigo-500/20 hover:border-pink-500/60 rounded-3xl transition-all duration-300 shadow-2xl shadow-pink-950/30 flex flex-col justify-between opacity-0 animate-fade-in-up hover:shadow-[0_0_25px_rgba(236,72,153,0.25)] hover:-translate-y-1"
             style={{ animationDelay: '0.4s' }}
           >
