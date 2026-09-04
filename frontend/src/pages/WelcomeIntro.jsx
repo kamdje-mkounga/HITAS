@@ -188,8 +188,8 @@ const WelcomeIntro = () => {
                             key={c.id}
                             onClick={() => handleCountryChange(c)}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer border backdrop-blur-md ${activeCountry === c.id
-                                    ? 'bg-indigo-600/90 border-indigo-400 text-white shadow-lg shadow-indigo-600/40 scale-105'
-                                    : 'bg-[#0b081e]/60 border-indigo-900/50 text-zinc-300 hover:border-indigo-500/50 hover:bg-indigo-950/60'
+                                ? 'bg-indigo-600/90 border-indigo-400 text-white shadow-lg shadow-indigo-600/40 scale-105'
+                                : 'bg-[#0b081e]/60 border-indigo-900/50 text-zinc-300 hover:border-indigo-500/50 hover:bg-indigo-950/60'
                                 }`}
                         >
                             <img src={c.flag} alt={c.label} className="w-3.5 h-3.5 rounded-full object-cover" />
