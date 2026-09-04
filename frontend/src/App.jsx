@@ -100,19 +100,27 @@ function App() {
 
         <AutoLogout>
           <Routes>
+            {/* 🌍 Page d'accueil publique d'introduction (Demandée par le président) */}
+            <Route path="/" element={<WelcomeIntro />} />
+
+            {/* Routes d'authentification */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+
+            {/* Routes protégées standard */}
             <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
             <Route path="/profil" element={<PrivateRoute><Profil /></PrivateRoute>} />
             <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
 
+            {/* Le Hub principal et les sections de la communauté */}
             <Route element={<ProfileProtectedRoute />}>
-              <Route path="/" element={<PrivateRoute><Home hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
+              <Route path="/home" element={<PrivateRoute><Home hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
               <Route path="/annuaire" element={<PrivateRoute><Annuaire hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
               <Route path="/blog" element={<PrivateRoute><Blog hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
               <Route path="/showcase" element={<PrivateRoute><Showcase hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
             </Route>
 
+            {/* Redirection par défaut */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AutoLogout>
