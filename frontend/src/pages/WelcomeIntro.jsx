@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, Globe, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { Sparkles, ArrowRight, Globe } from 'lucide-react';
 import tradPattern from '../assets/tradition.jpg';
 import hitasLogo from '../assets/hitas_logo.svg';
 
@@ -12,14 +12,28 @@ import brazilFlag from '../assets/brazil.svg';
 import germanyFlag from '../assets/germany.svg';
 import uk from '../assets/uk.svg';
 import italia from '../assets/italia.svg';
-import introVideo from '../assets/videos/un.mp4';
+
+// Import de la vidéo
+import globalVideo from '../assets/videos/un.mp4';
 
 const WelcomeIntro = () => {
     const navigate = useNavigate();
     const videoRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(true);
-    const [isMuted, setIsMuted] = useState(true);
-    const [volume, setVolume] = useState(1);
+
+    // État pour gérer les différents campus / pays dynamiquement
+    const [activeCountry, setActiveCountry] = useState('global');
+    const [currentVideoSrc, setCurrentVideoSrc] = useState(globalVideo);
+
+    const countries = [
+        { id: 'global', label: 'Global', flag: hitasLogo, src: globalVideo },
+        { id: 'france', label: 'France', flag: franceFlag, src: globalVideo },
+        { id: 'allemagne', label: 'Allemagne', flag: germanyFlag, src: globalVideo },
+        { id: 'inde', label: 'Inde', flag: indiaFlag, src: globalVideo },
+        { id: 'italie', label: 'Italie', flag: italia, src: globalVideo },
+        { id: 'cameroun', label: 'Cameroun', flag: cameroonFlag, src: globalVideo },
+        { id: 'uk', label: 'UK', flag: uk, src: globalVideo },
+        { id: 'bresil', label: 'Brésil', flag: brazilFlag, src: globalVideo },
+    ];
 
     const flags = [
         { id: 1, src: franceFlag, label: 'France', delay: '0s' },
@@ -31,58 +45,49 @@ const WelcomeIntro = () => {
         { id: 7, src: italia, label: 'Italia', delay: '-12s' },
     ];
 
+    const handleCountryChange = (country) => {
+        setActiveCountry(country.id);
+        setCurrentVideoSrc(country.src);
+        if (videoRef.current) {
+            videoRef.current.load();
+            videoRef.current.play().catch(e => console.log("Auto-play bloqué :", e));
+        }
+    };
+
     const handleEnterCommunity = () => {
         navigate('/home');
     };
 
-    const togglePlay = () => {
-        if (videoRef.current) {
-            if (isPlaying) {
-                videoRef.current.pause();
-                setIsPlaying(false);
-            } else {
-                videoRef.current.play();
-                setIsPlaying(true);
-            }
-        }
-    };
-
-    const toggleMute = () => {
-        if (videoRef.current) {
-            videoRef.current.muted = !isMuted;
-            setIsMuted(!isMuted);
-        }
-    };
-
-    const handleVolumeChange = (e) => {
-        const val = parseFloat(e.target.value);
-        setVolume(val);
-        if (videoRef.current) {
-            videoRef.current.volume = val;
-            setIsMuted(val === 0);
-        }
-    };
-
-    const toggleFullScreen = () => {
-        if (videoRef.current) {
-            if (videoRef.current.requestFullscreen) {
-                videoRef.current.requestFullscreen();
-            } else if (videoRef.current.webkitRequestFullscreen) {
-                videoRef.current.webkitRequestFullscreen();
-            }
-        }
-    };
-
     return (
         <div
-            className="relative w-full min-h-screen text-slate-50 flex flex-col items-center justify-center py-8 px-4 overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+            className="relative w-full min-h-screen text-slate-50 flex flex-col items-center justify-center py-6 px-4 overflow-x-hidden selection:bg-indigo-500 selection:text-white"
             style={{
-                backgroundColor: 'var(--bg-color)',
-                backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'repeat',
+                backgroundColor: 'var(--bg-color)'
             }}
         >
+            {/* 🎥 VIDÉO EN ARRIÈRE-PLAN PLEIN ÉCRAN, AUTOMATIQUE ET EN BOUCLE */}
+            <div className="absolute inset-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                <video
+                    ref={videoRef}
+                    src={currentVideoSrc}
+                    className="w-full h-full object-cover transition-opacity duration-700"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                />
+                {/* Superbe overlay sombre et texturé pour garder le texte parfaitement lisible */}
+                <div
+                    className="absolute inset-0 z-10"
+                    style={{
+                        backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
+                        backgroundSize: 'contain',
+                        backgroundRepeat: 'repeat',
+                        opacity: 0.85
+                    }}
+                ></div>
+            </div>
+
             <style>{`
                 @keyframes ellipticOrbit {
                     0% { transform: translate(130px, 0px) scale(1); z-index: 20; }
@@ -101,7 +106,6 @@ const WelcomeIntro = () => {
                     animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
 
-                /* 🌀 Motion Style compact et positionné en haut à droite */
                 .motion-container-top-right {
                     position: absolute;
                     top: 24px;
@@ -114,10 +118,9 @@ const WelcomeIntro = () => {
                     perspective: 600px;
                     overflow: hidden;
                     pointer-events: none;
-                    z-index: 20;
+                    z-index: 30;
                     opacity: 0.8;
                 }
-
                 .motion-tunnel-sm {
                     position: relative;
                     width: 100%;
@@ -127,7 +130,6 @@ const WelcomeIntro = () => {
                     align-items: center;
                     transform-style: preserve-3d;
                 }
-
                 .motion-circle-sm {
                     position: absolute;
                     background: transparent;
@@ -140,7 +142,6 @@ const WelcomeIntro = () => {
                     animation: motionAnimateSm 3s ease-in-out calc(var(--i) * 0.08s) infinite;
                     box-shadow: 0 0 8px rgba(99, 102, 241, 0.5), inset 0 0 8px rgba(168, 85, 247, 0.5);
                 }
-
                 @keyframes motionAnimateSm {
                     0%, 100% {
                         transform: rotateX(65deg) translateY(0);
@@ -155,7 +156,7 @@ const WelcomeIntro = () => {
                 }
             `}</style>
 
-            {/* 🌀 Animation CSS Motion Style en haut à droite (plus petite et stylée) */}
+            {/* Animation Motion de fond en haut à droite */}
             <div className="motion-container-top-right hidden sm:flex">
                 <div className="motion-tunnel-sm">
                     {Array.from({ length: 12 }).map((_, index) => (
@@ -164,87 +165,41 @@ const WelcomeIntro = () => {
                 </div>
             </div>
 
-            {/* Lueur d'arrière-plan */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="relative z-20 max-w-4xl w-full mx-auto text-center space-y-6 animate-fade-in-up">
 
-            <div className="relative z-10 max-w-4xl w-full mx-auto text-center space-y-6 animate-fade-in-up">
-
-                {/* Badge d'introduction */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md shadow-lg">
                     <Globe size={13} className="text-indigo-400" />
                     <span>Réseau International HITAS</span>
                 </div>
 
-                {/* Titre & Description */}
                 <div className="space-y-2 px-2">
-                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400 bg-clip-text leading-tight drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
+                    <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400 bg-clip-text leading-tight drop-shadow-[0_0_25px_rgba(99,102,241,0.4)]">
                         Étudier partout. Réussir ensemble.
                     </h1>
-                    <p className="text-zinc-300 text-xs sm:text-sm max-w-lg mx-auto font-medium leading-relaxed">
-                        Découvrez l'ambiance de notre communauté internationale à travers cette présentation.
+                    <p className="text-zinc-200 text-xs sm:text-sm max-w-lg mx-auto font-medium leading-relaxed drop-shadow-sm">
+                        Sélectionnez un campus pour vous immerger dans l'ambiance de notre communauté internationale.
                     </p>
                 </div>
 
-                {/* 🎥 SECTION VIDÉO ÉPURÉE */}
-                <div className="relative w-full max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] group bg-black z-20">
-                    <div className="relative aspect-video w-full flex items-center justify-center">
-                        <video
-                            ref={videoRef}
-                            src={introVideo}
-                            className="w-full h-full object-cover"
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                        />
-
-                        {/* Barre de contrôle épurée en overlay au survol */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 pointer-events-none">
-                            <div className="w-full flex items-center justify-between pointer-events-auto">
-
-                                {/* Bouton Play / Pause avec icône Lucide */}
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        onClick={togglePlay}
-                                        className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 shadow-lg"
-                                        title={isPlaying ? "Pause" : "Lecture"}
-                                    >
-                                        {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-                                    </button>
-
-                                    {/* Contrôle du volume discret */}
-                                    <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
-                                        <button onClick={toggleMute} className="text-white hover:text-indigo-400 transition-colors cursor-pointer">
-                                            {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                                        </button>
-                                        <input
-                                            type="range"
-                                            min="0"
-                                            max="1"
-                                            step="0.05"
-                                            value={isMuted ? 0 : volume}
-                                            onChange={handleVolumeChange}
-                                            className="w-16 sm:w-24 accent-indigo-500 h-1 bg-white/20 rounded-lg cursor-pointer"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Bouton Plein écran */}
-                                <button
-                                    onClick={toggleFullScreen}
-                                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 shadow-lg"
-                                    title="Plein écran"
-                                >
-                                    <Maximize size={15} />
-                                </button>
-
-                            </div>
-                        </div>
-                    </div>
+                {/* 🌍 SÉLECTEUR DE PAYS / CAMPUS */}
+                <div className="flex flex-wrap items-center justify-center gap-2 px-2 max-w-2xl mx-auto">
+                    {countries.map((c) => (
+                        <button
+                            key={c.id}
+                            onClick={() => handleCountryChange(c)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer border backdrop-blur-md ${activeCountry === c.id
+                                    ? 'bg-indigo-600/90 border-indigo-400 text-white shadow-lg shadow-indigo-600/40 scale-105'
+                                    : 'bg-[#0b081e]/60 border-indigo-900/50 text-zinc-300 hover:border-indigo-500/50 hover:bg-indigo-950/60'
+                                }`}
+                        >
+                            <img src={c.flag} alt={c.label} className="w-3.5 h-3.5 rounded-full object-cover" />
+                            <span>{c.label}</span>
+                        </button>
+                    ))}
                 </div>
 
                 {/* Logo & Drapeaux en orbite compacts */}
-                <div className="relative flex items-center justify-center h-24 w-full overflow-hidden select-none z-20">
+                <div className="relative flex items-center justify-center h-28 w-full overflow-hidden select-none">
                     <div className="relative z-10 w-16 h-16 flex items-center justify-center pointer-events-none">
                         <img
                             src={hitasLogo}
@@ -266,12 +221,12 @@ const WelcomeIntro = () => {
                     </div>
                 </div>
 
-                {/* Bouton de redirection */}
-                <div className="z-20 relative pt-2">
+                {/* Bouton de redirection vers le Hub principal */}
+                <div className="pt-2">
                     <button
                         type="button"
                         onClick={handleEnterCommunity}
-                        className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-7 py-3 rounded-xl text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] cursor-pointer"
+                        className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-8 py-3.5 rounded-xl text-xs sm:text-sm shadow-xl shadow-indigo-600/40 transition-all transform hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(99,102,241,0.6)] cursor-pointer"
                     >
                         <Sparkles size={16} className="text-indigo-200" />
                         <span>Rejoindre la communauté</span>
