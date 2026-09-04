@@ -77,7 +77,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
 
   const filteredProfiles = profiles.filter((profile) => {
     const search = searchTerm.toLowerCase().trim();
-    
+
     const fullName = `${profile.firstName || ''} ${profile.lastName || ''}`.toLowerCase();
     const specialty = (profile.specialty || '').toLowerCase();
     const country = (profile.country || '').toLowerCase();
@@ -86,10 +86,10 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
     const job = (profile.jobTitle || '').toLowerCase();
     const bio = (profile.bio || '').toLowerCase();
 
-    const matchesSearch = 
+    const matchesSearch =
       !search ||
-      fullName.includes(search) || 
-      specialty.includes(search) || 
+      fullName.includes(search) ||
+      specialty.includes(search) ||
       country.includes(search) ||
       city.includes(search) ||
       company.includes(search) ||
@@ -132,7 +132,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
             .replace(/\\/g, '') // Enlève tous les backslashes \
             .replace(/[\[\]"]/g, '') // Enlève [ ] et "
             .trim();
-          
+
           if (cleaned.includes(',')) {
             cleaned.split(',').forEach(sub => {
               const subClean = sub.replace(/['"]+/g, '').trim();
@@ -156,7 +156,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative"
       style={{
         backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
@@ -177,7 +177,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
       <Navbar hasNewNotification={hasNewNotification} clearNotifications={clearNotifications} />
 
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-12 relative z-10">
-        
+
         <div className="mb-10 border-b border-indigo-900/40 pb-5 text-center">
           <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 bg-gradient-to-r from-white via-indigo-200 to-purple-300 bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(129,140,248,0.3)]">
             Annuaire de la Diaspora
@@ -284,7 +284,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               <div className="text-center py-16 bg-[#0b081e]/80 backdrop-blur-md border border-indigo-500/30 rounded-3xl shadow-xl">
                 <p className="text-zinc-300 text-sm font-medium">Aucun membre ne correspond à tes critères de recherche.</p>
                 {(searchTerm || selectedSpecialty || selectedPromotion || selectedCountry || selectedStatus || selectedDegree) && (
-                  <button 
+                  <button
                     onClick={handleResetFilters}
                     className="mt-4 text-xs font-bold text-indigo-300 hover:text-white px-4 py-2 border border-indigo-500/40 rounded-xl hover:bg-indigo-950/60 transition-all"
                   >
@@ -294,7 +294,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
               </div>
             ) : (
               <div className="relative">
-                
+
                 {/* LIGNES DE CONNEXION EXTÉRIEURES */}
                 <div className="absolute inset-0 pointer-events-none hidden lg:block z-0">
                   <div className="w-full h-full absolute inset-0 flex flex-col justify-around">
@@ -313,8 +313,8 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                     const skillsArray = getCleanSkillsArray(profile.skills);
 
                     return (
-                      <div 
-                        key={profile._id} 
+                      <div
+                        key={profile._id}
                         onClick={() => navigate(`/profile/${profile.user?._id || profile.user}`)}
                         className="relative bg-[#0b081e]/95 backdrop-blur-2xl border border-indigo-500/30 rounded-3xl shadow-xl hover:border-indigo-400 cursor-pointer transition-all duration-300 group opacity-0 animate-card-fade hover:-translate-y-1.5 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] flex flex-col overflow-hidden text-center"
                         style={{ animationDelay: `${index * 0.05}s` }}
@@ -326,9 +326,9 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                         <div className="flex justify-center -mt-8 mb-2 px-4 relative z-10">
                           <div className="w-16 h-16 rounded-full bg-[#0b081e] border-2 border-indigo-400 overflow-hidden flex items-center justify-center shadow-2xl ring-4 ring-[#030014]">
                             {profile.avatar ? (
-                              <img 
-                                src={formatMediaUrl(profile.avatar)} 
-                                alt={`${profile.firstName} ${profile.lastName}`} 
+                              <img
+                                src={formatMediaUrl(profile.avatar)}
+                                alt={`${profile.firstName} ${profile.lastName}`}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 onError={(e) => {
                                   e.target.style.display = 'none';
@@ -348,7 +348,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
                           <h2 className="text-sm font-black text-white group-hover:text-indigo-300 transition-colors uppercase tracking-tight mb-0.5">
                             {profile.firstName} {profile.lastName}
                           </h2>
-                          
+
                           {profile.status && (
                             <span className="inline-block text-[9px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-3">
                               {profile.status}
