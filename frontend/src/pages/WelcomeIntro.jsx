@@ -1,6 +1,6 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ArrowRight, Globe } from 'lucide-react';
+import { Sparkles, ArrowRight, Globe, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
 import tradPattern from '../assets/tradition.jpg';
 import hitasLogo from '../assets/hitas_logo.svg';
 
@@ -17,15 +17,9 @@ import introVideo from '../assets/videos/un.mp4';
 const WelcomeIntro = () => {
     const navigate = useNavigate();
     const videoRef = useRef(null);
-
-    // Lecture automatique sécurisée au chargement
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.play().catch(error => {
-                console.log("Autoplay bloqué par le navigateur, interaction requise :", error);
-            });
-        }
-    }, []);
+    const [isPlaying, setIsPlaying] = useState(true);
+    const [isMuted, setIsMuted] = useState(true);
+    const [volume, setVolume] = useState(1);
 
     const flags = [
         { id: 1, src: franceFlag, label: 'France', delay: '0s' },
@@ -41,9 +35,47 @@ const WelcomeIntro = () => {
         navigate('/home');
     };
 
+    const togglePlay = () => {
+        if (videoRef.current) {
+            if (isPlaying) {
+                videoRef.current.pause();
+                setIsPlaying(false);
+            } else {
+                videoRef.current.play();
+                setIsPlaying(true);
+            }
+        }
+    };
+
+    const toggleMute = () => {
+        if (videoRef.current) {
+            videoRef.current.muted = !isMuted;
+            setIsMuted(!isMuted);
+        }
+    };
+
+    const handleVolumeChange = (e) => {
+        const val = parseFloat(e.target.value);
+        setVolume(val);
+        if (videoRef.current) {
+            videoRef.current.volume = val;
+            setIsMuted(val === 0);
+        }
+    };
+
+    const toggleFullScreen = () => {
+        if (videoRef.current) {
+            if (videoRef.current.requestFullscreen) {
+                videoRef.current.requestFullscreen();
+            } else if (videoRef.current.webkitRequestFullscreen) {
+                videoRef.current.webkitRequestFullscreen();
+            }
+        }
+    };
+
     return (
         <div
-            className="relative w-full min-h-screen text-slate-50 flex flex-col items-center justify-center py-8 px-4 overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+            className="relative w-full min-h-screen text-slate-50 flex flex-col items-center justify-center py-6 px-4 overflow-x-hidden selection:bg-indigo-500 selection:text-white"
             style={{
                 backgroundColor: 'var(--bg-color)',
                 backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
@@ -53,11 +85,11 @@ const WelcomeIntro = () => {
         >
             <style>{`
                 @keyframes ellipticOrbit {
-                    0% { transform: translate(140px, 0px) scale(1); z-index: 20; }
-                    25% { transform: translate(0px, 30px) scale(0.9); z-index: 20; }
-                    50% { transform: translate(-140px, 0px) scale(0.75); z-index: 5; }
-                    75% { transform: translate(0px, -30px) scale(0.9); z-index: 5; }
-                    100% { transform: translate(140px, 0px) scale(1); z-index: 20; }
+                    0% { transform: translate(130px, 0px) scale(1); z-index: 20; }
+                    25% { transform: translate(0px, 28px) scale(0.9); z-index: 20; }
+                    50% { transform: translate(-130px, 0px) scale(0.75); z-index: 5; }
+                    75% { transform: translate(0px, -28px) scale(0.9); z-index: 5; }
+                    100% { transform: translate(130px, 0px) scale(1); z-index: 20; }
                 }
                 .animate-ellipse-orbit { animation: ellipticOrbit 14s linear infinite; }
                 
@@ -71,43 +103,85 @@ const WelcomeIntro = () => {
             `}</style>
 
             {/* Lueur d'arrière-plan */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-            {/* Conteneur principal élargi à max-w-5xl pour laisser plus de place à la vidéo */}
-            <div className="relative z-10 max-w-5xl w-full mx-auto text-center space-y-6 animate-fade-in-up">
+            <div className="relative z-10 max-w-4xl w-full mx-auto text-center space-y-6 animate-fade-in-up">
 
                 {/* Badge d'introduction */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
-                    <Globe size={14} className="text-indigo-400" />
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md shadow-md">
+                    <Globe size={13} className="text-indigo-400" />
                     <span>Réseau International HITAS</span>
                 </div>
 
                 {/* Titre & Description */}
                 <div className="space-y-2 px-2">
-                    <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400 bg-clip-text leading-tight drop-shadow-[0_0_25px_rgba(99,102,241,0.3)]">
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-transparent bg-gradient-to-r from-white via-indigo-200 to-purple-400 bg-clip-text leading-tight drop-shadow-[0_0_20px_rgba(99,102,241,0.3)]">
                         Étudier partout. Réussir ensemble.
                     </h1>
-                    <p className="text-zinc-300 text-sm sm:text-base max-w-xl mx-auto font-medium leading-relaxed">
-                        Plongez au cœur de notre communauté internationale et découvrez l'esprit de l'école.
+                    <p className="text-zinc-300 text-xs sm:text-sm max-w-lg mx-auto font-medium leading-relaxed">
+                        Découvrez l'ambiance de notre communauté internationale à travers cette présentation.
                     </p>
                 </div>
 
-                {/* 🎥 SECTION VIDÉO PLUS LARGE ET SANS BORDURE */}
-                <div className="relative w-full max-w-4xl mx-auto rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.7)]">
-                    <div className="relative aspect-video w-full bg-black flex items-center justify-center overflow-hidden">
+                {/* 🎥 SECTION VIDÉO ÉPURÉE AVEC ICONES LUCIDE AU SURVOL */}
+                <div className="relative w-full max-w-3xl mx-auto rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.6)] group bg-black">
+                    <div className="relative aspect-video w-full flex items-center justify-center">
                         <video
                             ref={videoRef}
                             src={introVideo}
                             className="w-full h-full object-cover"
                             autoPlay
-                            muted
                             loop
+                            muted
                             playsInline
                         />
+
+                        {/* Barre de contrôle épurée en overlay au survol */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4 pointer-events-none">
+                            <div className="w-full flex items-center justify-between pointer-events-auto">
+
+                                {/* Bouton Play / Pause avec icône Lucide */}
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        onClick={togglePlay}
+                                        className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 shadow-lg"
+                                        title={isPlaying ? "Pause" : "Lecture"}
+                                    >
+                                        {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+                                    </button>
+
+                                    {/* Contrôle du volume discret */}
+                                    <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10">
+                                        <button onClick={toggleMute} className="text-white hover:text-indigo-400 transition-colors cursor-pointer">
+                                            {isMuted || volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                                        </button>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="1"
+                                            step="0.05"
+                                            value={isMuted ? 0 : volume}
+                                            onChange={handleVolumeChange}
+                                            className="w-16 sm:w-24 accent-indigo-500 h-1 bg-white/20 rounded-lg cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Bouton Plein écran */}
+                                <button
+                                    onClick={toggleFullScreen}
+                                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 shadow-lg"
+                                    title="Plein écran"
+                                >
+                                    <Maximize size={15} />
+                                </button>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                {/* Logo & Drapeaux en orbite */}
+                {/* Logo & Drapeaux en orbite compacts */}
                 <div className="relative flex items-center justify-center h-28 w-full overflow-hidden select-none">
                     <div className="relative z-10 w-20 h-20 flex items-center justify-center pointer-events-none">
                         <img
@@ -116,7 +190,7 @@ const WelcomeIntro = () => {
                             className="w-full h-full object-contain filter drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]"
                         />
                     </div>
-                    <div className="absolute w-[260px] h-[58px] border border-dashed border-indigo-900/50 rounded-[50%] pointer-events-none"></div>
+                    <div className="absolute w-[240px] h-[54px] border border-dashed border-indigo-900/50 rounded-[50%] pointer-events-none"></div>
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         {flags.map((flag) => (
                             <div
@@ -135,11 +209,11 @@ const WelcomeIntro = () => {
                     <button
                         type="button"
                         onClick={handleEnterCommunity}
-                        className="group inline-flex items-center gap-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-8 py-4 rounded-2xl text-sm sm:text-base shadow-xl shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5 hover:shadow-[0_0_25px_rgba(99,102,241,0.5)] cursor-pointer"
+                        className="group inline-flex items-center gap-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold px-7 py-3 rounded-xl text-xs sm:text-sm shadow-lg shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(99,102,241,0.4)] cursor-pointer"
                     >
-                        <Sparkles size={18} className="text-indigo-200" />
+                        <Sparkles size={16} className="text-indigo-200" />
                         <span>Rejoindre la communauté</span>
-                        <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
 
