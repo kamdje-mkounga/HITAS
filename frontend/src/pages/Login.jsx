@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import API from '../services/api';
 import tradPattern from '../assets/traditional.jpg';
 
@@ -7,6 +8,7 @@ function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,13 +21,10 @@ function Login() {
 
     try {
       setLoading(true);
-      // Appel à notre route de Login du backend
       const response = await API.post('/auth/login', formData);
-      
-      // 1. Stockage du token JWT
+
       localStorage.setItem('token', response.data.token);
-      
-      // 2. Extraction et stockage sécurisé de l'ID utilisateur et de son rôle
+
       const userId = response.data.userId || response.data.user?.id || response.data.user?._id;
       const userRole = response.data.user?.role;
 
@@ -36,13 +35,11 @@ function Login() {
       }
 
       if (userRole) {
-        localStorage.setItem('userRole', userRole); // Permettra d'afficher le bouton Admin plus tard !
+        localStorage.setItem('userRole', userRole);
       }
-      
-      // Redirection vers l'accueil / tableau de bord
+
       navigate('/');
     } catch (err) {
-      // Récupère précisément le message du backend (ex: "Compte en attente de validation")
       setError(err.response?.data?.message || 'Identifiants incorrects ou erreur serveur.');
     } finally {
       setLoading(false);
@@ -50,69 +47,72 @@ function Login() {
   };
 
   return (
-    <div 
-      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased py-12 relative flex items-center justify-center px-4 font-sans selection:bg-indigo-500 selection:text-white"
+    <div
+      className="w-full min-h-screen text-zinc-100 antialiased relative flex items-center justify-center px-4 font-sans selection:bg-indigo-500 selection:text-white"
       style={{
+        backgroundColor: '#030014',
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
     >
-      <div className="w-full max-w-md p-8 bg-[#0b081e]/40 backdrop-blur-md border border-indigo-950/60 rounded-2xl shadow-2xl shadow-black/50 relative z-10">
-        
+      <div className="w-full max-w-md p-8 sm:p-10 bg-white/10 dark:bg-[#0b081e]/30 backdrop-blur-xl border border-white/10 rounded-[2.5rem] shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] relative z-10">
+
         {/* En-tête */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-100 to-purple-300 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-sm">
             Connexion
           </h2>
-          <p className="text-zinc-400 text-sm mt-2">Heureux de te revoir sur HITAS Connect</p>
+          <p className="text-zinc-300 text-xs sm:text-sm mt-2 font-medium">Heureux de te revoir sur HITAS Connect</p>
         </div>
 
-        {/* Message d'erreur flash (Gère le cas de compte bloqué ou non validé) */}
+        {/* Message d'erreur */}
         {error && (
-          <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium rounded-xl leading-relaxed">
+          <div className="mb-5 p-3.5 bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-medium rounded-xl leading-relaxed backdrop-blur-md">
             ⚠️ {error}
           </div>
         )}
-        
-
 
         {/* Formulaire */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
-              Adresse Email
-            </label>
+          <div className="relative">
             <input
               type="email"
               name="email"
               required
               value={formData.email}
               onChange={handleChange}
-              placeholder="etudiant@hitas.com"
-              className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
+              placeholder="Adresse Email"
+              className="w-full px-6 py-3.5 pr-12 bg-black/30 border border-white/15 rounded-full text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all text-sm shadow-inner"
             />
+            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none">
+              <User size={18} />
+            </span>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-500 mb-2">
-              Mot de passe
-            </label>
+          <div className="relative">
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               required
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
-              className="w-full px-4 py-3 bg-[#030014]/60 border border-indigo-950/80 rounded-xl text-zinc-100 placeholder-zinc-700 focus:outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm"
+              placeholder="Mot de passe"
+              className="w-full px-6 py-3.5 pr-12 bg-black/30 border border-white/15 rounded-full text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all text-sm shadow-inner"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-200 transition-colors focus:outline-none cursor-pointer"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-[0.99] disabled:opacity-50 text-sm"
+            className="w-full py-3.5 bg-white hover:bg-zinc-100 text-slate-900 font-bold rounded-full transition-all shadow-xl hover:shadow-white/10 active:scale-[0.99] disabled:opacity-50 text-sm cursor-pointer"
           >
             {loading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
@@ -120,9 +120,9 @@ function Login() {
 
         {/* Lien vers inscription */}
         <div className="text-center mt-6">
-          <p className="text-zinc-500 text-xs font-medium">
+          <p className="text-zinc-400 text-xs font-medium">
             Pas encore de compte ?{' '}
-            <Link to="/register" className="text-indigo-400 hover:text-indigo-300 hover:underline transition-colors">
+            <Link to="/register" className="text-indigo-300 hover:text-white font-semibold hover:underline transition-colors">
               Créer un compte
             </Link>
           </p>
