@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import WelcomeIntro from './pages/WelcomeIntro';
@@ -15,7 +15,6 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProfileProtectedRoute from './components/ProfileProtectedRoute';
 import NotificationPermission from "./components/NotificationPermission";
 
-// 🖼️ Importation propre de l'image par Vite
 import tradPattern from './assets/traditional.jpg';
 
 const PrivateRoute = ({ children }) => {
@@ -30,7 +29,6 @@ function App() {
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId');
 
-  // 🌓 Synchronisation globale du thème au chargement
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'light') {
@@ -82,37 +80,39 @@ function App() {
 
   return (
     <Router>
-      {/* 🌟 Conteneur global avec l'image de fond et le filtre dynamique lié aux variables CSS */}
       <div
         style={{
-          backgroundImage: `url(${tradPattern})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
           minHeight: '100dvh',
           width: '100%',
+          position: 'relative',
           filter: 'brightness(var(--bg-brightness)) contrast(var(--bg-contrast))',
           transition: 'filter 0.3s ease'
         }}
       >
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: -1,
+            backgroundImage: `url(${tradPattern})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            pointerEvents: 'none'
+          }}
+        />
+
         <NotificationPermission />
 
         <AutoLogout>
           <Routes>
-            {/* 🌍 Page d'accueil publique d'introduction (Demandée par le président) */}
             <Route path="/" element={<WelcomeIntro />} />
-
-            {/* Routes d'authentification */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-
-            {/* Routes protégées standard */}
             <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
             <Route path="/profil" element={<PrivateRoute><Profil /></PrivateRoute>} />
             <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
 
-            {/* Le Hub principal et les sections de la communauté */}
             <Route element={<ProfileProtectedRoute />}>
               <Route path="/home" element={<PrivateRoute><Home hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
               <Route path="/annuaire" element={<PrivateRoute><Annuaire hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
@@ -120,7 +120,6 @@ function App() {
               <Route path="/showcase" element={<PrivateRoute><Showcase hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
             </Route>
 
-            {/* Redirection par défaut */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AutoLogout>
