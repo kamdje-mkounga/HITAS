@@ -6,10 +6,7 @@ import {
     MapPin,
     X,
     GraduationCap,
-    Menu,
-    Users,
-    BookOpen,
-    Award
+    Menu
 } from 'lucide-react';
 
 import gem1 from '../assets/gem1.png';
@@ -150,33 +147,28 @@ const WelcomeIntro = () => {
         };
     }, [selectedUniversity]);
 
-    // Liste des images pour le slider d'arrière-plan
     const sliderImages = [gem1, gem2, gem3, gem4, gem5];
 
     return (
         <main className="hitas-page">
-            <header className="hitas-header">
+            <header className="hitas-header glass-panel">
                 <div className="header-inner">
-                    <a href="#top" className="hitas-logo" onClick={() => setMobileMenuOpen(false)}>
+                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo">
                         <div className="logo-mark">
                             <GraduationCap size={22} />
-                        </div>
-                        <div className="logo-text">
-                            <strong>HITAS</strong>
-                            <span>GLOBAL NETWORK</span>
                         </div>
                     </a>
 
                     <nav className="desktop-nav">
                         <a href="#regions">Campuses</a>
-                        <button type="button" className="student-login" onClick={goToHitas}>
+                        <button type="button" className="student-login glass-btn" onClick={goToHitas}>
                             My HITAS
                         </button>
                     </nav>
 
                     <button
                         type="button"
-                        className="mobile-menu-button"
+                        className="mobile-menu-button glass-btn"
                         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         aria-label="Open menu"
                     >
@@ -185,11 +177,10 @@ const WelcomeIntro = () => {
                 </div>
             </header>
 
-            {/* Hero avec slider d'images en arrière-plan en boucle infinie */}
+            {/* Hero avec slider d'images en arrière-plan et effet verre givré (Glassmorphism) */}
             <section id="top" className="hero-classic">
                 <div className="hero-slider-container">
                     <div className="hero-slider-track">
-                        {/* On double la liste pour créer une boucle fluide sans coupure */}
                         {[...sliderImages, ...sliderImages].map((imgSrc, index) => (
                             <div className="hero-slide-item" key={index}>
                                 <img src={imgSrc} alt={`Slide ${index}`} />
@@ -199,20 +190,19 @@ const WelcomeIntro = () => {
                 </div>
 
                 <div className="hero-overlay">
-                    <div className="hero-content">
-                        <span className="hero-subtitle">WELCOME TO</span>
-                        <h1>OUR UNIVERSITY</h1>
-                        <p>Global Education Theme. Choose this network for immersive academic sessions and student life documentation.</p>
-                        <button type="button" className="hero-action-btn" onClick={goToHitas}>
-                            ACCESS HITAS NOW
-                        </button>
-                    </div>
 
+                    <span className="hero-subtitle">WELCOME TO</span>
+                    <h1>OUR UNIVERSITIES</h1>
+                    <p>Choose this network for immersive academic sessions and student life documentation.</p>
+                    <button type="button" className="hero-action-btn" onClick={goToHitas}>
+                        <div className="btn-sub">Already a student?</div>
+                        ACCESS THE COMMUNITY HITAS NOW
+                    </button>
 
                 </div>
             </section>
 
-            {/* Grille des universités par région */}
+            {/* Grille des universités par région avec habillage verrier */}
             <div id="regions" className="regions-container">
                 {regions.map((region) => (
                     <section key={region.name} className="region-section">
@@ -223,7 +213,7 @@ const WelcomeIntro = () => {
                             {region.universities.map((university) => (
                                 <article
                                     key={university.id}
-                                    className="university-card"
+                                    className="university-card glass-card"
                                     onClick={() => openUniversity(university)}
                                 >
                                     <div className="card-image">
@@ -255,8 +245,8 @@ const WelcomeIntro = () => {
 
             {selectedUniversity && (
                 <div className="modal-backdrop" onClick={closeUniversity}>
-                    <div className="media-modal" onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className="close-button" onClick={closeUniversity}>
+                    <div className="media-modal glass-modal" onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className="close-button glass-btn" onClick={closeUniversity}>
                             <X size={20} />
                         </button>
 
@@ -273,10 +263,10 @@ const WelcomeIntro = () => {
                             />
                             {selectedUniversity.media.length > 1 && (
                                 <>
-                                    <button type="button" className="media-nav media-prev" onClick={previousMedia}>
+                                    <button type="button" className="media-nav media-prev glass-btn" onClick={previousMedia}>
                                         <ChevronLeft size={22} />
                                     </button>
-                                    <button type="button" className="media-nav media-next" onClick={nextMedia}>
+                                    <button type="button" className="media-nav media-next glass-btn" onClick={nextMedia}>
                                         <ChevronRight size={22} />
                                     </button>
                                 </>
@@ -308,10 +298,10 @@ const WelcomeIntro = () => {
                 </div>
             )}
 
-            <footer className="footer">
+            <footer className="footer glass-panel">
                 <div className="footer-brand">
                     <GraduationCap size={16} />
-                    <strong>HITAS</strong>
+                    <strong><a href='https://hitas.org/' target='_blank' rel="noreferrer">HITAS</a></strong>
                 </div>
                 <span>Universities & student experiences</span>
                 <span>© {new Date().getFullYear()}</span>
@@ -320,14 +310,48 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; background-color: #111; color: #fff; font-family: 'Inter', sans-serif; }
-                .hitas-page { min-height: 100vh; background: #111; }
+                body { margin: 0; background-color: #07090e; color: #fff; font-family: 'Inter', sans-serif; }
+                .hitas-page { min-height: 100vh; background: #07090e; overflow-x: hidden; }
+
+                /* Glassmorphism Classes (Effet Verre Grivé / Transparence) */
+                .glass-panel {
+                    background: rgba(15, 23, 42, 0.45);
+                    backdrop-filter: blur(16px);
+                    -webkit-backdrop-filter: blur(16px);
+                    border: 1px solid rgba(255, 255, 255, 0.08);
+                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+                }
+
+                .glass-card {
+                    background: rgba(20, 24, 39, 0.55);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+                }
+
+                .glass-modal {
+                    background: rgba(13, 17, 28, 0.82) !important;
+                    backdrop-filter: blur(24px) !important;
+                    -webkit-backdrop-filter: blur(24px) !important;
+                    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                }
+
+                .glass-btn {
+                    background: rgba(59, 130, 246, 0.2);
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(59, 130, 246, 0.3);
+                    color: #fff;
+                    transition: all 0.25s ease;
+                }
+                .glass-btn:hover {
+                    background: rgba(59, 130, 246, 0.4);
+                    border-color: rgba(59, 130, 246, 0.6);
+                }
 
                 /* Header */
                 .hitas-header {
                     position: sticky; top: 0; z-index: 80;
-                    border-bottom: 1px solid rgba(255,255,255,0.1);
-                    background: rgba(17,17,17,0.9); backdrop-filter: blur(10px);
                 }
                 .header-inner {
                     width: min(1180px, calc(100% - 40px)); height: 76px;
@@ -336,27 +360,23 @@ const WelcomeIntro = () => {
                 .hitas-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
                 .logo-mark {
                     width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-                    border-radius: 8px; background: #3b82f6; color: #fff;
+                    border-radius: 10px; background: rgba(59, 130, 246, 0.8); color: #fff;
+                    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
                 }
-                .logo-text { display: flex; flex-direction: column; }
-                .logo-text strong { font-size: 16px; line-height: 1; }
-                .logo-text span { color: rgba(255,255,255,0.4); font-size: 7px; letter-spacing: 0.1em; font-weight: 700; }
                 
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
                 .desktop-nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 13px; font-weight: 600; }
-                .desktop-nav a:hover { color: #3b82f6; }
+                .desktop-nav a:hover { color: #60a5fa; }
                 .student-login {
-                    padding: 9px 18px; border: none; border-radius: 6px;
-                    background: #3b82f6; color: #fff; font-size: 12px; font-weight: 700; cursor: pointer;
-                    transition: background 0.2s ease;
+                    padding: 9px 18px; border-radius: 8px;
+                    font-size: 12px; font-weight: 700; cursor: pointer;
                 }
-                .student-login:hover { background: #2563eb; }
-                .mobile-menu-button { display: none; background: none; border: none; color: #fff; cursor: pointer; }
+                .mobile-menu-button { display: none; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
 
                 /* Hero Slider styles */
                 .hero-classic {
                     position: relative;
-                    min-height: 520px;
+                    min-height: 560px;
                     overflow: hidden;
                 }
                 .hero-slider-container {
@@ -370,7 +390,7 @@ const WelcomeIntro = () => {
                     display: flex;
                     width: max-content;
                     height: 100%;
-                    animation: slideAnimation 30s linear infinite;
+                    animation: slideAnimation 35s linear infinite;
                 }
                 .hero-slide-item {
                     width: 100vw;
@@ -381,6 +401,7 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                    filter: brightness(0.7);
                 }
                 @keyframes slideAnimation {
                     0% { transform: translateX(0); }
@@ -390,7 +411,7 @@ const WelcomeIntro = () => {
                 .hero-overlay {
                     position: absolute;
                     inset: 0;
-                    background: rgba(0, 0, 0, 0.65);
+                    background: radial-gradient(circle, rgba(7,9,14,0.4) 0%, rgba(7,9,14,0.85) 100%);
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -400,119 +421,113 @@ const WelcomeIntro = () => {
                     z-index: 2;
                 }
                 .hero-content {
-                    max-width: 700px;
+                    max-width: 650px;
+                    padding: 45px 35px;
+                    border-radius: 24px;
                 }
                 .hero-subtitle {
-                    color: #fff;
-                    font-size: 13px;
-                    font-weight: 700;
-                    letter-spacing: 0.2em;
-                    opacity: 0.9;
+                    color: #93c5fd;
+                    font-size: 12px;
+                    font-weight: 800;
+                    letter-spacing: 0.25em;
                 }
                 .hero-classic h1 {
-                    margin: 10px 0 15px;
-                    font-size: clamp(42px, 7vw, 68px);
+                    margin: 12px 0 16px;
+                    font-size: clamp(38px, 6vw, 60px);
                     font-weight: 900;
                     letter-spacing: -0.02em;
                     color: #fff;
                     text-transform: uppercase;
+                    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
                 }
                 .hero-classic p {
                     color: rgba(255, 255, 255, 0.75);
-                    font-size: 13px;
+                    font-size: 13.5px;
                     line-height: 1.6;
-                    margin: 0 auto 25px;
-                    max-width: 480px;
+                    margin: 0 auto 28px;
+                    max-width: 440px;
                 }
                 .hero-action-btn {
-                    background: #3b82f6;
+                    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
                     color: #fff;
-                    border: none;
-                    padding: 12px 28px;
-                    border-radius: 4px;
+                    border: 1px solid rgba(255,255,255,0.2);
+                    padding: 14px 28px;
+                    border-radius: 12px;
                     font-size: 11px;
                     font-weight: 800;
-                    letter-spacing: 0.1em;
+                    letter-spacing: 0.08em;
                     cursor: pointer;
-                    transition: background 0.2s ease;
+                    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
                 .hero-action-btn:hover {
-                    background: #2563eb;
+                    transform: translateY(-2px);
+                    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.6);
                 }
-
-                .hero-feature-nodes {
-                    display: flex;
-                    gap: 16px;
-                    margin-top: 50px;
-                }
-                .feature-node {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    background: rgba(0, 0, 0, 0.7);
-                    border: 2px solid rgba(255, 255, 255, 0.15);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #3b82f6;
-                    transition: transform 0.2s ease, border-color 0.2s ease;
-                }
-                .feature-node:hover {
-                    transform: translateY(-4px);
-                    border-color: #3b82f6;
+                .btn-sub {
+                    font-size: 9px;
+                    font-weight: 500;
+                    opacity: 0.8;
+                    margin-bottom: 3px;
+                    letter-spacing: normal;
                 }
 
                 /* Region & University Grid layout */
-                .regions-container { width: min(1180px, calc(100% - 40px)); margin: 60px auto 100px; }
+                .regions-container { width: min(1180px, calc(100% - 40px)); margin: 70px auto 100px; }
                 .region-section { margin-bottom: 60px; }
-                .region-header { border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 24px; }
-                .region-header h2 { margin: 0; font-size: 22px; color: #3b82f6; font-weight: 700; letter-spacing: 0.03em; }
+                .region-header { border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 24px; }
+                .region-header h2 { margin: 0; font-size: 20px; color: #93c5fd; font-weight: 700; letter-spacing: 0.04em; }
 
                 .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
                 .university-card {
-                    background: #181818; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
-                    overflow: hidden; cursor: pointer; transition: transform 0.3s ease, border-color 0.3s ease;
+                    border-radius: 16px; overflow: hidden; cursor: pointer;
+                    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
                 }
-                .university-card:hover { transform: translateY(-5px); border-color: rgba(59,130,246,0.5); }
+                .university-card:hover { 
+                    transform: translateY(-6px); 
+                    border-color: rgba(59, 130, 246, 0.4); 
+                    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+                }
 
                 .card-image { position: relative; height: 210px; background: #000; }
                 .card-image img { width: 100%; height: 100%; object-fit: cover; }
-                .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.85)); }
+                .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(13,17,28,0.9)); }
                 .card-location { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #fff; }
-                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #3b82f6; }
+                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #93c5fd; border: 1px solid rgba(255,255,255,0.08); }
 
                 .card-content { padding: 22px; }
                 .card-content h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #fff; }
                 .card-content p { margin: 0 0 16px; color: rgba(255,255,255,0.5); font-size: 12.5px; line-height: 1.5; min-height: 40px; }
-                .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; color: #3b82f6; font-size: 12px; font-weight: 700; }
+                .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; color: #60a5fa; font-size: 12px; font-weight: 700; }
 
                 /* Modal */
-                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; }
-                .media-modal { position: relative; width: min(850px, 100%); background: #181818; border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; overflow: hidden; }
-                .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 5, 10, 0.8); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+                .media-modal { position: relative; width: min(850px, 100%); border-radius: 20px; overflow: hidden; }
+                .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
                 .modal-header { padding: 24px 24px 16px; }
-                .modal-kicker { color: #3b82f6; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
+                .modal-kicker { color: #93c5fd; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
                 .modal-header h2 { margin: 4px 0 4px; font-size: 22px; }
                 .modal-header p { margin: 0; display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,0.5); font-size: 11px; }
 
                 .media-viewer { position: relative; height: 380px; background: #000; }
                 .media-viewer img { width: 100%; height: 100%; object-fit: contain; }
-                .media-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+                .media-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
                 .media-prev { left: 14px; }
                 .media-next { right: 14px; }
-                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; }
+                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); }
 
                 .media-info { padding: 14px 24px; }
                 .media-info p { margin: 0; color: rgba(255,255,255,0.7); font-size: 12px; }
                 .media-thumbnails { display: flex; gap: 8px; padding: 0 24px 20px; overflow-x: auto; }
                 .thumbnail { width: 64px; height: 46px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; padding: 0; background: none; cursor: pointer; opacity: 0.5; }
-                .thumbnail-active { opacity: 1; border-color: #3b82f6; }
+                .thumbnail-active { opacity: 1; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.5); }
                 .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
 
                 /* Footer */
-                .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 30px 0; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,0.4); font-size: 12px; }
-                .footer-brand { display: flex; align-items: center; gap: 6px; color: #3b82f6; }
+                .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,0.4); font-size: 12px; }
+                .footer-brand { display: flex; align-items: center; gap: 8px; color: #60a5fa; }
                 .footer-brand strong { color: #fff; }
+                .footer-brand a { color: inherit; text-decoration: none; }
 
                 @media (max-width: 900px) {
                     .universities-grid { grid-template-columns: repeat(2, 1fr); }
@@ -521,7 +536,6 @@ const WelcomeIntro = () => {
                 }
                 @media (max-width: 600px) {
                     .universities-grid { grid-template-columns: 1fr; }
-                    .hero-feature-nodes { display: none; }
                 }
             `}</style>
         </main>
