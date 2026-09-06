@@ -9,93 +9,84 @@ import {
     Menu
 } from 'lucide-react';
 
+import hitasLogo from '../assets/hitas_logo.svg';
 import gem1 from '../assets/gem1.png';
 import gem2 from '../assets/gem2.png';
 import gem3 from '../assets/gem3.png';
 import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 
-const regions = [
+const allUniversities = [
     {
-        name: 'Asie & Océan Indien',
-        universities: [
-            {
-                id: 1,
-                name: 'HITAS-ISFATES',
-                country: 'Madagascar',
-                city: 'Antananarivo',
-                image: gem1,
-                description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
-                media: [
-                    { type: 'image', src: gem1, caption: 'Campus — ISFATES' },
-                    { type: 'image', src: gem1, caption: 'Vie étudiante — ISFATES' }
-                ]
-            },
-            {
-                id: 4,
-                name: 'HITAS — SOA INDIA',
-                country: 'Inde',
-                city: 'Bhubaneswar',
-                image: gem4,
-                description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
-                media: [
-                    { type: 'image', src: gem4, caption: 'Campus — SOA University' },
-                    { type: 'image', src: gem4, caption: 'Vie étudiante — SOA University' }
-                ]
-            }
+        id: 1,
+        name: 'HITAS-ISFATES',
+        country: 'Madagascar',
+        city: 'Antananarivo',
+        image: gem1,
+        description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
+        media: [
+            { type: 'image', src: gem1, caption: 'Campus — ISFATES' },
+            { type: 'image', src: gem1, caption: 'Vie étudiante — ISFATES' }
         ]
     },
     {
-        name: 'Europe',
-        universities: [
-            {
-                id: 2,
-                name: 'HITAS — EAH-JENA',
-                country: 'Allemagne',
-                city: 'Jena',
-                image: gem2,
-                description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
-                media: [
-                    { type: 'image', src: gem2, caption: 'Campus — EAH Jena' },
-                    { type: 'image', src: gem2, caption: 'Vie étudiante — EAH Jena' }
-                ]
-            },
-            {
-                id: 3,
-                name: 'HITAS — Fachhochschule Dortmund',
-                country: 'Allemagne',
-                city: 'Dortmund',
-                image: gem3,
-                description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
-                media: [
-                    { type: 'image', src: gem3, caption: 'Campus — Fachhochschule Dortmund' },
-                    { type: 'image', src: gem3, caption: 'Vie étudiante — Dortmund' }
-                ]
-            },
-            {
-                id: 5,
-                name: 'Oxford International Digital Institute',
-                country: 'Royaume-Uni',
-                city: 'Oxford',
-                image: gem5,
-                description: 'Découvrez l’environnement académique et les expériences partagées par les étudiants.',
-                media: [
-                    { type: 'image', src: gem5, caption: 'Oxford International Digital Institute' },
-                    { type: 'image', src: gem5, caption: 'Expérience étudiante' }
-                ]
-            },
-            {
-                id: 6,
-                name: 'QUALIFI',
-                country: 'Royaume-Uni',
-                city: 'UK',
-                image: gem1,
-                description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
-                media: [
-                    { type: 'image', src: gem1, caption: 'QUALIFI — expérience étudiante' },
-                    { type: 'image', src: gem1, caption: 'Communauté HITAS' }
-                ]
-            }
+        id: 2,
+        name: 'HITAS — EAH-JENA',
+        country: 'Allemagne',
+        city: 'Jena',
+        image: gem2,
+        description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
+        media: [
+            { type: 'image', src: gem2, caption: 'Campus — EAH Jena' },
+            { type: 'image', src: gem2, caption: 'Vie étudiante — EAH Jena' }
+        ]
+    },
+    {
+        id: 3,
+        name: 'HITAS — Fachhochschule Dortmund',
+        country: 'Allemagne',
+        city: 'Dortmund',
+        image: gem3,
+        description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
+        media: [
+            { type: 'image', src: gem3, caption: 'Campus — Fachhochschule Dortmund' },
+            { type: 'image', src: gem3, caption: 'Vie étudiante — Dortmund' }
+        ]
+    },
+    {
+        id: 4,
+        name: 'HITAS — SOA INDIA',
+        country: 'Inde',
+        city: 'Bhubaneswar',
+        image: gem4,
+        description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
+        media: [
+            { type: 'image', src: gem4, caption: 'Campus — SOA University' },
+            { type: 'image', src: gem4, caption: 'Vie étudiante — SOA University' }
+        ]
+    },
+    {
+        id: 5,
+        name: 'Oxford International Digital Institute',
+        country: 'Royaume-Uni',
+        city: 'Oxford',
+        image: gem5,
+        description: 'Découvrez l’environnement académique et les expériences partagées par les étudiants.',
+        media: [
+            { type: 'image', src: gem5, caption: 'Oxford International Digital Institute' },
+            { type: 'image', src: gem5, caption: 'Expérience étudiante' }
+        ]
+    },
+    {
+        id: 6,
+        name: 'QUALIFI',
+        country: 'Royaume-Uni',
+        city: 'UK',
+        image: gem1,
+        description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
+        media: [
+            { type: 'image', src: gem1, caption: 'QUALIFI — expérience étudiante' },
+            { type: 'image', src: gem1, caption: 'Communauté HITAS' }
         ]
     }
 ];
@@ -104,10 +95,6 @@ const WelcomeIntro = () => {
     const [selectedUniversity, setSelectedUniversity] = useState(null);
     const [activeMedia, setActiveMedia] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-    const goToHitas = () => {
-        window.location.href = 'https://' + 'hitas.vercel.app/login/';
-    };
 
     const openUniversity = (university) => {
         setSelectedUniversity(university);
@@ -153,17 +140,16 @@ const WelcomeIntro = () => {
         <main className="hitas-page">
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
-                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo">
-                        <div className="logo-mark">
-                            <GraduationCap size={22} />
+                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo-container">
+                        <img src={hitasLogo} alt="Hitas Logo" className="hitas-logo-img" />
+                        <div className="logo-text-group">
+                            <span className="logo-title">Hanseatic Institute</span>
+                            <span className="logo-subtitle">of Technology and Applied Sciences</span>
                         </div>
                     </a>
 
                     <nav className="desktop-nav">
-                        <a href="#regions">Campuses</a>
-                        <button type="button" className="student-login glass-btn" onClick={goToHitas}>
-                            My HITAS
-                        </button>
+                        <a href="#campuses">Campuses</a>
                     </nav>
 
                     <button
@@ -177,7 +163,7 @@ const WelcomeIntro = () => {
                 </div>
             </header>
 
-            {/* Hero avec slider d'images en arrière-plan et effet verre givré (Glassmorphism) */}
+            {/* Hero lumineux, effet verre et slider infini */}
             <section id="top" className="hero-classic">
                 <div className="hero-slider-container">
                     <div className="hero-slider-track">
@@ -189,58 +175,51 @@ const WelcomeIntro = () => {
                     </div>
                 </div>
 
-                <div className="hero-overlay">
+                <div className="hero-overlay-light">
 
                     <span className="hero-subtitle">WELCOME TO</span>
                     <h1>OUR UNIVERSITIES</h1>
                     <p>Choose this network for immersive academic sessions and student life documentation.</p>
-                    <button type="button" className="hero-action-btn" onClick={goToHitas}>
-                        <div className="btn-sub">Already a student?</div>
-                        ACCESS THE COMMUNITY HITAS NOW
-                    </button>
 
                 </div>
             </section>
 
-            {/* Grille des universités par région avec habillage verrier */}
-            <div id="regions" className="regions-container">
-                {regions.map((region) => (
-                    <section key={region.name} className="region-section">
-                        <div className="region-header">
-                            <h2>{region.name}</h2>
-                        </div>
-                        <div className="universities-grid">
-                            {region.universities.map((university) => (
-                                <article
-                                    key={university.id}
-                                    className="university-card glass-card"
-                                    onClick={() => openUniversity(university)}
-                                >
-                                    <div className="card-image">
-                                        <img src={university.image} alt={university.name} />
-                                        <div className="image-shade" />
-                                        <div className="card-location">
-                                            <MapPin size={12} />
-                                            <span>{university.city}, {university.country}</span>
-                                        </div>
-                                        <div className="media-badge">
-                                            <ImageIcon size={12} />
-                                            <span>{university.media.length} media</span>
-                                        </div>
-                                    </div>
-                                    <div className="card-content">
-                                        <h3>{university.name}</h3>
-                                        <p>{university.description}</p>
-                                        <div className="card-action">
-                                            <span>View Student Photos & Videos</span>
-                                            <ChevronRight size={16} />
-                                        </div>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
-                    </section>
-                ))}
+            {/* Grille unifiée de toutes les universités au style des cartes de l'image de référence */}
+            <div id="campuses" className="campuses-container">
+                <div className="section-title-wrapper">
+                    <h2>Nos Campus Partenaires</h2>
+                    <p>Explorez l'ensemble de nos établissements à travers le monde.</p>
+                </div>
+
+                <div className="universities-grid">
+                    {allUniversities.map((university) => (
+                        <article
+                            key={university.id}
+                            className="university-card"
+                            onClick={() => openUniversity(university)}
+                        >
+                            <div className="card-image-box">
+                                <img src={university.image} alt={university.name} />
+                                <div className="card-location-badge">
+                                    <MapPin size={12} />
+                                    <span>{university.city}, {university.country}</span>
+                                </div>
+                                <div className="card-media-count">
+                                    <ImageIcon size={12} />
+                                    <span>{university.media.length} media</span>
+                                </div>
+                            </div>
+                            <div className="card-content-box">
+                                <h3>{university.name}</h3>
+                                <p>{university.description}</p>
+                                <div className="card-action-link">
+                                    <span>View Student Photos & Videos</span>
+                                    <ChevronRight size={16} />
+                                </div>
+                            </div>
+                        </article>
+                    ))}
+                </div>
             </div>
 
             {selectedUniversity && (
@@ -310,43 +289,44 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; background-color: #07090e; color: #fff; font-family: 'Inter', sans-serif; }
-                .hitas-page { min-height: 100vh; background: #07090e; overflow-x: hidden; }
+                body { margin: 0; background-color: #0c14677; color: #1e293b; font-family: 'Inter', sans-serif; }
+                .hitas-page { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); overflow-x: hidden; color: #f8fafc; }
 
-                /* Glassmorphism Classes (Effet Verre Grivé / Transparence) */
+                /* Glassmorphism effet verre habillé */
                 .glass-panel {
-                    background: rgba(15, 23, 42, 0.45);
+                    background: rgba(15, 23, 42, 0.65);
                     backdrop-filter: blur(16px);
                     -webkit-backdrop-filter: blur(16px);
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+                    border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
                 }
 
-                .glass-card {
-                    background: rgba(20, 24, 39, 0.55);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+                .glass-card-light {
+                    background: rgba(30, 41, 59, 0.45);
+                    backdrop-filter: blur(14px);
+                    -webkit-backdrop-filter: blur(14px);
+                    border: 1px solid rgba(148, 163, 184, 0.2);
+                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
                 }
 
                 .glass-modal {
-                    background: rgba(13, 17, 28, 0.82) !important;
+                    background: rgba(15, 23, 42, 0.88) !important;
                     backdrop-filter: blur(24px) !important;
                     -webkit-backdrop-filter: blur(24px) !important;
-                    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+                    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+                    color: #fff;
                 }
 
                 .glass-btn {
-                    background: rgba(59, 130, 246, 0.2);
+                    background: rgba(56, 189, 248, 0.15);
                     backdrop-filter: blur(8px);
-                    border: 1px solid rgba(59, 130, 246, 0.3);
-                    color: #fff;
+                    border: 1px solid rgba(56, 189, 248, 0.3);
+                    color: #f0fdf4;
                     transition: all 0.25s ease;
                 }
                 .glass-btn:hover {
-                    background: rgba(59, 130, 246, 0.4);
-                    border-color: rgba(59, 130, 246, 0.6);
+                    background: rgba(56, 189, 248, 0.3);
+                    border-color: rgba(56, 189, 248, 0.5);
                 }
 
                 /* Header */
@@ -357,26 +337,49 @@ const WelcomeIntro = () => {
                     width: min(1180px, calc(100% - 40px)); height: 76px;
                     margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
                 }
-                .hitas-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
-                .logo-mark {
-                    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-                    border-radius: 10px; background: rgba(59, 130, 246, 0.8); color: #fff;
-                    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+                
+                /* Logo + Institution name styling from reference */
+                .hitas-logo-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    text-decoration: none;
+                }
+                .hitas-logo-img {
+                    height: 42px;
+                    width: auto;
+                    object-fit: contain;
+                }
+                .logo-text-group {
+                    display: flex;
+                    flex-direction: column;
+                }
+                .logo-title {
+                    font-size: 14px;
+                    font-weight: 800;
+                    color: #fff;
+                    letter-spacing: 0.03em;
+                    line-height: 1.1;
+                    text-transform: uppercase;
+                }
+                .logo-subtitle {
+                    font-size: 8.5px;
+                    font-weight: 600;
+                    color: #38bdf8;
+                    letter-spacing: 0.08em;
+                    text-transform: uppercase;
                 }
                 
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
-                .desktop-nav a { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 13px; font-weight: 600; }
-                .desktop-nav a:hover { color: #60a5fa; }
-                .student-login {
-                    padding: 9px 18px; border-radius: 8px;
-                    font-size: 12px; font-weight: 700; cursor: pointer;
-                }
+                .desktop-nav a { color: rgba(241, 245, 249, 0.8); text-decoration: none; font-size: 13px; font-weight: 600; }
+                .desktop-nav a:hover { color: #38bdf8; }
+                
                 .mobile-menu-button { display: none; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
 
-                /* Hero Slider styles */
+                /* Hero Slider */
                 .hero-classic {
                     position: relative;
-                    min-height: 560px;
+                    min-height: 580px;
                     overflow: hidden;
                 }
                 .hero-slider-container {
@@ -401,17 +404,17 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(0.7);
+                    filter: brightness(0.9) contrast(1.05);
                 }
                 @keyframes slideAnimation {
                     0% { transform: translateX(0); }
                     100% { transform: translateX(-50%); }
                 }
 
-                .hero-overlay {
+                .hero-overlay-light {
                     position: absolute;
                     inset: 0;
-                    background: radial-gradient(circle, rgba(7,9,14,0.4) 0%, rgba(7,9,14,0.85) 100%);
+                    background: linear-gradient(135deg, rgba(14, 116, 144, 0.35) 0%, rgba(15, 23, 42, 0.6) 100%);
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -421,12 +424,12 @@ const WelcomeIntro = () => {
                     z-index: 2;
                 }
                 .hero-content {
-                    max-width: 650px;
+                    max-width: 680px;
                     padding: 45px 35px;
                     border-radius: 24px;
                 }
                 .hero-subtitle {
-                    color: #93c5fd;
+                    color: #38bdf8;
                     font-size: 12px;
                     font-weight: 800;
                     letter-spacing: 0.25em;
@@ -436,96 +439,112 @@ const WelcomeIntro = () => {
                     font-size: clamp(38px, 6vw, 60px);
                     font-weight: 900;
                     letter-spacing: -0.02em;
-                    color: #fff;
+                    color: #ffffff;
                     text-transform: uppercase;
-                    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
                 }
                 .hero-classic p {
-                    color: rgba(255, 255, 255, 0.75);
-                    font-size: 13.5px;
+                    color: rgba(241, 245, 249, 0.9);
+                    font-size: 14px;
                     line-height: 1.6;
-                    margin: 0 auto 28px;
-                    max-width: 440px;
-                }
-                .hero-action-btn {
-                    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-                    color: #fff;
-                    border: 1px solid rgba(255,255,255,0.2);
-                    padding: 14px 28px;
-                    border-radius: 12px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    letter-spacing: 0.08em;
-                    cursor: pointer;
-                    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4);
-                    transition: transform 0.2s ease, box-shadow 0.2s ease;
-                }
-                .hero-action-btn:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 15px 30px rgba(59, 130, 246, 0.6);
-                }
-                .btn-sub {
-                    font-size: 9px;
-                    font-weight: 500;
-                    opacity: 0.8;
-                    margin-bottom: 3px;
-                    letter-spacing: normal;
+                    margin: 0 auto;
+                    max-width: 480px;
                 }
 
-                /* Region & University Grid layout */
-                .regions-container { width: min(1180px, calc(100% - 40px)); margin: 70px auto 100px; }
-                .region-section { margin-bottom: 60px; }
-                .region-header { border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px; margin-bottom: 24px; }
-                .region-header h2 { margin: 0; font-size: 20px; color: #93c5fd; font-weight: 700; letter-spacing: 0.04em; }
+                /* Campuses Container & Grid styled matching the reference cards */
+                .campuses-container { width: min(1180px, calc(100% - 40px)); margin: 70px auto 100px; }
+                .section-title-wrapper { text-align: center; margin-bottom: 40px; }
+                .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #fff; font-weight: 800; letter-spacing: -0.02em; }
+                .section-title-wrapper p { margin: 8px 0 0; color: rgba(241, 245, 249, 0.6); font-size: 14px; }
 
                 .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+                
+                /* Refined card style matching image layout */
                 .university-card {
-                    border-radius: 16px; overflow: hidden; cursor: pointer;
-                    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+                    background: #ffffff;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    cursor: pointer;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                    transition: transform 0.25s ease, box-shadow 0.25s ease;
                 }
                 .university-card:hover { 
-                    transform: translateY(-6px); 
-                    border-color: rgba(59, 130, 246, 0.4); 
-                    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
+                    transform: translateY(-5px); 
+                    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
                 }
 
-                .card-image { position: relative; height: 210px; background: #000; }
-                .card-image img { width: 100%; height: 100%; object-fit: cover; }
-                .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(13,17,28,0.9)); }
-                .card-location { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #fff; }
-                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #93c5fd; border: 1px solid rgba(255,255,255,0.08); }
+                .card-image-box { 
+                    position: relative; 
+                    height: 220px; 
+                    background: #f1f5f9; 
+                }
+                .card-image-box img { 
+                    width: 100%; 
+                    height: 100%; 
+                    object-fit: cover; 
+                }
+                .card-location-badge { 
+                    position: absolute; 
+                    left: 12px; 
+                    bottom: 12px; 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 5px; 
+                    font-size: 11px; 
+                    font-weight: 600; 
+                    color: #fff; 
+                    background: rgba(15, 23, 42, 0.75);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    backdrop-filter: blur(4px);
+                }
+                .card-media-count { 
+                    position: absolute; 
+                    right: 12px; 
+                    bottom: 12px; 
+                    display: flex; 
+                    align-items: center; 
+                    gap: 4px; 
+                    padding: 4px 8px; 
+                    background: rgba(15, 23, 42, 0.75); 
+                    backdrop-filter: blur(4px); 
+                    border-radius: 4px; 
+                    font-size: 10px; 
+                    font-weight: 700; 
+                    color: #38bdf8; 
+                }
 
-                .card-content { padding: 22px; }
-                .card-content h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #fff; }
-                .card-content p { margin: 0 0 16px; color: rgba(255,255,255,0.5); font-size: 12.5px; line-height: 1.5; min-height: 40px; }
-                .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; color: #60a5fa; font-size: 12px; font-weight: 700; }
+                .card-content-box { padding: 22px; background: #ffffff; color: #0f172a; }
+                .card-content-box h3 { margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #0f172a; }
+                .card-content-box p { margin: 0 0 16px; color: #475569; font-size: 12.5px; line-height: 1.5; min-height: 40px; }
+                .card-action-link { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 12px; color: #1e40af; font-size: 12px; font-weight: 700; }
 
                 /* Modal */
-                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 5, 10, 0.8); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.75); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
                 .media-modal { position: relative; width: min(850px, 100%); border-radius: 20px; overflow: hidden; }
-                .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+                .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
                 .modal-header { padding: 24px 24px 16px; }
-                .modal-kicker { color: #93c5fd; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
+                .modal-kicker { color: #38bdf8; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
                 .modal-header h2 { margin: 4px 0 4px; font-size: 22px; }
-                .modal-header p { margin: 0; display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,0.5); font-size: 11px; }
+                .modal-header p { margin: 0; display: flex; align-items: center; gap: 5px; color: rgba(255,255,255,0.6); font-size: 11px; }
 
                 .media-viewer { position: relative; height: 380px; background: #000; }
                 .media-viewer img { width: 100%; height: 100%; object-fit: contain; }
                 .media-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
                 .media-prev { left: 14px; }
                 .media-next { right: 14px; }
-                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); }
+                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.75); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); }
 
                 .media-info { padding: 14px 24px; }
-                .media-info p { margin: 0; color: rgba(255,255,255,0.7); font-size: 12px; }
+                .media-info p { margin: 0; color: rgba(255,255,255,0.8); font-size: 12px; }
                 .media-thumbnails { display: flex; gap: 8px; padding: 0 24px 20px; overflow-x: auto; }
                 .thumbnail { width: 64px; height: 46px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; padding: 0; background: none; cursor: pointer; opacity: 0.5; }
-                .thumbnail-active { opacity: 1; border-color: #3b82f6; box-shadow: 0 0 10px rgba(59,130,246,0.5); }
+                .thumbnail-active { opacity: 1; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56,189,248,0.4); }
                 .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
 
                 /* Footer */
-                .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,0.4); font-size: 12px; }
-                .footer-brand { display: flex; align-items: center; gap: 8px; color: #60a5fa; }
+                .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; color: rgba(241, 245, 249, 0.5); font-size: 12px; }
+                .footer-brand { display: flex; align-items: center; gap: 8px; color: #38bdf8; }
                 .footer-brand strong { color: #fff; }
                 .footer-brand a { color: inherit; text-decoration: none; }
 
