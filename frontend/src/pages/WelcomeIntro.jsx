@@ -9,7 +9,6 @@ import {
     Menu
 } from 'lucide-react';
 
-import hitasLogo from '../assets/hitas_logo.svg';
 import gem1 from '../assets/gem1.png';
 import gem2 from '../assets/gem2.png';
 import gem3 from '../assets/gem3.png';
@@ -96,6 +95,10 @@ const WelcomeIntro = () => {
     const [activeMedia, setActiveMedia] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+    const goToHitas = () => {
+        window.location.href = 'https://' + 'hitas.vercel.app/login/';
+    };
+
     const openUniversity = (university) => {
         setSelectedUniversity(university);
         setActiveMedia(0);
@@ -140,16 +143,17 @@ const WelcomeIntro = () => {
         <main className="hitas-page">
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
-                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo-container">
-                        <img src={hitasLogo} alt="Hitas Logo" className="hitas-logo-img" />
-                        <div className="logo-text-group">
-                            <span className="logo-title">Hanseatic Institute</span>
-                            <span className="logo-subtitle">of Technology and Applied Sciences</span>
+                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo">
+                        <div className="logo-mark">
+                            <GraduationCap size={22} />
                         </div>
                     </a>
 
                     <nav className="desktop-nav">
                         <a href="#campuses">Campuses</a>
+                        <button type="button" className="student-login glass-btn" onClick={goToHitas}>
+                            My HITAS
+                        </button>
                     </nav>
 
                     <button
@@ -180,11 +184,15 @@ const WelcomeIntro = () => {
                     <span className="hero-subtitle">WELCOME TO</span>
                     <h1>OUR UNIVERSITIES</h1>
                     <p>Choose this network for immersive academic sessions and student life documentation.</p>
+                    <button type="button" className="hero-action-btn" onClick={goToHitas}>
+                        <div className="btn-sub">Already a student?</div>
+                        ACCESS THE COMMUNITY HITAS NOW
+                    </button>
 
                 </div>
             </section>
 
-            {/* Grille unifiée de toutes les universités au style des cartes de l'image de référence */}
+            {/* Grille unifiée de toutes les universités sans section par région */}
             <div id="campuses" className="campuses-container">
                 <div className="section-title-wrapper">
                     <h2>Nos Campus Partenaires</h2>
@@ -195,24 +203,25 @@ const WelcomeIntro = () => {
                     {allUniversities.map((university) => (
                         <article
                             key={university.id}
-                            className="university-card"
+                            className="university-card glass-card-light"
                             onClick={() => openUniversity(university)}
                         >
-                            <div className="card-image-box">
+                            <div className="card-image">
                                 <img src={university.image} alt={university.name} />
-                                <div className="card-location-badge">
+                                <div className="image-shade" />
+                                <div className="card-location">
                                     <MapPin size={12} />
                                     <span>{university.city}, {university.country}</span>
                                 </div>
-                                <div className="card-media-count">
+                                <div className="media-badge">
                                     <ImageIcon size={12} />
                                     <span>{university.media.length} media</span>
                                 </div>
                             </div>
-                            <div className="card-content-box">
+                            <div className="card-content">
                                 <h3>{university.name}</h3>
                                 <p>{university.description}</p>
-                                <div className="card-action-link">
+                                <div className="card-action">
                                     <span>View Student Photos & Videos</span>
                                     <ChevronRight size={16} />
                                 </div>
@@ -289,7 +298,7 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; background-color: #0c14677; color: #1e293b; font-family: 'Inter', sans-serif; }
+                body { margin: 0; background-color: #0c1425; color: #1e293b; font-family: 'Inter', sans-serif; }
                 .hitas-page { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); overflow-x: hidden; color: #f8fafc; }
 
                 /* Glassmorphism effet verre habillé */
@@ -337,43 +346,20 @@ const WelcomeIntro = () => {
                     width: min(1180px, calc(100% - 40px)); height: 76px;
                     margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
                 }
-                
-                /* Logo + Institution name styling from reference */
-                .hitas-logo-container {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    text-decoration: none;
-                }
-                .hitas-logo-img {
-                    height: 42px;
-                    width: auto;
-                    object-fit: contain;
-                }
-                .logo-text-group {
-                    display: flex;
-                    flex-direction: column;
-                }
-                .logo-title {
-                    font-size: 14px;
-                    font-weight: 800;
-                    color: #fff;
-                    letter-spacing: 0.03em;
-                    line-height: 1.1;
-                    text-transform: uppercase;
-                }
-                .logo-subtitle {
-                    font-size: 8.5px;
-                    font-weight: 600;
-                    color: #38bdf8;
-                    letter-spacing: 0.08em;
-                    text-transform: uppercase;
+                .hitas-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+                .logo-mark {
+                    width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+                    border-radius: 10px; background: rgba(56, 189, 248, 0.8); color: #0f172a;
+                    box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
                 }
                 
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
                 .desktop-nav a { color: rgba(241, 245, 249, 0.8); text-decoration: none; font-size: 13px; font-weight: 600; }
                 .desktop-nav a:hover { color: #38bdf8; }
-                
+                .student-login {
+                    padding: 9px 18px; border-radius: 8px;
+                    font-size: 12px; font-weight: 700; cursor: pointer; color: #fff;
+                }
                 .mobile-menu-button { display: none; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
 
                 /* Hero Slider */
@@ -447,77 +433,61 @@ const WelcomeIntro = () => {
                     color: rgba(241, 245, 249, 0.9);
                     font-size: 14px;
                     line-height: 1.6;
-                    margin: 0 auto;
+                    margin: 0 auto 28px;
                     max-width: 480px;
                 }
+                .hero-action-btn {
+                    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+                    color: #fff;
+                    border: 1px solid rgba(255,255,255,0.3);
+                    padding: 14px 28px;
+                    border-radius: 12px;
+                    font-size: 11px;
+                    font-weight: 800;
+                    letter-spacing: 0.08em;
+                    cursor: pointer;
+                    box-shadow: 0 10px 25px rgba(14, 165, 233, 0.35);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                }
+                .hero-action-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 15px 30px rgba(14, 165, 233, 0.5);
+                }
+                .btn-sub {
+                    font-size: 9px;
+                    font-weight: 500;
+                    opacity: 0.85;
+                    margin-bottom: 3px;
+                    letter-spacing: normal;
+                }
 
-                /* Campuses Container & Grid styled matching the reference cards */
+                /* Campuses Container & Grid (Without regions) */
                 .campuses-container { width: min(1180px, calc(100% - 40px)); margin: 70px auto 100px; }
                 .section-title-wrapper { text-align: center; margin-bottom: 40px; }
                 .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #fff; font-weight: 800; letter-spacing: -0.02em; }
                 .section-title-wrapper p { margin: 8px 0 0; color: rgba(241, 245, 249, 0.6); font-size: 14px; }
 
                 .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-                
-                /* Refined card style matching image layout */
                 .university-card {
-                    background: #ffffff;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    cursor: pointer;
-                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-                    transition: transform 0.25s ease, box-shadow 0.25s ease;
+                    border-radius: 16px; overflow: hidden; cursor: pointer;
+                    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
                 }
                 .university-card:hover { 
-                    transform: translateY(-5px); 
-                    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+                    transform: translateY(-6px); 
+                    border-color: rgba(56, 189, 248, 0.5); 
+                    box-shadow: 0 12px 40px rgba(56, 189, 248, 0.15);
                 }
 
-                .card-image-box { 
-                    position: relative; 
-                    height: 220px; 
-                    background: #f1f5f9; 
-                }
-                .card-image-box img { 
-                    width: 100%; 
-                    height: 100%; 
-                    object-fit: cover; 
-                }
-                .card-location-badge { 
-                    position: absolute; 
-                    left: 12px; 
-                    bottom: 12px; 
-                    display: flex; 
-                    align-items: center; 
-                    gap: 5px; 
-                    font-size: 11px; 
-                    font-weight: 600; 
-                    color: #fff; 
-                    background: rgba(15, 23, 42, 0.75);
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    backdrop-filter: blur(4px);
-                }
-                .card-media-count { 
-                    position: absolute; 
-                    right: 12px; 
-                    bottom: 12px; 
-                    display: flex; 
-                    align-items: center; 
-                    gap: 4px; 
-                    padding: 4px 8px; 
-                    background: rgba(15, 23, 42, 0.75); 
-                    backdrop-filter: blur(4px); 
-                    border-radius: 4px; 
-                    font-size: 10px; 
-                    font-weight: 700; 
-                    color: #38bdf8; 
-                }
+                .card-image { position: relative; height: 210px; background: #000; }
+                .card-image img { width: 100%; height: 100%; object-fit: cover; }
+                .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(15, 23, 42, 0.85)); }
+                .card-location { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #fff; }
+                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #38bdf8; border: 1px solid rgba(255,255,255,0.08); }
 
-                .card-content-box { padding: 22px; background: #ffffff; color: #0f172a; }
-                .card-content-box h3 { margin: 0 0 6px; font-size: 17px; font-weight: 800; color: #0f172a; }
-                .card-content-box p { margin: 0 0 16px; color: #475569; font-size: 12.5px; line-height: 1.5; min-height: 40px; }
-                .card-action-link { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 12px; color: #1e40af; font-size: 12px; font-weight: 700; }
+                .card-content { padding: 22px; }
+                .card-content h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #fff; }
+                .card-content p { margin: 0 0 16px; color: rgba(241, 245, 249, 0.65); font-size: 12.5px; line-height: 1.5; min-height: 40px; }
+                .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(148, 163, 184, 0.15); padding-top: 14px; color: #38bdf8; font-size: 12px; font-weight: 700; }
 
                 /* Modal */
                 .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.75); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
