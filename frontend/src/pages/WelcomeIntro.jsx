@@ -1,16 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import {
-    ArrowRight,
-    Globe2,
-    ShieldCheck,
-    GraduationCap,
+    ChevronLeft,
+    ChevronRight,
+    Image as ImageIcon,
     MapPin,
-    ExternalLink,
-    ChevronRight
+    Play,
+    X,
+    Video
 } from 'lucide-react';
-
-import globalVideo from '../assets/videos/un.mp4';
 
 import gem1 from '../assets/gem1.png';
 import gem2 from '../assets/gem2.png';
@@ -18,320 +15,514 @@ import gem3 from '../assets/gem3.png';
 import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 
+/*
+ * ============================================================
+ * HITAS — UNIVERSITIES & STUDENT MEDIA
+ * ============================================================
+ *
+ * Cette page présente :
+ *
+ * 1. Les universités partenaires HITAS.
+ * 2. Les photos prises par les étudiants.
+ * 3. Les vidéos prises par les étudiants.
+ *
+ * Lorsqu'un utilisateur clique sur une université,
+ * une galerie s'ouvre avec les différents médias.
+ *
+ * ------------------------------------------------------------
+ * AJOUTER UNE PHOTO
+ * ------------------------------------------------------------
+ *
+ * Exemple :
+ *
+ * import studentPhoto from '../assets/student-photo.jpg';
+ *
+ * puis dans "media":
+ *
+ * {
+ *     type: 'image',
+ *     src: studentPhoto,
+ *     caption: 'Campus vu par les étudiants'
+ * }
+ *
+ * ------------------------------------------------------------
+ * AJOUTER UNE VIDÉO
+ * ------------------------------------------------------------
+ *
+ * Exemple :
+ *
+ * import campusVideo from '../assets/videos/campus.mp4';
+ *
+ * puis :
+ *
+ * {
+ *     type: 'video',
+ *     src: campusVideo,
+ *     caption: 'Une journée sur le campus'
+ * }
+ *
+ * ============================================================
+ */
+
+const universities = [
+    {
+        id: 1,
+        name: 'HITAS-ISFATES',
+        country: 'Madagascar',
+        city: 'Antananarivo',
+        image: gem1,
+
+        description:
+            'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
+
+        media: [
+            {
+                type: 'image',
+                src: gem1,
+                caption: 'Campus — ISFATES'
+            },
+            {
+                type: 'image',
+                src: gem1,
+                caption: 'Vie étudiante — ISFATES'
+            }
+        ]
+    },
+
+    {
+        id: 2,
+        name: 'HITAS — EAH-JENA',
+        country: 'Allemagne',
+        city: 'Jena',
+        image: gem2,
+
+        description:
+            'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
+
+        media: [
+            {
+                type: 'image',
+                src: gem2,
+                caption: 'Campus — EAH Jena'
+            },
+            {
+                type: 'image',
+                src: gem2,
+                caption: 'Vie étudiante — EAH Jena'
+            }
+        ]
+    },
+
+    {
+        id: 3,
+        name: 'HITAS — Fachhochschule Dortmund',
+        country: 'Allemagne',
+        city: 'Dortmund',
+        image: gem3,
+
+        description:
+            'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
+
+        media: [
+            {
+                type: 'image',
+                src: gem3,
+                caption: 'Campus — Fachhochschule Dortmund'
+            },
+            {
+                type: 'image',
+                src: gem3,
+                caption: 'Vie étudiante — Dortmund'
+            }
+        ]
+    },
+
+    {
+        id: 4,
+        name: 'HITAS — SOA INDIA',
+        country: 'Inde',
+        city: 'Bhubaneswar',
+        image: gem4,
+
+        description:
+            'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
+
+        media: [
+            {
+                type: 'image',
+                src: gem4,
+                caption: 'Campus — SOA University'
+            },
+            {
+                type: 'image',
+                src: gem4,
+                caption: 'Vie étudiante — SOA University'
+            }
+        ]
+    },
+
+    {
+        id: 5,
+        name: 'Oxford International Digital Institute',
+        country: 'Royaume-Uni',
+        city: 'Oxford',
+        image: gem5,
+
+        description:
+            'Découvrez l’environnement académique et les expériences partagées par les étudiants.',
+
+        media: [
+            {
+                type: 'image',
+                src: gem5,
+                caption: 'Oxford International Digital Institute'
+            },
+            {
+                type: 'image',
+                src: gem5,
+                caption: 'Expérience étudiante'
+            }
+        ]
+    },
+
+    {
+        id: 6,
+        name: 'QUALIFI',
+        country: 'Royaume-Uni',
+        city: 'UK',
+        image: gem1,
+
+        description:
+            'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
+
+        media: [
+            {
+                type: 'image',
+                src: gem1,
+                caption: 'QUALIFI — expérience étudiante'
+            },
+            {
+                type: 'image',
+                src: gem1,
+                caption: 'Communauté HITAS'
+            }
+        ]
+    }
+];
+
 const WelcomeIntro = () => {
-    const navigate = useNavigate();
-    const videoRef = useRef(null);
 
-    const [activeCountry, setActiveCountry] = useState('global');
-    const [videoVisible, setVideoVisible] = useState(true);
+    const [selectedUniversity, setSelectedUniversity] = useState(null);
 
-    const [typedTitle, setTypedTitle] = useState('');
-    const [typedSubtitle, setTypedSubtitle] = useState('');
-
-    const fullTitleLine1 = 'Portail officiel de la';
-    const fullTitleLine2 = 'communauté HITAS';
-    const fullDesc = 'Découvrez les opportunités universitaires, connectez-vous avec la communauté et construisez votre avenir à travers un réseau international.';
+    const [activeMedia, setActiveMedia] = useState(0);
 
     /*
      * ============================================================
-     * UNIVERSITIES
+     * OUVRIR UNE UNIVERSITÉ
      * ============================================================
-     * Pour ajouter une nouvelle université plus tard, ajoute
-     * simplement un nouvel objet dans ce tableau.
      */
-    const universities = [
-        {
-            id: 1,
-            name: 'Université partenaire 01',
-            shortName: 'UNIVERSITY 01',
-            country: 'Inde',
-            city: 'Bhubaneswar',
-            image: gem1,
-            description: 'Découvrez les programmes académiques et les opportunités offertes aux étudiants internationaux.',
-            category: 'Engineering & Technology',
-            link: '#'
-        },
-        {
-            id: 2,
-            name: 'Université partenaire 02',
-            shortName: 'UNIVERSITY 02',
-            country: 'Inde',
-            city: 'Bhubaneswar',
-            image: gem2,
-            description: 'Une institution tournée vers l’innovation, la recherche et le développement professionnel.',
-            category: 'Technology & Science',
-            link: '#'
-        },
-        {
-            id: 3,
-            name: 'Université partenaire 03',
-            shortName: 'UNIVERSITY 03',
-            country: 'Inde',
-            city: 'Bhubaneswar',
-            image: gem3,
-            description: 'Explorez des formations internationales dans un environnement académique dynamique.',
-            category: 'Business & Management',
-            link: '#'
-        },
-        {
-            id: 4,
-            name: 'Université partenaire 04',
-            shortName: 'UNIVERSITY 04',
-            country: 'Inde',
-            city: 'Bhubaneswar',
-            image: gem4,
-            description: 'Des parcours académiques conçus pour préparer les étudiants aux carrières internationales.',
-            category: 'Health & Sciences',
-            link: '#'
-        },
-        {
-            id: 5,
-            name: 'Université partenaire 05',
-            shortName: 'UNIVERSITY 05',
-            country: 'Inde',
-            city: 'Bhubaneswar',
-            image: gem5,
-            description: 'Une nouvelle destination académique à découvrir au sein du réseau HITAS.',
-            category: 'International Programs',
-            link: '#'
-        }
-    ];
 
-    const countries = [
-        { id: 'global', label: 'Global' },
-        { id: 'france', label: 'France' },
-        { id: 'allemagne', label: 'Allemagne' },
-        { id: 'inde', label: 'Inde' },
-        { id: 'italie', label: 'Italie' },
-        { id: 'cameroun', label: 'Cameroun' },
-        { id: 'uk', label: 'UK' },
-        { id: 'bresil', label: 'Brésil' }
-    ];
+    const openUniversity = (university) => {
 
-    useEffect(() => {
-        let i = 0;
+        setSelectedUniversity(university);
 
-        const totalText = `${fullTitleLine1}\n${fullTitleLine2}`;
+        setActiveMedia(0);
 
-        const timer = setInterval(() => {
-            if (i <= totalText.length) {
-                setTypedTitle(totalText.slice(0, i));
-                i++;
-            } else {
-                clearInterval(timer);
+        document.body.style.overflow = 'hidden';
+    };
+
+    /*
+     * ============================================================
+     * FERMER LA GALERIE
+     * ============================================================
+     */
+
+    const closeUniversity = () => {
+
+        setSelectedUniversity(null);
+
+        setActiveMedia(0);
+
+        document.body.style.overflow = '';
+    };
+
+    /*
+     * ============================================================
+     * MÉDIA SUIVANT
+     * ============================================================
+     */
+
+    const nextMedia = () => {
+
+        if (!selectedUniversity) return;
+
+        const total = selectedUniversity.media.length;
+
+        setActiveMedia((current) => {
+
+            if (current === total - 1) {
+                return 0;
             }
-        }, 70);
 
-        return () => clearInterval(timer);
-    }, []);
+            return current + 1;
+        });
+    };
 
-    useEffect(() => {
-        let j = 0;
-        let descTimer;
+    /*
+     * ============================================================
+     * MÉDIA PRÉCÉDENT
+     * ============================================================
+     */
 
-        const delayTimer = setTimeout(() => {
-            descTimer = setInterval(() => {
-                if (j <= fullDesc.length) {
-                    setTypedSubtitle(fullDesc.slice(0, j));
-                    j++;
-                } else {
-                    clearInterval(descTimer);
-                }
-            }, 28);
-        }, 1600);
+    const previousMedia = () => {
+
+        if (!selectedUniversity) return;
+
+        const total = selectedUniversity.media.length;
+
+        setActiveMedia((current) => {
+
+            if (current === 0) {
+                return total - 1;
+            }
+
+            return current - 1;
+        });
+    };
+
+    /*
+     * ============================================================
+     * TOUCHE ESC
+     * ============================================================
+     */
+
+    React.useEffect(() => {
+
+        const handleKeyDown = (event) => {
+
+            if (!selectedUniversity) return;
+
+            if (event.key === 'Escape') {
+                closeUniversity();
+            }
+
+            if (event.key === 'ArrowRight') {
+                nextMedia();
+            }
+
+            if (event.key === 'ArrowLeft') {
+                previousMedia();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
 
         return () => {
-            clearTimeout(delayTimer);
-            if (descTimer) clearInterval(descTimer);
+
+            window.removeEventListener(
+                'keydown',
+                handleKeyDown
+            );
+
+            document.body.style.overflow = '';
         };
-    }, []);
 
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    }, [selectedUniversity]);
 
-        if (mediaQuery.matches && videoRef.current) {
-            videoRef.current.pause();
-        }
-    }, []);
-
-    const handleCountryChange = (country) => {
-        if (country.id === activeCountry) return;
-
-        setVideoVisible(false);
-
-        setTimeout(() => {
-            setActiveCountry(country.id);
-
-            if (videoRef.current) {
-                videoRef.current.currentTime = 0;
-                videoRef.current.play().catch(() => { });
-            }
-
-            setVideoVisible(true);
-        }, 350);
-    };
-
-    const handleEnterCommunity = () => {
-        navigate('/home');
-    };
-
-    const renderTitle = () => {
-        const splitIndex = fullTitleLine1.length;
-
-        const part1 = typedTitle.slice(0, splitIndex);
-        const part2 = typedTitle.slice(splitIndex).replace('\n', '');
-
-        return (
-            <h1 className="hero-title">
-                <span>{part1}</span>
-                <span className="heading-accent">{part2}</span>
-            </h1>
-        );
-    };
+    /*
+     * ============================================================
+     * RENDER
+     * ============================================================
+     */
 
     return (
-        <main className="welcome-page">
-            <div className="welcome-background">
-                <video
-                    ref={videoRef}
-                    src={globalVideo}
-                    className={`welcome-video ${videoVisible ? 'video-visible' : 'video-hidden'}`}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                />
 
-                <div className="welcome-overlay" />
-                <div className="welcome-glow" />
-                <div className="welcome-vignette" />
-            </div>
+        <main className="hitas-page">
 
-            <header className="welcome-header">
-                <div className="welcome-brand">
-                    <div className="brand-icon">
-                        <Globe2 size={17} />
-                    </div>
+            {/* ====================================================
+                HERO
+            ==================================================== */}
 
-                    <div className="brand-text">
-                        <span className="brand-name">HITAS</span>
-                        <span className="brand-divider">/</span>
-                        <span className="brand-section">COMMUNITY</span>
-                    </div>
-                </div>
+            <section className="hero">
 
-                <div className="secure-badge">
-                    <ShieldCheck size={14} />
-                    <span>Espace étudiant</span>
-                </div>
-            </header>
+                <div className="hero-orb hero-orb-one" />
 
-            <section className="hero-section">
-                <div className="hero-inner">
+                <div className="hero-orb hero-orb-two" />
+
+                <div className="hero-content">
+
                     <div className="eyebrow">
-                        <span className="eyebrow-dot" />
-                        <span>COMMUNAUTÉ INTERNATIONALE HITAS</span>
+
+                        <span className="dot" />
+
+                        COMMUNAUTÉ HITAS
+
                     </div>
 
-                    {renderTitle()}
+                    <h1>
 
-                    <p className="hero-description">
-                        {typedSubtitle}
+                        Découvrez les universités
+
+                        <span>
+                            de notre réseau.
+                        </span>
+
+                    </h1>
+
+                    <p>
+
+                        Explorez les universités partenaires HITAS
+                        et découvrez les photos et vidéos prises
+                        directement par nos étudiants sur leurs campus.
+
                     </p>
 
-                    <div className="country-section">
-                        <div className="country-heading">
-                            <Globe2 size={12} />
-                            <span>Explorer les campus</span>
-                        </div>
-
-                        <nav className="country-nav">
-                            {countries.map((country) => {
-                                const isActive = activeCountry === country.id;
-
-                                return (
-                                    <button
-                                        key={country.id}
-                                        type="button"
-                                        onClick={() => handleCountryChange(country)}
-                                        className={`country-button ${isActive ? 'country-active' : ''}`}
-                                    >
-                                        {country.label}
-                                    </button>
-                                );
-                            })}
-                        </nav>
-                    </div>
-
-                    <div className="hero-cta">
-                        <button
-                            type="button"
-                            onClick={handleEnterCommunity}
-                            className="main-cta"
-                        >
-                            <span>Entrer sur la plateforme</span>
-
-                            <span className="cta-arrow">
-                                <ArrowRight size={17} />
-                            </span>
-                        </button>
-
-                        <p className="cta-hint">
-                            Votre espace étudiant, au même endroit.
-                        </p>
-                    </div>
                 </div>
+
             </section>
 
+
+            {/* ====================================================
+                UNIVERSITIES
+            ==================================================== */}
+
             <section className="universities-section">
+
                 <div className="section-heading">
+
                     <div className="section-label">
-                        <GraduationCap size={13} />
-                        <span>OPPORTUNITÉS ACADÉMIQUES</span>
+
+                        <ImageIcon size={14} />
+
+                        UNIVERSITÉS & EXPÉRIENCES ÉTUDIANTES
+
                     </div>
 
                     <h2>
-                        Découvrez nos
-                        <span> universités partenaires</span>
+
+                        La vie sur les
+
+                        <span>
+                            campus HITAS
+                        </span>
+
                     </h2>
 
                     <p>
-                        Explorez les établissements qui ouvrent leurs portes
-                        aux étudiants de la communauté HITAS.
+
+                        Cliquez sur une université pour découvrir
+                        les photos et vidéos partagées par les étudiants.
+
                     </p>
+
                 </div>
 
+
+                {/* ====================================================
+                    GRID
+                ==================================================== */}
+
                 <div className="universities-grid">
+
                     {universities.map((university, index) => (
+
                         <article
                             key={university.id}
                             className="university-card"
-                            style={{ '--card-delay': `${index * 90}ms` }}
+                            style={{
+                                '--delay': `${index * 70}ms`
+                            }}
+                            tabIndex={0}
+                            role="button"
+                            onClick={() =>
+                                openUniversity(university)
+                            }
+                            onKeyDown={(event) => {
+
+                                if (
+                                    event.key === 'Enter' ||
+                                    event.key === ' '
+                                ) {
+
+                                    event.preventDefault();
+
+                                    openUniversity(university);
+                                }
+
+                            }}
                         >
-                            <div className="university-image-container">
+
+                            {/* ====================================================
+                                IMAGE
+                            ==================================================== */}
+
+                            <div className="card-image">
+
                                 <img
                                     src={university.image}
                                     alt={university.name}
-                                    className="university-image"
                                 />
 
-                                <div className="image-overlay" />
+                                <div className="image-shade" />
 
-                                <div className="university-number">
-                                    0{index + 1}
-                                </div>
 
-                                <div className="university-country">
-                                    <MapPin size={11} />
+                                {/* LOCATION */}
+
+                                <div className="card-location">
+
+                                    <MapPin size={12} />
+
                                     <span>
-                                        {university.city}, {university.country}
+                                        {university.city},
+                                        {' '}
+                                        {university.country}
                                     </span>
+
                                 </div>
+
+
+                                {/* MEDIA COUNT */}
+
+                                <div className="media-badge">
+
+                                    <ImageIcon size={12} />
+
+                                    <span>
+                                        {university.media.length}
+                                        {' '}
+                                        médias
+                                    </span>
+
+                                </div>
+
+
+                                {/* HOVER */}
+
+                                <div className="view-overlay">
+
+                                    <div className="view-button">
+
+                                        <ImageIcon size={16} />
+
+                                        Voir les médias
+
+                                    </div>
+
+                                </div>
+
                             </div>
 
-                            <div className="university-content">
-                                <div className="university-category">
-                                    {university.category}
+
+                            {/* ====================================================
+                                CARD CONTENT
+                            ==================================================== */}
+
+                            <div className="card-content">
+
+                                <div className="card-index">
+
+                                    0{index + 1}
+
                                 </div>
 
                                 <h3>
@@ -342,989 +533,1751 @@ const WelcomeIntro = () => {
                                     {university.description}
                                 </p>
 
-                                <div className="university-footer">
-                                    <span className="discover-text">
-                                        Découvrir
+                                <div className="card-action">
+
+                                    <span>
+                                        Photos & vidéos des étudiants
                                     </span>
 
-                                    <a
-                                        href={university.link}
-                                        onClick={(e) => {
-                                            if (university.link === '#') {
-                                                e.preventDefault();
-                                            }
-                                        }}
-                                        className="discover-button"
-                                        aria-label={`Découvrir ${university.name}`}
-                                    >
-                                        <ChevronRight size={16} />
-                                    </a>
+                                    <ChevronRight size={17} />
+
                                 </div>
+
                             </div>
+
                         </article>
+
                     ))}
+
                 </div>
+
             </section>
 
-            <section className="bottom-cta-section">
-                <div className="bottom-cta">
-                    <div>
-                        <span className="bottom-label">
-                            HITAS COMMUNITY
-                        </span>
 
-                        <h2>
-                            Ton avenir commence
-                            <span> avec les bonnes opportunités.</span>
-                        </h2>
+            {/* ====================================================
+                GALLERY MODAL
+            ==================================================== */}
 
-                        <p>
-                            Rejoins la plateforme et découvre les opportunités
-                            académiques et professionnelles de notre réseau.
-                        </p>
+            {selectedUniversity && (
+
+                <div
+                    className="modal-backdrop"
+                    onClick={closeUniversity}
+                >
+
+                    <div
+                        className="media-modal"
+                        onClick={(event) =>
+                            event.stopPropagation()
+                        }
+                    >
+
+                        {/* ====================================================
+                            CLOSE
+                        ==================================================== */}
+
+                        <button
+                            type="button"
+                            className="close-button"
+                            onClick={closeUniversity}
+                            aria-label="Fermer"
+                        >
+
+                            <X size={20} />
+
+                        </button>
+
+
+                        {/* ====================================================
+                            MODAL HEADER
+                        ==================================================== */}
+
+                        <div className="modal-header">
+
+                            <div>
+
+                                <span className="modal-kicker">
+
+                                    EXPÉRIENCE ÉTUDIANTE
+
+                                </span>
+
+                                <h2>
+                                    {selectedUniversity.name}
+                                </h2>
+
+                                <p>
+
+                                    <MapPin size={13} />
+
+                                    {selectedUniversity.city},
+                                    {' '}
+                                    {selectedUniversity.country}
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        {/* ====================================================
+                            MEDIA VIEWER
+                        ==================================================== */}
+
+                        <div className="media-viewer">
+
+                            {selectedUniversity.media[
+                                activeMedia
+                            ]?.type === 'video' ? (
+
+                                <video
+                                    src={
+                                        selectedUniversity.media[
+                                            activeMedia
+                                        ].src
+                                    }
+                                    controls
+                                    playsInline
+                                />
+
+                            ) : (
+
+                                <img
+                                    src={
+                                        selectedUniversity.media[
+                                            activeMedia
+                                        ]?.src
+                                    }
+                                    alt={
+                                        selectedUniversity.media[
+                                            activeMedia
+                                        ]?.caption ||
+                                        selectedUniversity.name
+                                    }
+                                />
+
+                            )}
+
+
+                            {/* PREVIOUS */}
+
+                            {selectedUniversity.media.length > 1 && (
+
+                                <button
+                                    type="button"
+                                    className="media-nav media-prev"
+                                    onClick={previousMedia}
+                                    aria-label="Média précédent"
+                                >
+
+                                    <ChevronLeft size={22} />
+
+                                </button>
+
+                            )}
+
+
+                            {/* NEXT */}
+
+                            {selectedUniversity.media.length > 1 && (
+
+                                <button
+                                    type="button"
+                                    className="media-nav media-next"
+                                    onClick={nextMedia}
+                                    aria-label="Média suivant"
+                                >
+
+                                    <ChevronRight size={22} />
+
+                                </button>
+
+                            )}
+
+
+                            {/* COUNTER */}
+
+                            <div className="media-counter">
+
+                                {activeMedia + 1}
+
+                                {' / '}
+
+                                {selectedUniversity.media.length}
+
+                            </div>
+
+                        </div>
+
+
+                        {/* ====================================================
+                            MEDIA INFORMATION
+                        ==================================================== */}
+
+                        <div className="media-info">
+
+                            <div className="media-type">
+
+                                {selectedUniversity.media[
+                                    activeMedia
+                                ]?.type === 'video' ? (
+
+                                    <Video size={13} />
+
+                                ) : (
+
+                                    <ImageIcon size={13} />
+
+                                )}
+
+                                {selectedUniversity.media[
+                                    activeMedia
+                                ]?.type === 'video'
+                                    ? 'VIDÉO'
+                                    : 'PHOTO'}
+
+                            </div>
+
+                            <p>
+
+                                {
+                                    selectedUniversity.media[
+                                        activeMedia
+                                    ]?.caption
+                                }
+
+                            </p>
+
+                        </div>
+
+
+                        {/* ====================================================
+                            THUMBNAILS
+                        ==================================================== */}
+
+                        {selectedUniversity.media.length > 1 && (
+
+                            <div className="media-thumbnails">
+
+                                {selectedUniversity.media.map(
+                                    (media, index) => (
+
+                                        <button
+                                            type="button"
+                                            key={`${media.src}-${index}`}
+                                            className={`
+                                                thumbnail
+                                                ${index === activeMedia
+                                                    ? 'thumbnail-active'
+                                                    : ''
+                                                }
+                                            `}
+                                            onClick={() =>
+                                                setActiveMedia(index)
+                                            }
+                                            aria-label={`Voir le média ${index + 1}`}
+                                        >
+
+                                            {media.type === 'video' ? (
+
+                                                <video
+                                                    src={media.src}
+                                                    muted
+                                                    preload="metadata"
+                                                />
+
+                                            ) : (
+
+                                                <img
+                                                    src={media.src}
+                                                    alt={`Média ${index + 1}`}
+                                                />
+
+                                            )}
+
+                                            {media.type === 'video' && (
+
+                                                <span className="thumbnail-play">
+
+                                                    <Play
+                                                        size={11}
+                                                        fill="currentColor"
+                                                    />
+
+                                                </span>
+
+                                            )}
+
+                                        </button>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        )}
+
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleEnterCommunity}
-                        className="bottom-button"
-                    >
-                        Rejoindre HITAS
-                        <ArrowRight size={16} />
-                    </button>
                 </div>
-            </section>
 
-            <footer className="welcome-footer">
-                <span>HITAS Community</span>
-                <span className="footer-separator">•</span>
-                <span>Connecter les étudiants. Partout.</span>
+            )}
+
+
+            {/* ====================================================
+                FOOTER
+            ==================================================== */}
+
+            <footer className="footer">
+
+                <span>
+                    HITAS
+                </span>
+
+                <span>
+                    •
+                </span>
+
+                <span>
+                    Universités & expériences étudiantes
+                </span>
+
             </footer>
 
+
+            {/* ====================================================
+                CSS
+            ==================================================== */}
+
             <style>{`
-                .welcome-page {
-                    position: relative;
-                    width: 100%;
+
+                * {
+                    box-sizing: border-box;
+                }
+
+
+                /* ==================================================
+                   PAGE
+                ================================================== */
+
+                .hitas-page {
+
                     min-height: 100vh;
-                    overflow-x: hidden;
-                    color: #ffffff;
-                    background: #040510;
-                    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-                    isolation: isolate;
-                }
 
-                .welcome-background {
-                    position: fixed;
-                    inset: 0;
-                    z-index: -10;
-                    overflow: hidden;
-                    background: #040510;
-                }
-
-                .welcome-video {
-                    position: absolute;
-                    inset: 0;
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    transform: scale(1.04);
-                    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-                }
-
-                .video-visible {
-                    opacity: 1;
-                }
-
-                .video-hidden {
-                    opacity: 0;
-                }
-
-                .welcome-overlay {
-                    position: absolute;
-                    inset: 0;
-                    background:
-                        linear-gradient(
-                            to bottom,
-                            rgba(3, 5, 18, 0.82) 0%,
-                            rgba(3, 5, 18, 0.38) 30%,
-                            rgba(3, 5, 18, 0.72) 65%,
-                            rgba(3, 5, 18, 0.97) 100%
-                        ),
-                        linear-gradient(
-                            to right,
-                            rgba(3, 5, 18, 0.65),
-                            rgba(3, 5, 18, 0.08) 50%,
-                            rgba(3, 5, 18, 0.65)
-                        );
-                }
-
-                .welcome-glow {
-                    position: absolute;
-                    left: 50%;
-                    top: 38%;
-                    width: 850px;
-                    height: 600px;
-                    transform: translate(-50%, -50%);
-                    background: radial-gradient(
-                        ellipse,
-                        rgba(99, 102, 241, 0.16),
-                        transparent 68%
-                    );
-                    pointer-events: none;
-                }
-
-                .welcome-vignette {
-                    position: absolute;
-                    inset: 0;
                     background:
                         radial-gradient(
-                            ellipse at center,
-                            transparent 25%,
-                            rgba(0, 0, 0, 0.28) 70%,
-                            rgba(0, 0, 0, 0.62) 100%
-                        );
-                    pointer-events: none;
-                }
+                            circle at 50% 0%,
+                            rgba(124, 58, 237, 0.15),
+                            transparent 35%
+                        ),
+                        #050611;
 
-                .welcome-header {
-                    position: relative;
-                    z-index: 20;
-                    width: 100%;
-                    box-sizing: border-box;
-                    padding: 28px clamp(22px, 5vw, 70px);
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    animation: header-enter 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
-                }
-
-                .welcome-brand {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-
-                .brand-icon {
-                    width: 34px;
-                    height: 34px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 10px;
-                    background: rgba(255, 255, 255, 0.07);
-                    border: 1px solid rgba(255, 255, 255, 0.12);
-                    backdrop-filter: blur(14px);
-                    color: #c4b5fd;
-                }
-
-                .brand-text {
-                    display: flex;
-                    align-items: center;
-                }
-
-                .brand-name {
                     color: #ffffff;
-                    font-size: 12px;
-                    font-weight: 800;
-                    letter-spacing: 0.08em;
+
+                    font-family:
+                        Inter,
+                        ui-sans-serif,
+                        system-ui,
+                        -apple-system,
+                        BlinkMacSystemFont,
+                        "Segoe UI",
+                        sans-serif;
+
+                    overflow-x: hidden;
+
                 }
 
-                .brand-divider {
-                    margin: 0 7px;
-                    color: rgba(255, 255, 255, 0.25);
-                    font-size: 11px;
-                }
 
-                .brand-section {
-                    color: rgba(255, 255, 255, 0.48);
-                    font-size: 10px;
-                    font-weight: 650;
-                    letter-spacing: 0.1em;
-                }
+                /* ==================================================
+                   HERO
+                ================================================== */
 
-                .secure-badge {
-                    display: flex;
-                    align-items: center;
-                    gap: 7px;
-                    padding: 8px 13px;
-                    border-radius: 999px;
-                    background: rgba(255, 255, 255, 0.055);
-                    border: 1px solid rgba(255, 255, 255, 0.11);
-                    backdrop-filter: blur(15px);
-                    color: rgba(255, 255, 255, 0.62);
-                    font-size: 10px;
-                    font-weight: 650;
-                    letter-spacing: 0.02em;
-                }
+                .hero {
 
-                .secure-badge svg {
-                    color: #a78bfa;
-                }
-
-                .hero-section {
                     position: relative;
-                    z-index: 5;
-                    min-height: 720px;
+
+                    min-height: 430px;
+
                     display: flex;
+
                     align-items: center;
+
                     justify-content: center;
-                    box-sizing: border-box;
-                    padding: 50px 20px 100px;
+
+                    padding: 80px 20px 70px;
+
+                    overflow: hidden;
+
+                    border-bottom:
+                        1px solid
+                        rgba(167, 139, 250, 0.1);
+
                 }
 
-                .hero-inner {
-                    width: 100%;
-                    max-width: 900px;
+
+                .hero-content {
+
+                    position: relative;
+
+                    z-index: 2;
+
+                    width:
+                        min(850px, 100%);
+
                     text-align: center;
-                    animation: content-enter 1s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+
                 }
+
 
                 .eyebrow {
+
                     display: inline-flex;
+
                     align-items: center;
-                    gap: 9px;
-                    padding: 7px 13px;
+
+                    gap: 8px;
+
+                    padding: 8px 13px;
+
                     margin-bottom: 22px;
+
+                    border:
+                        1px solid
+                        rgba(255,255,255,.11);
+
                     border-radius: 999px;
-                    background: rgba(255, 255, 255, 0.055);
-                    border: 1px solid rgba(255, 255, 255, 0.12);
-                    backdrop-filter: blur(14px);
-                    color: rgba(255, 255, 255, 0.62);
+
+                    background:
+                        rgba(255,255,255,.045);
+
+                    color:
+                        rgba(255,255,255,.6);
+
                     font-size: 9px;
-                    font-weight: 750;
-                    letter-spacing: 0.13em;
+
+                    font-weight: 800;
+
+                    letter-spacing: .15em;
+
                 }
 
-                .eyebrow-dot {
+
+                .dot {
+
                     width: 6px;
+
                     height: 6px;
-                    flex-shrink: 0;
+
                     border-radius: 50%;
+
                     background: #a78bfa;
-                    box-shadow: 0 0 12px rgba(167, 139, 250, 0.85);
+
+                    box-shadow:
+                        0 0 14px
+                        rgba(167,139,250,.8);
+
                 }
 
-                .hero-title {
+
+                .hero h1 {
+
                     margin: 0;
-                    padding: 0;
-                    font-size: clamp(43px, 6.2vw, 78px);
-                    line-height: 0.98;
-                    letter-spacing: -0.055em;
+
+                    font-size:
+                        clamp(42px, 6vw, 72px);
+
+                    line-height: 1;
+
+                    letter-spacing: -.055em;
+
                     font-weight: 850;
-                    color: #ffffff;
-                    text-shadow: 0 8px 35px rgba(0, 0, 0, 0.4);
+
                 }
 
-                .hero-title > span:first-child {
-                    display: block;
-                    min-height: 1em;
-                }
 
-                .heading-accent {
+                .hero h1 span {
+
                     display: block;
+
                     margin-top: 8px;
-                    color: #c4b5fd;
-                    text-shadow: 0 0 45px rgba(139, 92, 246, 0.28);
-                    min-height: 1em;
+
+                    color: #a78bfa;
+
                 }
 
-                .hero-description {
+
+                .hero p {
+
                     max-width: 650px;
-                    min-height: 52px;
+
                     margin: 24px auto 0;
-                    color: rgba(255, 255, 255, 0.66);
-                    font-size: clamp(13px, 1.35vw, 15px);
+
+                    color:
+                        rgba(255,255,255,.55);
+
+                    font-size: 14px;
+
                     line-height: 1.75;
-                    font-weight: 450;
+
                 }
 
-                .country-section {
-                    margin-top: 36px;
+
+                /* ==================================================
+                   HERO ORBS
+                ================================================== */
+
+                .hero-orb {
+
+                    position: absolute;
+
+                    border-radius: 50%;
+
+                    filter: blur(80px);
+
+                    pointer-events: none;
+
                 }
 
-                .country-heading {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 6px;
-                    margin-bottom: 12px;
-                    color: rgba(255, 255, 255, 0.38);
-                    font-size: 9px;
-                    font-weight: 700;
-                    letter-spacing: 0.12em;
-                    text-transform: uppercase;
+
+                .hero-orb-one {
+
+                    width: 350px;
+
+                    height: 350px;
+
+                    top: -180px;
+
+                    left: 12%;
+
+                    background:
+                        rgba(99,102,241,.16);
+
                 }
 
-                .country-heading svg {
-                    color: rgba(167, 139, 250, 0.75);
+
+                .hero-orb-two {
+
+                    width: 300px;
+
+                    height: 300px;
+
+                    right: 8%;
+
+                    bottom: -190px;
+
+                    background:
+                        rgba(168,85,247,.13);
+
                 }
 
-                .country-nav {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    gap: 7px;
-                }
 
-                .country-button {
-                    appearance: none;
-                    border: 1px solid rgba(255, 255, 255, 0.10);
-                    outline: none;
-                    padding: 8px 14px;
-                    border-radius: 999px;
-                    background: rgba(8, 11, 28, 0.40);
-                    backdrop-filter: blur(14px);
-                    color: rgba(255, 255, 255, 0.57);
-                    font-family: inherit;
-                    font-size: 10px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition:
-                        color 0.28s ease,
-                        background 0.28s ease,
-                        border-color 0.28s ease,
-                        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                        box-shadow 0.28s ease;
-                }
-
-                .country-button:hover {
-                    color: #ffffff;
-                    background: rgba(255, 255, 255, 0.08);
-                    border-color: rgba(255, 255, 255, 0.18);
-                    transform: translateY(-1px);
-                }
-
-                .country-button:focus-visible {
-                    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.45);
-                }
-
-                .country-active {
-                    color: #ffffff;
-                    background: rgba(109, 40, 217, 0.72);
-                    border-color: rgba(167, 139, 250, 0.68);
-                    box-shadow: 0 8px 28px rgba(109, 40, 217, 0.22);
-                }
-
-                .country-active:hover {
-                    background: rgba(124, 58, 237, 0.78);
-                }
-
-                .hero-cta {
-                    margin-top: 38px;
-                }
-
-                .main-cta {
-                    appearance: none;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 15px;
-                    min-width: 255px;
-                    padding: 13px 14px 13px 21px;
-                    border: none;
-                    border-radius: 13px;
-                    outline: none;
-                    background: linear-gradient(
-                        135deg,
-                        #5b3df5 0%,
-                        #7c3aed 55%,
-                        #9333ea 100%
-                    );
-                    color: #ffffff;
-                    font-family: inherit;
-                    font-size: 12px;
-                    font-weight: 750;
-                    cursor: pointer;
-                    box-shadow: 0 14px 35px rgba(91, 61, 245, 0.28);
-                    transition:
-                        transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-                        box-shadow 0.3s ease,
-                        filter 0.3s ease;
-                }
-
-                .main-cta:hover {
-                    transform: translateY(-3px);
-                    filter: brightness(1.06);
-                    box-shadow: 0 20px 48px rgba(91, 61, 245, 0.38);
-                }
-
-                .main-cta:active {
-                    transform: translateY(-1px);
-                }
-
-                .cta-arrow {
-                    width: 31px;
-                    height: 31px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border-radius: 9px;
-                    background: rgba(255, 255, 255, 0.13);
-                    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-                }
-
-                .main-cta:hover .cta-arrow {
-                    transform: translateX(3px);
-                }
-
-                .cta-hint {
-                    margin: 11px 0 0;
-                    color: rgba(255, 255, 255, 0.32);
-                    font-size: 9px;
-                    letter-spacing: 0.02em;
-                }
+                /* ==================================================
+                   UNIVERSITIES SECTION
+                ================================================== */
 
                 .universities-section {
-                    position: relative;
-                    z-index: 10;
-                    width: min(1180px, calc(100% - 40px));
+
+                    width:
+                        min(1180px, calc(100% - 40px));
+
                     margin: 0 auto;
-                    padding: 70px 0 100px;
+
+                    padding: 75px 0 90px;
+
                 }
 
-                .universities-section::before {
-                    content: "";
-                    position: absolute;
-                    left: 50%;
-                    top: 0;
-                    width: 80%;
-                    height: 1px;
-                    transform: translateX(-50%);
-                    background: linear-gradient(
-                        to right,
-                        transparent,
-                        rgba(139, 92, 246, 0.45),
-                        transparent
-                    );
-                }
 
                 .section-heading {
-                    max-width: 700px;
-                    margin: 0 auto 48px;
+
+                    max-width: 720px;
+
+                    margin:
+                        0 auto 45px;
+
                     text-align: center;
+
                 }
+
 
                 .section-label {
+
                     display: inline-flex;
+
                     align-items: center;
+
                     gap: 7px;
-                    margin-bottom: 14px;
+
+                    margin-bottom: 13px;
+
                     color: #a78bfa;
+
                     font-size: 9px;
+
                     font-weight: 800;
-                    letter-spacing: 0.16em;
+
+                    letter-spacing: .15em;
+
                 }
+
 
                 .section-heading h2 {
+
                     margin: 0;
-                    color: #ffffff;
-                    font-size: clamp(30px, 4vw, 48px);
+
+                    font-size:
+                        clamp(30px, 4vw, 46px);
+
                     line-height: 1.05;
-                    letter-spacing: -0.04em;
-                    font-weight: 850;
+
+                    letter-spacing: -.04em;
+
                 }
+
 
                 .section-heading h2 span {
+
                     color: #a78bfa;
+
                 }
+
 
                 .section-heading p {
+
                     max-width: 570px;
-                    margin: 17px auto 0;
-                    color: rgba(255, 255, 255, 0.48);
+
+                    margin: 16px auto 0;
+
+                    color:
+                        rgba(255,255,255,.46);
+
                     font-size: 13px;
+
                     line-height: 1.7;
+
                 }
+
+
+                /* ==================================================
+                   GRID
+                ================================================== */
 
                 .universities-grid {
+
                     display: grid;
-                    grid-template-columns: repeat(3, 1fr);
+
+                    grid-template-columns:
+                        repeat(3, 1fr);
+
                     gap: 22px;
+
                 }
+
+
+                /* ==================================================
+                   CARD
+                ================================================== */
 
                 .university-card {
-                    position: relative;
-                    overflow: hidden;
-                    min-width: 0;
-                    border: 1px solid rgba(167, 139, 250, 0.16);
-                    border-radius: 22px;
-                    background: rgba(8, 9, 25, 0.78);
-                    backdrop-filter: blur(18px);
-                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
-                    opacity: 0;
-                    animation: card-enter 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--card-delay) forwards;
-                    transition:
-                        transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-                        border-color 0.35s ease,
-                        box-shadow 0.35s ease;
-                }
 
-                .university-card:hover {
-                    transform: translateY(-7px);
-                    border-color: rgba(167, 139, 250, 0.42);
+                    position: relative;
+
+                    overflow: hidden;
+
+                    border:
+                        1px solid
+                        rgba(167,139,250,.14);
+
+                    border-radius: 20px;
+
+                    background:
+                        rgba(10,11,28,.86);
+
                     box-shadow:
-                        0 30px 70px rgba(0, 0, 0, 0.34),
-                        0 0 35px rgba(99, 102, 241, 0.08);
-                }
+                        0 20px 60px
+                        rgba(0,0,0,.2);
 
-                .university-image-container {
-                    position: relative;
-                    height: 220px;
-                    overflow: hidden;
-                    background: #080918;
-                }
+                    cursor: pointer;
 
-                .university-image {
-                    width: 100%;
-                    height: 100%;
-                    display: block;
-                    object-fit: cover;
+                    opacity: 0;
+
+                    animation:
+                        card-in
+                        .7s
+                        cubic-bezier(.22,1,.36,1)
+                        var(--delay)
+                        forwards;
+
                     transition:
-                        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-                        filter 0.5s ease;
+                        transform .35s ease,
+                        border-color .35s ease,
+                        box-shadow .35s ease;
+
+                    outline: none;
+
                 }
 
-                .university-card:hover .university-image {
-                    transform: scale(1.055);
-                    filter: brightness(1.06);
+
+                .university-card:hover,
+                .university-card:focus-visible {
+
+                    transform:
+                        translateY(-7px);
+
+                    border-color:
+                        rgba(167,139,250,.4);
+
+                    box-shadow:
+                        0 30px 75px
+                        rgba(0,0,0,.35);
+
                 }
 
-                .image-overlay {
+
+                /* ==================================================
+                   CARD IMAGE
+                ================================================== */
+
+                .card-image {
+
+                    position: relative;
+
+                    height: 220px;
+
+                    overflow: hidden;
+
+                    background: #0a0b1c;
+
+                }
+
+
+                .card-image img {
+
+                    width: 100%;
+
+                    height: 100%;
+
+                    display: block;
+
+                    object-fit: cover;
+
+                    transition:
+                        transform .55s ease,
+                        filter .4s ease;
+
+                }
+
+
+                .university-card:hover
+                .card-image img {
+
+                    transform:
+                        scale(1.06);
+
+                    filter:
+                        brightness(1.06);
+
+                }
+
+
+                .image-shade {
+
                     position: absolute;
+
                     inset: 0;
+
                     background:
                         linear-gradient(
                             to bottom,
-                            rgba(3, 5, 18, 0.02) 20%,
-                            rgba(3, 5, 18, 0.12) 45%,
-                            rgba(3, 5, 18, 0.88) 100%
+                            rgba(0,0,0,.02) 35%,
+                            rgba(4,5,16,.88) 100%
                         );
-                    pointer-events: none;
+
                 }
 
-                .university-number {
-                    position: absolute;
-                    top: 15px;
-                    left: 15px;
-                    padding: 6px 9px;
-                    border: 1px solid rgba(255, 255, 255, 0.14);
-                    border-radius: 8px;
-                    background: rgba(3, 5, 18, 0.45);
-                    backdrop-filter: blur(10px);
-                    color: rgba(255, 255, 255, 0.65);
-                    font-size: 9px;
-                    font-weight: 800;
-                    letter-spacing: 0.08em;
-                }
 
-                .university-country {
+                /* ==================================================
+                   LOCATION
+                ================================================== */
+
+                .card-location {
+
                     position: absolute;
-                    bottom: 14px;
-                    left: 15px;
-                    display: inline-flex;
+
+                    left: 14px;
+
+                    bottom: 13px;
+
+                    display: flex;
+
                     align-items: center;
+
                     gap: 5px;
-                    color: rgba(255, 255, 255, 0.75);
+
+                    color:
+                        rgba(255,255,255,.78);
+
                     font-size: 9px;
+
                     font-weight: 650;
+
                 }
 
-                .university-country svg {
+
+                .card-location svg {
+
                     color: #c4b5fd;
+
                 }
 
-                .university-content {
-                    padding: 21px 21px 20px;
-                }
 
-                .university-category {
-                    margin-bottom: 7px;
-                    color: #a78bfa;
-                    font-size: 8px;
-                    font-weight: 800;
-                    letter-spacing: 0.13em;
-                    text-transform: uppercase;
-                }
+                /* ==================================================
+                   MEDIA BADGE
+                ================================================== */
 
-                .university-content h3 {
-                    margin: 0;
-                    color: #ffffff;
-                    font-size: 17px;
-                    line-height: 1.2;
-                    font-weight: 800;
-                    letter-spacing: -0.02em;
-                }
+                .media-badge {
 
-                .university-content p {
-                    min-height: 63px;
-                    margin: 10px 0 19px;
-                    color: rgba(255, 255, 255, 0.48);
-                    font-size: 11px;
-                    line-height: 1.7;
-                }
-
-                .university-footer {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding-top: 14px;
-                    border-top: 1px solid rgba(167, 139, 250, 0.10);
-                }
-
-                .discover-text {
-                    color: rgba(255, 255, 255, 0.45);
-                    font-size: 9px;
-                    font-weight: 700;
-                    letter-spacing: 0.06em;
-                    text-transform: uppercase;
-                }
-
-                .discover-button {
-                    width: 30px;
-                    height: 30px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: 1px solid rgba(167, 139, 250, 0.20);
-                    border-radius: 9px;
-                    background: rgba(139, 92, 246, 0.08);
-                    color: #c4b5fd;
-                    transition:
-                        background 0.25s ease,
-                        border-color 0.25s ease,
-                        transform 0.25s ease;
-                }
-
-                .discover-button:hover {
-                    background: rgba(139, 92, 246, 0.22);
-                    border-color: rgba(167, 139, 250, 0.45);
-                    transform: translateX(2px);
-                }
-
-                .bottom-cta-section {
-                    position: relative;
-                    z-index: 10;
-                    width: min(1180px, calc(100% - 40px));
-                    margin: 0 auto;
-                    padding: 0 0 90px;
-                }
-
-                .bottom-cta {
-                    position: relative;
-                    overflow: hidden;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 40px;
-                    padding: 42px 45px;
-                    border: 1px solid rgba(139, 92, 246, 0.20);
-                    border-radius: 25px;
-                    background:
-                        linear-gradient(
-                            120deg,
-                            rgba(76, 29, 149, 0.20),
-                            rgba(30, 27, 75, 0.42)
-                        );
-                    backdrop-filter: blur(20px);
-                }
-
-                .bottom-cta::before {
-                    content: "";
                     position: absolute;
-                    width: 400px;
-                    height: 300px;
-                    right: -120px;
-                    top: -160px;
-                    border-radius: 50%;
-                    background: rgba(139, 92, 246, 0.13);
-                    filter: blur(50px);
-                    pointer-events: none;
-                }
 
-                .bottom-label {
-                    color: #a78bfa;
-                    font-size: 8px;
-                    font-weight: 800;
-                    letter-spacing: 0.16em;
-                }
+                    right: 13px;
 
-                .bottom-cta h2 {
-                    max-width: 650px;
-                    margin: 9px 0 8px;
-                    color: #ffffff;
-                    font-size: clamp(24px, 3vw, 37px);
-                    line-height: 1.08;
-                    letter-spacing: -0.035em;
-                }
+                    bottom: 12px;
 
-                .bottom-cta h2 span {
-                    color: #a78bfa;
-                }
-
-                .bottom-cta p {
-                    max-width: 580px;
-                    margin: 0;
-                    color: rgba(255, 255, 255, 0.45);
-                    font-size: 11px;
-                    line-height: 1.7;
-                }
-
-                .bottom-button {
-                    position: relative;
-                    z-index: 2;
-                    flex-shrink: 0;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding: 13px 17px;
-                    border: 1px solid rgba(167, 139, 250, 0.25);
-                    border-radius: 12px;
-                    background: rgba(139, 92, 246, 0.15);
-                    color: #ffffff;
-                    font-family: inherit;
-                    font-size: 10px;
-                    font-weight: 750;
-                    cursor: pointer;
-                    transition:
-                        transform 0.3s ease,
-                        background 0.3s ease,
-                        border-color 0.3s ease;
-                }
-
-                .bottom-button:hover {
-                    transform: translateY(-2px);
-                    background: rgba(139, 92, 246, 0.28);
-                    border-color: rgba(167, 139, 250, 0.48);
-                }
-
-                .welcome-footer {
-                    position: relative;
-                    z-index: 10;
                     display: flex;
+
                     align-items: center;
+
+                    gap: 5px;
+
+                    padding: 6px 8px;
+
+                    border:
+                        1px solid
+                        rgba(255,255,255,.13);
+
+                    border-radius: 8px;
+
+                    background:
+                        rgba(4,5,16,.45);
+
+                    backdrop-filter:
+                        blur(10px);
+
+                    color:
+                        rgba(255,255,255,.7);
+
+                    font-size: 8px;
+
+                    font-weight: 750;
+
+                }
+
+
+                /* ==================================================
+                   HOVER OVERLAY
+                ================================================== */
+
+                .view-overlay {
+
+                    position: absolute;
+
+                    inset: 0;
+
+                    display: flex;
+
+                    align-items: center;
+
                     justify-content: center;
+
+                    opacity: 0;
+
+                    background:
+                        rgba(4,5,16,.38);
+
+                    backdrop-filter:
+                        blur(2px);
+
+                    transition:
+                        opacity .3s ease;
+
+                }
+
+
+                .university-card:hover
+                .view-overlay,
+
+                .university-card:focus-visible
+                .view-overlay {
+
+                    opacity: 1;
+
+                }
+
+
+                .view-button {
+
+                    display: inline-flex;
+
+                    align-items: center;
+
                     gap: 8px;
-                    padding: 17px 20px 25px;
-                    color: rgba(255, 255, 255, 0.25);
+
+                    padding: 10px 14px;
+
+                    border:
+                        1px solid
+                        rgba(255,255,255,.18);
+
+                    border-radius: 10px;
+
+                    background:
+                        rgba(124,58,237,.75);
+
+                    color: #fff;
+
+                    font-size: 10px;
+
+                    font-weight: 750;
+
+                }
+
+
+                /* ==================================================
+                   CARD CONTENT
+                ================================================== */
+
+                .card-content {
+
+                    position: relative;
+
+                    padding:
+                        20px 20px 18px;
+
+                }
+
+
+                .card-index {
+
+                    position: absolute;
+
+                    top: 20px;
+
+                    right: 20px;
+
+                    color:
+                        rgba(167,139,250,.55);
+
                     font-size: 9px;
-                    letter-spacing: 0.05em;
+
+                    font-weight: 800;
+
                 }
 
-                .footer-separator {
-                    color: rgba(167, 139, 250, 0.65);
+
+                .card-content h3 {
+
+                    max-width:
+                        calc(100% - 35px);
+
+                    margin: 0;
+
+                    font-size: 17px;
+
+                    line-height: 1.25;
+
+                    letter-spacing: -.02em;
+
                 }
 
-                @keyframes header-enter {
+
+                .card-content p {
+
+                    min-height: 42px;
+
+                    margin:
+                        10px 0 17px;
+
+                    color:
+                        rgba(255,255,255,.45);
+
+                    font-size: 10.5px;
+
+                    line-height: 1.65;
+
+                }
+
+
+                .card-action {
+
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: space-between;
+
+                    padding-top: 13px;
+
+                    border-top:
+                        1px solid
+                        rgba(167,139,250,.1);
+
+                    color:
+                        rgba(255,255,255,.5);
+
+                    font-size: 9px;
+
+                    font-weight: 700;
+
+                }
+
+
+                .card-action svg {
+
+                    color: #a78bfa;
+
+                    transition:
+                        transform .25s ease;
+
+                }
+
+
+                .university-card:hover
+                .card-action svg {
+
+                    transform:
+                        translateX(3px);
+
+                }
+
+
+                /* ==================================================
+                   MODAL BACKDROP
+                ================================================== */
+
+                .modal-backdrop {
+
+                    position: fixed;
+
+                    inset: 0;
+
+                    z-index: 100;
+
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: center;
+
+                    padding: 25px;
+
+                    background:
+                        rgba(1,2,8,.82);
+
+                    backdrop-filter:
+                        blur(14px);
+
+                    animation:
+                        fade-in .25s ease;
+
+                }
+
+
+                /* ==================================================
+                   MODAL
+                ================================================== */
+
+                .media-modal {
+
+                    position: relative;
+
+                    width:
+                        min(900px, 100%);
+
+                    max-height:
+                        calc(100vh - 50px);
+
+                    overflow: auto;
+
+                    border:
+                        1px solid
+                        rgba(167,139,250,.2);
+
+                    border-radius: 24px;
+
+                    background: #090a1c;
+
+                    box-shadow:
+                        0 35px 100px
+                        rgba(0,0,0,.55);
+
+                    animation:
+                        modal-in
+                        .35s
+                        cubic-bezier(.22,1,.36,1);
+
+                }
+
+
+                /* ==================================================
+                   CLOSE
+                ================================================== */
+
+                .close-button {
+
+                    position: absolute;
+
+                    z-index: 3;
+
+                    top: 16px;
+
+                    right: 16px;
+
+                    width: 36px;
+
+                    height: 36px;
+
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: center;
+
+                    border:
+                        1px solid
+                        rgba(255,255,255,.14);
+
+                    border-radius: 10px;
+
+                    background:
+                        rgba(4,5,16,.65);
+
+                    color: #fff;
+
+                    cursor: pointer;
+
+                    backdrop-filter:
+                        blur(10px);
+
+                }
+
+
+                .close-button:hover {
+
+                    background:
+                        rgba(124,58,237,.75);
+
+                }
+
+
+                /* ==================================================
+                   MODAL HEADER
+                ================================================== */
+
+                .modal-header {
+
+                    padding:
+                        28px 30px 22px;
+
+                }
+
+
+                .modal-kicker {
+
+                    color: #a78bfa;
+
+                    font-size: 8px;
+
+                    font-weight: 800;
+
+                    letter-spacing: .15em;
+
+                }
+
+
+                .modal-header h2 {
+
+                    margin:
+                        7px 0 6px;
+
+                    padding-right: 45px;
+
+                    font-size:
+                        clamp(22px, 4vw, 32px);
+
+                    line-height: 1.1;
+
+                    letter-spacing: -.035em;
+
+                }
+
+
+                .modal-header p {
+
+                    display: flex;
+
+                    align-items: center;
+
+                    gap: 5px;
+
+                    margin: 0;
+
+                    color:
+                        rgba(255,255,255,.42);
+
+                    font-size: 10px;
+
+                }
+
+
+                /* ==================================================
+                   MEDIA VIEWER
+                ================================================== */
+
+                .media-viewer {
+
+                    position: relative;
+
+                    height:
+                        min(58vh, 520px);
+
+                    min-height: 300px;
+
+                    overflow: hidden;
+
+                    background: #02030a;
+
+                }
+
+
+                .media-viewer img,
+
+                .media-viewer video {
+
+                    width: 100%;
+
+                    height: 100%;
+
+                    display: block;
+
+                    object-fit: contain;
+
+                }
+
+
+                /* ==================================================
+                   MEDIA NAVIGATION
+                ================================================== */
+
+                .media-nav {
+
+                    position: absolute;
+
+                    top: 50%;
+
+                    transform:
+                        translateY(-50%);
+
+                    width: 40px;
+
+                    height: 40px;
+
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: center;
+
+                    border:
+                        1px solid
+                        rgba(255,255,255,.14);
+
+                    border-radius: 50%;
+
+                    background:
+                        rgba(4,5,16,.6);
+
+                    color: #fff;
+
+                    cursor: pointer;
+
+                    backdrop-filter:
+                        blur(10px);
+
+                    transition:
+                        background .2s ease,
+                        transform .2s ease;
+
+                }
+
+
+                .media-nav:hover {
+
+                    background:
+                        rgba(124,58,237,.75);
+
+                }
+
+
+                .media-prev {
+
+                    left: 15px;
+
+                }
+
+
+                .media-next {
+
+                    right: 15px;
+
+                }
+
+
+                /* ==================================================
+                   COUNTER
+                ================================================== */
+
+                .media-counter {
+
+                    position: absolute;
+
+                    right: 15px;
+
+                    bottom: 14px;
+
+                    padding:
+                        6px 9px;
+
+                    border-radius: 7px;
+
+                    background:
+                        rgba(4,5,16,.65);
+
+                    color:
+                        rgba(255,255,255,.7);
+
+                    font-size: 9px;
+
+                    font-weight: 700;
+
+                }
+
+
+                /* ==================================================
+                   MEDIA INFO
+                ================================================== */
+
+                .media-info {
+
+                    padding:
+                        17px 25px 15px;
+
+                }
+
+
+                .media-type {
+
+                    display: inline-flex;
+
+                    align-items: center;
+
+                    gap: 5px;
+
+                    margin-bottom: 5px;
+
+                    color: #a78bfa;
+
+                    font-size: 8px;
+
+                    font-weight: 800;
+
+                    letter-spacing: .12em;
+
+                }
+
+
+                .media-info p {
+
+                    margin: 0;
+
+                    color:
+                        rgba(255,255,255,.65);
+
+                    font-size: 11px;
+
+                }
+
+
+                /* ==================================================
+                   THUMBNAILS
+                ================================================== */
+
+                .media-thumbnails {
+
+                    display: flex;
+
+                    gap: 9px;
+
+                    overflow-x: auto;
+
+                    padding:
+                        0 25px 22px;
+
+                }
+
+
+                .thumbnail {
+
+                    position: relative;
+
+                    flex:
+                        0 0 72px;
+
+                    width: 72px;
+
+                    height: 52px;
+
+                    overflow: hidden;
+
+                    padding: 0;
+
+                    border:
+                        1px solid
+                        rgba(255,255,255,.08);
+
+                    border-radius: 8px;
+
+                    background: #050611;
+
+                    cursor: pointer;
+
+                    opacity: .55;
+
+                    transition:
+                        opacity .2s ease,
+                        border-color .2s ease;
+
+                }
+
+
+                .thumbnail:hover {
+
+                    opacity: .85;
+
+                }
+
+
+                .thumbnail-active {
+
+                    opacity: 1;
+
+                    border-color:
+                        #a78bfa;
+
+                    box-shadow:
+                        0 0 0 1px
+                        rgba(167,139,250,.25);
+
+                }
+
+
+                .thumbnail img,
+
+                .thumbnail video {
+
+                    width: 100%;
+
+                    height: 100%;
+
+                    display: block;
+
+                    object-fit: cover;
+
+                }
+
+
+                .thumbnail-play {
+
+                    position: absolute;
+
+                    inset: 0;
+
+                    display: flex;
+
+                    align-items: center;
+
+                    justify-content: center;
+
+                    color: #fff;
+
+                    background:
+                        rgba(0,0,0,.3);
+
+                }
+
+
+                /* ==================================================
+                   FOOTER
+                ================================================== */
+
+                .footer {
+
+                    display: flex;
+
+                    justify-content: center;
+
+                    align-items: center;
+
+                    gap: 8px;
+
+                    padding:
+                        18px 20px 28px;
+
+                    color:
+                        rgba(255,255,255,.25);
+
+                    font-size: 9px;
+
+                    letter-spacing: .05em;
+
+                }
+
+
+                .footer span:first-child {
+
+                    color:
+                        rgba(255,255,255,.55);
+
+                    font-weight: 800;
+
+                }
+
+
+                /* ==================================================
+                   ANIMATIONS
+                ================================================== */
+
+                @keyframes card-in {
+
+                    from {
+
+                        opacity: 0;
+
+                        transform:
+                            translateY(25px);
+
+                    }
+
+                    to {
+
+                        opacity: 1;
+
+                        transform:
+                            translateY(0);
+
+                    }
+
+                }
+
+
+                @keyframes fade-in {
+
                     from {
                         opacity: 0;
-                        transform: translateY(-12px);
                     }
 
                     to {
                         opacity: 1;
-                        transform: translateY(0);
                     }
+
                 }
 
-                @keyframes content-enter {
+
+                @keyframes modal-in {
+
                     from {
+
                         opacity: 0;
-                        transform: translateY(28px);
-                        filter: blur(5px);
+
+                        transform:
+                            translateY(18px)
+                            scale(.98);
+
                     }
 
                     to {
-                        opacity: 1;
-                        transform: translateY(0);
-                        filter: blur(0);
-                    }
-                }
 
-                @keyframes card-enter {
-                    from {
-                        opacity: 0;
-                        transform: translateY(30px);
-                        filter: blur(5px);
+                        opacity: 1;
+
+                        transform:
+                            translateY(0)
+                            scale(1);
+
                     }
 
-                    to {
-                        opacity: 1;
-                        transform: translateY(0);
-                        filter: blur(0);
-                    }
                 }
+
+
+                /* ==================================================
+                   TABLET
+                ================================================== */
 
                 @media (max-width: 900px) {
+
                     .universities-grid {
-                        grid-template-columns: repeat(2, 1fr);
+
+                        grid-template-columns:
+                            repeat(2, 1fr);
+
                     }
 
-                    .bottom-cta {
-                        flex-direction: column;
-                        align-items: flex-start;
-                    }
                 }
+
+
+                /* ==================================================
+                   MOBILE
+                ================================================== */
 
                 @media (max-width: 640px) {
-                    .welcome-header {
-                        padding: 18px 16px;
+
+                    .hero {
+
+                        min-height: 390px;
+
+                        padding:
+                            65px 18px 55px;
+
                     }
 
-                    .brand-section,
-                    .brand-divider {
-                        display: none;
+
+                    .hero h1 {
+
+                        font-size:
+                            clamp(38px, 12vw, 55px);
+
                     }
 
-                    .secure-badge {
-                        padding: 7px 10px;
-                        font-size: 9px;
-                    }
 
-                    .hero-section {
-                        min-height: 670px;
-                        padding: 30px 18px 70px;
-                    }
+                    .hero p {
 
-                    .hero-title {
-                        font-size: clamp(40px, 11.5vw, 58px);
-                        letter-spacing: -0.045em;
-                    }
-
-                    .hero-description {
-                        max-width: 450px;
                         font-size: 12px;
-                        line-height: 1.7;
+
                     }
 
-                    .country-section {
-                        margin-top: 29px;
-                    }
-
-                    .country-button {
-                        padding: 7px 11px;
-                        font-size: 9px;
-                    }
-
-                    .hero-cta {
-                        margin-top: 31px;
-                    }
-
-                    .main-cta {
-                        width: 100%;
-                        max-width: 310px;
-                        min-width: 0;
-                    }
 
                     .universities-section {
-                        width: min(100% - 28px, 520px);
-                        padding: 55px 0 70px;
+
+                        width:
+                            min(100% - 28px, 520px);
+
+                        padding:
+                            55px 0 65px;
+
                     }
 
-                    .section-heading {
-                        margin-bottom: 34px;
-                    }
-
-                    .section-heading h2 {
-                        font-size: 31px;
-                    }
 
                     .universities-grid {
+
                         grid-template-columns: 1fr;
+
                         gap: 17px;
+
                     }
 
-                    .university-image-container {
+
+                    .card-image {
+
                         height: 230px;
+
                     }
 
-                    .university-content p {
-                        min-height: auto;
+
+                    .modal-backdrop {
+
+                        padding: 12px;
+
                     }
 
-                    .bottom-cta-section {
-                        width: min(100% - 28px, 520px);
-                        padding-bottom: 60px;
+
+                    .media-modal {
+
+                        max-height:
+                            calc(100vh - 24px);
+
+                        border-radius: 18px;
+
                     }
 
-                    .bottom-cta {
-                        padding: 30px 25px;
-                        gap: 25px;
+
+                    .modal-header {
+
+                        padding:
+                            22px 20px 17px;
+
                     }
 
-                    .bottom-button {
-                        width: 100%;
-                        justify-content: center;
+
+                    .media-viewer {
+
+                        min-height: 240px;
+
+                        height: 48vh;
+
                     }
 
-                    .welcome-footer {
-                        padding: 14px 15px 20px;
-                        font-size: 8px;
+
+                    .media-info {
+
+                        padding:
+                            15px 18px 13px;
+
                     }
+
+
+                    .media-thumbnails {
+
+                        padding:
+                            0 18px 18px;
+
+                    }
+
                 }
 
-                @media (max-width: 380px) {
-                    .welcome-brand {
-                        gap: 7px;
-                    }
 
-                    .brand-icon {
-                        width: 30px;
-                        height: 30px;
-                    }
-
-                    .brand-name {
-                        font-size: 10px;
-                    }
-
-                    .secure-badge span {
-                        display: none;
-                    }
-
-                    .secure-badge {
-                        width: 30px;
-                        height: 30px;
-                        padding: 0;
-                        justify-content: center;
-                    }
-
-                    .hero-title {
-                        font-size: 38px;
-                    }
-
-                    .eyebrow {
-                        font-size: 8px;
-                        padding: 6px 10px;
-                    }
-                }
+                /* ==================================================
+                   REDUCED MOTION
+                ================================================== */
 
                 @media (prefers-reduced-motion: reduce) {
-                    .welcome-header,
-                    .hero-inner,
-                    .university-card {
-                        animation: none;
-                        opacity: 1;
-                    }
 
-                    .welcome-video,
-                    .country-button,
-                    .main-cta,
-                    .cta-arrow,
                     .university-card,
-                    .university-image,
-                    .discover-button,
-                    .bottom-button {
-                        transition: none;
+                    .modal-backdrop,
+                    .media-modal {
+
+                        animation: none;
+
+                        opacity: 1;
+
                     }
 
-                    .main-cta:hover,
-                    .country-button:hover,
-                    .university-card:hover,
-                    .discover-button:hover,
-                    .bottom-button:hover {
+
+                    .university-card,
+                    .university-card:hover {
+
                         transform: none;
+
                     }
+
+
+                    .card-image img {
+
+                        transition: none;
+
+                    }
+
                 }
+
             `}</style>
+
         </main>
     );
 };
