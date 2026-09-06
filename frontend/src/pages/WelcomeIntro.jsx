@@ -379,7 +379,7 @@ const WelcomeIntro = () => {
                     display: flex;
                     width: max-content;
                     height: 100%;
-                    animation: slideAnimation 35s linear infinite;
+                    animation: slideAnimation 40s linear infinite;
                 }
                 .hero-slide-item {
                     width: 100vw;
@@ -390,7 +390,7 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(0.9) contrast(1.05);
+                    filter: brightness(1.0) contrast(1.3) ;
                 }
                 @keyframes slideAnimation {
                     0% { transform: translateX(0); }
