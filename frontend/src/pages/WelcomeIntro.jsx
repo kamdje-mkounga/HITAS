@@ -17,8 +17,7 @@ import family from '../assets/family.png';
 import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 import gem6 from '../assets/gem6.webp';
-import oxford1 from '../assets/oxford.jpg';
-import oxford2 from '..assets/oxford.jpeg'
+import oxford1 from '../assets/oxford1.png'
 const allUniversities = [
     {
         id: 1,
@@ -118,11 +117,11 @@ const allUniversities = [
         name: 'Oxford International Digital Institute',
         country: 'Royaume-Uni',
         city: 'Oxford',
-        image: family,
+        image: oxford1,
         description: 'Découvrez l’environnement académique et les expériences partagées par les étudiants.',
         media: [
-            { type: 'image', src: family, caption: 'Oxford International Digital Institute' },
-            { type: 'image', src: family, caption: 'Expérience étudiante' }
+            { type: 'image', src: oxford1, caption: 'Oxford International Digital Institute' },
+            { type: 'image', src: oxford1, caption: 'Expérience étudiante' }
         ]
     },
     {
