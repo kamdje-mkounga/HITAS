@@ -25,7 +25,7 @@ const allUniversities = [
         description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
         media: [
             { type: 'image', src: hitas, caption: 'Campus — ISFATES' },
-            { type: 'image', src: hitas, caption: 'Vie étudiante — ISFATES' }
+            { type: 'image', src: family, caption: 'Vie étudiante — ISFATES' }
         ]
     },
     {
@@ -78,9 +78,26 @@ const allUniversities = [
                 , caption: 'Campus — SOA University'
             },
             {
+                type: 'image', src: family
+                , caption: 'Vie étudiante — SOA University'
+            },
+            {
+                type: 'image', src: presi
+                , caption: 'Vie étudiante — SOA University'
+            },
+            {
+                type: 'image', src: president
+                , caption: 'Vie étudiante — SOA University'
+            },
+            {
                 type: 'image', src: graduate
                 , caption: 'Vie étudiante — SOA University'
+            },
+            {
+                type: 'image', src: hitas
+                , caption: 'Vie étudiante — SOA University'
             }
+
         ]
     },
     {
@@ -323,7 +340,7 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; background-color: #0c1425; color: #1e293b; font-family: 'Inter', sans-serif; }
+                body { margin: 0; background-color: black; color: #1e293b; font-family: 'Inter', sans-serif; }
                 .hitas-page { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); overflow-x: hidden; color: #f8fafc; }
 
                 /* Glassmorphism effet verre habillé */
