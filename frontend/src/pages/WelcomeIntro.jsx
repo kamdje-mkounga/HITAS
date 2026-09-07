@@ -10,14 +10,15 @@ import {
 } from 'lucide-react';
 
 import hitas from '../assets/hitas.png';
-import presi from '../assets/presi.png';
+import presie from '../assets/presie.png';
 import president from '../assets/president.png';
 import graduate from '../assets/graduate.png';
 import family from '../assets/family.png';
 import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 import gem6 from '../assets/gem6.webp';
-
+import oxford1 from '../assets/oxford.jpg';
+import oxford2 from '..assets/oxford.jpeg'
 const allUniversities = [
     {
         id: 1,
@@ -37,15 +38,15 @@ const allUniversities = [
         country: 'Allemagne',
         city: 'Jena'
         ,
-        image: presi,
+        image: presie,
         description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
         media: [
 
             {
-                type: 'image', src: presi
+                type: 'image', src: presie
                 , caption: 'Campus — EAH Jena'
             },
-            { type: 'image', src: presi, caption: 'Vie étudiante — EAH Jena' }
+            { type: 'image', src: presie, caption: 'Vie étudiante — EAH Jena' }
         ]
     },
     {
@@ -101,7 +102,7 @@ const allUniversities = [
                 , caption: 'Vie étudiante — SOA University'
             },
             {
-                type: 'image', src: presi
+                type: 'image', src: presie
                 , caption: 'Vie étudiante — SOA University'
             },
             {
@@ -188,7 +189,7 @@ const WelcomeIntro = () => {
     }, [selectedUniversity]);
 
 
-    const sliderImages = [hitas, gem4, presi, gem5, president, gem6
+    const sliderImages = [hitas, gem4, presie, gem5, president, gem6
         , graduate
         , family];
 
