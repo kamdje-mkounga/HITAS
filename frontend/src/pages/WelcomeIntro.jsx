@@ -14,6 +14,9 @@ import presi from '../assets/presi.png';
 import president from '../assets/president.png';
 import graduate from '../assets/graduate.png';
 import family from '../assets/family.png';
+import gem4 from '../assets/gem4.webp';
+import gem5 from '../assets/gem5.webp';
+import gem6 from '../assets/gem6.webp';
 
 const allUniversities = [
     {
@@ -82,7 +85,7 @@ const allUniversities = [
                 , caption: 'Vie étudiante — SOA University'
             },
             {
-                type: 'image', src: presi
+                type: 'image', src: gem4
                 , caption: 'Vie étudiante — SOA University'
             },
             {
@@ -90,13 +93,22 @@ const allUniversities = [
                 , caption: 'Vie étudiante — SOA University'
             },
             {
-                type: 'image', src: graduate
+                type: 'image', src: hitas
                 , caption: 'Vie étudiante — SOA University'
             },
             {
-                type: 'image', src: hitas
+                type: 'image', src: gem5
                 , caption: 'Vie étudiante — SOA University'
-            }
+            },
+            {
+                type: 'image', src: presi
+                , caption: 'Vie étudiante — SOA University'
+            },
+            {
+                type: 'image', src: gem6
+                , caption: 'Vie étudiante — SOA University'
+            },
+
 
         ]
     },
@@ -176,7 +188,7 @@ const WelcomeIntro = () => {
     }, [selectedUniversity]);
 
 
-    const sliderImages = [hitas, presi, president
+    const sliderImages = [hitas, gem4, presi, gem5, president, gem6
         , graduate
         , family];
 
