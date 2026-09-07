@@ -118,7 +118,7 @@ const allUniversities = [
         country: 'Royaume-Uni',
         city: 'Oxford',
         image: oxford1,
-        description: 'Découvrez l’environnement académique et les expériences partagées par les étudiants.',
+        description: 'Découvrez l’environnement académique.',
         media: [
             { type: 'image', src: oxford1, caption: 'Oxford International Digital Institute' },
             { type: 'image', src: oxford1, caption: 'Expérience étudiante' }
@@ -235,7 +235,7 @@ const WelcomeIntro = () => {
                 <div className="hero-overlay-light">
 
                     <span className="hero-subtitle">WELCOME TO</span>
-                    <h1>OUR UNIVERSITIES</h1>
+                    <h1>OUR UNIVERSITY</h1>
                     <p>Choose this network for immersive academic sessions and student life documentation.</p>
                     <button type="button" className="hero-action-btn" onClick={goToHitas}>
                         <div className="btn-sub">Already a student?</div>
