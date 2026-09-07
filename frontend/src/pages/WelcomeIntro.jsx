@@ -18,9 +18,12 @@ import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 import gem6 from '../assets/gem6.webp';
 import oxford1 from '../assets/oxford1.png'
-import isfa1 from '../assets/isfa.webp'
+import isfa1 from '../assets/isfa1.webp'
 import isfa2 from '../assets/isfa2.png'
 import isfa3 from '../assets/isfa3.png'
+import eha1 from '../assets/eha1.webp'
+import eha2 from '../assets/eha2.png'
+import eha3 from '../assets/eha3.png'
 
 const allUniversities = [
     {
@@ -28,20 +31,21 @@ const allUniversities = [
         name: 'HITAS-ISFATES',
         country: 'Madagascar',
         city: 'Antananarivo',
-        image: isfa1,
+        image: isfa3,
         description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
         media: [
-            { type: 'isfa2', src: hitas, caption: 'Campus — ISFATES' },
-            { type: 'isfa3', src: family, caption: 'Vie étudiante — ISFATES' }
+            { type: 'image', src: isfa2, caption: 'Campus — ISFATES' },
+            { type: 'image', src: isfa3, caption: 'Vie étudiante — ISFATES' },
+            { type: 'image', src: isfa1, caption: 'Campus — ISFATES' }
+
         ]
     },
     {
         id: 2,
         name: 'HITAS — EAH-JENA',
         country: 'Allemagne',
-        city: 'Jena'
-        ,
-        image: presie,
+        city: 'Jena',
+        image: eha2,
         description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
         media: [
 
@@ -49,7 +53,9 @@ const allUniversities = [
                 type: 'image', src: presie
                 , caption: 'Campus — EAH Jena'
             },
-            { type: 'image', src: presie, caption: 'Vie étudiante — EAH Jena' }
+            { type: 'image', src: eha1, caption: 'Vie étudiante — EAH Jena' },
+            { type: 'image', src: eha2, caption: 'Vie étudiante — EAH Jena' },
+            { type: 'image', src: eha3, caption: 'Vie étudiante — EAH Jena' }
         ]
     },
     {
