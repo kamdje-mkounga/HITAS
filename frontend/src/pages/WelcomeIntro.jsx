@@ -18,17 +18,21 @@ import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 import gem6 from '../assets/gem6.webp';
 import oxford1 from '../assets/oxford1.png'
+import isfa1 from '../assets/isfa.webp'
+import isfa2 from '../assets/isfa2.png'
+import isfa3 from '../assets/isfa3.png'
+
 const allUniversities = [
     {
         id: 1,
         name: 'HITAS-ISFATES',
         country: 'Madagascar',
         city: 'Antananarivo',
-        image: hitas,
+        image: isfa1,
         description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
         media: [
-            { type: 'image', src: hitas, caption: 'Campus — ISFATES' },
-            { type: 'image', src: family, caption: 'Vie étudiante — ISFATES' }
+            { type: 'isfa2', src: hitas, caption: 'Campus — ISFATES' },
+            { type: 'isfa3', src: family, caption: 'Vie étudiante — ISFATES' }
         ]
     },
     {
