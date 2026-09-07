@@ -9,11 +9,11 @@ import {
     Menu
 } from 'lucide-react';
 
-import gem1 from '../assets/gem1.png';
-import gem2 from '../assets/gem2.png';
-import gem3 from '../assets/gem3.png';
-import gem4 from '../assets/gem4.webp';
-import gem5 from '../assets/gem5.webp';
+import hitas from '../assets/hitas.png';
+import presi from '../assets/presi.png';
+import president from '../assets/president.png';
+import graduate from '../assets/graduate.png';
+import family from '../assets/family.png';
 
 const allUniversities = [
     {
@@ -21,23 +21,28 @@ const allUniversities = [
         name: 'HITAS-ISFATES',
         country: 'Madagascar',
         city: 'Antananarivo',
-        image: gem1,
+        image: hitas,
         description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
         media: [
-            { type: 'image', src: gem1, caption: 'Campus — ISFATES' },
-            { type: 'image', src: gem1, caption: 'Vie étudiante — ISFATES' }
+            { type: 'image', src: hitas, caption: 'Campus — ISFATES' },
+            { type: 'image', src: hitas, caption: 'Vie étudiante — ISFATES' }
         ]
     },
     {
         id: 2,
         name: 'HITAS — EAH-JENA',
         country: 'Allemagne',
-        city: 'Jena',
-        image: gem2,
+        city: 'Jena'
+        ,
+        image: presi,
         description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
         media: [
-            { type: 'image', src: gem2, caption: 'Campus — EAH Jena' },
-            { type: 'image', src: gem2, caption: 'Vie étudiante — EAH Jena' }
+
+            {
+                type: 'image', src: presi
+                , caption: 'Campus — EAH Jena'
+            },
+            { type: 'image', src: presi, caption: 'Vie étudiante — EAH Jena' }
         ]
     },
     {
@@ -45,11 +50,18 @@ const allUniversities = [
         name: 'HITAS — Fachhochschule Dortmund',
         country: 'Allemagne',
         city: 'Dortmund',
-        image: gem3,
+        image: president
+        ,
         description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
         media: [
-            { type: 'image', src: gem3, caption: 'Campus — Fachhochschule Dortmund' },
-            { type: 'image', src: gem3, caption: 'Vie étudiante — Dortmund' }
+            {
+                type: 'image', src: president
+                , caption: 'Campus — Fachhochschule Dortmund'
+            },
+            {
+                type: 'image', src: president
+                , caption: 'Vie étudiante — Dortmund'
+            }
         ]
     },
     {
@@ -57,11 +69,18 @@ const allUniversities = [
         name: 'HITAS — SOA INDIA',
         country: 'Inde',
         city: 'Bhubaneswar',
-        image: gem4,
+        image: graduate
+        ,
         description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
         media: [
-            { type: 'image', src: gem4, caption: 'Campus — SOA University' },
-            { type: 'image', src: gem4, caption: 'Vie étudiante — SOA University' }
+            {
+                type: 'image', src: graduate
+                , caption: 'Campus — SOA University'
+            },
+            {
+                type: 'image', src: graduate
+                , caption: 'Vie étudiante — SOA University'
+            }
         ]
     },
     {
@@ -69,11 +88,11 @@ const allUniversities = [
         name: 'Oxford International Digital Institute',
         country: 'Royaume-Uni',
         city: 'Oxford',
-        image: gem5,
+        image: family,
         description: 'Découvrez l’environnement académique et les expériences partagées par les étudiants.',
         media: [
-            { type: 'image', src: gem5, caption: 'Oxford International Digital Institute' },
-            { type: 'image', src: gem5, caption: 'Expérience étudiante' }
+            { type: 'image', src: family, caption: 'Oxford International Digital Institute' },
+            { type: 'image', src: family, caption: 'Expérience étudiante' }
         ]
     },
     {
@@ -81,11 +100,11 @@ const allUniversities = [
         name: 'QUALIFI',
         country: 'Royaume-Uni',
         city: 'UK',
-        image: gem1,
+        image: hitas,
         description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
         media: [
-            { type: 'image', src: gem1, caption: 'QUALIFI — expérience étudiante' },
-            { type: 'image', src: gem1, caption: 'Communauté HITAS' }
+            { type: 'image', src: hitas, caption: 'QUALIFI — expérience étudiante' },
+            { type: 'image', src: hitas, caption: 'Communauté HITAS' }
         ]
     }
 ];
@@ -117,7 +136,8 @@ const WelcomeIntro = () => {
         setActiveMedia((current) => (current === total - 1 ? 0 : current + 1));
     };
 
-    const previousMedia = () => {
+
+    const presi = () => {
         if (!selectedUniversity) return;
         const total = selectedUniversity.media.length;
         setActiveMedia((current) => (current === 0 ? total - 1 : current - 1));
@@ -127,8 +147,9 @@ const WelcomeIntro = () => {
         const handleKeyDown = (event) => {
             if (!selectedUniversity) return;
             if (event.key === 'Escape') closeUniversity();
-            if (event.key === 'ArrowRight') nextMedia();
-            if (event.key === 'ArrowLeft') previousMedia();
+            if (event.key === 'ArrowRight') next
+            Media();
+            if (event.key === 'ArrowLeft') presi();
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => {
@@ -137,7 +158,10 @@ const WelcomeIntro = () => {
         };
     }, [selectedUniversity]);
 
-    const sliderImages = [gem1, gem2, gem3, gem4, gem5];
+
+    const sliderImages = [hitas, presi, president
+        , graduate
+        , family];
 
     return (
         <main className="hitas-page">
@@ -251,7 +275,8 @@ const WelcomeIntro = () => {
                             />
                             {selectedUniversity.media.length > 1 && (
                                 <>
-                                    <button type="button" className="media-nav media-prev glass-btn" onClick={previousMedia}>
+
+                                    <button type="button" className="media-nav media-prev glass-btn" onClick={presi}>
                                         <ChevronLeft size={22} />
                                     </button>
                                     <button type="button" className="media-nav media-next glass-btn" onClick={nextMedia}>
