@@ -38,7 +38,7 @@ function Login() {
         localStorage.setItem('userRole', userRole);
       }
 
-      navigate('/');
+      navigate('/Home');
     } catch (err) {
       setError(err.response?.data?.message || 'Identifiants incorrects ou erreur serveur.');
     } finally {
