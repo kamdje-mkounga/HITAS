@@ -1,36 +1,16 @@
 @import "tailwindcss";
 
-:root {
-  --bg-color: #030014;
-  --text-color: #ffffff;
-  --border: #333333;
-
-  /* Voiles pour ton motif sur fond sombre */
-  --home-overlay-1: rgba(3, 0, 20, 0.65);
-  --home-overlay-2: rgba(3, 0, 20, 0.80);
-
-  --bg-blend-mode: overlay;
-  --bg-filter: none;
-}
-
 html,
 body {
   overflow-x: hidden;
   width: 100%;
   margin: 0;
   padding: 0;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: rgba(1, 14, 22, 0.829);
 }
 
 #root {
   width: 100%;
   min-height: 100dvh;
   overflow-x: hidden;
-  background-color: transparent;
-}
-
-.hero-background {
-  background-blend-mode: var(--bg-blend-mode);
-  filter: var(--bg-filter);
 }

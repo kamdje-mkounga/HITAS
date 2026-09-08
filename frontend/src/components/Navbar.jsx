@@ -388,7 +388,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-indigo-950/60 bg-[#0B0F19]/90 backdrop-blur-xl shadow-lg shadow-indigo-950/30">
+    <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-indigo-950/60 bg-white dark:bg-[#0B0F19] backdrop-blur-xl shadow-sm">
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
 
@@ -402,15 +402,15 @@ const Navbar = () => {
 
             <Link
               to="/"
-              className="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-indigo-200 via-purple-300 to-pink-400 bg-clip-text text-transparent hover:opacity-100 transition-opacity drop-shadow-[0_0_20px_rgba(129,140,248,0.6)]"
+              className="text-lg sm:text-xl font-black tracking-wider bg-gradient-to-r from-gray-900 via-indigo-600 to-purple-600 dark:from-indigo-200 dark:via-purple-300 dark:to-pink-400 bg-clip-text text-transparent hover:opacity-100 transition-opacity"
             >
               HITAS{' '}
 
-              <span className="font-light text-slate-200">
+              <span className="font-light text-gray-700 dark:text-slate-200">
                 Connect
               </span>
 
-              <span className="text-indigo-400 drop-shadow-[0_0_10px_rgba(99,102,241,0.9)]">
+              <span className="text-indigo-600 dark:text-indigo-400">
                 .
               </span>
             </Link>
@@ -426,10 +426,9 @@ const Navbar = () => {
             <NavLink
               to="/annuaire"
               className={({ isActive }) =>
-                `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-                  isActive
-                    ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
+                `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive
+                  ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-500/40 shadow-sm'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-900/60'
                 }`
               }
             >
@@ -440,10 +439,9 @@ const Navbar = () => {
               to="/blog"
               onClick={clearNotifications}
               className={({ isActive }) =>
-                `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-                  isActive
-                    ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
+                `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive
+                  ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-500/40 shadow-sm'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-900/60'
                 }`
               }
             >
@@ -467,10 +465,9 @@ const Navbar = () => {
             <NavLink
               to="/showcase"
               className={({ isActive }) =>
-                `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-                  isActive
-                    ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.4)]'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-900/60'
+                `px-4 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${isActive
+                  ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-500/40 shadow-sm'
+                  : 'text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-900/60'
                 }`
               }
             >
@@ -482,10 +479,9 @@ const Navbar = () => {
                 <NavLink
                   to="/admin"
                   className={({ isActive }) =>
-                    `px-4 py-2 rounded-xl text-sm font-black border transition-all ${
-                      isActive
-                        ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.6)]'
-                        : 'text-indigo-300 border-indigo-500/40'
+                    `px-4 py-2 rounded-xl text-sm font-black border transition-all ${isActive
+                      ? 'bg-indigo-600/40 text-indigo-900 dark:text-indigo-100 border-indigo-400 shadow-sm'
+                      : 'text-indigo-600 dark:text-indigo-300 border-indigo-500/40'
                     }`
                   }
                 >
@@ -503,7 +499,7 @@ const Navbar = () => {
 
             {/* =================================================
                 🌐 LANGUAGE SELECTOR
-                ================================================= */}
+                ================================================* */}
 
             <div
               ref={languageRef}
@@ -523,31 +519,30 @@ const Navbar = () => {
                   px-2.5 sm:px-3
                   py-2
                   rounded-xl
-                  border border-indigo-500/30
-                  bg-slate-900/70
+                  border border-gray-200 dark:border-indigo-500/30
+                  bg-gray-50 dark:bg-slate-900/70
                   backdrop-blur-md
-                  text-slate-200
-                  hover:border-indigo-400/60
-                  hover:bg-indigo-500/10
+                  text-gray-700 dark:text-slate-200
+                  hover:border-indigo-500 dark:hover:border-indigo-400/60
+                  hover:bg-indigo-50 dark:hover:bg-indigo-500/10
                   transition-all duration-200
-                  shadow-[0_0_12px_rgba(99,102,241,0.12)]
+                  shadow-sm
                 "
                 aria-label="Choose language"
                 aria-expanded={languageOpen}
               >
 
-                <Globe2 className="w-4 h-4 text-indigo-300 group-hover:text-indigo-200 transition-colors" />
+                <Globe2 className="w-4 h-4 text-indigo-600 dark:text-indigo-300 group-hover:text-indigo-500 dark:group-hover:text-indigo-200 transition-colors" />
 
                 <span className="text-xs sm:text-sm font-bold tracking-wide">
                   {languageLabels[language]}
                 </span>
 
                 <ChevronDown
-                  className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
-                    languageOpen
-                      ? 'rotate-180'
-                      : ''
-                  }`}
+                  className={`w-3.5 h-3.5 text-gray-500 dark:text-slate-400 transition-transform duration-200 ${languageOpen
+                    ? 'rotate-180'
+                    : ''
+                    }`}
                 />
 
               </button>
@@ -566,10 +561,10 @@ const Navbar = () => {
                     w-36
                     overflow-hidden
                     rounded-xl
-                    border border-indigo-500/30
-                    bg-[#0B0F19]/95
+                    border border-gray-200 dark:border-indigo-500/30
+                    bg-white dark:bg-[#0B0F19]/95
                     backdrop-blur-xl
-                    shadow-[0_15px_45px_rgba(0,0,0,0.55)]
+                    shadow-xl
                     z-[100]
                     animate-in
                     fade-in
@@ -585,11 +580,10 @@ const Navbar = () => {
                     onClick={() =>
                       changeLanguage('fr')
                     }
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                      language === 'fr'
-                        ? 'bg-indigo-500/15 text-indigo-200'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${language === 'fr'
+                      ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-200'
+                      : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/70 hover:text-gray-900 dark:hover:text-white'
+                      }`}
                   >
                     <span className="text-base">
                       🇫🇷
@@ -600,7 +594,7 @@ const Navbar = () => {
                     </span>
 
                     {language === 'fr' && (
-                      <span className="ml-auto text-indigo-400">
+                      <span className="ml-auto text-indigo-600 dark:text-indigo-400">
                         ✓
                       </span>
                     )}
@@ -613,11 +607,10 @@ const Navbar = () => {
                     onClick={() =>
                       changeLanguage('en')
                     }
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                      language === 'en'
-                        ? 'bg-indigo-500/15 text-indigo-200'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${language === 'en'
+                      ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-200'
+                      : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/70 hover:text-gray-900 dark:hover:text-white'
+                      }`}
                   >
                     <span className="text-base">
                       🇬🇧
@@ -628,7 +621,7 @@ const Navbar = () => {
                     </span>
 
                     {language === 'en' && (
-                      <span className="ml-auto text-indigo-400">
+                      <span className="ml-auto text-indigo-600 dark:text-indigo-400">
                         ✓
                       </span>
                     )}
@@ -641,11 +634,10 @@ const Navbar = () => {
                     onClick={() =>
                       changeLanguage('de')
                     }
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                      language === 'de'
-                        ? 'bg-indigo-500/15 text-indigo-200'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${language === 'de'
+                      ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-200'
+                      : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/70 hover:text-gray-900 dark:hover:text-white'
+                      }`}
                   >
                     <span className="text-base">
                       🇩🇪
@@ -656,24 +648,23 @@ const Navbar = () => {
                     </span>
 
                     {language === 'de' && (
-                      <span className="ml-auto text-indigo-400">
+                      <span className="ml-auto text-indigo-600 dark:text-indigo-400">
                         ✓
                       </span>
                     )}
                   </button>
 
                   {/* 🇮🇹 ITALIAN */}
-                  
+
                   <button
                     type="button"
                     onClick={() =>
                       changeLanguage('it')
                     }
-                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
-                      language === 'it'
-                        ? 'bg-indigo-500/15 text-indigo-200'
-                        : 'text-slate-300 hover:bg-slate-800/70 hover:text-white'
-                    }`}
+                    className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${language === 'it'
+                      ? 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-200'
+                      : 'text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800/70 hover:text-gray-900 dark:hover:text-white'
+                      }`}
                   >
                     <span className="text-base">
                       🇮🇹
@@ -684,7 +675,7 @@ const Navbar = () => {
                     </span>
 
                     {language === 'it' && (
-                      <span className="ml-auto text-indigo-400">
+                      <span className="ml-auto text-indigo-600 dark:text-indigo-400">
                         ✓
                       </span>
                     )}
@@ -697,48 +688,13 @@ const Navbar = () => {
 
             {/* =================================================
                 🌐 GOOGLE TRANSLATE ENGINE
-                ================================================= */}
+                ================================================* */}
 
             <div
               id="google_translate_element"
               className="absolute left-[-9999px] top-[-9999px] w-[1px] h-[1px] overflow-hidden opacity-0"
               aria-hidden="true"
             />
-
-            {/* =================================================
-                🌙 THEME SWITCH
-                ================================================= */}
-
-            <button
-              onClick={toggleTheme}
-              className="relative w-10 sm:w-12 h-6 flex items-center rounded-full p-0.5 cursor-pointer border border-indigo-500/40 bg-slate-900/90 shadow-[0_0_10px_rgba(99,102,241,0.2)] transition-colors"
-              aria-label="Toggle Theme"
-            >
-
-              <div
-                className="w-5 h-5 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-300 ease-in-out"
-                style={{
-                  transform:
-                    theme === 'light'
-                      ? 'translateX(20px)'
-                      : 'translateX(0px)',
-
-                  backgroundColor:
-                    theme === 'light'
-                      ? '#f59e0b'
-                      : '#312e81'
-                }}
-              >
-
-                {theme === 'dark' ? (
-                  <Moon className="w-3 h-3 text-indigo-200" />
-                ) : (
-                  <Sun className="w-3 h-3 text-white" />
-                )}
-
-              </div>
-
-            </button>
 
             {/* =================================================
                 👤 USER
@@ -750,7 +706,7 @@ const Navbar = () => {
 
                 <Link
                   to="/profil"
-                  className="flex items-center p-1 rounded-full border border-indigo-500/60 bg-slate-900/60 hover:border-indigo-400 transition-all shadow-[0_0_12px_rgba(99,102,241,0.4)]"
+                  className="flex items-center p-1 rounded-full border border-gray-200 dark:border-indigo-500/60 bg-gray-50 dark:bg-slate-900/60 hover:border-indigo-500 dark:hover:border-indigo-400 transition-all shadow-sm"
                   title="Mon Profil"
                 >
 
@@ -760,14 +716,14 @@ const Navbar = () => {
                       'https://via.placeholder.com/150'
                     }
                     alt="Profil"
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-indigo-400"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-2 ring-indigo-500 dark:ring-indigo-400"
                   />
 
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="p-2 text-slate-300 hover:text-red-400 bg-slate-900/80 border border-slate-700 rounded-xl hover:border-red-500/50 transition-all shadow-sm"
+                  className="p-2 text-gray-600 dark:text-slate-300 hover:text-red-500 dark:hover:text-red-400 bg-gray-50 dark:bg-slate-900/80 border border-gray-200 dark:border-slate-700 rounded-xl hover:border-red-500/50 transition-all shadow-sm"
                   title="Déconnexion"
                 >
                   <LogOut className="w-4 h-4" />
@@ -779,7 +735,7 @@ const Navbar = () => {
 
               <Link
                 to="/login"
-                className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-all"
+                className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-500 dark:via-purple-500 dark:to-pink-500 text-white font-bold text-xs sm:text-sm px-4 py-2 rounded-xl shadow-lg shadow-indigo-500/30 hover:opacity-95 transition-all"
               >
                 Connexion
               </Link>
@@ -796,15 +752,14 @@ const Navbar = () => {
           📱 MOBILE SUB-NAVBAR
           ======================================================= */}
 
-      <div className="md:hidden border-t border-indigo-950/40 bg-[#0B0F19]/95 px-2 py-2 flex items-center justify-around text-xs font-bold gap-1">
+      <div className="md:hidden border-t border-gray-200 dark:border-indigo-950/40 bg-white dark:bg-[#0B0F19] px-2 py-2 flex items-center justify-around text-xs font-bold gap-1 shadow-sm">
 
         <NavLink
           to="/annuaire"
           className={({ isActive }) =>
-            `py-1.5 px-3 rounded-lg transition-all ${
-              isActive
-                ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
-                : 'text-slate-300'
+            `py-1.5 px-3 rounded-lg transition-all ${isActive
+              ? 'bg-indigo-50 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-500/50 shadow-sm'
+              : 'text-gray-600 dark:text-slate-300'
             }`
           }
         >
@@ -815,10 +770,9 @@ const Navbar = () => {
           to="/blog"
           onClick={clearNotifications}
           className={({ isActive }) =>
-            `py-1.5 px-3 rounded-lg relative transition-all ${
-              isActive
-                ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
-                : 'text-slate-300'
+            `py-1.5 px-3 rounded-lg relative transition-all ${isActive
+              ? 'bg-indigo-50 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-500/50 shadow-sm'
+              : 'text-gray-600 dark:text-slate-300'
             }`
           }
         >
@@ -833,10 +787,9 @@ const Navbar = () => {
         <NavLink
           to="/showcase"
           className={({ isActive }) =>
-            `py-1.5 px-3 rounded-lg transition-all ${
-              isActive
-                ? 'bg-indigo-500/25 text-indigo-200 border border-indigo-500/50 shadow-[0_0_10px_rgba(99,102,241,0.3)]'
-                : 'text-slate-300'
+            `py-1.5 px-3 rounded-lg transition-all ${isActive
+              ? 'bg-indigo-50 dark:bg-indigo-500/25 text-indigo-600 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-500/50 shadow-sm'
+              : 'text-gray-600 dark:text-slate-300'
             }`
           }
         >
@@ -848,10 +801,9 @@ const Navbar = () => {
             <NavLink
               to="/admin"
               className={({ isActive }) =>
-                `py-1.5 px-2.5 rounded-lg font-black border ${
-                  isActive
-                    ? 'bg-indigo-600/40 text-indigo-100 border-indigo-400'
-                    : 'text-indigo-300 bg-indigo-500/10 border-indigo-500/30'
+                `py-1.5 px-2.5 rounded-lg font-black border ${isActive
+                  ? 'bg-indigo-600/40 text-indigo-950 dark:text-indigo-100 border-indigo-400'
+                  : 'text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-500/30'
                 }`
               }
             >

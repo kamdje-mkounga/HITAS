@@ -1,78 +1,19 @@
 @import "tailwindcss";
 
-
-
-:root {
-
-  --bg-color: #531c45;
-
-  --text-color: #ffffff;
-
-  --border: #333333;
-
-  --home-overlay-1: rgba(3, 0, 20, 0.65);
-
-  --home-overlay-2: rgba(3, 0, 20, 0.75);
-
-}
-
-
-
-[data-theme='light'] {
-
-  --bg-color: #f1f5f9;
-
-  --text-color: #0f172a;
-
-  --border: #cbd5e1;
-
-  /* Un voile blanc subtil et propre pour garder le motif visible sans tout délaver */
-
-  --home-overlay-1: rgba(255, 255, 255, 0.25);
-
-  --home-overlay-2: rgba(241, 245, 249, 0.25);
-
-}
-
-
-
 html,
 body {
-
   overflow-x: hidden;
-
   width: 100%;
-
   margin: 0;
-
   padding: 0;
-
-  background-color: var(--bg-color);
-
-  color: var(--text-color);
-
-  transition: background-color 0.3s ease, color 0.3s ease;
-
 }
-
-
 
 #root {
-
   width: 100%;
-
   min-height: 100dvh;
-
   overflow-x: hidden;
-
-  background-color: transparent;
-
 }
 
-
-
 .switch-ball {
-
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-
 }
