@@ -27,7 +27,8 @@ import eha2 from '../assets/eha2.png';
 import eha3 from '../assets/eha3.png';
 import qua1 from '../assets/qua1.png';
 import qua2 from '../assets/qua2.png';
-
+import fah1 from '../assets/fah1.webp';
+import fah2 from '../assets/fah2.webp';
 const allUniversities = [
     {
         id: 1,
@@ -61,11 +62,11 @@ const allUniversities = [
         name: 'HITAS — Fachhochschule Dortmund',
         country: 'Allemagne',
         city: 'Dortmund',
-        image: president,
+        image: fah1,
         description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
         media: [
-            { type: 'image', src: president, caption: 'Campus — Fachhochschule Dortmund' },
-            { type: 'image', src: president, caption: 'Vie étudiante — Dortmund' }
+            { type: 'image', src: fah1, caption: 'Campus — Fachhochschule Dortmund' },
+            { type: 'image', src: fah2, caption: 'Vie étudiante — Dortmund' }
         ]
     },
     {
