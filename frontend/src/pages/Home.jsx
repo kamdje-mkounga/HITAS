@@ -240,7 +240,7 @@ function Home() {
           {/* Carte Annuaire */}
           <Link
             to="/annuaire"
-            className="group p-6 bg-white/80 dark:bg-[#0b081e]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-indigo-500 dark:hover:border-indigo-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-indigo-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
+            className="group p-6 bg-white/80 dark:bg-[black]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-indigo-500 dark:hover:border-indigo-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-indigo-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
             style={{ animationDelay: '0.2s' }}
           >
             <div>
@@ -259,7 +259,7 @@ function Home() {
           <Link
             to="/blog"
             onClick={handleBlogClick}
-            className="group p-6 bg-white/80 dark:bg-[#0b081e]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-purple-500 dark:hover:border-purple-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-purple-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
+            className="group p-6 bg-white/80 dark:bg-[black]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-purple-500 dark:hover:border-purple-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-purple-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
             style={{ animationDelay: '0.3s' }}
           >
             <div>
@@ -286,7 +286,7 @@ function Home() {
           {/* Carte Showcase */}
           <Link
             to="/showcase"
-            className="group p-6 bg-white/80 dark:bg-[#0b081e]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-pink-500 dark:hover:border-pink-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-pink-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
+            className="group p-6 bg-white/80 dark:bg-[black]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-pink-500 dark:hover:border-pink-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-pink-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
             style={{ animationDelay: '0.4s' }}
           >
             <div>

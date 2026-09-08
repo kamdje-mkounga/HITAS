@@ -6,13 +6,9 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
-  /* Fond bleu sombre texturé type tissu/grille + effet vignette sur les bords */
-  background-color: #0b1d3a;
-  background-image:
-    radial-gradient(circle at center, rgba(15, 35, 70, 0.4) 0%, rgba(3, 10, 25, 0.85) 100%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(0deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 100% 100%, 4px 4px, 4px 4px;
+  /* Dégradé fluide du bleu (bas) vers le blanc (haut) */
+  background: linear-gradient(to top, #0284c7 0%, #38bdf8 50%, #ffffff 100%);
+  background-attachment: fixed;
   color: inherit;
 }
 

@@ -166,12 +166,6 @@ const WelcomeIntro = () => {
     return (
         <main
             className="hitas-page"
-            style={{
-                backgroundColor: '#030014',
-                backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.85), rgba(3, 0, 20, 0.90))`,
-                backgroundSize: 'contain',
-                backgroundRepeat: 'repeat',
-            }}
         >
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
@@ -328,8 +322,21 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; background-color: #030014; color: #1e293b; font-family: 'Inter', sans-serif; }
-                .hitas-page { min-height: 100vh; overflow-x: hidden; color: #f8fafc; }
+                body { margin: 0; color: #1e293b; font-family: 'Inter', sans-serif; }
+                
+                /* Tissu quadrillé / texture de jean bleu sombre + effet vignette */
+                .hitas-page { 
+                    min-height: 100vh; 
+                    overflow-x: hidden; 
+                    color: #f8fafc; 
+                    background-color: #0b1d3a;
+                    background-image: 
+                        radial-gradient(circle at center, rgba(15, 35, 70, 0.4) 0%, rgba(3, 10, 25, 0.85) 100%),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                        linear-gradient(0deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+                    background-size: 100% 100%, 4px 4px, 4px 4px;
+                    background-attachment: fixed;
+                }
 
                 /* Glassmorphism effet verre habillé */
                 .glass-panel {
