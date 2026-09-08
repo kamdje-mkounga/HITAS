@@ -24,6 +24,8 @@ import isfa3 from '../assets/isfa3.png'
 import eha1 from '../assets/eha1.webp'
 import eha2 from '../assets/eha2.png'
 import eha3 from '../assets/eha3.png'
+import qua1 from '../assets/qua1.png'
+import qua2 from '../assets/qua2.png'
 
 const allUniversities = [
     {
@@ -139,11 +141,11 @@ const allUniversities = [
         name: 'QUALIFI',
         country: 'Royaume-Uni',
         city: 'UK',
-        image: hitas,
+        image: qua1,
         description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
         media: [
-            { type: 'image', src: hitas, caption: 'QUALIFI — expérience étudiante' },
-            { type: 'image', src: hitas, caption: 'Communauté HITAS' }
+            { type: 'image', src: qua1, caption: 'QUALIFI — expérience étudiante' },
+            { type: 'image', src: qua2, caption: 'Communauté HITAS' }
         ]
     }
 ];
