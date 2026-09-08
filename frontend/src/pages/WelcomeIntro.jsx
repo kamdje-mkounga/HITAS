@@ -161,7 +161,7 @@ const WelcomeIntro = () => {
         };
     }, [selectedUniversity]);
 
-    const sliderImages = [hitas, gem4, presie, gem5, president, gem6, graduate, family];
+    const sliderImages = [gem5, president, oxford1, family, isfa3];
 
     return (
         <main
