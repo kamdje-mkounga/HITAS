@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
-import tradPattern from '../assets/traditional.jpg';
 import { GraduationCap, MapPin, Briefcase, FileText, Pencil, Trash2 } from 'lucide-react';
 
 function Annuaire({ hasNewNotification, clearNotifications }) {
@@ -159,7 +158,7 @@ function Annuaire({ hasNewNotification, clearNotifications }) {
     <div
       className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300 relative"
       style={{
-        backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2)), url(${tradPattern})`,
+        backgroundImage: `linear-gradient(to bottom, var(--home-overlay-1), var(--home-overlay-2))`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}

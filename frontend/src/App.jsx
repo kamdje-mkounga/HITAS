@@ -15,8 +15,6 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProfileProtectedRoute from './components/ProfileProtectedRoute';
 import NotificationPermission from "./components/NotificationPermission";
 
-import tradPattern from './assets/traditional.jpg';
-
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" replace />;
@@ -94,7 +92,7 @@ function App() {
             position: 'fixed',
             inset: 0,
             zIndex: -1,
-            backgroundImage: `url(${tradPattern})`,
+
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',

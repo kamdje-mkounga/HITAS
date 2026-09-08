@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import API from '../services/api';
-import tradPattern from '../assets/traditional.jpg';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -51,7 +50,7 @@ function Login() {
       className="w-full min-h-screen text-zinc-100 antialiased relative flex items-center justify-center px-4 font-sans selection:bg-indigo-500 selection:text-white"
       style={{
         backgroundColor: '#030014',
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50)), url(${tradPattern})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.40), rgba(3, 0, 20, 0.50))`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}

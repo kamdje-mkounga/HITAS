@@ -20,7 +20,6 @@ import {
 } from 'lucide-react';
 
 import Navbar from '../components/Navbar';
-import tradPattern from '../assets/traditional.jpg';
 
 const BlogEntraide = ({
   hasNewNotification,
@@ -264,15 +263,15 @@ const BlogEntraide = ({
           {mediaType === 'pdf' || mediaType === 'document' ? (
             <div className="w-full max-w-md bg-gradient-to-br from-[#0b081e] via-[#120e2e] to-[#030014] border border-indigo-500/30 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-center relative overflow-hidden group">
               <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
-              
+
               <div className="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
                 <FileText size={32} />
               </div>
-              
+
               <span className="inline-block bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
                 Document PDF
               </span>
-              
+
               <p className="text-xs font-bold text-white mb-6 truncate px-2">
                 {currentFileName}
               </p>
@@ -348,11 +347,10 @@ const BlogEntraide = ({
                     [post._id]: index
                   }))
                 }
-                className={`w-16 h-11 rounded-lg border overflow-hidden bg-white dark:bg-[#030014] shrink-0 flex items-center justify-center transition-all ${
-                  activeIndex === index
+                className={`w-16 h-11 rounded-lg border overflow-hidden bg-white dark:bg-[#030014] shrink-0 flex items-center justify-center transition-all ${activeIndex === index
                     ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 shadow-md'
                     : 'border-slate-300 dark:border-indigo-950 opacity-40 hover:opacity-70'
-                }`}
+                  }`}
               >
                 {mediaItem.type === 'image' || !mediaItem.type ? (
                   <img

@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-import tradPattern from '../assets/traditional.jpg';
 import Navbar from '../components/Navbar';
 
 const formatMediaUrl = (url) => {
@@ -527,8 +526,7 @@ const Showcase = ({ hasNewNotification, clearNotifications }) => {
             to bottom,
             var(--home-overlay-1),
             var(--home-overlay-2)
-          ),
-          url(${tradPattern})
+          )
         `,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat'

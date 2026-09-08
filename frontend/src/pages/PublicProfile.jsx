@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import API from '../services/api';
 import Navbar from '../components/Navbar';
-import tradPattern from '../assets/traditional.jpg';
 import {
   ArrowLeft,
   GraduationCap,
@@ -186,7 +185,7 @@ const PublicProfile = () => {
     <div
       className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55)), url(${tradPattern})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55))`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}

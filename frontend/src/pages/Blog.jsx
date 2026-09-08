@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import tradPattern from '../assets/traditional.jpg';
 import Navbar from '../components/Navbar';
 
 import {
@@ -1298,8 +1297,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             to bottom,
             var(--home-overlay-1),
             var(--home-overlay-2)
-          ),
-          url(${tradPattern})`,
+          )
+         `,
 
         backgroundSize:
           'contain',

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Users, MessageSquareText, Rocket, Bell } from 'lucide-react';
-import tradPattern from '../assets/traditional.jpg';
 
 // 🌐 CONFIGURATION DE L'URL DU BACKEND
 const BACKEND_URL = window.location.hostname === 'localhost'
@@ -182,12 +181,7 @@ function Home() {
   return (
     <div
       className="min-h-screen text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-300"
-      style={{
-        backgroundColor: '#030014', // Fond sombre de secours solide pour Linux/navigateurs sans support graphique avancé
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.85), rgba(3, 0, 20, 0.92)), url(${tradPattern})`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'repeat',
-      }}
+
     >
       <style>{`
         /* Optimisations pour un rendu net des polices et des effets sous Linux */

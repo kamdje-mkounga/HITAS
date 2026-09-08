@@ -4,7 +4,7 @@
 
 :root {
 
-  --bg-color: #030014;
+  --bg-color: #531c45;
 
   --text-color: #ffffff;
 
@@ -36,7 +36,8 @@
 
 
 
-html, body {
+html,
+body {
 
   overflow-x: hidden;
 
@@ -72,6 +73,6 @@ html, body {
 
 .switch-ball {
 
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
 
-  }
+}

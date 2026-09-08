@@ -27,7 +27,6 @@ import eha2 from '../assets/eha2.png';
 import eha3 from '../assets/eha3.png';
 import qua1 from '../assets/qua1.png';
 import qua2 from '../assets/qua2.png';
-import tradPattern from '../assets/traditional.jpg';
 
 const allUniversities = [
     {
@@ -168,7 +167,7 @@ const WelcomeIntro = () => {
             className="hitas-page"
             style={{
                 backgroundColor: '#030014',
-                backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.85), rgba(3, 0, 20, 0.90)), url(${tradPattern})`,
+                backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.85), rgba(3, 0, 20, 0.90))`,
                 backgroundSize: 'contain',
                 backgroundRepeat: 'repeat',
             }}

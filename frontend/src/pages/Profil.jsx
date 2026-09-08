@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Cropper from 'react-easy-crop';
 import Navbar from '../components/Navbar';
 import API from '../services/api';
-import tradPattern from '../assets/traditional.jpg';
 import {
   Settings,
   FileText,
@@ -337,7 +336,7 @@ function Profil() {
     <div
       className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55)), url(${tradPattern})`,
+        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55))`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}

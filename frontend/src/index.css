@@ -5,37 +5,22 @@
   --text-color: #ffffff;
   --border: #333333;
 
-  /* MODE SOMBRE : Voiles très légers pour laisser apparaître le motif traditionnel */
+  /* Voiles pour ton motif sur fond sombre */
   --home-overlay-1: rgba(3, 0, 20, 0.65);
   --home-overlay-2: rgba(3, 0, 20, 0.80);
 
-  /* Propriétés dynamiques pour faire vibrer le motif */
   --bg-blend-mode: overlay;
   --bg-filter: none;
 }
 
-[data-theme='light'] {
-  --bg-color: #f1f5f9;
-  --text-color: #0f172a;
-  --border: #cbd5e1;
-
-  /* MODE CLAIR : Quasi-absence de voile pour supprimer l'effet grisâtre délavé */
-  --home-overlay-1: rgba(241, 245, 249, 0.05);
-  --home-overlay-2: rgba(241, 245, 249, 0.15);
-
-  /* Inversion du motif sombre en gravure claire sur fond lumineux */
-  --bg-blend-mode: multiply;
-  --bg-filter: invert(0.92) brightness(0.35);
-}
-
-html, body {
+html,
+body {
   overflow-x: hidden;
   width: 100%;
   margin: 0;
   padding: 0;
   background-color: var(--bg-color);
   color: var(--text-color);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
@@ -45,14 +30,7 @@ html, body {
   background-color: transparent;
 }
 
-/* À appliquer sur l'élément (div/section) qui porte votre image de fond */
 .hero-background {
   background-blend-mode: var(--bg-blend-mode);
   filter: var(--bg-filter);
-  transition: filter 0.3s ease, background-blend-mode 0.3s ease;
 }
-
-.switch-ball {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
-}
-
