@@ -322,7 +322,8 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; color: #1e293b; font-family: 'Inter', sans-serif; }
+                body { margin: 0; color: #1e293b; font-family: 'Inter', sans-serif; 
+                }
                 
                 /* Fond amélioré harmonisé avec le dégradé bleu ciel et blanc */
                 .hitas-page { 
@@ -373,9 +374,30 @@ const WelcomeIntro = () => {
                 /* Header */
                 .hitas-header {
                     position: sticky; top: 0; z-index: 80;
+                        background:
+    radial-gradient(circle at 15% 20%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0) 35%),
+    radial-gradient(circle at 85% 15%,
+      rgba(186, 230, 253, 0.9) 0%,
+      rgba(186, 230, 253, 0) 32%),
+    radial-gradient(circle at 75% 75%,
+      rgba(125, 211, 252, 0.75) 0%,
+      rgba(125, 211, 252, 0) 38%),
+    radial-gradient(circle at 20% 85%,
+      rgba(224, 242, 254, 0.9) 0%,
+      rgba(224, 242, 254, 0) 35%),
+    linear-gradient(135deg,
+      #ffffff 0%,
+      #e0f2fe 28%,
+      #bae6fd 52%,
+      #38bdf8 78%,
+      #0284c7 100%);
                 }
                 .header-inner {
                     width: min(1180px, calc(100% - 40px)); height: 76px; 
+                    
+                
                     margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
                 }
                 .hitas-logo { display: flex; align-items: center; gap: 10px; color: #0f172a; text-decoration: none; }
