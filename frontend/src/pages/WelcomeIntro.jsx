@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     ChevronLeft,
     ChevronRight,
@@ -17,15 +18,15 @@ import family from '../assets/family.png';
 import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 import gem6 from '../assets/gem6.webp';
-import oxford1 from '../assets/oxford1.png'
-import isfa1 from '../assets/isfa1.webp'
-import isfa2 from '../assets/isfa2.png'
-import isfa3 from '../assets/isfa3.png'
-import eha1 from '../assets/eha1.webp'
-import eha2 from '../assets/eha2.png'
-import eha3 from '../assets/eha3.png'
-import qua1 from '../assets/qua1.png'
-import qua2 from '../assets/qua2.png'
+import oxford1 from '../assets/oxford1.png';
+import isfa1 from '../assets/isfa1.webp';
+import isfa2 from '../assets/isfa2.png';
+import isfa3 from '../assets/isfa3.png';
+import eha1 from '../assets/eha1.webp';
+import eha2 from '../assets/eha2.png';
+import eha3 from '../assets/eha3.png';
+import qua1 from '../assets/qua1.png';
+import qua2 from '../assets/qua2.png';
 
 const allUniversities = [
     {
@@ -39,7 +40,6 @@ const allUniversities = [
             { type: 'image', src: isfa2, caption: 'Campus — ISFATES' },
             { type: 'image', src: isfa3, caption: 'Vie étudiante — ISFATES' },
             { type: 'image', src: isfa1, caption: 'Campus — ISFATES' }
-
         ]
     },
     {
@@ -50,11 +50,7 @@ const allUniversities = [
         image: eha2,
         description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
         media: [
-
-            {
-                type: 'image', src: presie
-                , caption: 'Campus — EAH Jena'
-            },
+            { type: 'image', src: presie, caption: 'Campus — EAH Jena' },
             { type: 'image', src: eha1, caption: 'Vie étudiante — EAH Jena' },
             { type: 'image', src: eha2, caption: 'Vie étudiante — EAH Jena' },
             { type: 'image', src: eha3, caption: 'Vie étudiante — EAH Jena' }
@@ -65,18 +61,11 @@ const allUniversities = [
         name: 'HITAS — Fachhochschule Dortmund',
         country: 'Allemagne',
         city: 'Dortmund',
-        image: president
-        ,
+        image: president,
         description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
         media: [
-            {
-                type: 'image', src: president
-                , caption: 'Campus — Fachhochschule Dortmund'
-            },
-            {
-                type: 'image', src: president
-                , caption: 'Vie étudiante — Dortmund'
-            }
+            { type: 'image', src: president, caption: 'Campus — Fachhochschule Dortmund' },
+            { type: 'image', src: president, caption: 'Vie étudiante — Dortmund' }
         ]
     },
     {
@@ -84,44 +73,17 @@ const allUniversities = [
         name: 'HITAS — SOA INDIA',
         country: 'Inde',
         city: 'Bhubaneswar',
-        image: graduate
-        ,
+        image: graduate,
         description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
         media: [
-            {
-                type: 'image', src: graduate
-                , caption: 'Campus — SOA University'
-            },
-            {
-                type: 'image', src: family
-                , caption: 'Vie étudiante — SOA University'
-            },
-            {
-                type: 'image', src: gem4
-                , caption: 'Vie étudiante — SOA University'
-            },
-            {
-                type: 'image', src: president
-                , caption: 'Vie étudiante — SOA University'
-            },
-            {
-                type: 'image', src: hitas
-                , caption: 'Vie étudiante — SOA University'
-            },
-            {
-                type: 'image', src: gem5
-                , caption: 'Vie étudiante — SOA University'
-            },
-            {
-                type: 'image', src: presie
-                , caption: 'Vie étudiante — SOA University'
-            },
-            {
-                type: 'image', src: gem6
-                , caption: 'Vie étudiante — SOA University'
-            },
-
-
+            { type: 'image', src: graduate, caption: 'Campus — SOA University' },
+            { type: 'image', src: family, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: gem4, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: president, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: hitas, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: gem5, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: presie, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: gem6, caption: 'Vie étudiante — SOA University' }
         ]
     },
     {
@@ -151,12 +113,14 @@ const allUniversities = [
 ];
 
 const WelcomeIntro = () => {
+    const navigate = useNavigate();
     const [selectedUniversity, setSelectedUniversity] = useState(null);
     const [activeMedia, setActiveMedia] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const goToHitas = () => {
-        window.location.href = 'https://' + 'hitas.vercel.app/login/';
+        // Redirige vers la page de connexion interne de ton application
+        navigate('/login');
     };
 
     const openUniversity = (university) => {
@@ -177,7 +141,6 @@ const WelcomeIntro = () => {
         setActiveMedia((current) => (current === total - 1 ? 0 : current + 1));
     };
 
-
     const presi = () => {
         if (!selectedUniversity) return;
         const total = selectedUniversity.media.length;
@@ -188,8 +151,7 @@ const WelcomeIntro = () => {
         const handleKeyDown = (event) => {
             if (!selectedUniversity) return;
             if (event.key === 'Escape') closeUniversity();
-            if (event.key === 'ArrowRight') next
-            Media();
+            if (event.key === 'ArrowRight') nextMedia();
             if (event.key === 'ArrowLeft') presi();
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -199,10 +161,7 @@ const WelcomeIntro = () => {
         };
     }, [selectedUniversity]);
 
-
-    const sliderImages = [hitas, gem4, presie, gem5, president, gem6
-        , graduate
-        , family];
+    const sliderImages = [hitas, gem4, presie, gem5, president, gem6, graduate, family];
 
     return (
         <main className="hitas-page">
@@ -245,7 +204,6 @@ const WelcomeIntro = () => {
                 </div>
 
                 <div className="hero-overlay-light">
-
                     <span className="hero-subtitle">WELCOME TO</span>
                     <h1>OUR UNIVERSITY</h1>
                     <p>Choose this network for immersive academic sessions and student life documentation.</p>
@@ -253,7 +211,6 @@ const WelcomeIntro = () => {
                         <div className="btn-sub">Already a student?</div>
                         ACCESS THE COMMUNITY HITAS NOW
                     </button>
-
                 </div>
             </section>
 
@@ -316,7 +273,6 @@ const WelcomeIntro = () => {
                             />
                             {selectedUniversity.media.length > 1 && (
                                 <>
-
                                     <button type="button" className="media-nav media-prev glass-btn" onClick={presi}>
                                         <ChevronLeft size={22} />
                                     </button>
@@ -475,11 +431,6 @@ const WelcomeIntro = () => {
                     padding: 60px 20px 40px;
                     z-index: 2;
                 }
-                .hero-content {
-                    max-width: 680px;
-                    padding: 45px 35px;
-                    border-radius: 24px;
-                }
                 .hero-subtitle {
                     color: #38bdf8;
                     font-size: 12px;
@@ -527,7 +478,7 @@ const WelcomeIntro = () => {
                     letter-spacing: normal;
                 }
 
-                /* Campuses Container & Grid (Without regions) */
+                /* Campuses Container & Grid */
                 .campuses-container { width: min(1180px, calc(100% - 40px)); margin: 70px auto 100px; }
                 .section-title-wrapper { text-align: center; margin-bottom: 40px; }
                 .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #fff; font-weight: 800; letter-spacing: -0.02em; }
