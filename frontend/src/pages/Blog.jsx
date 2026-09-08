@@ -861,16 +861,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     normalizeStr(cat)
     ) {
       case 'entraide':
-        return 'bg-blue-500/10 text-blue-500 dark:text-blue-400 border-blue-500/20';
+        return 'bg-blue-500/10 text-blue-600 dark:text-sky-300 border-blue-500/20';
 
       case 'stageemploi':
-        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
+        return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20';
 
       case 'logement':
-        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+        return 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20';
 
       default:
-        return 'bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border-slate-300 dark:border-zinc-700';
+        return 'bg-gray-100 dark:bg-sky-900/50 text-gray-700 dark:text-sky-200 border-gray-200 dark:border-sky-800/40';
     }
   };
 
@@ -917,13 +917,13 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       }}
                     />
                   ) : mediaType === 'audio' || isAudio(url) ? (
-                    <div className="w-full p-6 bg-slate-50 dark:bg-[#030014] rounded-xl">
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/50">
-                        <div className="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center flex-shrink-0">
+                    <div className="w-full p-6 bg-slate-50 dark:bg-sky-950/80 rounded-xl">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-sky-100 dark:bg-sky-900/40 border border-sky-200 dark:border-sky-800/50">
+                        <div className="w-11 h-11 rounded-full bg-sky-600 text-white flex items-center justify-center flex-shrink-0">
                           <Music size={18} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-700 dark:text-zinc-300 truncate mb-1">
+                          <p className="text-xs font-semibold text-gray-800 dark:text-sky-100 truncate mb-1">
                             {currentFileName}
                           </p>
                           <audio src={fullUrl} controls className="w-full h-9" />
@@ -931,18 +931,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full max-w-md bg-gradient-to-br from-[#0b081e] via-[#120e2e] to-[#030014] border border-indigo-500/30 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.5)] text-center relative overflow-hidden group my-4">
-                      <div className="absolute -top-12 -right-12 w-32 h-32 bg-indigo-500/15 rounded-full blur-2xl pointer-events-none"></div>
-
-                      <div className="w-16 h-16 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                    <div className="w-full max-w-md bg-white dark:bg-sky-950 border border-gray-200 dark:border-sky-800/40 rounded-3xl p-6 shadow-xl text-center relative overflow-hidden group my-4">
+                      <div className="w-16 h-16 rounded-2xl bg-sky-100 dark:bg-sky-900/50 border border-sky-300 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
                         <FileText size={32} />
                       </div>
 
-                      <span className="inline-block bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
+                      <span className="inline-block bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-200 border border-sky-200 dark:border-sky-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
                         Document PDF
                       </span>
 
-                      <p className="text-xs font-bold text-white mb-6 truncate px-2">
+                      <p className="text-xs font-bold text-gray-900 dark:text-white mb-6 truncate px-2">
                         {currentFileName}
                       </p>
 
@@ -951,14 +949,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           href={fullUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-1.5 transition-all"
+                          className="flex-1 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white py-2.5 px-4 rounded-xl text-xs font-bold shadow-md shadow-sky-500/20 flex items-center justify-center gap-1.5 transition-all"
                         >
                           <ExternalLink size={14} /> Ouvrir
                         </a>
                         <button
                           type="button"
                           onClick={() => handleDownload(url, currentFileName)}
-                          className="bg-[#030014] hover:bg-indigo-950/60 border border-indigo-500/30 text-zinc-300 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-inner cursor-pointer"
+                          className="bg-gray-100 dark:bg-sky-900/50 hover:bg-gray-200 dark:hover:bg-sky-900 border border-gray-300 dark:border-sky-800 text-gray-700 dark:text-sky-200 py-2.5 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-inner cursor-pointer"
                         >
                           <Download size={14} /> Télécharger
                         </button>
@@ -1011,7 +1009,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 type="button"
                 onClick={() => setMediaIndex(post._id, index)}
                 className={`rounded-full transition-all ${index === activeIndex
-                  ? 'w-4 h-1.5 bg-indigo-500'
+                  ? 'w-4 h-1.5 bg-sky-500'
                   : 'w-1.5 h-1.5 bg-zinc-600'
                   }`}
                 aria-label={`Aller au média ${index + 1}`}
@@ -1041,10 +1039,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           rounded-2xl
           overflow-hidden
           border
-          border-slate-200
-          dark:border-indigo-950
-          bg-slate-100
-          dark:bg-[#030014]
+          border-gray-200
+          dark:border-sky-900/50
+          bg-gray-50
+          dark:bg-sky-950/80
         "
       >
 
@@ -1056,8 +1054,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             px-3
             py-2
             border-b
-            border-slate-200
-            dark:border-indigo-950
+            border-gray-200
+            dark:border-sky-900/50
           "
         >
 
@@ -1065,8 +1063,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             className="
               text-[11px]
               font-semibold
-              text-slate-600
-              dark:text-zinc-400
+              text-gray-600
+              dark:text-sky-200
             "
           >
             {mediaFiles.length}{' '}
@@ -1171,7 +1169,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     min-h-32
                     p-4
                     bg-white
-                    dark:bg-[#0b081e]
+                    dark:bg-sky-950
                     flex
                     flex-col
                     justify-center
@@ -1209,7 +1207,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       <Music
                         size={22}
                         className="
-                          text-indigo-500
+                          text-sky-600
+                          dark:text-sky-400
                           mb-2
                         "
                       />
@@ -1217,8 +1216,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       <p
                         className="
                           text-[10px]
-                          text-slate-600
-                          dark:text-zinc-400
+                          text-gray-600
+                          dark:text-sky-200
                           truncate
                           mb-1
                         "
@@ -1240,7 +1239,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       <FileText
                         size={24}
                         className="
-                          text-indigo-500
+                          text-sky-600
+                          dark:text-sky-400
                           mb-2
                         "
                       />
@@ -1249,8 +1249,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                         className="
                           text-xs
                           truncate
-                          text-slate-700
-                          dark:text-zinc-300
+                          text-gray-800
+                          dark:text-sky-100
                         "
                       >
                         {file.name}
@@ -1280,7 +1280,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         min-h-screen
         text-slate-900
         dark:text-zinc-100
-        selection:bg-indigo-500
+        selection:bg-sky-500
         selection:text-white
         antialiased
         flex
@@ -1288,24 +1288,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         transition-colors
         duration-300
       "
-      style={{
-        backgroundColor:
-          'var(--bg-color)',
-
-        backgroundImage:
-          `linear-gradient(
-            to bottom,
-            var(--home-overlay-1),
-            var(--home-overlay-2)
-          )
-         `,
-
-        backgroundSize:
-          'contain',
-
-        backgroundRepeat:
-          'repeat'
-      }}
     >
 
       <Navbar
@@ -1346,13 +1328,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               font-extrabold
               mb-2
               tracking-tight
-              text-slate-900
-              dark:text-transparent
-              dark:bg-gradient-to-r
-              dark:from-white
-              dark:via-indigo-200
-              dark:to-purple-400
-              dark:bg-clip-text
+              text-gray-900
+              dark:text-white
             "
           >
             Espace Entraide & Blog
@@ -1360,8 +1337,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
           <p
             className="
-              text-slate-600
-              dark:text-zinc-400
+              text-gray-700
+              dark:text-sky-100
               text-sm
               max-w-xl
             "
@@ -1380,16 +1357,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         <div
           className="
             bg-white/80
-            dark:bg-[#0b081e]/85
+            dark:bg-sky-950/85
             backdrop-blur-xl
             p-5
             rounded-2xl
             border
-            border-slate-200
-            dark:border-indigo-900/60
-            shadow-2xl
-            shadow-slate-200/50
-            dark:shadow-black/40
+            border-gray-200
+            dark:border-sky-800/40
+            shadow-xl
             mb-7
           "
         >
@@ -1399,8 +1374,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               text-xs
               font-bold
               mb-4
-              text-indigo-600
-              dark:text-indigo-400
+              text-sky-700
+              dark:text-sky-300
               uppercase
               tracking-widest
             "
@@ -1455,21 +1430,19 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               rows="3"
               className="
                 w-full
-                bg-slate-50
-                dark:bg-[#030014]/80
+                bg-gray-50
+                dark:bg-sky-900/40
                 border
-                border-slate-200
-                dark:border-indigo-950/80
+                border-gray-300
+                dark:border-sky-800/50
                 rounded-xl
                 p-4
-                text-slate-900
+                text-gray-900
                 dark:text-zinc-100
-                placeholder-slate-400
-                dark:placeholder-zinc-500
+                placeholder-gray-400
+                dark:placeholder-sky-300/60
                 focus:outline-none
-                focus:border-indigo-500/50
-                focus:ring-4
-                focus:ring-indigo-500/10
+                focus:border-sky-500
                 transition-all
                 resize-none
                 text-sm
@@ -1516,11 +1489,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     flex
                     items-center
                     gap-2
-                    bg-slate-100
-                    dark:bg-[#030014]
+                    bg-gray-50
+                    dark:bg-sky-900/40
                     border
-                    border-slate-200
-                    dark:border-indigo-950
+                    border-gray-300
+                    dark:border-sky-800/50
                     px-3
                     py-1.5
                     rounded-xl
@@ -1532,8 +1505,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     className="
                       text-[11px]
                       font-medium
-                      text-slate-500
-                      dark:text-zinc-500
+                      text-gray-600
+                      dark:text-sky-300/70
                       uppercase
                       tracking-wider
                     "
@@ -1547,7 +1520,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       bg-transparent
                       text-xs
                       font-semibold
-                      text-slate-800
+                      text-gray-900
                       dark:text-zinc-200
                       focus:outline-none
                       cursor-pointer
@@ -1560,19 +1533,19 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     }
                   >
 
-                    <option value="General">
+                    <option value="General" className="dark:bg-sky-950">
                       Général
                     </option>
 
-                    <option value="Entraide">
+                    <option value="Entraide" className="dark:bg-sky-950">
                       Entraide
                     </option>
 
-                    <option value="Stage/Emploi">
+                    <option value="Stage/Emploi" className="dark:bg-sky-950">
                       Stage / Emploi
                     </option>
 
-                    <option value="Logement">
+                    <option value="Logement" className="dark:bg-sky-950">
                       Logement
                     </option>
 
@@ -1598,23 +1571,23 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                     text-xs
                     font-medium
                     transition-all
-                    border-slate-200
-                    dark:border-indigo-950
-                    bg-slate-100
-                    dark:bg-[#030014]
-                    text-slate-600
-                    dark:text-zinc-400
-                    hover:text-slate-900
-                    dark:hover:text-zinc-200
-                    hover:border-indigo-800
+                    border-gray-300
+                    dark:border-sky-800/50
+                    bg-gray-50
+                    dark:bg-sky-900/40
+                    text-gray-700
+                    dark:text-sky-200
+                    hover:text-gray-900
+                    dark:hover:text-white
+                    hover:border-sky-500
                   "
                 >
 
                   <Paperclip
                     size={16}
                     className="
-                      text-indigo-600
-                      dark:text-indigo-400
+                      text-sky-600
+                      dark:text-sky-400
                     "
                   />
 
@@ -1656,10 +1629,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 disabled={isSubmitting}
                 className={`
     bg-gradient-to-r
-    from-indigo-600
-    to-purple-600
-    hover:from-indigo-500
-    hover:to-purple-500
+    from-sky-600
+    to-blue-600
+    hover:from-sky-500
+    hover:to-blue-500
     text-white
     font-bold
     px-5
@@ -1721,8 +1694,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               <Search
                 size={16}
                 className="
-                  text-indigo-600
-                  dark:text-indigo-400
+                  text-sky-600
+                  dark:text-sky-400
                 "
               />
             </span>
@@ -1742,24 +1715,22 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               className="
                 w-full
                 bg-white/80
-                dark:bg-[#0b081e]/80
+                dark:bg-sky-950/80
                 backdrop-blur-md
                 border
-                border-slate-200
-                dark:border-indigo-900/60
+                border-gray-200
+                dark:border-sky-800/40
                 rounded-xl
                 pl-10
                 pr-4
                 py-3
                 text-sm
-                text-slate-900
+                text-gray-900
                 dark:text-zinc-200
-                placeholder-slate-400
-                dark:placeholder-zinc-500
+                placeholder-gray-400
+                dark:placeholder-sky-300/60
                 focus:outline-none
-                focus:border-indigo-500/50
-                focus:ring-4
-                focus:ring-indigo-500/10
+                focus:border-sky-500
               "
             />
 
@@ -1778,8 +1749,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             gap-2
             mb-7
             border-b
-            border-slate-200
-            dark:border-indigo-950/40
+            border-gray-200
+            dark:border-sky-900/40
             pb-5
           "
         >
@@ -1810,8 +1781,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 items-center
                 gap-1.5
                 ${selectedFilter === cat
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-transparent shadow-md'
-                  : 'bg-white/80 dark:bg-[#0b081e]/80 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-indigo-900/60'
+                  ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white border-transparent shadow-md'
+                  : 'bg-white/80 dark:bg-sky-950/80 text-gray-700 dark:text-sky-200 border-gray-200 dark:border-sky-800/40'
                 }
               `}
             >
@@ -1852,8 +1823,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           <div
             className="
               text-center
-              text-slate-500
-              dark:text-zinc-500
+              text-gray-500
+              dark:text-sky-300/60
               py-16
               text-xs
               font-bold
@@ -1877,15 +1848,15 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               <div
                 className="
                   text-center
-                  text-slate-600
-                  dark:text-zinc-400
+                  text-gray-600
+                  dark:text-sky-200
                   py-16
                   bg-white/80
-                  dark:bg-[#0b081e]/80
+                  dark:bg-sky-950/80
                   backdrop-blur-md
                   border
-                  border-slate-200
-                  dark:border-indigo-900/60
+                  border-gray-200
+                  dark:border-sky-800/40
                   rounded-2xl
                   text-sm
                 "
@@ -1925,16 +1896,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       id={`post-${post._id}`}
                       className="
                         bg-white/90
-                        dark:bg-[#0b081e]/90
+                        dark:bg-sky-950/90
                         backdrop-blur-xl
                         rounded-2xl
                         border
-                        border-slate-200
-                        dark:border-indigo-900/60
+                        border-gray-200
+                        dark:border-sky-800/40
                         overflow-hidden
                         shadow-xl
-                        shadow-slate-200/50
-                        dark:shadow-black/40
                       "
                     >
 
@@ -1991,8 +1960,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                   rounded-full
                                   object-cover
                                   border
-                                  border-slate-300
-                                  dark:border-indigo-950
+                                  border-gray-300
+                                  dark:border-sky-800
                                   z-10
                                 "
                                 onError={(e) => {
@@ -2007,12 +1976,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 w-full
                                 h-full
                                 bg-gradient-to-br
-                                from-indigo-100
-                                dark:from-indigo-950
-                                to-slate-200
-                                dark:to-slate-900
-                                text-slate-800
-                                dark:text-zinc-200
+                                from-sky-100
+                                dark:from-sky-900
+                                to-blue-200
+                                dark:to-sky-950
+                                text-sky-800
+                                dark:text-sky-200
                                 rounded-full
                                 flex
                                 items-center
@@ -2036,9 +2005,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               className="
                                 font-bold
                                 text-sm
-                                text-slate-900
+                                text-gray-900
                                 dark:text-zinc-200
-                                group-hover/author:text-indigo-600
+                                group-hover/author:text-sky-600
+                                dark:group-hover/author:text-sky-300
                                 transition-all
                               "
                             >
@@ -2049,8 +2019,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                             <p
                               className="
                                 text-[11px]
-                                text-slate-500
-                                dark:text-zinc-500
+                                text-gray-500
+                                dark:text-sky-300/60
                               "
                             >
                               {new Date(
@@ -2099,11 +2069,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 className="
                                 flex
                                 gap-1
-                                bg-slate-100
-                                dark:bg-[#030014]
+                                bg-gray-50
+                                dark:bg-sky-900/40
                                 border
-                                border-slate-200
-                                dark:border-indigo-950
+                                border-gray-200
+                                dark:border-sky-800/40
                                 rounded-lg
                                 p-1
                               "
@@ -2120,8 +2090,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                   <Pencil
                                     size={15}
                                     className="
-                                    text-amber-500
-                                  "
+                                text-amber-500
+                              "
                                   />
                                 </button>
 
@@ -2136,8 +2106,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                   <Trash2
                                     size={15}
                                     className="
-                                    text-red-500
-                                  "
+                                text-red-500
+                              "
                                   />
                                 </button>
 
@@ -2159,13 +2129,13 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                           className="
                             m-4
                             space-y-4
-                            bg-slate-50
-                            dark:bg-[#030014]/60
+                            bg-gray-50
+                            dark:bg-sky-900/40
                             p-4
                             rounded-xl
                             border
-                            border-slate-200
-                            dark:border-indigo-950
+                            border-gray-200
+                            dark:border-sky-800/40
                           "
                         >
 
@@ -2173,8 +2143,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                             className="
                               text-[11px]
                               font-bold
-                              text-slate-500
-                              dark:text-zinc-500
+                              text-gray-500
+                              dark:text-sky-300/70
                               uppercase
                             "
                           >
@@ -2185,14 +2155,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                             className="
                               w-full
                               bg-white
-                              dark:bg-[#0b081e]
+                              dark:bg-sky-950
                               border
-                              border-slate-200
-                              dark:border-indigo-900
+                              border-gray-300
+                              dark:border-sky-800
                               rounded-xl
                               p-3
                               text-sm
                               resize-none
+                              text-gray-900
+                              dark:text-zinc-100
                             "
                             rows="3"
                             value={editText}
@@ -2218,8 +2190,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                   className="
                                   text-[11px]
                                   font-semibold
-                                  text-slate-500
-                                  dark:text-zinc-400
+                                  text-gray-500
+                                  dark:text-sky-300/70
                                 "
                                 >
                                   Médias actuels
@@ -2243,15 +2215,15 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                         <div
                                           key={`${url}-${index}`}
                                           className="
-                                        relative
-                                        rounded-xl
-                                        overflow-hidden
-                                        border
-                                        border-slate-200
-                                        dark:border-indigo-900
-                                        bg-white
-                                        dark:bg-[#0b081e]
-                                      "
+                                          relative
+                                          rounded-xl
+                                          overflow-hidden
+                                          border
+                                          border-gray-200
+                                          dark:border-sky-800
+                                          bg-white
+                                          dark:bg-sky-950
+                                        "
                                         >
 
                                           {isImage(
@@ -2281,6 +2253,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                             justify-center
                                             gap-2
                                             p-3
+                                            bg-white
+                                            dark:bg-sky-950
                                           "
                                             >
 
@@ -2292,7 +2266,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                     22
                                                   }
                                                   className="
-                                                text-indigo-500
+                                                text-sky-600
+                                                dark:text-sky-400
                                               "
                                                 />
                                               ) : (
@@ -2301,17 +2276,20 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                     22
                                                   }
                                                   className="
-                                                text-indigo-500
+                                                text-sky-600
+                                                dark:text-sky-400
                                               "
                                                 />
                                               )}
 
                                               <span
                                                 className="
-                                              text-[10px]
-                                              truncate
-                                              max-w-full
-                                            "
+                                                text-[10px]
+                                                truncate
+                                                max-w-full
+                                                text-gray-700
+                                                dark:text-sky-200
+                                              "
                                               >
                                                 {item.originalName || getFileName(
                                                   url
@@ -2329,18 +2307,18 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                               )
                                             }
                                             className="
-                                          absolute
-                                          top-2
-                                          right-2
-                                          w-7
-                                          h-7
-                                          rounded-full
-                                          bg-black/70
-                                          text-white
-                                          flex
-                                          items-center
-                                          justify-center
-                                        "
+                                            absolute
+                                            top-2
+                                            right-2
+                                            w-7
+                                            h-7
+                                            rounded-full
+                                            bg-black/70
+                                            text-white
+                                            flex
+                                            items-center
+                                            justify-center
+                                          "
                                           >
                                             <X
                                               size={
@@ -2385,7 +2363,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                       rounded-xl
                                       overflow-hidden
                                       border
-                                      border-indigo-500/30
+                                      border-sky-500/30
                                     "
                                     >
 
@@ -2418,7 +2396,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                           justify-center
                                           p-3
                                           bg-white
-                                          dark:bg-[#0b081e]
+                                          dark:bg-sky-950
                                         "
                                         >
 
@@ -2430,7 +2408,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                 22
                                               }
                                               className="
-                                              text-indigo-500
+                                              text-sky-600
+                                              dark:text-sky-400
                                               mb-2
                                             "
                                             />
@@ -2440,7 +2419,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                 22
                                               }
                                               className="
-                                              text-indigo-500
+                                              text-sky-600
+                                              dark:text-sky-400
                                               mb-2
                                             "
                                             />
@@ -2451,6 +2431,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                             text-[10px]
                                             truncate
                                             max-w-full
+                                            text-gray-700
+                                            dark:text-sky-200
                                           "
                                           >
                                             {file.name}
@@ -2501,14 +2483,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                             className="
                               text-xs
                               border
-                              border-slate-200
-                              dark:border-indigo-900
+                              border-gray-300
+                              dark:border-sky-800
                               px-3
                               py-2
                               rounded-lg
                               flex
                               items-center
                               gap-2
+                              text-gray-700
+                              dark:text-sky-200
                             "
                           >
 
@@ -2548,8 +2532,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               gap-2
                               pt-3
                               border-t
-                              border-slate-200
-                              dark:border-indigo-950
+                              border-gray-200
+                              dark:border-sky-900/50
                             "
                           >
 
@@ -2565,8 +2549,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 px-3
                                 py-1.5
                                 border
+                                border-gray-300
+                                dark:border-sky-800
                                 rounded-lg
                                 text-xs
+                                text-gray-700
+                                dark:text-sky-200
                               "
                             >
                               Annuler
@@ -2582,7 +2570,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               className="
                                 px-3
                                 py-1.5
-                                bg-indigo-600
+                                bg-sky-600
                                 text-white
                                 rounded-lg
                                 text-xs
@@ -2611,7 +2599,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 px-4
                                 sm:px-5
                                 pb-2
-                                text-slate-800
+                                text-gray-800
                                 dark:text-zinc-200
                                 text-sm
                                 whitespace-pre-wrap
@@ -2641,8 +2629,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               sm:px-5
                               py-3
                               border-t
-                              border-slate-200
-                              dark:border-indigo-900/40
+                              border-gray-200
+                              dark:border-sky-900/40
                             "
                           >
 
@@ -2662,8 +2650,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 border
                                 text-xs
                                 ${hasLiked
-                                  ? 'border-indigo-500/50 bg-indigo-500/20 text-indigo-600 dark:text-indigo-300'
-                                  : 'border-slate-200 dark:border-indigo-900/60 text-slate-700 dark:text-zinc-300'
+                                  ? 'border-sky-500/50 bg-sky-500/20 text-sky-700 dark:text-sky-300'
+                                  : 'border-gray-200 dark:border-sky-900/40 text-gray-700 dark:text-sky-200'
                                 }
                               `}
                             >
@@ -2673,7 +2661,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 className={
                                   hasLiked
                                     ? 'fill-current text-pink-500'
-                                    : 'text-slate-400'
+                                    : 'text-gray-400'
                                 }
                               />
 
@@ -2709,10 +2697,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                 py-1.5
                                 rounded-xl
                                 border
-                                border-slate-200
-                                dark:border-indigo-900/60
-                                text-slate-700
-                                dark:text-zinc-300
+                                border-gray-200
+                                dark:border-sky-900/40
+                                text-gray-700
+                                dark:text-sky-200
                               "
                             >
 
@@ -2745,11 +2733,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                               <div
                                 className="
                                 border-t
-                                border-slate-200
-                                dark:border-indigo-900/40
+                                border-gray-200
+                                dark:border-sky-900/40
                                 p-4
-                                bg-slate-50
-                                dark:bg-[#0b081e]/80
+                                bg-gray-50
+                                dark:bg-sky-950/60
                               "
                               >
 
@@ -2783,14 +2771,16 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     className="
                                     w-full
                                     bg-white
-                                    dark:bg-[#030014]
+                                    dark:bg-sky-950
                                     border
-                                    border-slate-200
-                                    dark:border-indigo-900
+                                    border-gray-300
+                                    dark:border-sky-800
                                     rounded-xl
                                     p-2.5
                                     text-xs
                                     focus:outline-none
+                                    text-gray-900
+                                    dark:text-zinc-100
                                   "
                                   />
 
@@ -2802,8 +2792,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                     }
                                     className="
                                     bg-gradient-to-r
-                                    from-indigo-600
-                                    to-purple-600
+                                    from-sky-600
+                                    to-blue-600
                                     text-white
                                     px-4
                                     rounded-xl
@@ -2851,12 +2841,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                           )}`}
                                           className="
                                           bg-white/80
-                                          dark:bg-[#0b081e]/60
+                                          dark:bg-sky-950/80
                                           p-3
                                           rounded-xl
                                           border
-                                          border-slate-200
-                                          dark:border-indigo-900/50
+                                          border-gray-200
+                                          dark:border-sky-900/40
                                           flex
                                           gap-3
                                         "
@@ -2893,9 +2883,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                 w-full
                                                 h-full
                                                 rounded-full
-                                                bg-indigo-100
-                                                dark:bg-indigo-950
-                                                text-indigo-600
+                                                bg-sky-100
+                                                dark:bg-sky-900
+                                                text-sky-700
+                                                dark:text-sky-200
                                                 flex
                                                 items-center
                                                 justify-center
@@ -2922,8 +2913,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                               className="
                                               font-bold
                                               text-xs
-                                              text-slate-800
-                                              dark:text-zinc-300
+                                              text-gray-900
+                                              dark:text-zinc-200
                                             "
                                             >
                                               {
@@ -2937,8 +2928,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                             <p
                                               className="
                                               text-xs
-                                              text-slate-600
-                                              dark:text-zinc-400
+                                              text-gray-600
+                                              dark:text-sky-100
                                               leading-relaxed
                                             "
                                             >

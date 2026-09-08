@@ -223,35 +223,35 @@ function Home() {
 
         {/* En-tête principal animé */}
         <div className="text-center max-w-2xl mx-auto mb-14 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2 bg-gradient-to-r from-gray-900 via-indigo-600 to-purple-600 dark:from-white dark:via-indigo-200 dark:to-purple-300 bg-clip-text text-transparent leading-tight">
+          <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-2 px-2 text-gray-900 dark:text-white leading-tight drop-shadow-sm">
             Le Hub de la Communauté Estudiantine de HITAS
           </h1>
 
           <OrbitingLogo />
 
-          <p className="text-gray-600 dark:text-zinc-200 text-base md:text-lg mt-4 px-4 max-w-xl mx-auto font-medium leading-relaxed">
+          <p className="text-gray-900 dark:text-zinc-100 text-base md:text-lg mt-4 px-4 max-w-xl mx-auto font-bold leading-relaxed ">
             Connecte-toi avec la diaspora, partage des opportunités et propulse tes projets techniques.
           </p>
         </div>
 
-        {/* Grille des fonctionnalités principales */}
+        {/* Grille des fonctionnalités principales : Style Glassmorphism lumineux et épuré */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {/* Carte Annuaire */}
           <Link
             to="/annuaire"
-            className="group p-6 bg-white/80 dark:bg-[black]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-indigo-500 dark:hover:border-indigo-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-indigo-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
+            className="group relative p-7 bg-white/70 dark:bg-[#0b0f19]/80 backdrop-blur-xl border border-white/40 dark:border-indigo-500/30 hover:border-indigo-500 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-indigo-500/20 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1.5 cursor-pointer"
             style={{ animationDelay: '0.2s' }}
           >
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 dark:bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mb-5 group-hover:bg-indigo-500/25 transition-all duration-300">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-all duration-300 shadow-sm">
                 <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-300" />
               </div>
-              <h3 className="font-black text-gray-900 dark:text-white text-lg mb-1.5 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors duration-300">Annuaire</h3>
-              <p className="text-gray-600 dark:text-zinc-300 text-sm leading-relaxed font-normal">Trouve et contacte les étudiants basés en Inde, en France et encore plus.</p>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-xl mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors tracking-tight">Annuaire</h3>
+              <p className="text-gray-700 dark:text-zinc-300 text-sm leading-relaxed font-medium">Trouve et contacte les étudiants basés en Inde, en France et encore plus.</p>
             </div>
-            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-300 group-hover:text-indigo-500 dark:group-hover:text-indigo-200 mt-6 flex items-center gap-1 transition-colors duration-300">
-              Explorer l'annuaire →
+            <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 mt-6 flex items-center gap-1.5 transition-colors duration-300">
+              Explorer l'annuaire <span className="group-hover:translate-x-1 transition-transform">→</span>
             </span>
           </Link>
 
@@ -259,12 +259,12 @@ function Home() {
           <Link
             to="/blog"
             onClick={handleBlogClick}
-            className="group p-6 bg-white/80 dark:bg-[black]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-purple-500 dark:hover:border-purple-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-purple-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
+            className="group relative p-7 bg-white/70 dark:bg-[#0b0f19]/80 backdrop-blur-xl border border-white/40 dark:border-indigo-500/30 hover:border-purple-500 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-purple-500/20 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1.5 cursor-pointer"
             style={{ animationDelay: '0.3s' }}
           >
             <div>
               <div className="relative w-12 h-12 mb-5">
-                <div className="w-full h-full rounded-2xl bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 flex items-center justify-center group-hover:bg-purple-500/25 transition-all duration-300">
+                <div className="w-full h-full rounded-2xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center group-hover:scale-110 transition-all duration-300 shadow-sm">
                   <MessageSquareText className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                 </div>
 
@@ -275,29 +275,29 @@ function Home() {
                 )}
               </div>
 
-              <h3 className="font-black text-gray-900 dark:text-white text-lg mb-1.5 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors duration-300">Blog d'Entraide</h3>
-              <p className="text-gray-600 dark:text-zinc-300 text-sm leading-relaxed font-normal">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-xl mb-2 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors tracking-tight">Blog d'Entraide</h3>
+              <p className="text-gray-700 dark:text-zinc-300 text-sm leading-relaxed font-medium">Découvre les guides d'installation, astuces pour les visas et partages d'expériences.</p>
             </div>
-            <span className="text-xs font-bold text-purple-600 dark:text-purple-300 group-hover:text-purple-500 dark:group-hover:text-purple-200 mt-6 flex items-center gap-1 transition-colors duration-300">
-              Lire les articles →
+            <span className="text-xs font-bold text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300 mt-6 flex items-center gap-1.5 transition-colors duration-300">
+              Lire les articles <span className="group-hover:translate-x-1 transition-transform">→</span>
             </span>
           </Link>
 
           {/* Carte Showcase */}
           <Link
             to="/showcase"
-            className="group p-6 bg-white/80 dark:bg-[black]/90 backdrop-blur-xl border border-gray-200 dark:border-indigo-500/30 hover:border-pink-500 dark:hover:border-pink-500/80 rounded-3xl transition-all duration-300 shadow-xl shadow-pink-950/5 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1"
+            className="group relative p-7 bg-white/70 dark:bg-[#0b0f19]/80 backdrop-blur-xl border border-white/40 dark:border-indigo-500/30 hover:border-pink-500 rounded-3xl transition-all duration-300 shadow-lg hover:shadow-2xl hover:shadow-pink-500/20 flex flex-col justify-between opacity-0 animate-fade-in-up hover:-translate-y-1.5 cursor-pointer"
             style={{ animationDelay: '0.4s' }}
           >
             <div>
-              <div className="w-12 h-12 rounded-2xl bg-pink-500/10 dark:bg-pink-500/20 border border-pink-500/30 flex items-center justify-center mb-5 group-hover:bg-pink-500/25 transition-all duration-300">
+              <div className="w-12 h-12 rounded-2xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center mb-5 group-hover:scale-110 transition-all duration-300 shadow-sm">
                 <Rocket className="h-5 w-5 text-pink-600 dark:text-pink-300" />
               </div>
-              <h3 className="font-black text-gray-900 dark:text-white text-lg mb-1.5 group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors duration-300">Showcase</h3>
-              <p className="text-gray-600 dark:text-zinc-300 text-sm leading-relaxed font-normal">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
+              <h3 className="font-extrabold text-gray-900 dark:text-white text-xl mb-2 group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors tracking-tight">Showcase</h3>
+              <p className="text-gray-700 dark:text-zinc-300 text-sm leading-relaxed font-medium">Expose tes créations et tes codes pour valoriser le savoir-faire de l'école.</p>
             </div>
-            <span className="text-xs font-bold text-pink-600 dark:text-pink-300 group-hover:text-pink-500 dark:group-hover:text-pink-200 mt-6 flex items-center gap-1 transition-colors duration-300">
-              Voir les projets →
+            <span className="text-xs font-bold text-pink-600 dark:text-pink-400 group-hover:text-pink-700 dark:group-hover:text-pink-300 mt-6 flex items-center gap-1.5 transition-colors duration-300">
+              Voir les projets <span className="group-hover:translate-x-1 transition-transform">→</span>
             </span>
           </Link>
 

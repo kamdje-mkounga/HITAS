@@ -7,7 +7,7 @@ body {
   margin: 0;
   padding: 0;
   /* Dégradé fluide du bleu (bas) vers le blanc (haut) */
-  background: linear-gradient(to top, #0284c7 0%, #38bdf8 50%, #ffffff 100%);
+  background: linear-gradient(to top, #0284c7 0%, #38bdf8 50%, #143e53 100%);
   background-attachment: fixed;
   color: inherit;
 }
