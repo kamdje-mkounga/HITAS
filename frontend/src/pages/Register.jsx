@@ -39,11 +39,19 @@ function Register() {
       const { email, password } = formData;
       const response = await API.post('/auth/register', { email, password });
 
+      // Enregistrement du token
       localStorage.setItem('token', response.data.token);
+
+      // Récupération et stockage optionnel du userId s'il est renvoyé par l'API
+      const userId = response.data.userId || response.data.user?.id || response.data.user?._id;
+      if (userId) {
+        localStorage.setItem('userId', userId);
+      }
 
       setSuccess('Compte créé avec succès ! Préparation de votre espace...');
       setTimeout(() => {
-        navigate('/');
+        // Redirige directement vers l'intérieur de l'application (/home)
+        navigate('/home');
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur lors de la création du compte.');
