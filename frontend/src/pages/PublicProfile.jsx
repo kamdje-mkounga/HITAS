@@ -175,7 +175,7 @@ const PublicProfile = () => {
     if (uniqueSkills.length === 0) return <span className="text-zinc-500 italic text-xs">Aucune compétence renseignée.</span>;
 
     return uniqueSkills.map((skill, index) => (
-      <span key={index} className="group/skill bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-200 border border-indigo-500/20 px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
+      <span key={index} className="group/skill  text-indigo-200  px-3.5 py-2 rounded-2xl text-xs font-medium tracking-wide transition-all duration-300 hover:border-indigo-400/50 hover:shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:-translate-y-0.5 flex items-center gap-2 w-fit">
         <Sparkles className="w-3.5 h-3.5 text-indigo-400 group-hover/skill:rotate-12 transition-transform" /> {skill}
       </span>
     ));
@@ -183,7 +183,7 @@ const PublicProfile = () => {
 
   return (
     <div
-      className="w-full min-h-screen bg-[#030014] text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-500 selection:text-white"
+      className="w-full min-h-screen  text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-200 selection:text-white"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55))`,
         backgroundSize: 'contain',
