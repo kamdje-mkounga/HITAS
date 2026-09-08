@@ -334,12 +334,7 @@ function Profil() {
 
   return (
     <div
-      className="min-h-screen bg-[#030014] text-zinc-50 flex flex-col font-sans antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden"
-      style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55))`,
-        backgroundSize: 'contain',
-        backgroundRepeat: 'repeat',
-      }}
+      className="min-h-screen text-slate-900 dark:text-zinc-50 flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white overflow-x-hidden"
     >
       <Navbar />
 
@@ -348,21 +343,21 @@ function Profil() {
         {/* MODALE DE RECADRAGE INTERACTIVE */}
         {isCroppingModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-[#0b081e] border border-indigo-500/30 rounded-3xl w-full max-w-xl p-6 shadow-2xl flex flex-col gap-5">
-              <div className="flex justify-between items-center border-b border-indigo-900/40 pb-4">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-indigo-400" /> Cadrer et ajuster votre photo
+            <div className="bg-white dark:bg-sky-950 border border-gray-200 dark:border-sky-800/50 rounded-3xl w-full max-w-xl p-6 shadow-2xl flex flex-col gap-5">
+              <div className="flex justify-between items-center border-b border-gray-200 dark:border-sky-900/40 pb-4">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-sky-600 dark:text-sky-400" /> Cadrer et ajuster votre photo
                 </h3>
                 <button
                   onClick={() => setIsCroppingModalOpen(false)}
-                  className="text-zinc-400 hover:text-white transition-colors"
+                  className="text-gray-500 dark:text-sky-300/70 hover:text-gray-900 dark:hover:text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Zone de recadrage */}
-              <div className="relative w-full h-72 sm:h-80 bg-black/60 rounded-2xl overflow-hidden border border-indigo-900/40">
+              <div className="relative w-full h-72 sm:h-80 bg-black/60 rounded-2xl overflow-hidden border border-gray-200 dark:border-sky-800/40">
                 <Cropper
                   image={imageToCrop}
                   crop={crop}
@@ -376,7 +371,7 @@ function Profil() {
 
               {/* Contrôle du Zoom */}
               <div className="flex items-center gap-3 px-2">
-                <ZoomIn className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+                <ZoomIn className="w-4 h-4 text-sky-600 dark:text-sky-400 flex-shrink-0" />
                 <input
                   type="range"
                   value={zoom}
@@ -385,9 +380,9 @@ function Profil() {
                   step={0.1}
                   aria-label="Zoom de l'image"
                   onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-full accent-indigo-500 cursor-pointer"
+                  className="w-full accent-sky-500 cursor-pointer"
                 />
-                <span className="text-xs text-zinc-400 font-bold w-10 text-right">{Math.round(zoom * 100)}%</span>
+                <span className="text-xs text-gray-600 dark:text-sky-200 font-bold w-10 text-right">{Math.round(zoom * 100)}%</span>
               </div>
 
               {/* Boutons d'action de la modale */}
@@ -395,14 +390,14 @@ function Profil() {
                 <button
                   type="button"
                   onClick={() => setIsCroppingModalOpen(false)}
-                  className="w-1/2 py-3 bg-[#030014] border border-indigo-900/50 hover:bg-indigo-950/40 text-zinc-300 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors"
+                  className="w-1/2 py-3 bg-gray-100 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 hover:bg-gray-200 dark:hover:bg-sky-900 text-gray-700 dark:text-sky-200 font-bold text-xs uppercase tracking-wider rounded-xl transition-colors"
                 >
                   Annuler
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmCrop}
-                  className="w-1/2 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                  className="w-1/2 py-3 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   <Check className="w-4 h-4" /> Valider le cadre
                 </button>
@@ -412,26 +407,26 @@ function Profil() {
         )}
 
         {isIncomplete && (
-          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-2xl text-center text-sm shadow-xl font-medium animate-pulse flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          <div className="mb-6 p-4 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-200 rounded-2xl text-center text-sm shadow-xl font-medium animate-pulse flex items-center justify-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0" />
             <span><strong>Profil incomplet :</strong> Veuillez remplir et sauvegarder vos informations obligatoires.</span>
           </div>
         )}
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-[#0b081e]/80 backdrop-blur-xl rounded-3xl border border-indigo-500/20 shadow-2xl gap-4">
-            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-zinc-400 font-bold tracking-widest uppercase text-xs">Chargement de tes données...</p>
+          <div className="flex flex-col items-center justify-center py-20 bg-white/80 dark:bg-sky-950/80 backdrop-blur-xl rounded-3xl border border-gray-200 dark:border-sky-800/40 shadow-2xl gap-4">
+            <div className="w-10 h-10 border-4 border-sky-600 dark:border-sky-400 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-500 dark:text-sky-300 font-bold tracking-widest uppercase text-xs">Chargement de tes données...</p>
           </div>
         ) : (
           <div>
-            <div className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl overflow-hidden shadow-2xl shadow-black/50 mb-8 mt-4 relative">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
-              <div className="h-32 sm:h-40 bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-[#030014] border-b border-indigo-900/50 relative"></div>
+            <div className="bg-white/80 dark:bg-sky-950/85 backdrop-blur-2xl border border-gray-200 dark:border-sky-800/40 rounded-3xl overflow-hidden shadow-2xl mb-8 mt-4 relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-3xl pointer-events-none"></div>
+              <div className="h-32 sm:h-40 bg-gradient-to-r from-sky-100 via-blue-50 to-white dark:from-sky-900/40 dark:via-blue-950/40 dark:to-sky-950/60 border-b border-gray-200 dark:border-sky-800/40 relative"></div>
 
               <div className="px-6 pb-6 sm:px-10 sm:pb-8 relative">
                 <div className="absolute -top-16 sm:-top-20 left-6 sm:left-10">
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-[#030014] border-4 border-[#0b081e] flex items-center justify-center text-3xl font-bold uppercase shadow-2xl shadow-indigo-500/20 overflow-hidden text-indigo-300">
+                  <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl bg-white dark:bg-sky-950 border-4 border-white dark:border-sky-950 flex items-center justify-center text-3xl font-bold uppercase shadow-2xl overflow-hidden text-sky-700 dark:text-sky-200">
                     {avatarPreview ? (
                       <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
@@ -445,73 +440,73 @@ function Profil() {
 
                 <div className="pt-20 sm:pt-24 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                   <div className="overflow-hidden">
-                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white mb-1.5 break-words bg-gradient-to-r from-white via-zinc-100 to-indigo-200 bg-clip-text text-transparent">
+                    <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-1.5 break-words">
                       {formData.firstName || 'Mon'} {formData.lastName || 'Profil'}
                     </h1>
-                    <p className="text-indigo-400 font-semibold text-xs sm:text-sm truncate flex items-center gap-1.5 mb-1">
+                    <p className="text-sky-700 dark:text-sky-300 font-semibold text-xs sm:text-sm truncate flex items-center gap-1.5 mb-1">
                       <GraduationCap className="w-4 h-4" /> {formData.specialty || 'Étudiant ITAS'} {formData.promotion && `— Promo ${formData.promotion}`}
                     </p>
-                    <p className="text-zinc-400 text-xs font-medium truncate flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-zinc-500" /> {formData.country || formData.currentLocation || 'Localisation non renseignée'} {formData.status && `• [${formData.status}]`}
+                    <p className="text-gray-600 dark:text-sky-100 text-xs font-medium truncate flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400 dark:text-sky-300/70" /> {formData.country || formData.currentLocation || 'Localisation non renseignée'} {formData.status && `• [${formData.status}]`}
                     </p>
                   </div>
 
-                  <div className="flex gap-3 text-xs text-zinc-400 mt-2 sm:mt-0 flex-shrink-0">
-                    <div className="bg-[#030014]/70 px-4 py-2.5 rounded-2xl border border-indigo-900/40 shadow-inner flex flex-col items-center">
-                      <span className="text-white font-black text-lg">{myPosts.length}</span>
-                      <span className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Posts</span>
+                  <div className="flex gap-3 text-xs text-gray-600 dark:text-sky-100 mt-2 sm:mt-0 flex-shrink-0">
+                    <div className="bg-gray-50 dark:bg-sky-900/40 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-sky-800 shadow-inner flex flex-col items-center">
+                      <span className="text-gray-900 dark:text-white font-black text-lg">{myPosts.length}</span>
+                      <span className="text-[9px] uppercase tracking-widest text-gray-500 dark:text-sky-300/70 font-bold">Posts</span>
                     </div>
-                    <div className="bg-[#030014]/70 px-4 py-2.5 rounded-2xl border border-indigo-900/40 shadow-inner flex flex-col items-center">
-                      <span className="text-white font-black text-lg">{myProjects.length}</span>
-                      <span className="text-[9px] uppercase tracking-widest text-zinc-500 font-bold">Projets</span>
+                    <div className="bg-gray-50 dark:bg-sky-900/40 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-sky-800 shadow-inner flex flex-col items-center">
+                      <span className="text-gray-900 dark:text-white font-black text-lg">{myProjects.length}</span>
+                      <span className="text-[9px] uppercase tracking-widest text-gray-500 dark:text-sky-300/70 font-bold">Projets</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-8 border-b border-indigo-900/40 mb-8 pb-3 text-xs font-bold tracking-wider overflow-x-auto scrollbar-none">
+            <div className="flex gap-8 border-b border-gray-200 dark:border-sky-800/40 mb-8 pb-3 text-xs font-bold tracking-wider overflow-x-auto scrollbar-none">
               <button
                 type="button"
                 onClick={() => setActiveTab('account')}
-                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative ${activeTab === 'account' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
+                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative ${activeTab === 'account' ? 'text-sky-700 dark:text-sky-300' : 'text-gray-500 dark:text-sky-100 hover:text-gray-900 dark:hover:text-white'
                   }`}
               >
                 <Settings className="w-4 h-4" /> Paramètres du Profil
-                {activeTab === 'account' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
+                {activeTab === 'account' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-600 dark:bg-sky-400 shadow-sm"></div>}
               </button>
               <button
                 type="button"
                 disabled={isIncomplete}
                 onClick={() => setActiveTab('posts')}
-                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === 'posts' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
+                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === 'posts' ? 'text-sky-700 dark:text-sky-300' : 'text-gray-500 dark:text-sky-100 hover:text-gray-900 dark:hover:text-white'
                   }`}
               >
                 <FileText className="w-4 h-4" /> Mes Publications ({myPosts.length})
-                {activeTab === 'posts' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
+                {activeTab === 'posts' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-600 dark:bg-sky-400 shadow-sm"></div>}
               </button>
               <button
                 type="button"
                 disabled={isIncomplete}
                 onClick={() => setActiveTab('projects')}
-                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === 'projects' ? 'text-indigo-400' : 'text-zinc-500 hover:text-zinc-300'
+                className={`pb-2.5 px-1 transition-all flex items-center gap-2 whitespace-nowrap relative disabled:opacity-40 disabled:cursor-not-allowed ${activeTab === 'projects' ? 'text-sky-700 dark:text-sky-300' : 'text-gray-500 dark:text-sky-100 hover:text-gray-900 dark:hover:text-white'
                   }`}
               >
                 <Rocket className="w-4 h-4" /> Mes Projets ({myProjects.length})
-                {activeTab === 'projects' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 shadow-[0_0_12px_rgba(99,102,241,0.8)]"></div>}
+                {activeTab === 'projects' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-sky-600 dark:bg-sky-400 shadow-sm"></div>}
               </button>
             </div>
 
             {activeTab === 'account' && (
               <div className="space-y-8">
-                <div className="p-6 sm:p-8 bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl shadow-2xl">
+                <div className="p-6 sm:p-8 bg-white/80 dark:bg-sky-950/85 backdrop-blur-2xl border border-gray-200 dark:border-sky-800/40 rounded-3xl shadow-2xl">
 
-                  <h2 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Éditer les informations du profil
+                  <h2 className="text-xs font-bold text-sky-700 dark:text-sky-300 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-sky-500"></span> Éditer les informations du profil
                   </h2>
 
                   {message.text && (
-                    <div className={`mb-6 p-4 border text-xs font-bold rounded-2xl flex items-center gap-2.5 shadow-md ${message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-400'
+                    <div className={`mb-6 p-4 border text-xs font-bold rounded-2xl flex items-center gap-2.5 shadow-md ${message.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' : 'bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-400'
                       }`}>
                       {message.type === 'success' ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> : <XCircle className="w-4 h-4 flex-shrink-0" />}
                       <span className="whitespace-pre-wrap">{message.text}</span>
@@ -519,48 +514,48 @@ function Profil() {
                   )}
 
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="flex items-center gap-5 bg-[#030014]/70 p-4 border border-indigo-900/40 rounded-2xl shadow-inner">
-                      <div className="w-16 h-16 rounded-2xl bg-[#0b081e] border border-indigo-900/60 overflow-hidden flex items-center justify-center flex-shrink-0 shadow">
+                    <div className="flex items-center gap-5 bg-gray-50 dark:bg-sky-900/40 p-4 border border-gray-200 dark:border-sky-800 rounded-2xl shadow-inner">
+                      <div className="w-16 h-16 rounded-2xl bg-white dark:bg-sky-950 border border-gray-200 dark:border-sky-800 overflow-hidden flex items-center justify-center flex-shrink-0 shadow">
                         {avatarPreview ? (
                           <img src={avatarPreview} alt="Aperçu" className="w-full h-full object-cover" />
                         ) : (
-                          <User className="w-6 h-6 text-indigo-400" />
+                          <User className="w-6 h-6 text-sky-600 dark:text-sky-400" />
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1.5 flex items-center gap-1.5">
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-sky-700 dark:text-sky-300 mb-1.5 flex items-center gap-1.5">
                           <Camera className="w-3.5 h-3.5" /> Changer la photo de profil
                         </label>
                         <input
                           type="file" accept="image/*" onChange={handleFileChange}
-                          className="w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0b081e] file:text-indigo-300 hover:file:bg-indigo-950/50 file:cursor-pointer transition-colors"
+                          className="w-full text-xs text-gray-500 dark:text-sky-200 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-sky-100 dark:file:bg-sky-900 file:text-sky-800 dark:file:text-sky-200 hover:file:bg-sky-200 file:cursor-pointer transition-colors"
                         />
-                        <p className="text-[10px] text-zinc-500 mt-1">Vous pourrez cadrer et zoomer l'image après l'avoir sélectionnée.</p>
+                        <p className="text-[10px] text-gray-500 dark:text-sky-300/70 mt-1">Vous pourrez cadrer et zoomer l'image après l'avoir sélectionnée.</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Prénoms *</label>
-                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Prénoms *</label>
+                        <input type="text" name="firstName" required value={formData.firstName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Noms *</label>
-                        <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Noms *</label>
+                        <input type="text" name="lastName" required value={formData.lastName} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Promotion *</label>
-                        <input type="text" name="promotion" list="promotions-list" required value={formData.promotion} onChange={handleChange} placeholder="Ex: 2026" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Promotion *</label>
+                        <input type="text" name="promotion" list="promotions-list" required value={formData.promotion} onChange={handleChange} placeholder="Ex: 2026" className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                         <datalist id="promotions-list">
                           {presetPromotions.map((p, i) => <option key={i} value={p} />)}
                         </datalist>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Spécialité *</label>
-                        <input type="text" name="specialty" list="specialties-list" required value={formData.specialty} onChange={handleChange} placeholder="Ex: Développement Web / Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Spécialité *</label>
+                        <input type="text" name="specialty" list="specialties-list" required value={formData.specialty} onChange={handleChange} placeholder="Ex: Développement Web / Fullstack" className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                         <datalist id="specialties-list">
                           {presetSpecialties.map((s, i) => <option key={i} value={s} />)}
                         </datalist>
@@ -569,78 +564,78 @@ function Profil() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Statut Actuel</label>
-                        <select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer">
-                          <option value="" className="bg-[#0b081e]">Sélectionner un statut</option>
-                          <option value="Étudiant" className="bg-[#0b081e]">Étudiant</option>
-                          <option value="En poste" className="bg-[#0b081e]">En poste</option>
-                          <option value="En recherche de stage" className="bg-[#0b081e]">En recherche de stage</option>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Statut Actuel</label>
+                        <select name="status" value={formData.status} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner cursor-pointer">
+                          <option value="" className="bg-white dark:bg-sky-950">Sélectionner un statut</option>
+                          <option value="Étudiant" className="bg-white dark:bg-sky-950">Étudiant</option>
+                          <option value="En poste" className="bg-white dark:bg-sky-950">En poste</option>
+                          <option value="En recherche de stage" className="bg-white dark:bg-sky-950">En recherche de stage</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Niveau d'étude</label>
-                        <select name="degreeLevel" value={formData.degreeLevel} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner cursor-pointer">
-                          <option value="" className="bg-[#0b081e]">Sélectionner un niveau</option>
-                          <option value="Licence" className="bg-[#0b081e]">Licence / Bachelor</option>
-                          <option value="Master" className="bg-[#0b081e]">Master / M2</option>
-                          <option value="Doctorat" className="bg-[#0b081e]">Doctorat / Ph.D</option>
-                          <option value="Alumni" className="bg-[#0b081e]">Alumni (Diplômé)</option>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Niveau d'étude</label>
+                        <select name="degreeLevel" value={formData.degreeLevel} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner cursor-pointer">
+                          <option value="" className="bg-white dark:bg-sky-950">Sélectionner un niveau</option>
+                          <option value="Licence" className="bg-white dark:bg-sky-950">Licence / Bachelor</option>
+                          <option value="Master" className="bg-white dark:bg-sky-950">Master / M2</option>
+                          <option value="Doctorat" className="bg-white dark:bg-sky-950">Doctorat / Ph.D</option>
+                          <option value="Alumni" className="bg-white dark:bg-sky-950">Alumni (Diplômé)</option>
                         </select>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Pays *</label>
-                        <input type="text" name="country" list="countries-list" required value={formData.country} onChange={handleChange} placeholder="Ex: France, Allemagne..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Pays *</label>
+                        <input type="text" name="country" list="countries-list" required value={formData.country} onChange={handleChange} placeholder="Ex: France, Allemagne..." className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                         <datalist id="countries-list">
                           {presetCountries.map((c, i) => <option key={i} value={c} />)}
                         </datalist>
                       </div>
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Adresse *</label>
-                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} placeholder="Ex: Paris, Lyon, Berlin..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Adresse *</label>
+                        <input type="text" name="currentLocation" required value={formData.currentLocation} onChange={handleChange} placeholder="Ex: Paris, Lyon, Berlin..." className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                       </div>
                     </div>
 
                     {formData.status === 'En poste' && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 animate-fadeIn">
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Intitulé du Poste</label>
-                          <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Intitulé du Poste</label>
+                          <input type="text" name="jobTitle" value={formData.jobTitle} onChange={handleChange} placeholder="Ex: Développeur Fullstack" className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                         </div>
                         <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Entreprise Actuelle</label>
-                          <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" />
+                          <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Entreprise Actuelle</label>
+                          <input type="text" name="currentCompany" value={formData.currentCompany} onChange={handleChange} placeholder="Ex: Capgemini, Freelance..." className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" />
                         </div>
                       </div>
                     )}
 
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Biographie / À propos (Ex:Contact, email)</label>
-                      <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Biographie / À propos (Ex:Contact, email)</label>
+                      <textarea name="bio" rows="4" value={formData.bio} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all resize-none shadow-inner leading-relaxed" placeholder="Une courte description de ton parcours..." />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-400 mb-1.5">Compétences (séparées par des virgules)</label>
-                      <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-[#030014]/70 border border-indigo-900/40 rounded-xl text-zinc-100 text-sm focus:outline-none focus:border-indigo-500/50 transition-all shadow-inner" placeholder="Ex: React, Node.js, Docker, Python..." />
+                      <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-600 dark:text-sky-300/70 mb-1.5">Compétences (séparées par des virgules)</label>
+                      <input type="text" name="skills" value={formData.skills} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:border-sky-500 transition-all shadow-inner" placeholder="Ex: React, Node.js, Docker, Python..." />
                     </div>
 
                     <div className="pt-4">
-                      <button type="submit" disabled={submitting} className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-indigo-600/25 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
+                      <button type="submit" disabled={submitting} className="w-full py-3.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-lg shadow-sky-500/20 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2">
                         <Save className="w-4 h-4" /> {submitting ? 'Enregistrement en cours...' : 'Sauvegarder les modifications'}
                       </button>
                     </div>
                   </form>
                 </div>
 
-                <div className="p-6 sm:p-8 bg-[#0b081e]/80 backdrop-blur-2xl border border-red-500/30 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="p-6 sm:p-8 bg-white/80 dark:bg-sky-950/85 backdrop-blur-2xl border border-red-500/30 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
                   <div className="flex items-start gap-4 text-left">
-                    <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20 text-red-400 flex-shrink-0 mt-0.5">
+                    <div className="w-12 h-12 bg-red-500/10 rounded-2xl flex items-center justify-center border border-red-500/20 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5">
                       <AlertTriangle className="w-6 h-6" />
                     </div>
                     <div>
-                      <p className="text-xs text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-gray-600 dark:text-sky-100 leading-relaxed">
                         Cette action est définitive et irréversible. Elle supprimera définitivement votre profil, vos posts et vos projets de la plateforme HITAS.
                       </p>
                     </div>
@@ -655,17 +650,17 @@ function Profil() {
             {activeTab === 'posts' && (
               <div className="space-y-4 max-w-3xl mx-auto">
                 {myPosts.length === 0 ? (
-                  <div className="text-center py-16 bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl text-zinc-500 text-xs shadow-xl">
+                  <div className="text-center py-16 bg-white/80 dark:bg-sky-950/80 backdrop-blur-2xl border border-gray-200 dark:border-sky-800/40 rounded-3xl text-gray-500 dark:text-sky-200 text-xs shadow-xl">
                     Aucune publication pour le moment dans l'espace Entraide.
                   </div>
                 ) : (
                   myPosts.map((post) => (
-                    <div key={post._id} onClick={() => navigate('/blog', { state: { scrollToId: post._id } })} className="bg-[#0b081e]/80 backdrop-blur-2xl p-6 rounded-3xl border border-indigo-500/20 cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group overflow-hidden">
+                    <div key={post._id} onClick={() => navigate('/blog', { state: { scrollToId: post._id } })} className="bg-white/80 dark:bg-sky-950/80 backdrop-blur-2xl p-6 rounded-3xl border border-gray-200 dark:border-sky-800/40 cursor-pointer hover:border-sky-500 transition-all shadow-xl group overflow-hidden">
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-xs font-medium text-zinc-500">{new Date(post.date).toLocaleDateString('fr-FR')}</span>
-                        <span className="text-[10px] bg-indigo-500/10 text-indigo-300 px-2.5 py-1 rounded-lg border border-indigo-500/20 uppercase font-bold tracking-wider">{post.category}</span>
+                        <span className="text-xs font-medium text-gray-500 dark:text-sky-300/70">{new Date(post.date).toLocaleDateString('fr-FR')}</span>
+                        <span className="text-[10px] bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-200 px-2.5 py-1 rounded-lg border border-sky-300 dark:border-sky-500/30 uppercase font-bold tracking-wider">{post.category}</span>
                       </div>
-                      <p className="text-zinc-300 text-sm whitespace-pre-wrap group-hover:text-zinc-100 transition-colors leading-relaxed break-words">{post.text}</p>
+                      <p className="text-gray-800 dark:text-zinc-200 text-sm whitespace-pre-wrap group-hover:text-gray-900 dark:group-hover:text-white transition-colors leading-relaxed break-words">{post.text}</p>
                     </div>
                   ))
                 )}
@@ -675,25 +670,25 @@ function Profil() {
             {activeTab === 'projects' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {myProjects.length === 0 ? (
-                  <div className="col-span-full text-center py-16 bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl text-zinc-500 text-xs shadow-xl">
+                  <div className="col-span-full text-center py-16 bg-white/80 dark:bg-sky-950/80 backdrop-blur-2xl border border-gray-200 dark:border-sky-800/40 rounded-3xl text-gray-500 dark:text-sky-200 text-xs shadow-xl">
                     Aucun projet partagé pour le moment dans le Showcase.
                   </div>
                 ) : (
                   myProjects.map((project) => (
-                    <div key={project._id} onClick={() => navigate('/showcase', { state: { scrollToId: project._id } })} className="bg-[#0b081e]/80 backdrop-blur-2xl border border-indigo-500/20 rounded-3xl p-6 flex flex-col justify-between cursor-pointer hover:border-indigo-500/50 transition-all shadow-xl group overflow-hidden">
+                    <div key={project._id} onClick={() => navigate('/showcase', { state: { scrollToId: project._id } })} className="bg-white/80 dark:bg-sky-950/80 backdrop-blur-2xl border border-gray-200 dark:border-sky-800/40 rounded-3xl p-6 flex flex-col justify-between cursor-pointer hover:border-sky-500 transition-all shadow-xl group overflow-hidden">
                       <div className="overflow-hidden">
-                        <h3 className="text-base sm:text-lg font-black text-white mb-2 group-hover:text-indigo-400 transition-colors break-words uppercase tracking-wide">{project.title}</h3>
-                        <p className="text-zinc-400 text-xs sm:text-sm mb-4 line-clamp-3 leading-relaxed break-words">{project.description}</p>
+                        <h3 className="text-base sm:text-lg font-black text-gray-900 dark:text-white mb-2 group-hover:text-sky-600 dark:group-hover:text-sky-300 transition-colors break-words uppercase tracking-wide">{project.title}</h3>
+                        <p className="text-gray-600 dark:text-sky-100 text-xs sm:text-sm mb-4 line-clamp-3 leading-relaxed break-words">{project.description}</p>
                       </div>
 
-                      <div className="flex gap-3 text-center text-xs mt-4 pt-4 border-t border-indigo-900/40">
+                      <div className="flex gap-3 text-center text-xs mt-4 pt-4 border-t border-gray-200 dark:border-sky-900/40">
                         {project.githubLink && (
-                          <a href={project.githubLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-[#030014]/80 border border-indigo-900/40 py-2.5 px-3 rounded-xl w-full text-zinc-300 hover:text-white hover:bg-[#030014] transition-colors font-semibold truncate flex items-center justify-center gap-1.5">
+                          <a href={project.githubLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-gray-100 dark:bg-sky-900/40 border border-gray-300 dark:border-sky-800 py-2.5 px-3 rounded-xl w-full text-gray-700 dark:text-sky-200 hover:text-gray-900 hover:bg-gray-200 dark:hover:bg-sky-900 transition-colors font-semibold truncate flex items-center justify-center gap-1.5">
                             <GitBranch className="w-3.5 h-3.5" /> GitHub
                           </a>
                         )}
                         {project.demoLink && (
-                          <a href={project.demoLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-gradient-to-r from-indigo-600 to-purple-600 py-2.5 px-3 rounded-xl w-full text-white hover:from-indigo-500 hover:to-purple-500 transition-colors font-bold shadow-md shadow-indigo-500/20 truncate flex items-center justify-center gap-1.5">
+                          <a href={project.demoLink} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="bg-gradient-to-r from-sky-600 to-blue-600 py-2.5 px-3 rounded-xl w-full text-white hover:from-sky-500 hover:to-blue-500 transition-colors font-bold shadow-md shadow-sky-500/20 truncate flex items-center justify-center gap-1.5">
                             <Globe className="w-3.5 h-3.5" /> Démo
                           </a>
                         )}
@@ -709,5 +704,7 @@ function Profil() {
     </div>
   );
 }
+
+Profil.propTypes = {};
 
 export default Profil;
