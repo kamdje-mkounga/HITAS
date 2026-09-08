@@ -27,6 +27,7 @@ import eha2 from '../assets/eha2.png';
 import eha3 from '../assets/eha3.png';
 import qua1 from '../assets/qua1.png';
 import qua2 from '../assets/qua2.png';
+import tradPattern from '../assets/traditional.jpg';
 
 const allUniversities = [
     {
@@ -119,7 +120,6 @@ const WelcomeIntro = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const goToHitas = () => {
-        // Redirige vers la page de connexion interne de ton application
         navigate('/login');
     };
 
@@ -164,7 +164,15 @@ const WelcomeIntro = () => {
     const sliderImages = [hitas, gem4, presie, gem5, president, gem6, graduate, family];
 
     return (
-        <main className="hitas-page">
+        <main
+            className="hitas-page"
+            style={{
+                backgroundColor: '#030014',
+                backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.85), rgba(3, 0, 20, 0.90)), url(${tradPattern})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'repeat',
+            }}
+        >
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
                     <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo">
@@ -320,12 +328,12 @@ const WelcomeIntro = () => {
             <style>{`
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; background-color: black; color: #1e293b; font-family: 'Inter', sans-serif; }
-                .hitas-page { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); overflow-x: hidden; color: #f8fafc; }
+                body { margin: 0; background-color: #030014; color: #1e293b; font-family: 'Inter', sans-serif; }
+                .hitas-page { min-height: 100vh; overflow-x: hidden; color: #f8fafc; }
 
                 /* Glassmorphism effet verre habillé */
                 .glass-panel {
-                    background: rgba(15, 23, 42, 0.65);
+                    background: rgba(15, 23, 42, 0.75);
                     backdrop-filter: blur(16px);
                     -webkit-backdrop-filter: blur(16px);
                     border-bottom: 1px solid rgba(148, 163, 184, 0.15);
@@ -333,7 +341,7 @@ const WelcomeIntro = () => {
                 }
 
                 .glass-card-light {
-                    background: rgba(30, 41, 59, 0.45);
+                    background: rgba(30, 41, 59, 0.55);
                     backdrop-filter: blur(14px);
                     -webkit-backdrop-filter: blur(14px);
                     border: 1px solid rgba(148, 163, 184, 0.2);
@@ -341,7 +349,7 @@ const WelcomeIntro = () => {
                 }
 
                 .glass-modal {
-                    background: rgba(15, 23, 42, 0.88) !important;
+                    background: rgba(15, 23, 42, 0.92) !important;
                     backdrop-filter: blur(24px) !important;
                     -webkit-backdrop-filter: blur(24px) !important;
                     border: 1px solid rgba(148, 163, 184, 0.25) !important;
@@ -422,7 +430,7 @@ const WelcomeIntro = () => {
                 .hero-overlay-light {
                     position: absolute;
                     inset: 0;
-                    background: linear-gradient(135deg, rgba(14, 116, 144, 0.35) 0%, rgba(15, 23, 42, 0.6) 100%);
+                    background: linear-gradient(135deg, rgba(14, 116, 144, 0.35) 0%, rgba(3, 0, 20, 0.75) 100%);
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -507,7 +515,7 @@ const WelcomeIntro = () => {
                 .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(148, 163, 184, 0.15); padding-top: 14px; color: #38bdf8; font-size: 12px; font-weight: 700; }
 
                 /* Modal */
-                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.75); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.8); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
                 .media-modal { position: relative; width: min(850px, 100%); border-radius: 20px; overflow: hidden; }
                 .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
                 .modal-header { padding: 24px 24px 16px; }
