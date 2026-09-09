@@ -177,19 +177,11 @@ const WelcomeIntro = () => {
 
                     <nav className="desktop-nav">
                         <a href="#campuses">Campuses</a>
-                        <button type="button" className="student-login glass-btn" onClick={goToHitas}>
-                            My HITAS
-                        </button>
+
                     </nav>
 
-                    <button
-                        type="button"
-                        className="mobile-menu-button glass-btn"
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        aria-label="Open menu"
-                    >
-                        {mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}
-                    </button>
+
+
                 </div>
             </header>
 
@@ -255,60 +247,62 @@ const WelcomeIntro = () => {
                 </div>
             </div>
 
-            {selectedUniversity && (
-                <div className="modal-backdrop" onClick={closeUniversity}>
-                    <div className="media-modal glass-modal" onClick={(e) => e.stopPropagation()}>
-                        <button type="button" className="close-button glass-btn" onClick={closeUniversity}>
-                            <X size={20} />
-                        </button>
+            {
+                selectedUniversity && (
+                    <div className="modal-backdrop" onClick={closeUniversity}>
+                        <div className="media-modal glass-modal" onClick={(e) => e.stopPropagation()}>
+                            <button type="button" className="close-button glass-btn" onClick={closeUniversity}>
+                                <X size={20} />
+                            </button>
 
-                        <div className="modal-header">
-                            <span className="modal-kicker">STUDENT EXPERIENCE</span>
-                            <h2>{selectedUniversity.name}</h2>
-                            <p><MapPin size={13} /> {selectedUniversity.city}, {selectedUniversity.country}</p>
-                        </div>
+                            <div className="modal-header">
+                                <span className="modal-kicker">STUDENT EXPERIENCE</span>
+                                <h2>{selectedUniversity.name}</h2>
+                                <p><MapPin size={13} /> {selectedUniversity.city}, {selectedUniversity.country}</p>
+                            </div>
 
-                        <div className="media-viewer">
-                            <img
-                                src={selectedUniversity.media[activeMedia]?.src}
-                                alt={selectedUniversity.media[activeMedia]?.caption}
-                            />
+                            <div className="media-viewer">
+                                <img
+                                    src={selectedUniversity.media[activeMedia]?.src}
+                                    alt={selectedUniversity.media[activeMedia]?.caption}
+                                />
+                                {selectedUniversity.media.length > 1 && (
+                                    <>
+                                        <button type="button" className="media-nav media-prev glass-btn" onClick={presi}>
+                                            <ChevronLeft size={22} />
+                                        </button>
+                                        <button type="button" className="media-nav media-next glass-btn" onClick={nextMedia}>
+                                            <ChevronRight size={22} />
+                                        </button>
+                                    </>
+                                )}
+                                <div className="media-counter">
+                                    {activeMedia + 1} / {selectedUniversity.media.length}
+                                </div>
+                            </div>
+
+                            <div className="media-info">
+                                <p>{selectedUniversity.media[activeMedia]?.caption}</p>
+                            </div>
+
                             {selectedUniversity.media.length > 1 && (
-                                <>
-                                    <button type="button" className="media-nav media-prev glass-btn" onClick={presi}>
-                                        <ChevronLeft size={22} />
-                                    </button>
-                                    <button type="button" className="media-nav media-next glass-btn" onClick={nextMedia}>
-                                        <ChevronRight size={22} />
-                                    </button>
-                                </>
+                                <div className="media-thumbnails">
+                                    {selectedUniversity.media.map((media, index) => (
+                                        <button
+                                            type="button"
+                                            key={index}
+                                            className={`thumbnail ${index === activeMedia ? 'thumbnail-active' : ''}`}
+                                            onClick={() => setActiveMedia(index)}
+                                        >
+                                            <img src={media.src} alt="" />
+                                        </button>
+                                    ))}
+                                </div>
                             )}
-                            <div className="media-counter">
-                                {activeMedia + 1} / {selectedUniversity.media.length}
-                            </div>
                         </div>
-
-                        <div className="media-info">
-                            <p>{selectedUniversity.media[activeMedia]?.caption}</p>
-                        </div>
-
-                        {selectedUniversity.media.length > 1 && (
-                            <div className="media-thumbnails">
-                                {selectedUniversity.media.map((media, index) => (
-                                    <button
-                                        type="button"
-                                        key={index}
-                                        className={`thumbnail ${index === activeMedia ? 'thumbnail-active' : ''}`}
-                                        onClick={() => setActiveMedia(index)}
-                                    >
-                                        <img src={media.src} alt="" />
-                                    </button>
-                                ))}
-                            </div>
-                        )}
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <footer className="footer glass-panel">
                 <div className="footer-brand">
@@ -512,14 +506,14 @@ const WelcomeIntro = () => {
                 }
 
                 /* Campuses Container & Grid */
-                .campuses-container { width: min(1180px, calc(100% - 40px)); margin: 70px auto 100px; }
+                .campuses-container { width: min(1100px, calc(100% - 40px)); margin: 70px auto 100px; }
                 .section-title-wrapper { text-align: center; margin-bottom: 40px; }
                 .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #0f172a; font-weight: 800; letter-spacing: -0.02em; }
                 .section-title-wrapper p { margin: 8px 0 0; color: #334155; font-size: 14px; font-weight: 500; }
 
-                .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+                .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
                 .university-card {
-                    border-radius: 16px; overflow: hidden; cursor: pointer;
+                    border-radius: 50px; overflow: hidden; cursor: pointer;
                     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
                 }
                 .university-card:hover { 
@@ -577,7 +571,7 @@ const WelcomeIntro = () => {
                     .universities-grid { grid-template-columns: 1fr; }
                 }
             `}</style>
-        </main>
+        </main >
     );
 };
 
