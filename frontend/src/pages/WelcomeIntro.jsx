@@ -11,56 +11,45 @@ import {
 } from 'lucide-react';
 
 import hitas from '../assets/hitas.png';
-import presie from '../assets/presie.png';
 import president from '../assets/president.png';
 import graduate from '../assets/graduate.png';
 import family from '../assets/family.png';
 import gem4 from '../assets/gem4.webp';
 import gem5 from '../assets/gem5.webp';
 import gem6 from '../assets/gem6.webp';
-import oxford1 from '../assets/oxford1.png';
-import isfa1 from '../assets/isfa1.webp';
-import isfa2 from '../assets/isfa2.png';
-import isfa3 from '../assets/isfa3.png';
-import eha1 from '../assets/eha1.webp';
-import eha2 from '../assets/eha2.png';
-import eha3 from '../assets/eha3.png';
-import qua1 from '../assets/qua1.png';
-import qua2 from '../assets/qua2.png';
 import fah1 from '../assets/fah1.webp';
 import fah2 from '../assets/fah2.webp';
 const allUniversities = [
     {
         id: 1,
         name: 'HITAS-ISFATES',
-        country: 'Madagascar',
-        city: 'Antananarivo',
-        image: isfa3,
+        country: 'Metz (France)',
+        city: 'Saarbrücken (Germany)',
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png',
         description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
         media: [
-            { type: 'image', src: isfa2, caption: 'Campus — ISFATES' },
-            { type: 'image', src: isfa3, caption: 'Vie étudiante — ISFATES' },
-            { type: 'image', src: isfa1, caption: 'Campus — ISFATES' }
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa2.png', caption: 'Campus — ISFATES' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png', caption: 'Vie étudiante — ISFATES' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/isfa1.webp', caption: 'Campus — ISFATES' }
         ]
     },
     {
         id: 2,
         name: 'HITAS — EAH-JENA',
-        country: 'Allemagne',
+        country: 'Germany',
         city: 'Jena',
-        image: eha2,
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/eha2.png',
         description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
         media: [
-            { type: 'image', src: presie, caption: 'Campus — EAH Jena' },
-            { type: 'image', src: eha1, caption: 'Vie étudiante — EAH Jena' },
-            { type: 'image', src: eha2, caption: 'Vie étudiante — EAH Jena' },
-            { type: 'image', src: eha3, caption: 'Vie étudiante — EAH Jena' }
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/eha3.png', caption: 'Campus — EAH Jena' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978039/eha1.webp', caption: 'Vie étudiante — EAH Jena' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/eha2.png', caption: 'Vie étudiante — EAH Jena' }
         ]
     },
     {
         id: 3,
         name: 'HITAS — Fachhochschule Dortmund',
-        country: 'Allemagne',
+        country: 'Germany',
         city: 'Dortmund',
         image: fah1,
         description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
@@ -72,7 +61,7 @@ const allUniversities = [
     {
         id: 4,
         name: 'HITAS — SOA INDIA',
-        country: 'Inde',
+        country: 'India',
         city: 'Bhubaneswar',
         image: graduate,
         description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
@@ -83,32 +72,32 @@ const allUniversities = [
             { type: 'image', src: president, caption: 'Vie étudiante — SOA University' },
             { type: 'image', src: hitas, caption: 'Vie étudiante — SOA University' },
             { type: 'image', src: gem5, caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: presie, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/presie.png', caption: 'Vie étudiante — SOA University' },
             { type: 'image', src: gem6, caption: 'Vie étudiante — SOA University' }
         ]
     },
     {
         id: 5,
         name: 'Oxford International Digital Institute',
-        country: 'Royaume-Uni',
+        country: 'United Kingdom',
         city: 'Oxford',
-        image: oxford1,
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png',
         description: 'Découvrez l’environnement académique.',
         media: [
-            { type: 'image', src: oxford1, caption: 'Oxford International Digital Institute' },
-            { type: 'image', src: oxford1, caption: 'Expérience étudiante' }
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', caption: 'Oxford International Digital Institute' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', caption: 'Expérience étudiante' }
         ]
     },
     {
         id: 6,
         name: 'QUALIFI',
-        country: 'Royaume-Uni',
-        city: 'UK',
-        image: qua1,
+        country: 'United Kingdom',
+        city: 'London',
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/qua1.png',
         description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
         media: [
-            { type: 'image', src: qua1, caption: 'QUALIFI — expérience étudiante' },
-            { type: 'image', src: qua2, caption: 'Communauté HITAS' }
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/qua1.png', caption: 'QUALIFI — expérience étudiante' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/qua2.png', caption: 'Communauté HITAS' }
         ]
     }
 ];
@@ -117,7 +106,6 @@ const WelcomeIntro = () => {
     const navigate = useNavigate();
     const [selectedUniversity, setSelectedUniversity] = useState(null);
     const [activeMedia, setActiveMedia] = useState(0);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const goToHitas = () => {
         navigate('/login');
@@ -161,7 +149,7 @@ const WelcomeIntro = () => {
         };
     }, [selectedUniversity]);
 
-    const sliderImages = [gem5, president, oxford1, family, isfa3];
+    const sliderImages = [gem5, president, 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', family, 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png'];
 
     return (
         <main
@@ -169,19 +157,15 @@ const WelcomeIntro = () => {
         >
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
-                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo">
+                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" className="hitas-logo">
                         <div className="logo-mark">
-                            <img src='hitas_logo.svg'></img>
+                            <GraduationCap size={22} />
                         </div>
                     </a>
 
                     <nav className="desktop-nav">
                         <a href="#campuses">Campuses</a>
-
                     </nav>
-
-
-
                 </div>
             </header>
 
@@ -390,15 +374,11 @@ const WelcomeIntro = () => {
                 }
                 .header-inner {
                     width: min(1180px, calc(100% - 40px)); height: 76px; 
-                    
-                
                     margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
                 }
                 .hitas-logo { display: flex; align-items: center; gap: 10px; color: #0f172a; text-decoration: none; }
                 .logo-mark {
                     width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-                   
-                   
                 }
                 
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
@@ -408,7 +388,6 @@ const WelcomeIntro = () => {
                     padding: 9px 18px; border-radius: 8px;
                     font-size: 12px; font-weight: 700; cursor: pointer; color: #0369a1;
                 }
-                .mobile-menu-button { display: none; width: 38px; height: 38px; border-radius: 8px; align-items: center; justify-content: center; cursor: pointer; color: #0f172a; }
 
                 /* Hero Slider */
                 .hero-classic {
@@ -448,7 +427,6 @@ const WelcomeIntro = () => {
                 .hero-overlay-light {
                     position: absolute;
                     inset: 0;
-                   {/* background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(56, 189, 248, 0.65) 100%);  */}
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
@@ -565,7 +543,6 @@ const WelcomeIntro = () => {
                 @media (max-width: 900px) {
                     .universities-grid { grid-template-columns: repeat(2, 1fr); }
                     .desktop-nav { display: none; }
-                    .mobile-menu-button { display: flex; }
                 }
                 @media (max-width: 600px) {
                     .universities-grid { grid-template-columns: 1fr; }
