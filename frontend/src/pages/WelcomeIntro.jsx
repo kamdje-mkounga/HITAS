@@ -438,7 +438,7 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(1.05) contrast(1.15) ;
+                    filter: brightness(1) contrast(1.15) ;
                 }
                 @keyframes slideAnimation {
                     0% { transform: translateX(0); }
@@ -448,7 +448,7 @@ const WelcomeIntro = () => {
                 .hero-overlay-light {
                     position: absolute;
                     inset: 0;
-                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(56, 189, 248, 0.65) 100%);
+                   {/* background: linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(56, 189, 248, 0.65) 100%);  */}
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
