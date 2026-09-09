@@ -7,32 +7,31 @@ body {
   margin: 0;
   padding: 0;
 
-  /* Premium blue + black + white atmospheric background */
+  /* Premium rich blue + atmospheric depth with subtle grid/mesh feel */
   background:
-    radial-gradient(circle at 50% 20%,
-      rgba(255, 255, 255, 0.18) 0%,
-      rgba(255, 255, 255, 0.06) 18%,
-      transparent 42%),
-    radial-gradient(circle at 10% 85%,
-      rgba(0, 174, 255, 0.45) 0%,
-      transparent 38%),
-    radial-gradient(circle at 90% 15%,
-      rgba(0, 140, 255, 0.35) 0%,
-      transparent 35%),
-    radial-gradient(circle at 50% 100%,
-      rgba(0, 110, 220, 0.5) 0%,
+    radial-gradient(circle at 50% 15%,
+      rgba(255, 255, 255, 0.28) 0%,
+      rgba(56, 189, 248, 0.12) 22%,
+      transparent 50%),
+    radial-gradient(circle at 15% 85%,
+      rgba(2, 132, 199, 0.55) 0%,
       transparent 45%),
+    radial-gradient(circle at 85% 10%,
+      rgba(14, 165, 233, 0.45) 0%,
+      transparent 40%),
+    radial-gradient(circle at 50% 95%,
+      rgba(3, 105, 161, 0.65) 0%,
+      transparent 55%),
     linear-gradient(135deg,
-      #050b12 0%,
-      #0b1f2d 18%,
-      #075985 42%,
-      #0ea5e9 65%,
-      #0284c7 82%,
-      #03131f 100%);
+      #38bdf8 0%,
+      #0284c7 20%,
+      #0369a1 45%,
+      #075985 70%,
+      #0c4a6e 100%);
 
   background-attachment: fixed;
   background-size: cover;
-  color: white;
+  color: #f8fafc;
 }
 
 #root {

@@ -11,14 +11,6 @@ import {
 } from 'lucide-react';
 
 import hitas from '../assets/hitas.png';
-import president from '../assets/president.png';
-import graduate from '../assets/graduate.png';
-import family from '../assets/family.png';
-import gem4 from '../assets/gem4.webp';
-import gem5 from '../assets/gem5.webp';
-import gem6 from '../assets/gem6.webp';
-import fah1 from '../assets/fah1.webp';
-import fah2 from '../assets/fah2.webp';
 const allUniversities = [
     {
         id: 1,
@@ -51,11 +43,11 @@ const allUniversities = [
         name: 'HITAS — Fachhochschule Dortmund',
         country: 'Germany',
         city: 'Dortmund',
-        image: fah1,
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/fah1.webp',
         description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
         media: [
-            { type: 'image', src: fah1, caption: 'Campus — Fachhochschule Dortmund' },
-            { type: 'image', src: fah2, caption: 'Vie étudiante — Dortmund' }
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/fah1.webp', caption: 'Campus — Fachhochschule Dortmund' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/fah2.webp', caption: 'Vie étudiante — Dortmund' }
         ]
     },
     {
@@ -63,17 +55,17 @@ const allUniversities = [
         name: 'HITAS — SOA INDIA',
         country: 'India',
         city: 'Bhubaneswar',
-        image: graduate,
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/graduate.png',
         description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
         media: [
-            { type: 'image', src: graduate, caption: 'Campus — SOA University' },
-            { type: 'image', src: family, caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: gem4, caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: president, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/graduate.png', caption: 'Campus — SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png', caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978035/gem4.webp', caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png', caption: 'Vie étudiante — SOA University' },
             { type: 'image', src: hitas, caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: gem5, caption: 'Vie étudiante — SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp', caption: 'Vie étudiante — SOA University' },
             { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/presie.png', caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: gem6, caption: 'Vie étudiante — SOA University' }
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978034/gem6.webp', caption: 'Vie étudiante — SOA University' }
         ]
     },
     {
@@ -149,7 +141,7 @@ const WelcomeIntro = () => {
         };
     }, [selectedUniversity]);
 
-    const sliderImages = [gem5, president, 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', family, 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png'];
+    const sliderImages = ['https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png'];
 
     return (
         <main
