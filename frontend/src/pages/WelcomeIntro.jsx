@@ -506,7 +506,7 @@ const WelcomeIntro = () => {
                 }
 
                 /* Campuses Container & Grid */
-                .campuses-container { width: min(1100px, calc(100% - 40px)); margin: 70px auto 100px; }
+                .campuses-container { width: min(1280px, calc(100% - 40px)); margin: 70px auto 100px; }
                 .section-title-wrapper { text-align: center; margin-bottom: 40px; }
                 .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #0f172a; font-weight: 800; letter-spacing: -0.02em; }
                 .section-title-wrapper p { margin: 8px 0 0; color: #334155; font-size: 14px; font-weight: 500; }
