@@ -171,7 +171,7 @@ const WelcomeIntro = () => {
                 <div className="header-inner">
                     <a href="https://hitas.org/" target='_blank' rel="noreferrer" onClick={() => setMobileMenuOpen(false)} className="hitas-logo">
                         <div className="logo-mark">
-                            <GraduationCap size={22} />
+                            <img src='hitas_logo.svg'></img>
                         </div>
                     </a>
 
@@ -403,8 +403,8 @@ const WelcomeIntro = () => {
                 .hitas-logo { display: flex; align-items: center; gap: 10px; color: #0f172a; text-decoration: none; }
                 .logo-mark {
                     width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
-                    border-radius: 10px; background: rgba(2, 132, 199, 0.9); color: #fff;
-                    box-shadow: 0 0 15px rgba(2, 132, 199, 0.3);
+                   
+                   
                 }
                 
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
