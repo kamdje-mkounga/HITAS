@@ -7,7 +7,6 @@ import {
     MapPin,
     X,
     GraduationCap,
-    Menu
 } from 'lucide-react';
 
 import hitas from '../assets/hitas.png';
@@ -534,7 +533,7 @@ const WelcomeIntro = () => {
 
                 @media (max-width: 900px) {
                     .universities-grid { grid-template-columns: repeat(2, 1fr); }
-                    .desktop-nav { display: none; }
+                    .desktop-nav {  }
                 }
                 @media (max-width: 600px) {
                     .universities-grid { grid-template-columns: 1fr; }

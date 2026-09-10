@@ -115,7 +115,24 @@ const PublicProfile = () => {
 
   if (loading) {
     return (
-      <div className="bg-[#030014] min-h-screen flex items-center justify-center">
+      <div className="bg-radial-gradient(circle at 15% 20%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0) 35%),
+    radial-gradient(circle at 85% 15%,
+      rgba(186, 230, 253, 0.9) 0%,
+      rgba(186, 230, 253, 0) 32%),
+    radial-gradient(circle at 75% 75%,
+      rgba(125, 211, 252, 0.75) 0%,
+      rgba(125, 211, 252, 0) 38%),
+    radial-gradient(circle at 20% 85%,
+      rgba(224, 242, 254, 0.9) 0%,
+      rgba(224, 242, 254, 0) 35%),
+    linear-gradient(135deg,
+      #ffffff 0%,
+      #e0f2fe 28%,
+      #bae6fd 52%,
+      #38bdf8 78%,
+      #0284c7 100%); min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
           <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase animate-pulse">Chargement du profil...</span>
@@ -185,7 +202,6 @@ const PublicProfile = () => {
     <div
       className="w-full min-h-screen  text-zinc-100 antialiased relative overflow-x-hidden selection:bg-indigo-200 selection:text-white"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(3, 0, 20, 0.45), rgba(3, 0, 20, 0.55))`,
         backgroundSize: 'contain',
         backgroundRepeat: 'repeat',
       }}
@@ -235,7 +251,7 @@ const PublicProfile = () => {
             type="button"
             onClick={() => setActiveTab('compte')}
             className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${activeTab === 'compte'
-              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
+              ? 'bg-gradient-to-r from-blue-600 to-white-600 text-white shadow-lg shadow-indigo-600/30'
               : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
           >
@@ -245,7 +261,7 @@ const PublicProfile = () => {
             type="button"
             onClick={() => setActiveTab('projets')}
             className={`flex-1 py-3 px-6 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer whitespace-nowrap ${activeTab === 'projets'
-              ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-600/30'
+              ? 'bg-gradient-to-r from-white-600 to-blue-600 text-white shadow-lg shadow-indigo-600/30'
               : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
           >

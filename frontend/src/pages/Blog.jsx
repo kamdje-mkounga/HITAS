@@ -1363,7 +1363,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             rounded-2xl
             border
             border-gray-200
-            dark:border-sky-800/40
             shadow-xl
             mb-7
           "
@@ -1375,7 +1374,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
               font-bold
               mb-4
               text-sky-700
-              dark:text-sky-300
+              
               uppercase
               tracking-widest
             "

@@ -213,8 +213,8 @@ function Home() {
           </button>
         </div>
       ) : (
-        <div className="absolute right-4 top-20 z-50 flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold select-none bg-emerald-100 dark:bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-500/40 backdrop-blur-md shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-ping"></span>
+        <div className="absolute right-4 top-20 z-50 flex items-center gap-1.5 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold select-none  px-2.5 py-1 rounded-full border border-emerald-800/400 backdrop-blur-md shadow-sm">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-200 animate-ping"></span>
         </div>
       )}
 
