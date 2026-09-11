@@ -1356,16 +1356,19 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
         <div
           className="
-            bg-white/80
-            dark:bg-sky-950/85
-            backdrop-blur-xl
-            p-5
-            rounded-2xl
-            border
-            border-gray-200
-            shadow-xl
-            mb-5
-          "
+          w-full
+          mx-auto
+          bg-white/80
+          dark:bg-sky-950/85
+          backdrop-blur-xl
+          p-5
+          rounded-2xl
+          border
+          border-gray-200
+          shadow-xl
+          mb-8
+          box-border
+        "
         >
 
           <h2

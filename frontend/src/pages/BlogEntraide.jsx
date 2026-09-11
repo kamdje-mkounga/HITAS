@@ -348,8 +348,8 @@ const BlogEntraide = ({
                   }))
                 }
                 className={`w-16 h-11 rounded-lg border overflow-hidden bg-white dark:bg-[#030014] shrink-0 flex items-center justify-center transition-all ${activeIndex === index
-                    ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 shadow-md'
-                    : 'border-slate-300 dark:border-indigo-950 opacity-40 hover:opacity-70'
+                  ? 'border-indigo-500 ring-2 ring-indigo-500/20 opacity-100 shadow-md'
+                  : 'border-slate-300 dark:border-indigo-950 opacity-40 hover:opacity-70'
                   }`}
               >
                 {mediaItem.type === 'image' || !mediaItem.type ? (
