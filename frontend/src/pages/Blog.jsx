@@ -648,7 +648,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       return;
     }
 
-    setIsSubmitting(true); // Active le loader
+    setIsSubmitting(true);
 
     try {
       const formData = new FormData();
@@ -694,7 +694,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         'Erreur lors de la publication.'
       );
     } finally {
-      setIsSubmitting(false); // Désactive le loader quoi qu'il arrive
+      setIsSubmitting(false);
     }
   };
 
@@ -889,7 +889,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     return (
       <div className="w-full bg-black">
-        {/* Carousel Container */}
         <div className="relative w-full overflow-hidden bg-black flex items-center justify-center">
           <div
             className="flex w-full transition-transform duration-300 ease-out"
@@ -968,7 +967,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             })}
           </div>
 
-          {/* Previous Arrow */}
           {mediaItems.length > 1 && activeIndex > 0 && (
             <button
               type="button"
@@ -980,7 +978,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             </button>
           )}
 
-          {/* Next Arrow */}
           {mediaItems.length > 1 && activeIndex < mediaItems.length - 1 && (
             <button
               type="button"
@@ -992,7 +989,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             </button>
           )}
 
-          {/* Counter Badge */}
           {mediaItems.length > 1 && (
             <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full pointer-events-none z-10">
               {activeIndex + 1} / {mediaItems.length}
@@ -1000,7 +996,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           )}
         </div>
 
-        {/* Instagram Pagination Dots */}
         {mediaItems.length > 1 && (
           <div className="flex items-center justify-center gap-1.5 py-2.5 bg-black">
             {mediaItems.map((_, index) => (
@@ -1301,9 +1296,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
       <div
         className="
-          max-w-3xl
+          max-w-4xl
           mx-auto
           px-4
+          sm:px-6
+          lg:px-8
           py-10
           flex-1
           w-full
@@ -1356,19 +1353,20 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
         <div
           className="
-          w-full
-          mx-auto
-          bg-white/80
-          dark:bg-sky-950/85
-          backdrop-blur-xl
-          p-5
-          rounded-2xl
-          border
-          border-gray-200
-          shadow-xl
-          mb-8
-          box-border
-        "
+            w-full
+            mx-auto
+            bg-white/80
+            dark:bg-sky-950/85
+            backdrop-blur-xl
+            p-5
+            sm:p-6
+            rounded-2xl
+            border
+            border-gray-200
+            shadow-xl
+            mb-8
+            box-border
+          "
         >
 
           <h2
@@ -1630,25 +1628,25 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                 type="submit"
                 disabled={isSubmitting}
                 className={`
-    bg-gradient-to-r
-    from-sky-600
-    to-blue-600
-    hover:from-sky-500
-    hover:to-blue-500
-    text-white
-    font-bold
-    px-5
-    py-2
-    rounded-xl
-    text-xs
-    transition-all
-    shadow-md
-    flex
-    items-center
-    justify-center
-    gap-2
-    ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}
-  `}
+                  bg-gradient-to-r
+                  from-sky-600
+                  to-blue-600
+                  hover:from-sky-500
+                  hover:to-blue-500
+                  text-white
+                  font-bold
+                  px-5
+                  py-2
+                  rounded-xl
+                  text-xs
+                  transition-all
+                  shadow-md
+                  flex
+                  items-center
+                  justify-center
+                  gap-2
+                  ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}
+                `}
               >
                 {isSubmitting ? (
                   <>
@@ -2190,21 +2188,21 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
                                 <p
                                   className="
-                                  text-[11px]
-                                  font-semibold
-                                  text-gray-500
-                                  dark:text-sky-300/70
-                                "
+                                text-[11px]
+                                font-semibold
+                                text-gray-500
+                                dark:text-sky-300/70
+                              "
                                 >
                                   Médias actuels
                                 </p>
 
                                 <div
                                   className="
-                                  grid
-                                  grid-cols-2
-                                  gap-2
-                                "
+                                grid
+                                grid-cols-2
+                                gap-2
+                              "
                                 >
 
                                   {existingMediaUrls.map(
@@ -2410,10 +2408,10 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                 22
                                               }
                                               className="
-                                              text-sky-600
-                                              dark:text-sky-400
-                                              mb-2
-                                            "
+                                                text-sky-600
+                                                dark:text-sky-400
+                                                mb-2
+                                              "
                                             />
                                           ) : (
                                             <FileText
@@ -2421,21 +2419,21 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                                 22
                                               }
                                               className="
-                                              text-sky-600
-                                              dark:text-sky-400
-                                              mb-2
-                                            "
+                                                text-sky-600
+                                                dark:text-sky-400
+                                                mb-2
+                                              "
                                             />
                                           )}
 
                                           <span
                                             className="
-                                            text-[10px]
-                                            truncate
-                                            max-w-full
-                                            text-gray-700
-                                            dark:text-sky-200
-                                          "
+                                              text-[10px]
+                                              truncate
+                                              max-w-full
+                                              text-gray-700
+                                              dark:text-sky-200
+                                            "
                                           >
                                             {file.name}
                                           </span>
@@ -2451,18 +2449,18 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                                           )
                                         }
                                         className="
-                                        absolute
-                                        top-2
-                                        right-2
-                                        w-7
-                                        h-7
-                                        rounded-full
-                                        bg-black/70
-                                        text-white
-                                        flex
-                                        items-center
-                                        justify-center
-                                      "
+                                          absolute
+                                          top-2
+                                          right-2
+                                          w-7
+                                          h-7
+                                          rounded-full
+                                          bg-black/70
+                                          text-white
+                                          flex
+                                          items-center
+                                          justify-center
+                                        "
                                       >
                                         <X
                                           size={
