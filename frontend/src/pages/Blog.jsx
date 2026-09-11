@@ -1364,7 +1364,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
             border
             border-gray-200
             shadow-xl
-            mb-7
+            mb-5
           "
         >
 
