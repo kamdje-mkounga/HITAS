@@ -227,7 +227,7 @@ const WelcomeIntro = () => {
                     ))}
                 </div>
             </div>
-//excanging
+
             {
                 selectedUniversity && (
                     <div className="modal-backdrop" onClick={closeUniversity}>
