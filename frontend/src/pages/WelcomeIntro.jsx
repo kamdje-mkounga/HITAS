@@ -13,10 +13,43 @@ import hitas from '../assets/hitas.png';
 const allUniversities = [
     {
         id: 1,
+        name: 'HITAS — SOA INDIA',
+        country: 'India',
+        city: 'Bhubaneswar',
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/graduate.png',
+        lien: 'https://www.soa.ac.in/',
+        description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
+        media: [
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/graduate.png', caption: 'Graduation Ceremony First Promotion-2026' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png', caption: 'HITAS Community in India' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978035/gem4.webp', caption: 'SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png', caption: 'The President Of HITAS with Her Graduated Student' },
+            { type: 'image', src: hitas, caption: 'Graduation Day (First Promotion)' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp', caption: 'SOA University' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/presie.png', caption: 'Special Gift To Hitas President' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978034/gem6.webp', caption: 'SOA University' }
+        ]
+    },
+    {
+        id: 2,
+        name: 'QUALIFI',
+        country: 'United Kingdom',
+        city: 'London',
+        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/qua1.png',
+        lien: 'https://qualifi.net/',
+        description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
+        media: [
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/qua1.png', caption: 'QUALIFI — expérience étudiante' },
+            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/qua2.png', caption: 'Communauté HITAS' }
+        ]
+    },
+    {
+        id: 3,
         name: 'HITAS-ISFATES',
         country: 'Metz (France)',
         city: 'Saarbrücken (Germany)',
         image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png',
+        lien: 'https://www.dfhi-isfates.eu/',
         description: 'Découvrez le campus et l’expérience des étudiants HITAS à ISFATES.',
         media: [
             { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa2.png', caption: 'Campus — ISFATES' },
@@ -25,11 +58,12 @@ const allUniversities = [
         ]
     },
     {
-        id: 2,
+        id: 4,
         name: 'HITAS — EAH-JENA',
         country: 'Germany',
         city: 'Jena',
         image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/eha2.png',
+        lien: 'https://www.eah-jena.de/',
         description: 'Découvrez l’environnement universitaire et la vie des étudiants à EAH Jena.',
         media: [
             { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/eha3.png', caption: 'Campus — EAH Jena' },
@@ -38,11 +72,12 @@ const allUniversities = [
         ]
     },
     {
-        id: 3,
+        id: 5,
         name: 'HITAS — Fachhochschule Dortmund',
         country: 'Germany',
         city: 'Dortmund',
         image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/fah1.webp',
+        lien: 'https://www.fh-dortmund.de/',
         description: 'Explorez le campus et découvrez l’expérience des étudiants à Dortmund.',
         media: [
             { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/fah1.webp', caption: 'Campus — Fachhochschule Dortmund' },
@@ -50,45 +85,16 @@ const allUniversities = [
         ]
     },
     {
-        id: 4,
-        name: 'HITAS — SOA INDIA',
-        country: 'India',
-        city: 'Bhubaneswar',
-        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/graduate.png',
-        description: 'Découvrez le campus SOA et la vie quotidienne des étudiants internationaux.',
-        media: [
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978037/graduate.png', caption: 'Campus — SOA University' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png', caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978035/gem4.webp', caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png', caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: hitas, caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp', caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978045/presie.png', caption: 'Vie étudiante — SOA University' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978034/gem6.webp', caption: 'Vie étudiante — SOA University' }
-        ]
-    },
-    {
-        id: 5,
+        id: 6,
         name: 'Oxford International Digital Institute',
         country: 'United Kingdom',
         city: 'Oxford',
         image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png',
+        lien: 'https://oidigitalinstitute.com/',
         description: 'Découvrez l’environnement académique.',
         media: [
             { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', caption: 'Oxford International Digital Institute' },
             { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', caption: 'Expérience étudiante' }
-        ]
-    },
-    {
-        id: 6,
-        name: 'QUALIFI',
-        country: 'United Kingdom',
-        city: 'London',
-        image: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/qua1.png',
-        description: 'Découvrez les expériences et contenus partagés par les étudiants de la communauté HITAS.',
-        media: [
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/qua1.png', caption: 'QUALIFI — expérience étudiante' },
-            { type: 'image', src: 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/qua2.png', caption: 'Communauté HITAS' }
         ]
     }
 ];
@@ -221,7 +227,7 @@ const WelcomeIntro = () => {
                     ))}
                 </div>
             </div>
-
+//excanging
             {
                 selectedUniversity && (
                     <div className="modal-backdrop" onClick={closeUniversity}>
@@ -232,7 +238,8 @@ const WelcomeIntro = () => {
 
                             <div className="modal-header">
                                 <span className="modal-kicker">STUDENT EXPERIENCE</span>
-                                <h2>{selectedUniversity.name}</h2>
+                                <h2><a href={selectedUniversity.lien} target="_blank">{selectedUniversity.name}</a></h2>
+
                                 <p><MapPin size={13} /> {selectedUniversity.city}, {selectedUniversity.country}</p>
                             </div>
 
