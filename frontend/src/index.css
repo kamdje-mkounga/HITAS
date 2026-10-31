@@ -6,6 +6,8 @@ body {
   width: 100%;
   margin: 0;
   padding: 0;
+  color: #f8fafc;
+  background-attachment: fixed;
 
   /* Premium technical mesh grid layered over rich atmospheric blue depths */
   background-image:
@@ -13,27 +15,12 @@ body {
     linear-gradient(to bottom, rgba(255, 255, 255, 0.07) 1px, transparent 1px),
     linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    radial-gradient(circle at 50% 15%,
-      rgba(255, 255, 255, 0.28) 0%,
-      rgba(56, 189, 248, 0.12) 22%,
-      transparent 50%),
-    radial-gradient(circle at 15% 85%,
-      rgba(2, 132, 199, 0.55) 0%,
-      transparent 45%),
-    radial-gradient(circle at 85% 10%,
-      rgba(14, 165, 233, 0.45) 0%,
-      transparent 40%),
-    radial-gradient(circle at 50% 95%,
-      rgba(3, 105, 161, 0.65) 0%,
-      transparent 55%),
-    linear-gradient(135deg,
-      #38bdf8 0%,
-      #0284c7 20%,
-      #0369a1 45%,
-      #075985 70%,
-      #0c4a6e 100%);
+    radial-gradient(circle at 50% 15%, rgba(255, 255, 255, 0.28) 0%, rgba(56, 189, 248, 0.12) 22%, transparent 50%),
+    radial-gradient(circle at 15% 85%, rgba(2, 132, 199, 0.55) 0%, transparent 45%),
+    radial-gradient(circle at 85% 10%, rgba(14, 165, 233, 0.45) 0%, transparent 40%),
+    radial-gradient(circle at 50% 95%, rgba(3, 105, 161, 0.65) 0%, transparent 55%),
+    linear-gradient(135deg, #0b3446 0%, #0284c7 20%, #0369a1 45%, #075985 70%, #0c4a6e 100%);
 
-  /* Multi-layered background sizing for ultra-fine precision grids */
   background-size:
     24px 24px,
     24px 24px,
@@ -45,19 +32,7 @@ body {
     cover,
     cover;
 
-  background-position:
-    0 0,
-    0 0,
-    0 0,
-    0 0,
-    center,
-    center,
-    center,
-    center,
-    center;
-
-  background-attachment: fixed;
-  color: #f8fafc;
+  background-position: center;
 }
 
 #root {
