@@ -1,3 +1,4 @@
+
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -5,104 +6,226 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
+// Helper: Normalize email
+const normalizeEmail = (email) => {
+    return email.trim().toLowerCase();
+};
+
 // @route   POST api/auth/register
-// @desc    Inscrire un nouvel étudiant / alumni (En attente de validation)
+// @desc    Register a new student/alumni (Pending admin approval)
+// @access  Public
 router.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
 
     try {
-        // 1. Vérifier si l'utilisateur existe déjà
-        let user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).json({ message: "Cet utilisateur existe déjà." });
+        // 1. Validate required fields
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "L'adresse email et le mot de passe sont obligatoires."
+            });
         }
 
-        // 2. Créer l'instance du nouvel utilisateur
-        // Note : Par défaut, isVerified sera à false (défini dans le modèle)
-        user = new User({
-            email,
-            password,
-            role
+        if (typeof email !== 'string' || typeof password !== 'string') {
+            return res.status(400).json({
+                message: "Format des données invalide."
+            });
+        }
+
+        const normalizedEmail = normalizeEmail(email);
+
+        // 2. Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!emailRegex.test(normalizedEmail)) {
+            return res.status(400).json({
+                message: "Veuillez fournir une adresse email valide."
+            });
+        }
+
+        // 3. Validate password length
+        if (password.length < 6) {
+            return res.status(400).json({
+                message: "Le mot de passe doit faire au moins 6 caractères."
+            });
+        }
+
+        // 4. Prevent public admin registration
+        const assignedRole = role === 'alumni' ? 'alumni' : 'student';
+
+        // 5. Check if user already exists
+        const existingUser = await User.findOne({
+            email: normalizedEmail
         });
 
-        // 3. Hacher (crypter) le mot de passe
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        if (existingUser) {
+            return res.status(400).json({
+                message: "Cet utilisateur existe déjà."
+            });
+        }
 
-        // 4. Sauvegarder dans MongoDB
+        // 6. Hash password
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        // 7. Create user
+        const user = new User({
+            email: normalizedEmail,
+            password: hashedPassword,
+            role: assignedRole,
+
+            // Account verification
+            isVerified: false,
+
+            // Registration tracking
+            createdBy: null,
+            registrationSource: 'public_signup',
+            registrationIP: req.ip
+        });
+
+        // 8. Save user
         await user.save();
 
-        // 🔒 SÉCURITÉ : Pas de token généré ici. L'utilisateur doit attendre la validation admin.
-        res.status(201).json({
-            message: "Inscription enregistrée avec succès ! Votre compte est en attente de validation par l'administration de HITAS. 🎉",
-            user: { id: user.id, email: user.email, role: user.role }
+        // 9. Return response (No JWT before admin approval)
+        return res.status(201).json({
+            message: "Inscription enregistrée avec succès ! Votre compte est en attente de validation par l'administration de HITAS.",
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                isVerified: user.isVerified,
+                registrationSource: user.registrationSource,
+                createdAt: user.createdAt
+            }
         });
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Erreur serveur lors de l'inscription.");
+
+        // Handle duplicate email race condition
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "Cet utilisateur existe déjà."
+            });
+        }
+
+        console.error("Registration error:", error);
+
+        return res.status(500).json({
+            message: "Erreur serveur lors de l'inscription."
+        });
     }
 });
 
+
 // @route   POST api/auth/login
-// @desc    Connecter un étudiant / alumni & obtenir le token s'il est validé
+// @desc    Login student/alumni and generate JWT if verified
+// @access  Public
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // 1. Vérifier si l'utilisateur existe
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: "Identifiants invalides." });
-        }
-
-        // 2. Vérifier si le mot de passe correspond
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: "Identifiants invalides." });
-        }
-
-        // 🔒 BARRIÈRE DE SÉCURITÉ : Vérifier si le compte est validé
-        // On laisse l'admin passer d'office pour éviter les blocages de configuration
-        if (!user.isVerified && user.role !== 'admin') {
-            return res.status(403).json({ 
-                message: "Votre compte est en attente de validation par l'administration de HITAS. Vous ne pouvez pas encore vous connecter." 
+        // 1. Validate input
+        if (!email || !password) {
+            return res.status(400).json({
+                message: "L'adresse email et le mot de passe sont obligatoires."
             });
         }
 
-        // 3. Générer un nouveau token JWT valide pour 24h
-        const payload = { userId: user.id, role: user.role };
+        if (typeof email !== 'string' || typeof password !== 'string') {
+            return res.status(400).json({
+                message: "Format des données invalide."
+            });
+        }
+
+        const normalizedEmail = normalizeEmail(email);
+
+        // 2. Find user
+        const user = await User.findOne({
+            email: normalizedEmail
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Identifiants invalides."
+            });
+        }
+
+        // 3. Compare password
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Identifiants invalides."
+            });
+        }
+
+        // 4. Check account verification
+        if (!user.isVerified && user.role !== 'admin') {
+            return res.status(403).json({
+                message: "Votre compte est en attente de validation par l'administration de HITAS. Vous ne pouvez pas encore vous connecter."
+            });
+        }
+
+        // 5. Require JWT secret
+        if (!process.env.JWT_SECRET) {
+            console.error("JWT_SECRET is missing from environment variables.");
+
+            return res.status(500).json({
+                message: "Erreur de configuration du serveur."
+            });
+        }
+
+        // 6. Generate JWT
+        const payload = {
+            userId: user.id,
+            role: user.role
+        };
+
         const token = jwt.sign(
-            payload, 
-            process.env.JWT_SECRET || 'secret_temporaire', 
+            payload,
+            process.env.JWT_SECRET,
             { expiresIn: '24h' }
         );
 
-        res.json({
-            message: "Connexion réussie ! Connexion établie. 🔑",
+        // 7. Return authenticated user
+        return res.json({
+            message: "Connexion réussie !",
             token,
-            user: { id: user.id, email: user.email, role: user.role }
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                isVerified: user.isVerified
+            }
         });
 
     } catch (error) {
-        console.error(error.message);
-        res.status(500).send("Erreur serveur lors de la connexion.");
+
+        console.error("Login error:", error);
+
+        return res.status(500).json({
+            message: "Erreur serveur lors de la connexion."
+        });
     }
 });
 
+
 // @route   PUT /api/auth/fcm-token
-// @desc    Enregistrer le token Firebase de l'utilisateur connecté
+// @desc    Register Firebase token for authenticated user
 // @access  Private
 router.put('/fcm-token', auth, async (req, res) => {
 
     try {
-
-        console.log("=== ROUTE FCM APPELÉE ===");
-
         const { token } = req.body;
 
-        console.log("Token reçu :", token);
+        // 1. Validate token
+        if (!token || typeof token !== 'string' || !token.trim()) {
+            return res.status(400).json({
+                message: "Token Firebase invalide."
+            });
+        }
 
+        const cleanToken = token.trim();
+
+        // 2. Find authenticated user
         const user = await User.findById(req.user.userId);
 
         if (!user) {
@@ -111,35 +234,26 @@ router.put('/fcm-token', auth, async (req, res) => {
             });
         }
 
-        console.log("Utilisateur trouvé :", user.email);
-
-        if (!user.fcmTokens) {
-            user.fcmTokens = [];
-        }
-
-        if (!user.fcmTokens.includes(token)) {
-            user.fcmTokens.push(token);
-            console.log("Tableau avant sauvegarde :", user.fcmTokens);
+        // 3. Prevent duplicate tokens
+        if (!user.fcmTokens.includes(cleanToken)) {
+            user.fcmTokens.push(cleanToken);
 
             await user.save();
-
-            console.log("Utilisateur sauvegardé");
         }
 
-        res.json({
-            success: true
+        return res.json({
+            success: true,
+            message: "Token Firebase enregistré avec succès."
         });
 
-    } catch (err) {
+    } catch (error) {
 
-        console.error(err);
+        console.error("FCM token error:", error);
 
-        res.status(500).json({
-            message: "Erreur serveur"
+        return res.status(500).json({
+            message: "Erreur serveur lors de l'enregistrement du token Firebase."
         });
-
     }
-
 });
 
 module.exports = router;
