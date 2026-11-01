@@ -149,9 +149,7 @@ const WelcomeIntro = () => {
     const sliderImages = ['https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png'];
 
     return (
-        <main
-            className="hitas-page"
-        >
+        <main className="hitas-page">
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
                     <a href="https://hitas.org/" target='_blank' rel="noreferrer" className="hitas-logo">
@@ -200,7 +198,7 @@ const WelcomeIntro = () => {
                     {allUniversities.map((university) => (
                         <article
                             key={university.id}
-                            className="university-card glass-card-light"
+                            className="university-card glass-panel"
                             onClick={() => openUniversity(university)}
                         >
                             <div className="card-image">
@@ -231,15 +229,14 @@ const WelcomeIntro = () => {
             {
                 selectedUniversity && (
                     <div className="modal-backdrop" onClick={closeUniversity}>
-                        <div className="media-modal glass-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="media-modal glass-panel" onClick={(e) => e.stopPropagation()}>
                             <button type="button" className="close-button glass-btn" onClick={closeUniversity}>
                                 <X size={20} />
                             </button>
 
                             <div className="modal-header">
                                 <span className="modal-kicker">STUDENT EXPERIENCE</span>
-                                <h2><a href={selectedUniversity.lien} target="_blank">{selectedUniversity.name}</a></h2>
-
+                                <h2><a href={selectedUniversity.lien} target="_blank" rel="noreferrer">{selectedUniversity.name}</a></h2>
                                 <p><MapPin size={13} /> {selectedUniversity.city}, {selectedUniversity.country}</p>
                             </div>
 
@@ -296,96 +293,115 @@ const WelcomeIntro = () => {
             </footer>
 
             <style>{`
+                @import "tailwindcss";
+
+                @layer base {
+                  :root {
+                    --bg-base: #030712;
+                    --surface-glass: rgba(15, 23, 42, 0.65);
+                    --border-glass: rgba(255, 255, 255, 0.08);
+                    --accent-glow: rgba(56, 189, 248, 0.15);
+                  }
+
+                  html,
+                  body {
+                    overflow-x: hidden;
+                    width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    color: #f1f5f9;
+                    background-color: var(--bg-base);
+                    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                  }
+                }
+
+                /* Modern atmospheric background with organic lighting instead of rigid grids */
+                body {
+                  background-image:
+                    radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+                    radial-gradient(circle at 10% 90%, rgba(3, 105, 161, 0.18) 0%, transparent 50%),
+                    linear-gradient(180deg, #020617 0%, #090d16 50%, #030712 100%);
+                  background-attachment: fixed;
+                  background-size: cover;
+                  background-position: center;
+                  position: relative;
+                  font-family: 'Inter', sans-serif;
+                }
+
+                /* Ambient light leak effect that feels alive and organic */
+                body::after {
+                  content: "";
+                  position: fixed;
+                  top: -20vh;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  width: 70vw;
+                  height: 50vh;
+                  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.08) 0%, rgba(14, 165, 233, 0.03) 40%, transparent 70%);
+                  pointer-events: none;
+                  z-index: 0;
+                  filter: blur(60px);
+                }
+
+                #root {
+                  width: 100%;
+                  min-height: 100dvh;
+                  overflow-x: hidden;
+                  background: transparent;
+                  position: relative;
+                  z-index: 1;
+                }
+
+                /* Custom utility helpers for modern UI cards */
+                .glass-panel {
+                  background: rgba(15, 23, 42, 0.7);
+                  backdrop-filter: blur(16px);
+                  -webkit-backdrop-filter: blur(16px);
+                  border: 1px solid rgba(255, 255, 255, 0.06);
+                  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                }
+
                 * { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
-                body { margin: 0; color: #1e293b; font-family: 'Inter', sans-serif; 
-                }
-                
-                /* Fond amélioré harmonisé avec le dégradé bleu ciel et blanc */
+
                 .hitas-page { 
                     min-height: 100vh; 
                     overflow-x: hidden; 
-                    color: #0f172a; 
-                    background: linear-gradient(to top, #0284c7 0%, #38bdf8 50%, #ffffff 100%);
-                    background-attachment: fixed;
-                }
-
-                /* Glassmorphism effet verre habillé ajusté pour la lisibilité */
-                .glass-panel {
-                    background: rgba(255, 255, 255, 0.85);
-                    backdrop-filter: blur(16px);
-                    -webkit-backdrop-filter: blur(16px);
-                    border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-                }
-
-                .glass-card-light {
-                    background: rgba(255, 255, 255, 0.75);
-                    backdrop-filter: blur(14px);
-                    -webkit-backdrop-filter: blur(14px);
-                    border: 1px solid rgba(56, 189, 248, 0.3);
-                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-                }
-
-                .glass-modal {
-                    background: rgba(255, 255, 255, 0.95) !important;
-                    backdrop-filter: blur(24px) !important;
-                    -webkit-backdrop-filter: blur(24px) !important;
-                    border: 1px solid rgba(56, 189, 248, 0.4) !important;
-                    color: #0f172a;
+                    color: #f1f5f9; 
+                    background: transparent;
                 }
 
                 .glass-btn {
-                    background: rgba(2, 132, 199, 0.1);
+                    background: rgba(56, 189, 248, 0.1);
                     backdrop-filter: blur(8px);
-                    border: 1px solid rgba(2, 132, 199, 0.25);
-                    color: #0369a1;
+                    border: 1px solid rgba(56, 189, 248, 0.25);
+                    color: #38bdf8;
                     transition: all 0.25s ease;
                 }
                 .glass-btn:hover {
-                    background: rgba(2, 132, 199, 0.2);
-                    border-color: rgba(2, 132, 199, 0.4);
+                    background: rgba(56, 189, 248, 0.2);
+                    border-color: rgba(56, 189, 248, 0.4);
                 }
 
                 /* Header */
                 .hitas-header {
                     position: sticky; top: 0; z-index: 80;
-                        background:
-    radial-gradient(circle at 15% 20%,
-      rgba(255, 255, 255, 0.95) 0%,
-      rgba(255, 255, 255, 0) 35%),
-    radial-gradient(circle at 85% 15%,
-      rgba(186, 230, 253, 0.9) 0%,
-      rgba(186, 230, 253, 0) 32%),
-    radial-gradient(circle at 75% 75%,
-      rgba(125, 211, 252, 0.75) 0%,
-      rgba(125, 211, 252, 0) 38%),
-    radial-gradient(circle at 20% 85%,
-      rgba(224, 242, 254, 0.9) 0%,
-      rgba(224, 242, 254, 0) 35%),
-    linear-gradient(135deg,
-      #ffffff 0%,
-      #e0f2fe 28%,
-      #bae6fd 52%,
-      #38bdf8 78%,
-      #0284c7 100%);
                 }
                 .header-inner {
                     width: min(1180px, calc(100% - 40px)); height: 76px; 
                     margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
                 }
-                .hitas-logo { display: flex; align-items: center; gap: 10px; color: #0f172a; text-decoration: none; }
+                .hitas-logo { display: flex; align-items: center; gap: 10px; color: #f1f5f9; text-decoration: none; }
                 .logo-mark {
                     width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+                    background: rgba(56, 189, 248, 0.1); border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2);
                 }
                 
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
-                .desktop-nav a { color: #334155; text-decoration: none; font-size: 13px; font-weight: 700; }
-                .desktop-nav a:hover { color: #0284c7; }
-                .student-login {
-                    padding: 9px 18px; border-radius: 8px;
-                    font-size: 12px; font-weight: 700; cursor: pointer; color: #0369a1;
-                }
+                .desktop-nav a { color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 700; transition: color 0.2s; }
+                .desktop-nav a:hover { color: #38bdf8; }
 
                 /* Hero Slider */
                 .hero-classic {
@@ -415,7 +431,7 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(1) contrast(1.15) ;
+                    filter: brightness(1.1) contrast(1.05);
                 }
                 @keyframes slideAnimation {
                     0% { transform: translateX(0); }
@@ -432,9 +448,10 @@ const WelcomeIntro = () => {
                     text-align: center;
                     padding: 60px 20px 40px;
                     z-index: 2;
+                    background: linear-gradient(180deg, rgba(3, 7, 18, 0.6) 0%, rgba(3, 7, 18, 0.85) 100%);
                 }
                 .hero-subtitle {
-                    color: #0369a1;
+                    color: #38bdf8;
                     font-size: 12px;
                     font-weight: 800;
                     letter-spacing: 0.25em;
@@ -444,12 +461,11 @@ const WelcomeIntro = () => {
                     font-size: clamp(38px, 6vw, 60px);
                     font-weight: 900;
                     letter-spacing: -0.02em;
-                    color: #0f172a;
+                    color: #f8fafc;
                     text-transform: uppercase;
-                    text-shadow: 0 2px 10px rgba(255,255,255,0.6);
                 }
                 .hero-classic p {
-                    color: #1e293b;
+                    color: #94a3b8;
                     font-size: 14px;
                     line-height: 1.6;
                     margin: 0 auto 28px;
@@ -459,7 +475,7 @@ const WelcomeIntro = () => {
                 .hero-action-btn {
                     background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
                     color: #fff;
-                    border: 1px solid rgba(255,255,255,0.4);
+                    border: 1px solid rgba(255,255,255,0.2);
                     padding: 14px 28px;
                     border-radius: 12px;
                     font-size: 11px;
@@ -476,7 +492,7 @@ const WelcomeIntro = () => {
                 .btn-sub {
                     font-size: 9px;
                     font-weight: 600;
-                    opacity: 0.9;
+                    opacity: 0.8;
                     margin-bottom: 3px;
                     letter-spacing: normal;
                 }
@@ -484,63 +500,64 @@ const WelcomeIntro = () => {
                 /* Campuses Container & Grid */
                 .campuses-container { width: min(1280px, calc(100% - 40px)); margin: 70px auto 100px; }
                 .section-title-wrapper { text-align: center; margin-bottom: 40px; }
-                .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #0f172a; font-weight: 800; letter-spacing: -0.02em; }
-                .section-title-wrapper p { margin: 8px 0 0; color: #334155; font-size: 14px; font-weight: 500; }
+                .section-title-wrapper h2 { margin: 0; font-size: 28px; color: #f8fafc; font-weight: 800; letter-spacing: -0.02em; }
+                .section-title-wrapper p { margin: 8px 0 0; color: #94a3b8; font-size: 14px; font-weight: 500; }
 
                 .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
                 .university-card {
-                    border-radius: 50px; overflow: hidden; cursor: pointer;
+                    border-radius: 24px; overflow: hidden; cursor: pointer;
                     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
                 }
                 .university-card:hover { 
                     transform: translateY(-6px); 
-                    border-color: rgba(2, 132, 199, 0.6); 
-                    box-shadow: 0 12px 40px rgba(2, 132, 199, 0.2);
+                    border-color: rgba(56, 189, 248, 0.4); 
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
                 }
 
-                .card-image { position: relative; height: 210px; background: #e2e8f0; }
+                .card-image { position: relative; height: 210px; background: #0f172a; }
                 .card-image img { width: 100%; height: 100%; object-fit: cover; }
-                .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(15, 23, 42, 0.75)); }
-                .card-location { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #fff; }
-                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #0369a1; border: 1px solid rgba(2, 132, 199, 0.2); }
+                .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(3, 7, 18, 0.85)); }
+                .card-location { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #e2e8f0; }
+                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
 
                 .card-content { padding: 22px; }
-                .card-content h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #0f172a; }
-                .card-content p { margin: 0 0 16px; color: #334155; font-size: 12.5px; line-height: 1.5; min-height: 40px; }
-                .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(203, 213, 225, 0.6); padding-top: 14px; color: #0284c7; font-size: 12px; font-weight: 700; }
+                .card-content h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #f8fafc; }
+                .card-content p { margin: 0 0 16px; color: #94a3b8; font-size: 12.5px; line-height: 1.5; min-height: 40px; }
+                .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 14px; color: #38bdf8; font-size: 12px; font-weight: 700; }
 
                 /* Modal */
-                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
-                .media-modal { position: relative; width: min(850px, 100%); border-radius: 20px; overflow: hidden; }
-                .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #0f172a; }
+                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.8); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+                .media-modal { position: relative; width: min(850px, 100%); border-radius: 24px; overflow: hidden; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+                .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #f8fafc; }
                 .modal-header { padding: 24px 24px 16px; }
-                .modal-kicker { color: #0284c7; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
-                .modal-header h2 { margin: 4px 0 4px; font-size: 22px; color: #0f172a; }
-                .modal-header p { margin: 0; display: flex; align-items: center; gap: 5px; color: #475569; font-size: 11px; }
+                .modal-kicker { color: #38bdf8; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
+                .modal-header h2 { margin: 4px 0 4px; font-size: 22px; }
+                .modal-header h2 a { color: #f8fafc; text-decoration: none; }
+                .modal-header h2 a:hover { color: #38bdf8; }
+                .modal-header p { margin: 0; display: flex; align-items: center; gap: 5px; color: #94a3b8; font-size: 11px; }
 
                 .media-viewer { position: relative; height: 380px; background: #000; }
                 .media-viewer img { width: 100%; height: 100%; object-fit: contain; }
-                .media-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; }
+                .media-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; z-index: 10; }
                 .media-prev { left: 14px; }
                 .media-next { right: 14px; }
-                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.75); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.75); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); color: #fff; z-index: 10; }
 
                 .media-info { padding: 14px 24px; }
-                .media-info p { margin: 0; color: #0f172a; font-size: 12px; font-weight: 600; }
+                .media-info p { margin: 0; color: #e2e8f0; font-size: 12px; font-weight: 600; }
                 .media-thumbnails { display: flex; gap: 8px; padding: 0 24px 20px; overflow-x: auto; }
-                .thumbnail { width: 64px; height: 46px; border-radius: 6px; border: 1px solid rgba(2, 132, 199, 0.3); overflow: hidden; padding: 0; background: none; cursor: pointer; opacity: 0.6; }
-                .thumbnail-active { opacity: 1; border-color: #0284c7; box-shadow: 0 0 10px rgba(2, 132, 199, 0.4); }
+                .thumbnail { width: 64px; height: 46px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; padding: 0; background: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s, border-color 0.2s; }
+                .thumbnail-active { opacity: 1; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
                 .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
 
                 /* Footer */
-                .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; color: #334155; font-size: 12px; font-weight: 500; }
-                .footer-brand { display: flex; align-items: center; gap: 8px; color: #0284c7; }
-                .footer-brand strong { color: #0f172a; }
+                .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 12px; font-weight: 500; }
+                .footer-brand { display: flex; align-items: center; gap: 8px; color: #38bdf8; }
+                .footer-brand strong { color: #f8fafc; }
                 .footer-brand a { color: inherit; text-decoration: none; }
 
                 @media (max-width: 900px) {
                     .universities-grid { grid-template-columns: repeat(2, 1fr); }
-                    .desktop-nav {  }
                 }
                 @media (max-width: 600px) {
                     .universities-grid { grid-template-columns: 1fr; }
