@@ -5,9 +5,10 @@ const path = require('path');
 const fs = require('fs');
 const sharp = require('sharp');
 const auth = require('../middleware/auth');
-const Profile = require('../models/Profile'); 
-const User = require('../models/User'); 
-const Post = require('../models/Post'); 
+const Profile = require('../models/Profile');
+const User = require('../models/User');
+const Post = require('../models/Post');
+const Project = require('../models/Project'); // Assure-toi que le modèle Project est bien importé
 const { uploadFile, deleteFile } = require('../utils/supabaseStorage');
 
 // Local upload dir setup
@@ -28,7 +29,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: { fileSize: 1024 * 1024 * 5 } // 5MB max
@@ -52,7 +53,7 @@ router.get('/', async (req, res) => {
 // @access   Private
 router.get('/me', auth, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ user: req.user.userId });
+    const profile = await Profile.findOne({ user: req.user.userId || req.user.id });
     if (!profile) {
       return res.status(400).json({ message: "Aucun profil trouvé pour cet utilisateur." });
     }
@@ -67,6 +68,7 @@ router.get('/me', auth, async (req, res) => {
 // @desc     Créer ou modifier un profil
 // @access   Private
 router.post('/', auth, upload.single('avatar'), async (req, res) => {
+  const userId = req.user.userId || req.user.id;
   const {
     firstName,
     lastName,
@@ -84,7 +86,7 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
   } = req.body;
 
   const profileFields = {
-    user: req.user.userId,
+    user: userId,
     firstName,
     lastName,
     promotion,
@@ -105,7 +107,7 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
   };
 
   try {
-    let profile = await Profile.findOne({ user: req.user.userId });
+    let profile = await Profile.findOne({ user: userId });
 
     // Handle Avatar Upload to Supabase Storage with Sharp
     if (req.file) {
@@ -118,10 +120,9 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
       }
 
       try {
-        // Tentative de conversion avec Sharp
         const convertedBuffer = await sharp(req.file.buffer)
-          .rotate() 
-          .jpeg({ quality: 85 }) 
+          .rotate()
+          .jpeg({ quality: 85 })
           .toBuffer();
 
         req.file.buffer = convertedBuffer;
@@ -129,22 +130,19 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
         const baseName = path.parse(req.file.originalname).name;
         req.file.originalname = `${baseName}.jpg`;
       } catch (sharpErr) {
-        console.error("Erreur de conversion Sharp (format HEIC non supporté par le serveur) :", sharpErr);
+        console.error("Erreur de conversion Sharp :", sharpErr);
         return res.status(400).json({
           message: "Format d'image non pris en charge par le serveur. Veuillez convertir votre photo en JPEG ou PNG."
         });
       }
 
       const uploaded = await uploadFile(req.file, "avatars");
-      console.log("File received & converted:", req.file?.originalname);
-      console.log("Supabase upload result:", uploaded);
-
       profileFields.avatar = uploaded.url;
       profileFields.avatarPath = uploaded.path;
     }
 
     profile = await Profile.findOneAndUpdate(
-      { user: req.user.userId },
+      { user: userId },
       { $set: profileFields },
       { new: true, upsert: true }
     );
@@ -161,18 +159,25 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
 });
 
 // @route    DELETE api/profile
-// @desc     Supprimer le compte, le profil et les publications de l'utilisateur
+// @desc     Supprimer le compte, le profil, les projets et les publications de l'utilisateur
 // @access   Private
 router.delete('/', auth, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.userId || req.user.id;
+
+    if (!userId) {
+      return res.status(400).json({ message: "Identifiant utilisateur introuvable dans le jeton." });
+    }
 
     // 1. Supprimer toutes les publications de l'utilisateur
     await Post.deleteMany({ user: userId });
 
-    // 2. Nettoyer les fichiers Supabase si un avatar existe
+    // 2. Supprimer tous les projets de l'utilisateur
+    await Project.deleteMany({ user: userId });
+
+    // 3. Nettoyer les fichiers Supabase si un avatar existe
     const profile = await Profile.findOne({ user: userId });
-    
+
     if (profile) {
       try {
         const pathToDelete = profile.avatarPath || profile.avatar;
@@ -189,11 +194,17 @@ router.delete('/', auth, async (req, res) => {
       }
     }
 
-    // 3. Supprimer le profil et le compte de la DB
+    // 4. Supprimer le profil de la base de données
     await Profile.findOneAndDelete({ user: userId });
-    await User.findByIdAndDelete(userId);
 
-    res.json({ message: 'Compte et données supprimés avec succès.' });
+    // 5. Supprimer le compte utilisateur de la collection Users
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "Utilisateur introuvable dans la base de données." });
+    }
+
+    res.json({ message: 'Compte, profil et données supprimés avec succès.' });
   } catch (err) {
     console.error("Erreur lors de la suppression du compte :", err.message);
     res.status(500).send('Erreur serveur lors de la suppression du compte.');
@@ -206,11 +217,11 @@ router.delete('/', auth, async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const profile = await Profile.findOne({ user: req.params.id }).populate('user', ['email']);
-    
+
     if (!profile) {
       return res.status(404).json({ message: "Le profil de cet étudiant n'existe pas." });
     }
-    
+
     res.json(profile);
   } catch (err) {
     console.error("Erreur récupération profil public :", err.message);
