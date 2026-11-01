@@ -30,7 +30,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
      STATES
   ========================================================= */
 
-  // Création
   const [mediaFiles, setMediaFiles] = useState([]);
   const [mediaPreviews, setMediaPreviews] = useState([]);
 
@@ -44,11 +43,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Commentaires
   const [commentTexts, setCommentTexts] = useState({});
   const [showComments, setShowComments] = useState({});
 
-  // Modification
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
 
@@ -57,20 +54,15 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const [existingMediaUrls, setExistingMediaUrls] = useState([]);
 
-  // Carousel Active Index tracking per post
   const [activeMediaIndexes, setActiveMediaIndexes] = useState({});
-
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Refs
   const fileInputRef = useRef(null);
   const editFileInputRef = useRef(null);
   const socketRef = useRef(null);
 
   const BACKEND_URL = 'https://hitas.onrender.com';
-
-  const loggedInUserId =
-    localStorage.getItem('userId') || '';
+  const loggedInUserId = localStorage.getItem('userId') || '';
 
   /* =========================================================
      AUTH
@@ -78,7 +70,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const getAuthHeader = () => {
     const token = localStorage.getItem('token');
-
     return {
       headers: {
         'x-auth-token': token
@@ -92,15 +83,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const getUserId = (userField) => {
     if (!userField) return '';
-
-    return typeof userField === 'object'
-      ? userField._id
-      : userField;
+    return typeof userField === 'object' ? userField._id : userField;
   };
 
   const normalizeStr = (str) => {
     if (!str) return '';
-
     return str
       .toLowerCase()
       .normalize('NFD')
@@ -110,27 +97,17 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const formatMediaUrl = (url) => {
     if (!url) return '';
-
-    if (
-      url.startsWith('http://') ||
-      url.startsWith('https://')
-    ) {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-
     return `${BACKEND_URL}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
   const getPostMedia = (post) => {
     if (!post) return [];
-
-    if (
-      Array.isArray(post.mediaFiles) &&
-      post.mediaFiles.length > 0
-    ) {
+    if (Array.isArray(post.mediaFiles) && post.mediaFiles.length > 0) {
       return post.mediaFiles;
     }
-
     if (post.mediaUrl) {
       return [{
         url: post.mediaUrl,
@@ -139,7 +116,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         originalName: post.mediaOriginalName || ''
       }];
     }
-
     return [];
   };
 
@@ -158,10 +134,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   const getFileName = (url) => {
     try {
       return decodeURIComponent(
-        url
-          .split('/')
-          .pop()
-          .split('?')[0]
+        url.split('/').pop().split('?')[0]
       );
     } catch {
       return 'Fichier';
@@ -187,7 +160,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       link.setAttribute('download', fileName || 'fichier');
       document.body.appendChild(link);
       link.click();
-
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
     } catch (error) {
@@ -235,10 +207,8 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     mediaPreviews.forEach((url) => {
       URL.revokeObjectURL(url);
     });
-
     setMediaFiles([]);
     setMediaPreviews([]);
-
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -246,38 +216,21 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const removeMediaFile = (index) => {
     const preview = mediaPreviews[index];
-
     if (preview) {
       URL.revokeObjectURL(preview);
     }
-
-    setMediaFiles((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
-
-    setMediaPreviews((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+    setMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setMediaPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleFileChange = (e) => {
     setError('');
-
-    const files = Array.from(
-      e.target.files || []
-    );
-
+    const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    const hasVideo = files.some((file) =>
-      file.type.startsWith('video/')
-    );
-
+    const hasVideo = files.some((file) => file.type.startsWith('video/'));
     if (hasVideo) {
-      setError(
-        'Les vidéos ne sont pas autorisées dans les publications.'
-      );
-
+      setError('Les vidéos ne sont pas autorisées dans les publications.');
       e.target.value = '';
       return;
     }
@@ -287,26 +240,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         file.type.startsWith('image/') ||
         file.type.startsWith('audio/') ||
         file.type === 'application/pdf' ||
-        /\.(doc|docx|xls|xlsx|ppt|pptx)$/i.test(
-          file.name
-        )
+        /\.(doc|docx|xls|xlsx|ppt|pptx)$/i.test(file.name)
       );
     });
 
-    const newPreviews = allowedFiles.map(
-      (file) => URL.createObjectURL(file)
-    );
+    const newPreviews = allowedFiles.map((file) => URL.createObjectURL(file));
 
-    setMediaFiles((prev) => [
-      ...prev,
-      ...allowedFiles
-    ]);
-
-    setMediaPreviews((prev) => [
-      ...prev,
-      ...newPreviews
-    ]);
-
+    setMediaFiles((prev) => [...prev, ...allowedFiles]);
+    setMediaPreviews((prev) => [...prev, ...newPreviews]);
     e.target.value = '';
   };
 
@@ -318,11 +259,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     editMediaPreviews.forEach((url) => {
       URL.revokeObjectURL(url);
     });
-
     setEditMediaFiles([]);
     setEditMediaPreviews([]);
     setExistingMediaUrls([]);
-
     if (editFileInputRef.current) {
       editFileInputRef.current.value = '';
     }
@@ -330,42 +269,24 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const removeEditMediaFile = (index) => {
     const preview = editMediaPreviews[index];
-
     if (preview) {
       URL.revokeObjectURL(preview);
     }
-
-    setEditMediaFiles((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
-
-    setEditMediaPreviews((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+    setEditMediaFiles((prev) => prev.filter((_, i) => i !== index));
+    setEditMediaPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const removeExistingMedia = (index) => {
-    setExistingMediaUrls((prev) =>
-      prev.filter((_, i) => i !== index)
-    );
+    setExistingMediaUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleEditFileChange = (e) => {
-    const files = Array.from(
-      e.target.files || []
-    );
-
+    const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    const hasVideo = files.some((file) =>
-      file.type.startsWith('video/')
-    );
-
+    const hasVideo = files.some((file) => file.type.startsWith('video/'));
     if (hasVideo) {
-      alert(
-        'Les vidéos ne sont pas autorisées.'
-      );
-
+      alert('Les vidéos ne sont pas autorisées.');
       e.target.value = '';
       return;
     }
@@ -375,26 +296,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         file.type.startsWith('image/') ||
         file.type.startsWith('audio/') ||
         file.type === 'application/pdf' ||
-        /\.(doc|docx|xls|xlsx|ppt|pptx)$/i.test(
-          file.name
-        )
+        /\.(doc|docx|xls|xlsx|ppt|pptx)$/i.test(file.name)
       );
     });
 
-    const newPreviews = allowedFiles.map(
-      (file) => URL.createObjectURL(file)
-    );
+    const newPreviews = allowedFiles.map((file) => URL.createObjectURL(file));
 
-    setEditMediaFiles((prev) => [
-      ...prev,
-      ...allowedFiles
-    ]);
-
-    setEditMediaPreviews((prev) => [
-      ...prev,
-      ...newPreviews
-    ]);
-
+    setEditMediaFiles((prev) => [...prev, ...allowedFiles]);
+    setEditMediaPreviews((prev) => [...prev, ...newPreviews]);
     e.target.value = '';
   };
 
@@ -405,17 +314,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   const startEditing = (post) => {
     setEditingId(post._id);
     setEditText(post.text || '');
-
     const existing = getPostMedia(post);
-
     setExistingMediaUrls(existing);
-
     setEditMediaFiles([]);
-
     editMediaPreviews.forEach((url) => {
       URL.revokeObjectURL(url);
     });
-
     setEditMediaPreviews([]);
   };
 
@@ -425,20 +329,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get(
-        `${BACKEND_URL}/api/posts`
-      );
-
+      const res = await axios.get(`${BACKEND_URL}/api/posts`);
       setPosts(res.data);
       setLoading(false);
-
     } catch (err) {
       console.error(err);
-
-      setError(
-        'Impossible de charger les publications.'
-      );
-
+      setError('Impossible de charger les publications.');
       setLoading(false);
     }
   };
@@ -449,22 +345,13 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   useEffect(() => {
     fetchPosts();
-
     if (clearNotifications) {
       clearNotifications();
     }
-
     return () => {
-      mediaPreviews.forEach((url) =>
-        URL.revokeObjectURL(url)
-      );
-
-      editMediaPreviews.forEach((url) =>
-        URL.revokeObjectURL(url)
-      );
+      mediaPreviews.forEach((url) => URL.revokeObjectURL(url));
+      editMediaPreviews.forEach((url) => URL.revokeObjectURL(url));
     };
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearNotifications]);
 
   /* =========================================================
@@ -472,64 +359,40 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   ========================================================= */
 
   useEffect(() => {
-    socketRef.current = io(
-      BACKEND_URL,
-      {
-        transports: [
-          'websocket',
-          'polling'
-        ],
-        closeOnBeforeunload: true
-      }
-    );
+    socketRef.current = io(BACKEND_URL, {
+      transports: ['websocket', 'polling'],
+      closeOnBeforeunload: true
+    });
 
     const socket = socketRef.current;
 
     const handleCreated = (newPost) => {
       setPosts((prevPosts) => {
-        if (
-          prevPosts.some(
-            (post) =>
-              post._id === newPost._id
-          )
-        ) {
+        if (prevPosts.some((post) => post._id === newPost._id)) {
           return prevPosts;
         }
-
-        return [
-          newPost,
-          ...prevPosts
-        ];
+        return [newPost, ...prevPosts];
       });
     };
 
     const handleDeleted = (deletedPostId) => {
       setPosts((prevPosts) =>
-        prevPosts.filter(
-          (post) =>
-            post._id !== deletedPostId
-        )
+        prevPosts.filter((post) => post._id !== deletedPostId)
       );
     };
 
     const handleUpdated = (updatedPost) => {
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post._id === updatedPost._id
-            ? updatedPost
-            : post
+          post._id === updatedPost._id ? updatedPost : post
         )
       );
     };
 
-    const handleInteractions = (
-      updatedPost
-    ) => {
+    const handleInteractions = (updatedPost) => {
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post._id === updatedPost._id
-            ? updatedPost
-            : post
+          post._id === updatedPost._id ? updatedPost : post
         )
       );
     };
@@ -557,8 +420,7 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       const response = await axios.put(
         `${BACKEND_URL}/api/posts/like/${postId}`,
         {
-          socketId:
-            socketRef.current?.id
+          socketId: socketRef.current?.id
         },
         getAuthHeader()
       );
@@ -568,14 +430,11 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
           post._id === postId
             ? {
               ...post,
-              likes:
-                response.data?.likes ||
-                response.data
+              likes: response.data?.likes || response.data
             }
             : post
         )
       );
-
     } catch (err) {
       console.error(err);
     }
@@ -585,39 +444,28 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
      COMMENT
   ========================================================= */
 
-  const handleAddComment = async (
-    postId
-  ) => {
-    const textComment =
-      commentTexts[postId];
-
-    if (
-      !textComment ||
-      !textComment.trim()
-    ) {
+  const handleAddComment = async (postId) => {
+    const textComment = commentTexts[postId];
+    if (!textComment || !textComment.trim()) {
       return;
     }
 
     try {
-      const response =
-        await axios.post(
-          `${BACKEND_URL}/api/posts/comment/${postId}`,
-          {
-            text: textComment,
-            socketId:
-              socketRef.current?.id
-          },
-          getAuthHeader()
-        );
+      const response = await axios.post(
+        `${BACKEND_URL}/api/posts/comment/${postId}`,
+        {
+          text: textComment,
+          socketId: socketRef.current?.id
+        },
+        getAuthHeader()
+      );
 
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post._id === postId
             ? {
               ...post,
-              comments:
-                response.data?.comments ||
-                response.data
+              comments: response.data?.comments || response.data
             }
             : post
         )
@@ -627,7 +475,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
         ...prev,
         [postId]: ''
       }));
-
     } catch (err) {
       console.error(err);
     }
@@ -639,7 +486,6 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setError('');
     setSuccess('');
 
@@ -652,11 +498,9 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
 
     try {
       const formData = new FormData();
-
       if (socketRef.current?.id) {
         formData.append('socketId', socketRef.current.id);
       }
-
       formData.append('text', text);
       formData.append('category', category);
 
@@ -665,33 +509,21 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
       });
 
       const token = localStorage.getItem('token');
-
-      await axios.post(
-        `${BACKEND_URL}/api/posts`,
-        formData,
-        {
-          headers: {
-            'x-auth-token': token,
-            'Content-Type': 'multipart/form-data'
-          }
+      await axios.post(`${BACKEND_URL}/api/posts`, formData, {
+        headers: {
+          'x-auth-token': token,
+          'Content-Type': 'multipart/form-data'
         }
-      );
+      });
 
       setText('');
       clearMedia();
-
       setSuccess('Publication partagée avec succès !');
-
-      setTimeout(
-        () => setSuccess(''),
-        3000
-      );
-
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message ||
-        'Erreur lors de la publication.'
+        err.response?.data?.message || 'Erreur lors de la publication.'
       );
     } finally {
       setIsSubmitting(false);
@@ -702,93 +534,51 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
      EDIT POST
   ========================================================= */
 
-  const handleEditSubmit = async (
-    postId
-  ) => {
-
+  const handleEditSubmit = async (postId) => {
     if (
       !editText.trim() &&
       editMediaFiles.length === 0 &&
       existingMediaUrls.length === 0
     ) {
-      alert(
-        'La publication ne peut pas être complètement vide.'
-      );
-
+      alert('La publication ne peut pas être complètement vide.');
       return;
     }
 
     try {
-      const formData =
-        new FormData();
-
-      if (
-        socketRef.current?.id
-      ) {
-        formData.append(
-          'socketId',
-          socketRef.current.id
-        );
+      const formData = new FormData();
+      if (socketRef.current?.id) {
+        formData.append('socketId', socketRef.current.id);
       }
+      formData.append('text', editText);
 
-      formData.append(
-        'text',
-        editText
-      );
-
-      existingMediaUrls.forEach(
-        (item) => {
-          const urlVal = typeof item === 'string' ? item : (item.url || item.path || '');
-          if (urlVal) {
-            formData.append(
-              'existingMediaUrls',
-              urlVal
-            );
-          }
+      existingMediaUrls.forEach((item) => {
+        const urlVal = typeof item === 'string' ? item : (item.url || item.path || '');
+        if (urlVal) {
+          formData.append('existingMediaUrls', urlVal);
         }
-      );
+      });
 
-      editMediaFiles.forEach(
-        (file) => {
-          formData.append(
-            'media',
-            file
-          );
+      editMediaFiles.forEach((file) => {
+        formData.append('media', file);
+      });
+
+      const token = localStorage.getItem('token');
+      const res = await axios.put(`${BACKEND_URL}/api/posts/${postId}`, formData, {
+        headers: {
+          'x-auth-token': token,
+          'Content-Type': 'multipart/form-data'
         }
-      );
-
-      const token =
-        localStorage.getItem(
-          'token'
-        );
-
-      const res = await axios.put(
-        `${BACKEND_URL}/api/posts/${postId}`,
-        formData,
-        {
-          headers: {
-            'x-auth-token': token,
-            'Content-Type':
-              'multipart/form-data'
-          }
-        }
-      );
+      });
 
       setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post._id === postId ? res.data : post
-        )
+        prevPosts.map((post) => (post._id === postId ? res.data : post))
       );
 
       setEditingId(null);
       clearEditMedia();
-
     } catch (err) {
       console.error(err);
-
-      alert(
-        'Erreur lors de la modification de la publication.'
-      );
+      alert('Erreur lors de la modification de la publication.');
     }
   };
 
@@ -796,25 +586,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
      DELETE
   ========================================================= */
 
-  const handleDelete = async (
-    postId
-  ) => {
-
-    if (
-      window.confirm(
-        'Es-tu sûr de vouloir supprimer cette publication ?'
-      )
-    ) {
+  const handleDelete = async (postId) => {
+    if (window.confirm('Es-tu sûr de vouloir supprimer cette publication ?')) {
       try {
-        await axios.delete(
-          `${BACKEND_URL}/api/posts/${postId}`,
-          getAuthHeader()
-        );
-
+        await axios.delete(`${BACKEND_URL}/api/posts/${postId}`, getAuthHeader());
       } catch (err) {
-        alert(
-          'Erreur lors de la suppression.'
-        );
+        alert('Erreur lors de la suppression.');
       }
     }
   };
@@ -827,28 +604,14 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
     .filter((post) =>
       selectedFilter === 'Tous'
         ? true
-        : normalizeStr(
-          post.category
-        ) ===
-        normalizeStr(
-          selectedFilter
-        )
+        : normalizeStr(post.category) === normalizeStr(selectedFilter)
     )
     .filter((post) => {
-      if (!searchQuery.trim()) {
-        return true;
-      }
-
-      const query =
-        searchQuery.toLowerCase();
-
+      if (!searchQuery.trim()) return true;
+      const query = searchQuery.toLowerCase();
       return (
-        post.text
-          ?.toLowerCase()
-          .includes(query) ||
-        `${post.firstName} ${post.lastName}`
-          .toLowerCase()
-          .includes(query)
+        post.text?.toLowerCase().includes(query) ||
+        `${post.firstName} ${post.lastName}`.toLowerCase().includes(query)
       );
     });
 
@@ -857,33 +620,25 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   ========================================================= */
 
   const getBadgeColor = (cat) => {
-    switch (
-    normalizeStr(cat)
-    ) {
+    switch (normalizeStr(cat)) {
       case 'entraide':
         return 'bg-blue-500/10 text-blue-600 dark:text-sky-300 border-blue-500/20';
-
       case 'stageemploi':
         return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20';
-
       case 'logement':
         return 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20';
-
       default:
         return 'bg-gray-100 dark:bg-sky-900/50 text-gray-700 dark:text-sky-200 border-gray-200 dark:border-sky-800/40';
     }
   };
 
   /* =========================================================
-     RENDER MEDIA (AVEC STYLE PDF MODERNE & GLASSMORPHISM)
+     RENDER MEDIA
   ========================================================= */
 
   const renderMediaGrid = (post) => {
     const mediaItems = getPostMedia(post);
-
-    if (!mediaItems || mediaItems.length === 0) {
-      return null;
-    }
+    if (!mediaItems || mediaItems.length === 0) return null;
 
     const activeIndex = activeMediaIndexes[post._id] || 0;
 
@@ -934,15 +689,12 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                       <div className="w-16 h-16 rounded-2xl bg-sky-100 dark:bg-sky-900/50 border border-sky-300 dark:border-sky-500/30 text-sky-700 dark:text-sky-300 flex items-center justify-center mx-auto mb-4 shadow-inner group-hover:scale-105 transition-transform duration-300">
                         <FileText size={32} />
                       </div>
-
                       <span className="inline-block bg-sky-100 dark:bg-sky-900/50 text-sky-800 dark:text-sky-200 border border-sky-200 dark:border-sky-500/20 text-[9px] font-bold px-3 py-0.5 rounded-full uppercase tracking-widest mb-2">
                         Document PDF
                       </span>
-
                       <p className="text-xs font-bold text-gray-900 dark:text-white mb-6 truncate px-2">
                         {currentFileName}
                       </p>
-
                       <div className="flex gap-2">
                         <a
                           href={fullUrl}
@@ -1021,245 +773,74 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   ========================================================= */
 
   const renderCreatePreviews = () => {
-
-    if (
-      mediaFiles.length === 0
-    ) {
-      return null;
-    }
+    if (mediaFiles.length === 0) return null;
 
     return (
-      <div
-        className="
-          rounded-2xl
-          overflow-hidden
-          border
-          border-gray-200
-          dark:border-sky-900/50
-          bg-gray-50
-          dark:bg-sky-950/80
-        "
-      >
-
-        <div
-          className="
-            flex
-            items-center
-            justify-between
-            px-3
-            py-2
-            border-b
-            border-gray-200
-            dark:border-sky-900/50
-          "
-        >
-
-          <span
-            className="
-              text-[11px]
-              font-semibold
-              text-gray-600
-              dark:text-sky-200
-            "
-          >
-            {mediaFiles.length}{' '}
-            fichier
-            {mediaFiles.length > 1
-              ? 's'
-              : ''}{' '}
-            sélectionné
-            {mediaFiles.length > 1
-              ? 's'
-              : ''}
+      <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-sky-900/50 bg-gray-50 dark:bg-sky-950/80">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-sky-900/50">
+          <span className="text-[11px] font-semibold text-gray-600 dark:text-sky-200">
+            {mediaFiles.length} fichier{mediaFiles.length > 1 ? 's' : ''} sélectionné{mediaFiles.length > 1 ? 's' : ''}
           </span>
-
           <button
             type="button"
             onClick={clearMedia}
-            className="
-              text-[11px]
-              font-semibold
-              text-red-500
-              hover:text-red-600
-            "
+            className="text-[11px] font-semibold text-red-500 hover:text-red-600"
           >
             Tout retirer
           </button>
-
         </div>
 
-        <div
-          className="
-            grid
-            grid-cols-2
-            gap-[2px]
-          "
-        >
-
-          {mediaFiles.map(
-            (file, index) => {
-
-              const preview =
-                mediaPreviews[index];
-
-              if (
-                file.type.startsWith(
-                  'image/'
-                )
-              ) {
-                return (
-                  <div
-                    key={`${file.name}-${index}`}
-                    className="
-                      relative
-                      h-40
-                      overflow-hidden
-                    "
-                  >
-
-                    <img
-                      src={preview}
-                      alt="Aperçu"
-                      className="
-                        w-full
-                        h-full
-                        object-cover
-                      "
-                    />
-
-                    <button
-                      type="button"
-                      onClick={() =>
-                        removeMediaFile(
-                          index
-                        )
-                      }
-                      className="
-                        absolute
-                        top-2
-                        right-2
-                        w-7
-                        h-7
-                        rounded-full
-                        bg-black/70
-                        text-white
-                        flex
-                        items-center
-                        justify-center
-                        backdrop-blur-md
-                      "
-                    >
-                      <X size={14} />
-                    </button>
-
-                  </div>
-                );
-              }
-
+        <div className="grid grid-cols-2 gap-[2px]">
+          {mediaFiles.map((file, index) => {
+            const preview = mediaPreviews[index];
+            if (file.type.startsWith('image/')) {
               return (
-                <div
-                  key={`${file.name}-${index}`}
-                  className="
-                    relative
-                    min-h-32
-                    p-4
-                    bg-white
-                    dark:bg-sky-950
-                    flex
-                    flex-col
-                    justify-center
-                  "
-                >
-
+                <div key={`${file.name}-${index}`} className="relative h-40 overflow-hidden">
+                  <img
+                    src={preview}
+                    alt="Aperçu"
+                    className="w-full h-full object-cover"
+                  />
                   <button
                     type="button"
-                    onClick={() =>
-                      removeMediaFile(
-                        index
-                      )
-                    }
-                    className="
-                      absolute
-                      top-2
-                      right-2
-                      w-7
-                      h-7
-                      rounded-full
-                      bg-red-500/10
-                      text-red-500
-                      flex
-                      items-center
-                      justify-center
-                    "
+                    onClick={() => removeMediaFile(index)}
+                    className="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/75 text-white flex items-center justify-center backdrop-blur-md"
                   >
                     <X size={14} />
                   </button>
-
-                  {file.type.startsWith(
-                    'audio/'
-                  ) ? (
-                    <>
-                      <Music
-                        size={22}
-                        className="
-                          text-sky-600
-                          dark:text-sky-400
-                          mb-2
-                        "
-                      />
-
-                      <p
-                        className="
-                          text-[10px]
-                          text-gray-600
-                          dark:text-sky-200
-                          truncate
-                          mb-1
-                        "
-                      >
-                        {file.name}
-                      </p>
-
-                      <audio
-                        src={preview}
-                        controls
-                        className="
-                          w-full
-                          h-8
-                        "
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <FileText
-                        size={24}
-                        className="
-                          text-sky-600
-                          dark:text-sky-400
-                          mb-2
-                        "
-                      />
-
-                      <span
-                        className="
-                          text-xs
-                          truncate
-                          text-gray-800
-                          dark:text-sky-100
-                        "
-                      >
-                        {file.name}
-                      </span>
-                    </>
-                  )}
-
                 </div>
               );
             }
-          )}
 
+            return (
+              <div key={`${file.name}-${index}`} className="relative min-h-32 p-4 bg-white dark:bg-sky-950 flex flex-col justify-center">
+                <button
+                  type="button"
+                  onClick={() => removeMediaFile(index)}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center"
+                >
+                  <X size={14} />
+                </button>
+                {file.type.startsWith('audio/') ? (
+                  <>
+                    <Music size={22} className="text-sky-600 dark:text-sky-400 mb-2" />
+                    <p className="text-[10px] text-gray-600 dark:text-sky-200 truncate mb-1">
+                      {file.name}
+                    </p>
+                    <audio src={preview} controls className="w-full h-8" />
+                  </>
+                ) : (
+                  <>
+                    <FileText size={24} className="text-sky-600 dark:text-sky-400 mb-2" />
+                    <span className="text-xs truncate text-gray-800 dark:text-sky-100">
+                      {file.name}
+                    </span>
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
-
       </div>
     );
   };
@@ -1269,384 +850,100 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
   ========================================================= */
 
   return (
-    <div
-      className="
-        w-full
-        min-h-screen
-        text-slate-900
-        dark:text-zinc-100
-        selection:bg-sky-500
-        selection:text-white
-        antialiased
-        flex
-        flex-col
-        transition-colors
-        duration-300
-      "
-    >
-
+    <div className="w-full min-h-screen text-slate-900 dark:text-zinc-100 selection:bg-sky-500 selection:text-white antialiased flex flex-col transition-colors duration-300">
       <Navbar
-        hasNewNotification={
-          hasNewNotification
-        }
-        clearNotifications={
-          clearNotifications
-        }
+        hasNewNotification={hasNewNotification}
+        clearNotifications={clearNotifications}
       />
 
-      <div
-        className="
-          max-w-4xl
-          mx-auto
-          px-4
-          sm:px-6
-          lg:px-8
-          py-10
-          flex-1
-          w-full
-        "
-      >
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
 
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
-
-        <div
-          className="
-            mb-8
-            text-center
-            md:text-left
-          "
-        >
-
-          <h1
-            className="
-              text-4xl
-              font-extrabold
-              mb-2
-              tracking-tight
-              text-gray-900
-              dark:text-white
-            "
-          >
+        {/* HEADER */}
+        <div className="mb-6">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-2">
             Espace Entraide & Blog
           </h1>
-
-          <p
-            className="
-              text-gray-700
-              dark:text-sky-100
-              text-sm
-              max-w-xl
-            "
-          >
-            Partages d'expériences,
-            guides et aperçus de vos
-            stages au quotidien.
+          <p className="text-gray-600 dark:text-sky-100 text-xs sm:text-sm max-w-xl">
+            Partages d'expériences, guides et aperçus de vos stages au quotidien.
           </p>
-
         </div>
 
-        {/* =====================================================
-            CREATE POST
-        ===================================================== */}
-
-        <div
-          className="
-            w-full
-            mx-auto
-            bg-white/80
-            dark:bg-sky-950/85
-            backdrop-blur-xl
-            p-5
-            sm:p-6
-            rounded-2xl
-            border
-            border-gray-200
-            shadow-xl
-            mb-8
-            box-border
-          "
-        >
-
-          <h2
-            className="
-              text-xs
-              font-bold
-              mb-4
-              text-sky-700
-              
-              uppercase
-              tracking-widest
-            "
-          >
+        {/* CREATE POST */}
+        <div className="bg-white/60 dark:bg-sky-950/60 backdrop-blur-xl p-5 sm:p-6 rounded-3xl shadow-xl mb-6">
+          <h2 className="text-xs font-bold mb-3 text-sky-600 dark:text-sky-300 uppercase tracking-widest">
             Créer une nouvelle publication
           </h2>
 
           {error && (
-            <div
-              className="
-                bg-red-500/10
-                border
-                border-red-500/20
-                text-red-500
-                dark:text-red-400
-                p-3
-                rounded-xl
-                mb-4
-                text-xs
-                font-medium
-              "
-            >
+            <div className="bg-red-500/10 text-red-500 dark:text-red-400 p-3 rounded-2xl mb-4 text-xs font-medium">
               {error}
             </div>
           )}
 
           {success && (
-            <div
-              className="
-                bg-emerald-500/10
-                border
-                border-emerald-500/20
-                text-emerald-500
-                dark:text-emerald-400
-                p-3
-                rounded-xl
-                mb-4
-                text-xs
-                font-medium
-              "
-            >
+            <div className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 p-3 rounded-2xl mb-4 text-xs font-medium">
               {success}
             </div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4"
-          >
-
+          <form onSubmit={handleSubmit} className="space-y-4">
             <textarea
               rows="3"
-              className="
-                w-full
-                bg-gray-50
-                dark:bg-sky-900/40
-                border
-                border-gray-300
-                dark:border-sky-800/50
-                rounded-xl
-                p-4
-                text-gray-900
-                dark:text-zinc-100
-                placeholder-gray-400
-                dark:placeholder-sky-300/60
-                focus:outline-none
-                focus:border-sky-500
-                transition-all
-                resize-none
-                text-sm
-                leading-relaxed
-              "
-              placeholder="
-                Un truc cool à l'école ou en stage ?
-                Raconte ou ajoute des fichiers...
-              "
+              className="w-full bg-gray-50/50 dark:bg-sky-900/30 rounded-2xl p-4 text-gray-900 dark:text-zinc-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all resize-none text-xs leading-relaxed"
+              placeholder="Un truc cool à l'école ou en stage ? Raconte ou ajoute des fichiers..."
               value={text}
-              onChange={(e) =>
-                setText(e.target.value)
-              }
+              onChange={(e) => setText(e.target.value)}
             />
 
             {renderCreatePreviews()}
 
-            <div
-              className="
-                flex
-                flex-col
-                sm:flex-row
-                justify-between
-                items-stretch
-                sm:items-center
-                gap-4
-                pt-1
-              "
-            >
-
-              <div
-                className="
-                  flex
-                  flex-wrap
-                  items-center
-                  gap-3
-                "
-              >
-
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-1">
+              <div className="flex flex-wrap items-center gap-3">
                 {/* CATEGORY */}
-
-                <div
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    bg-gray-50
-                    dark:bg-sky-900/40
-                    border
-                    border-gray-300
-                    dark:border-sky-800/50
-                    px-3
-                    py-1.5
-                    rounded-xl
-                  "
-                >
-
-                  <label
-                    htmlFor="category-select"
-                    className="
-                      text-[11px]
-                      font-medium
-                      text-gray-600
-                      dark:text-sky-300/70
-                      uppercase
-                      tracking-wider
-                    "
-                  >
+                <div className="flex items-center gap-2 bg-gray-50/50 dark:bg-sky-900/30 px-3 py-2 rounded-xl text-xs">
+                  <label htmlFor="category-select" className="text-[11px] font-medium text-gray-400 dark:text-sky-300/70 uppercase tracking-wider">
                     Catégorie :
                   </label>
-
                   <select
                     id="category-select"
-                    className="
-                      bg-transparent
-                      text-xs
-                      font-semibold
-                      text-gray-900
-                      dark:text-zinc-200
-                      focus:outline-none
-                      cursor-pointer
-                    "
+                    className="bg-transparent text-xs font-semibold text-gray-900 dark:text-zinc-200 focus:outline-none cursor-pointer"
                     value={category}
-                    onChange={(e) =>
-                      setCategory(
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => setCategory(e.target.value)}
                   >
-
-                    <option value="General" className="dark:bg-sky-950">
-                      Général
-                    </option>
-
-                    <option value="Entraide" className="dark:bg-sky-950">
-                      Entraide
-                    </option>
-
-                    <option value="Stage/Emploi" className="dark:bg-sky-950">
-                      Stage / Emploi
-                    </option>
-
-                    <option value="Logement" className="dark:bg-sky-950">
-                      Logement
-                    </option>
-
+                    <option value="General" className="dark:bg-sky-950">Général</option>
+                    <option value="Entraide" className="dark:bg-sky-950">Entraide</option>
+                    <option value="Stage/Emploi" className="dark:bg-sky-950">Stage / Emploi</option>
+                    <option value="Logement" className="dark:bg-sky-950">Logement</option>
                   </select>
-
                 </div>
 
                 {/* FILE BUTTON */}
-
                 <button
                   type="button"
-                  onClick={() =>
-                    fileInputRef.current?.click()
-                  }
-                  className="
-                    flex
-                    items-center
-                    gap-2
-                    px-3
-                    py-1.5
-                    border
-                    rounded-xl
-                    text-xs
-                    font-medium
-                    transition-all
-                    border-gray-300
-                    dark:border-sky-800/50
-                    bg-gray-50
-                    dark:bg-sky-900/40
-                    text-gray-700
-                    dark:text-sky-200
-                    hover:text-gray-900
-                    dark:hover:text-white
-                    hover:border-sky-500
-                  "
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all bg-gray-50/50 dark:bg-sky-900/30 text-gray-700 dark:text-sky-200 hover:text-gray-900 dark:hover:text-white"
                 >
-
-                  <Paperclip
-                    size={16}
-                    className="
-                      text-sky-600
-                      dark:text-sky-400
-                    "
-                  />
-
+                  <Paperclip size={16} className="text-sky-600 dark:text-sky-400" />
                   {mediaFiles.length > 0
-                    ? `${mediaFiles.length} fichier${mediaFiles.length > 1
-                      ? 's'
-                      : ''
-                    }`
+                    ? `${mediaFiles.length} fichier${mediaFiles.length > 1 ? 's' : ''}`
                     : 'Ajouter des fichiers'}
-
                 </button>
 
                 <input
                   type="file"
                   ref={fileInputRef}
                   multiple
-                  accept="
-                    image/*,
-                    audio/*,
-                    application/pdf,
-                    .doc,
-                    .docx,
-                    .xls,
-                    .xlsx,
-                    .ppt,
-                    .pptx
-                  "
-                  onChange={
-                    handleFileChange
-                  }
+                  accept="image/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                  onChange={handleFileChange}
                   className="hidden"
                 />
-
               </div>
 
               {/* PUBLISH */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`
-                  bg-gradient-to-r
-                  from-sky-600
-                  to-blue-600
-                  hover:from-sky-500
-                  hover:to-blue-500
-                  text-white
-                  font-bold
-                  px-5
-                  py-2
-                  rounded-xl
-                  text-xs
-                  transition-all
-                  shadow-md
-                  flex
-                  items-center
-                  justify-center
-                  gap-2
-                  ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}
-                `}
+                className={`bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition-all shadow-md shadow-sky-500/20 flex items-center justify-center gap-2 ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
               >
                 {isSubmitting ? (
                   <>
@@ -1663,1306 +960,286 @@ const Blog = ({ hasNewNotification, clearNotifications }) => {
                   </>
                 )}
               </button>
-
             </div>
-
           </form>
-
         </div>
 
-        {/* =====================================================
-            SEARCH
-        ===================================================== */}
-
-        <div className="mb-5">
-
-          <div
-            className="
-              relative
-            "
-          >
-
-            <span
-              className="
-                absolute
-                inset-y-0
-                left-3
-                flex
-                items-center
-              "
-            >
-              <Search
-                size={16}
-                className="
-                  text-sky-600
-                  dark:text-sky-400
-                "
-              />
+        {/* SEARCH */}
+        <div className="mb-4">
+          <div className="relative">
+            <span className="absolute inset-y-0 left-3.5 flex items-center">
+              <Search size={16} className="text-sky-600 dark:text-sky-400" />
             </span>
-
             <input
               type="text"
-              placeholder="
-                Rechercher un mot-clé,
-                un sujet, un étudiant...
-              "
+              placeholder="Rechercher un mot-clé, un sujet, un étudiant..."
               value={searchQuery}
-              onChange={(e) =>
-                setSearchQuery(
-                  e.target.value
-                )
-              }
-              className="
-                w-full
-                bg-white/80
-                dark:bg-sky-950/80
-                backdrop-blur-md
-                border
-                border-gray-200
-                dark:border-sky-800/40
-                rounded-xl
-                pl-10
-                pr-4
-                py-3
-                text-sm
-                text-gray-900
-                dark:text-zinc-200
-                placeholder-gray-400
-                dark:placeholder-sky-300/60
-                focus:outline-none
-                focus:border-sky-500
-              "
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-white/60 dark:bg-sky-950/60 backdrop-blur-md rounded-2xl pl-10 pr-4 py-3 text-xs text-gray-900 dark:text-zinc-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50 shadow-sm"
             />
-
           </div>
-
         </div>
 
-        {/* =====================================================
-            FILTERS
-        ===================================================== */}
-
-        <div
-          className="
-            flex
-            flex-wrap
-            gap-2
-            mb-7
-            border-b
-            border-gray-200
-            dark:border-sky-900/40
-            pb-5
-          "
-        >
-
-          {[
-            'Tous',
-            'General',
-            'Entraide',
-            'Stage/Emploi',
-            'Logement'
-          ].map((cat) => (
-
+        {/* FILTERS */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {['Tous', 'General', 'Entraide', 'Stage/Emploi', 'Logement'].map((cat) => (
             <button
               key={cat}
               type="button"
-              onClick={() =>
-                setSelectedFilter(cat)
-              }
-              className={`
-                px-4
-                py-1.5
-                rounded-xl
-                text-xs
-                font-semibold
-                border
-                transition-all
-                flex
-                items-center
-                gap-1.5
-                ${selectedFilter === cat
-                  ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white border-transparent shadow-md'
-                  : 'bg-white/80 dark:bg-sky-950/80 text-gray-700 dark:text-sky-200 border-gray-200 dark:border-sky-800/40'
-                }
-              `}
+              onClick={() => setSelectedFilter(cat)}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${selectedFilter === cat
+                ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md shadow-sky-500/20'
+                : 'bg-white/60 dark:bg-sky-950/60 text-gray-700 dark:text-sky-200 hover:bg-white/80'
+                }`}
             >
-
-              {cat === 'Tous' && (
-                <Megaphone
-                  size={14}
-                />
-              )}
-
-              {cat ===
-                'Stage/Emploi' && (
-                  <Briefcase
-                    size={14}
-                  />
-                )}
-
+              {cat === 'Tous' && <Megaphone size={14} />}
+              {cat === 'Stage/Emploi' && <Briefcase size={14} />}
               <span>
-                {cat === 'General'
-                  ? 'Général'
-                  : cat ===
-                    'Stage/Emploi'
-                    ? 'Stage / Emploi'
-                    : cat}
+                {cat === 'General' ? 'Général' : cat === 'Stage/Emploi' ? 'Stage / Emploi' : cat}
               </span>
-
             </button>
           ))}
-
         </div>
 
-        {/* =====================================================
-            POSTS
-        ===================================================== */}
-
+        {/* POSTS */}
         {loading ? (
-
-          <div
-            className="
-              text-center
-              text-gray-500
-              dark:text-sky-300/60
-              py-16
-              text-xs
-              font-bold
-              tracking-widest
-              animate-pulse
-            "
-          >
+          <div className="text-center text-gray-400 dark:text-sky-300/60 py-16 text-xs font-bold tracking-widest uppercase animate-pulse">
             CHARGEMENT EN COURS...
           </div>
-
         ) : (
-
-          <div
-            className="
-              space-y-5
-            "
-          >
-
+          <div className="space-y-5">
             {filteredPosts.length === 0 ? (
-
-              <div
-                className="
-                  text-center
-                  text-gray-600
-                  dark:text-sky-200
-                  py-16
-                  bg-white/80
-                  dark:bg-sky-950/80
-                  backdrop-blur-md
-                  border
-                  border-gray-200
-                  dark:border-sky-800/40
-                  rounded-2xl
-                  text-sm
-                "
-              >
-                Aucune publication ne
-                correspond à ta recherche.
+              <div className="text-center text-gray-500 dark:text-sky-200 py-16 bg-white/60 dark:bg-sky-950/60 backdrop-blur-md rounded-3xl text-xs font-medium">
+                Aucune publication ne correspond à ta recherche.
               </div>
-
             ) : (
+              filteredPosts.map((post) => {
+                const hasLiked = post.likes?.some(
+                  (like) => getUserId(like.user) === loggedInUserId
+                );
+                const avatarPath = post.avatar || (post.user && typeof post.user === 'object' ? post.user.avatar : null);
 
-              filteredPosts.map(
-                (post) => {
-
-                  const hasLiked =
-                    post.likes?.some(
-                      (like) =>
-                        getUserId(
-                          like.user
-                        ) ===
-                        loggedInUserId
-                    );
-
-                  const avatarPath =
-                    post.avatar ||
-                    (
-                      post.user &&
-                        typeof post.user ===
-                        'object'
-                        ? post.user.avatar
-                        : null
-                    );
-
-                  return (
-
-                    <div
-                      key={post._id}
-                      id={`post-${post._id}`}
-                      className="
-                        bg-white/90
-                        dark:bg-sky-950/90
-                        backdrop-blur-xl
-                        rounded-2xl
-                        border
-                        border-gray-200
-                        dark:border-sky-800/40
-                        overflow-hidden
-                        shadow-xl
-                      "
-                    >
-
-                      {/* =================================================
-                          POST HEADER
-                      ================================================= */}
-
-                      <div
-                        className="
-                          flex
-                          justify-between
-                          items-start
-                          px-4
-                          sm:px-5
-                          pt-4
-                          pb-2
-                        "
-                      >
-
-                        <Link
-                          to={`/profile/${getUserId(
-                            post.user
-                          )}`}
-                          className="
-                            flex
-                            items-center
-                            gap-3
-                            group/author
-                          "
-                        >
-
-                          <div
-                            className="
-                              relative
-                              w-10
-                              h-10
-                              flex-shrink-0
-                            "
-                          >
-
-                            {avatarPath ? (
-                              <img
-                                src={formatMediaUrl(
-                                  avatarPath
-                                )}
-                                alt={
-                                  post.firstName
-                                }
-                                className="
-                                  absolute
-                                  inset-0
-                                  w-full
-                                  h-full
-                                  rounded-full
-                                  object-cover
-                                  border
-                                  border-gray-300
-                                  dark:border-sky-800
-                                  z-10
-                                "
-                                onError={(e) => {
-                                  e.target.style.display =
-                                    'none';
-                                }}
-                              />
-                            ) : null}
-
-                            <div
-                              className="
-                                w-full
-                                h-full
-                                bg-gradient-to-br
-                                from-sky-100
-                                dark:from-sky-900
-                                to-blue-200
-                                dark:to-sky-950
-                                text-sky-800
-                                dark:text-sky-200
-                                rounded-full
-                                flex
-                                items-center
-                                justify-center
-                                font-bold
-                                text-xs
-                              "
-                            >
-                              {post.firstName?.[0] ||
-                                'U'}
-
-                              {post.lastName?.[0] ||
-                                ''}
-                            </div>
-
+                return (
+                  <div
+                    key={post._id}
+                    id={`post-${post._id}`}
+                    className="bg-white/60 dark:bg-sky-950/60 backdrop-blur-2xl rounded-3xl overflow-hidden shadow-xl transition-all"
+                  >
+                    {/* POST HEADER */}
+                    <div className="flex justify-between items-start px-5 pt-5 pb-3">
+                      <Link to={`/profile/${getUserId(post.user)}`} className="flex items-center gap-3 group/author">
+                        <div className="relative w-10 h-10 flex-shrink-0">
+                          {avatarPath ? (
+                            <img
+                              src={formatMediaUrl(avatarPath)}
+                              alt={post.firstName}
+                              className="absolute inset-0 w-full h-full rounded-full object-cover z-10"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                              }}
+                            />
+                          ) : null}
+                          <div className="w-full h-full bg-gradient-to-br from-sky-100 dark:from-sky-900 to-blue-200 dark:to-sky-950 text-sky-800 dark:text-sky-200 rounded-full flex items-center justify-center font-bold text-xs">
+                            {post.firstName?.[0] || 'U'}
+                            {post.lastName?.[0] || ''}
                           </div>
-
-                          <div>
-
-                            <h3
-                              className="
-                                font-bold
-                                text-sm
-                                text-gray-900
-                                dark:text-zinc-200
-                                group-hover/author:text-sky-600
-                                dark:group-hover/author:text-sky-300
-                                transition-all
-                              "
-                            >
-                              {post.firstName}{' '}
-                              {post.lastName}
-                            </h3>
-
-                            <p
-                              className="
-                                text-[11px]
-                                text-gray-500
-                                dark:text-sky-300/60
-                              "
-                            >
-                              {new Date(
-                                post.date
-                              ).toLocaleDateString(
-                                'fr-FR'
-                              )}
-                            </p>
-
-                          </div>
-
-                        </Link>
-
-                        <div
-                          className="
-                            flex
-                            items-center
-                            gap-2
-                          "
-                        >
-
-                          <span
-                            className={`
-                              text-[10px]
-                              uppercase
-                              tracking-wider
-                              font-bold
-                              px-2.5
-                              py-0.5
-                              rounded-lg
-                              border
-                              ${getBadgeColor(
-                              post.category
-                            )}
-                            `}
-                          >
-                            {post.category}
-                          </span>
-
-                          {getUserId(
-                            post.user
-                          ) ===
-                            loggedInUserId && (
-
-                              <div
-                                className="
-                                flex
-                                gap-1
-                                bg-gray-50
-                                dark:bg-sky-900/40
-                                border
-                                border-gray-200
-                                dark:border-sky-800/40
-                                rounded-lg
-                                p-1
-                              "
-                              >
-
-                                <button
-                                  onClick={() =>
-                                    startEditing(
-                                      post
-                                    )
-                                  }
-                                  className="p-1"
-                                >
-                                  <Pencil
-                                    size={15}
-                                    className="
-                                text-amber-500
-                              "
-                                  />
-                                </button>
-
-                                <button
-                                  onClick={() =>
-                                    handleDelete(
-                                      post._id
-                                    )
-                                  }
-                                  className="p-1"
-                                >
-                                  <Trash2
-                                    size={15}
-                                    className="
-                                text-red-500
-                              "
-                                  />
-                                </button>
-
-                              </div>
-                            )}
-
                         </div>
 
+                        <div>
+                          <h3 className="font-bold text-xs text-gray-900 dark:text-zinc-200 group-hover/author:text-sky-600 dark:group-hover/author:text-sky-300 transition-all">
+                            {post.firstName} {post.lastName}
+                          </h3>
+                          <p className="text-[10px] text-gray-400 dark:text-sky-300/60">
+                            {new Date(post.date).toLocaleDateString('fr-FR')}
+                          </p>
+                        </div>
+                      </Link>
+
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] uppercase tracking-wider font-bold px-2.5 py-0.5 rounded-lg ${getBadgeColor(post.category)}`}>
+                          {post.category}
+                        </span>
+
+                        {getUserId(post.user) === loggedInUserId && (
+                          <div className="flex gap-1 bg-gray-100/50 dark:bg-sky-900/30 rounded-xl p-1">
+                            <button onClick={() => startEditing(post)} className="p-1 hover:opacity-75 transition">
+                              <Pencil size={14} className="text-amber-500" />
+                            </button>
+                            <button onClick={() => handleDelete(post._id)} className="p-1 hover:opacity-75 transition">
+                              <Trash2 size={14} className="text-rose-500" />
+                            </button>
+                          </div>
+                        )}
                       </div>
+                    </div>
 
-                      {/* =================================================
-                          EDIT MODE
-                      ================================================= */}
+                    {/* EDIT MODE */}
+                    {editingId === post._id ? (
+                      <div className="m-4 space-y-3 bg-gray-50/50 dark:bg-sky-900/20 p-4 rounded-2xl">
+                        <h4 className="text-[11px] font-bold text-gray-400 dark:text-sky-300/70 uppercase tracking-widest">
+                          Modifier la publication
+                        </h4>
 
-                      {editingId ===
-                        post._id ? (
+                        <textarea
+                          className="w-full bg-white dark:bg-sky-950 rounded-xl p-3 text-xs resize-none text-gray-900 dark:text-zinc-100 focus:outline-none"
+                          rows="3"
+                          value={editText}
+                          onChange={(e) => setEditText(e.target.value)}
+                        />
 
-                        <div
-                          className="
-                            m-4
-                            space-y-4
-                            bg-gray-50
-                            dark:bg-sky-900/40
-                            p-4
-                            rounded-xl
-                            border
-                            border-gray-200
-                            dark:border-sky-800/40
-                          "
+                        {existingMediaUrls.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-semibold text-gray-400 dark:text-sky-300/70 uppercase tracking-widest">Médias actuels</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              {existingMediaUrls.map((item, index) => {
+                                const url = typeof item === 'string' ? item : item.url;
+                                return (
+                                  <div key={`${url}-${index}`} className="relative rounded-xl overflow-hidden bg-white dark:bg-sky-950 p-2">
+                                    {isImage(item) ? (
+                                      <img src={formatMediaUrl(url)} alt="" className="w-full h-28 object-cover rounded-lg" />
+                                    ) : (
+                                      <div className="h-28 flex flex-col items-center justify-center gap-1">
+                                        <FileText size={20} className="text-sky-500" />
+                                        <span className="text-[9px] truncate text-gray-600 dark:text-sky-200">{item.originalName || getFileName(url)}</span>
+                                      </div>
+                                    )}
+                                    <button type="button" onClick={() => removeExistingMedia(index)} className="absolute top-3 right-3 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">✕</button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {editMediaFiles.length > 0 && (
+                          <div className="grid grid-cols-2 gap-2">
+                            {editMediaFiles.map((file, index) => (
+                              <div key={`${file.name}-${index}`} className="relative rounded-xl overflow-hidden bg-white dark:bg-sky-950 p-2">
+                                {file.type.startsWith('image/') ? (
+                                  <img src={editMediaPreviews[index]} alt="" className="w-full h-28 object-cover rounded-lg" />
+                                ) : (
+                                  <div className="h-28 flex flex-col items-center justify-center gap-1">
+                                    <FileText size={20} className="text-sky-500" />
+                                    <span className="text-[9px] truncate text-gray-600 dark:text-sky-200">{file.name}</span>
+                                  </div>
+                                )}
+                                <button type="button" onClick={() => removeEditMediaFile(index)} className="absolute top-3 right-3 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[9px]">✕</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => editFileInputRef.current?.click()}
+                          className="text-xs bg-gray-100 dark:bg-sky-900/40 px-3 py-2 rounded-xl flex items-center gap-2 text-gray-700 dark:text-sky-200"
                         >
+                          <Plus size={14} /> Ajouter des fichiers
+                        </button>
 
-                          <h4
-                            className="
-                              text-[11px]
-                              font-bold
-                              text-gray-500
-                              dark:text-sky-300/70
-                              uppercase
-                            "
-                          >
-                            Modifier la publication
-                          </h4>
+                        <input
+                          type="file"
+                          ref={editFileInputRef}
+                          multiple
+                          accept="image/*,audio/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                          onChange={handleEditFileChange}
+                          className="hidden"
+                        />
 
-                          <textarea
-                            className="
-                              w-full
-                              bg-white
-                              dark:bg-sky-950
-                              border
-                              border-gray-300
-                              dark:border-sky-800
-                              rounded-xl
-                              p-3
-                              text-sm
-                              resize-none
-                              text-gray-900
-                              dark:text-zinc-100
-                            "
-                            rows="3"
-                            value={editText}
-                            onChange={(e) =>
-                              setEditText(
-                                e.target.value
-                              )
-                            }
-                          />
+                        <div className="flex justify-end gap-2 pt-2">
+                          <button type="button" onClick={() => { setEditingId(null); clearEditMedia(); }} className="px-3 py-1.5 rounded-xl text-xs text-gray-500 dark:text-sky-200">Annuler</button>
+                          <button type="button" onClick={() => handleEditSubmit(post._id)} className="px-3 py-1.5 bg-sky-600 text-white font-bold rounded-xl text-xs shadow-sm">Sauvegarder</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {post.text?.trim() && (
+                          <p className="px-5 pb-3 text-gray-800 dark:text-zinc-200 text-xs whitespace-pre-wrap leading-relaxed">
+                            {post.text}
+                          </p>
+                        )}
 
-                          {/* EXISTING MEDIA */}
+                        {renderMediaGrid(post)}
 
-                          {existingMediaUrls.length >
-                            0 && (
-
-                              <div
-                                className="
-                                space-y-2
-                              "
-                              >
-
-                                <p
-                                  className="
-                                text-[11px]
-                                font-semibold
-                                text-gray-500
-                                dark:text-sky-300/70
-                              "
-                                >
-                                  Médias actuels
-                                </p>
-
-                                <div
-                                  className="
-                                grid
-                                grid-cols-2
-                                gap-2
-                              "
-                                >
-
-                                  {existingMediaUrls.map(
-                                    (
-                                      item,
-                                      index
-                                    ) => {
-                                      const url = typeof item === 'string' ? item : item.url;
-                                      return (
-                                        <div
-                                          key={`${url}-${index}`}
-                                          className="
-                                          relative
-                                          rounded-xl
-                                          overflow-hidden
-                                          border
-                                          border-gray-200
-                                          dark:border-sky-800
-                                          bg-white
-                                          dark:bg-sky-950
-                                        "
-                                        >
-
-                                          {isImage(
-                                            item
-                                          ) ? (
-
-                                            <img
-                                              src={formatMediaUrl(
-                                                url
-                                              )}
-                                              alt="Média actuel"
-                                              className="
-                                            w-full
-                                            h-32
-                                            object-cover
-                                          "
-                                            />
-
-                                          ) : (
-
-                                            <div
-                                              className="
-                                            h-32
-                                            flex
-                                            flex-col
-                                            items-center
-                                            justify-center
-                                            gap-2
-                                            p-3
-                                            bg-white
-                                            dark:bg-sky-950
-                                          "
-                                            >
-
-                                              {isAudio(
-                                                item
-                                              ) ? (
-                                                <Music
-                                                  size={
-                                                    22
-                                                  }
-                                                  className="
-                                                text-sky-600
-                                                dark:text-sky-400
-                                              "
-                                                />
-                                              ) : (
-                                                <FileText
-                                                  size={
-                                                    22
-                                                  }
-                                                  className="
-                                                text-sky-600
-                                                dark:text-sky-400
-                                              "
-                                                />
-                                              )}
-
-                                              <span
-                                                className="
-                                                text-[10px]
-                                                truncate
-                                                max-w-full
-                                                text-gray-700
-                                                dark:text-sky-200
-                                              "
-                                              >
-                                                {item.originalName || getFileName(
-                                                  url
-                                                )}
-                                              </span>
-
-                                            </div>
-                                          )}
-
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              removeExistingMedia(
-                                                index
-                                              )
-                                            }
-                                            className="
-                                            absolute
-                                            top-2
-                                            right-2
-                                            w-7
-                                            h-7
-                                            rounded-full
-                                            bg-black/70
-                                            text-white
-                                            flex
-                                            items-center
-                                            justify-center
-                                          "
-                                          >
-                                            <X
-                                              size={
-                                                14
-                                              }
-                                            />
-                                          </button>
-
-                                        </div>
-                                      );
-                                    }
-                                  )}
-
-                                </div>
-
-                              </div>
-                            )}
-
-                          {/* NEW MEDIA */}
-
-                          {editMediaFiles.length >
-                            0 && (
-
-                              <div
-                                className="
-                                grid
-                                grid-cols-2
-                                gap-2
-                              "
-                              >
-
-                                {editMediaFiles.map(
-                                  (
-                                    file,
-                                    index
-                                  ) => (
-
-                                    <div
-                                      key={`${file.name}-${index}`}
-                                      className="
-                                      relative
-                                      rounded-xl
-                                      overflow-hidden
-                                      border
-                                      border-sky-500/30
-                                    "
-                                    >
-
-                                      {file.type.startsWith(
-                                        'image/'
-                                      ) ? (
-
-                                        <img
-                                          src={
-                                            editMediaPreviews[
-                                            index
-                                            ]
-                                          }
-                                          alt="Nouveau média"
-                                          className="
-                                          w-full
-                                          h-32
-                                          object-cover
-                                        "
-                                        />
-
-                                      ) : (
-
-                                        <div
-                                          className="
-                                          h-32
-                                          flex
-                                          flex-col
-                                          items-center
-                                          justify-center
-                                          p-3
-                                          bg-white
-                                          dark:bg-sky-950
-                                        "
-                                        >
-
-                                          {file.type.startsWith(
-                                            'audio/'
-                                          ) ? (
-                                            <Music
-                                              size={
-                                                22
-                                              }
-                                              className="
-                                                text-sky-600
-                                                dark:text-sky-400
-                                                mb-2
-                                              "
-                                            />
-                                          ) : (
-                                            <FileText
-                                              size={
-                                                22
-                                              }
-                                              className="
-                                                text-sky-600
-                                                dark:text-sky-400
-                                                mb-2
-                                              "
-                                            />
-                                          )}
-
-                                          <span
-                                            className="
-                                              text-[10px]
-                                              truncate
-                                              max-w-full
-                                              text-gray-700
-                                              dark:text-sky-200
-                                            "
-                                          >
-                                            {file.name}
-                                          </span>
-
-                                        </div>
-                                      )}
-
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          removeEditMediaFile(
-                                            index
-                                          )
-                                        }
-                                        className="
-                                          absolute
-                                          top-2
-                                          right-2
-                                          w-7
-                                          h-7
-                                          rounded-full
-                                          bg-black/70
-                                          text-white
-                                          flex
-                                          items-center
-                                          justify-center
-                                        "
-                                      >
-                                        <X
-                                          size={
-                                            14
-                                          }
-                                        />
-                                      </button>
-
-                                    </div>
-                                  ))}
-
-                              </div>
-                            )}
-
+                        <div className="flex gap-2 px-5 py-3 border-t border-gray-100 dark:border-sky-900/40">
                           <button
-                            type="button"
-                            onClick={() =>
-                              editFileInputRef.current?.click()
-                            }
-                            className="
-                              text-xs
-                              border
-                              border-gray-300
-                              dark:border-sky-800
-                              px-3
-                              py-2
-                              rounded-lg
-                              flex
-                              items-center
-                              gap-2
-                              text-gray-700
-                              dark:text-sky-200
-                            "
+                            onClick={() => handleLike(post._id)}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs transition-all ${hasLiked
+                              ? 'bg-sky-500/20 text-sky-700 dark:text-sky-300 font-semibold'
+                              : 'bg-gray-50/50 dark:bg-sky-900/20 text-gray-600 dark:text-sky-200'
+                              }`}
                           >
-
-                            <Plus size={15} />
-
-                            Ajouter des fichiers
-
+                            <Heart size={14} className={hasLiked ? 'fill-current text-pink-500' : 'text-gray-400'} />
+                            <span className="text-[11px]">{post.likes?.length || 0}</span>
                           </button>
 
-                          <input
-                            type="file"
-                            ref={
-                              editFileInputRef
-                            }
-                            multiple
-                            accept="
-                              image/*,
-                              audio/*,
-                              application/pdf,
-                              .doc,
-                              .docx,
-                              .xls,
-                              .xlsx,
-                              .ppt,
-                              .pptx
-                            "
-                            onChange={
-                              handleEditFileChange
-                            }
-                            className="hidden"
-                          />
-
-                          <div
-                            className="
-                              flex
-                              justify-end
-                              gap-2
-                              pt-3
-                              border-t
-                              border-gray-200
-                              dark:border-sky-900/50
-                            "
+                          <button
+                            onClick={() => setShowComments((prev) => ({ ...prev, [post._id]: !prev[post._id] }))}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs bg-gray-50/50 dark:bg-sky-900/20 text-gray-600 dark:text-sky-200"
                           >
-
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setEditingId(
-                                  null
-                                );
-                                clearEditMedia();
-                              }}
-                              className="
-                                px-3
-                                py-1.5
-                                border
-                                border-gray-300
-                                dark:border-sky-800
-                                rounded-lg
-                                text-xs
-                                text-gray-700
-                                dark:text-sky-200
-                              "
-                            >
-                              Annuler
-                            </button>
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleEditSubmit(
-                                  post._id
-                                )
-                              }
-                              className="
-                                px-3
-                                py-1.5
-                                bg-sky-600
-                                text-white
-                                rounded-lg
-                                text-xs
-                                font-bold
-                              "
-                            >
-                              Sauvegarder
-                            </button>
-
-                          </div>
-
+                            <MessageCircle size={14} className="text-gray-400" />
+                            <span className="text-[11px]">{post.comments?.length || 0}</span>
+                          </button>
                         </div>
 
-                      ) : (
-
-                        <>
-
-                          {/* =================================================
-                              TEXT
-                          ================================================= */}
-
-                          {post.text?.trim() && (
-
-                            <p
-                              className="
-                                px-4
-                                sm:px-5
-                                pb-2
-                                text-gray-800
-                                dark:text-zinc-200
-                                text-sm
-                                whitespace-pre-wrap
-                                leading-relaxed
-                              "
-                            >
-                              {post.text}
-                            </p>
-
-                          )}
-
-                          {/* =================================================
-                              MEDIA CAROUSEL
-                          ================================================= */}
-
-                          {renderMediaGrid(post)}
-
-                          {/* =================================================
-                              ACTIONS
-                          ================================================= */}
-
-                          <div
-                            className="
-                              flex
-                              gap-2
-                              px-4
-                              sm:px-5
-                              py-3
-                              border-t
-                              border-gray-200
-                              dark:border-sky-900/40
-                            "
-                          >
-
-                            <button
-                              onClick={() =>
-                                handleLike(
-                                  post._id
-                                )
-                              }
-                              className={`
-                                flex
-                                items-center
-                                gap-1.5
-                                px-3
-                                py-1.5
-                                rounded-xl
-                                border
-                                text-xs
-                                ${hasLiked
-                                  ? 'border-sky-500/50 bg-sky-500/20 text-sky-700 dark:text-sky-300'
-                                  : 'border-gray-200 dark:border-sky-900/40 text-gray-700 dark:text-sky-200'
-                                }
-                              `}
-                            >
-
-                              <Heart
-                                size={15}
-                                className={
-                                  hasLiked
-                                    ? 'fill-current text-pink-500'
-                                    : 'text-gray-400'
-                                }
+                        {showComments[post._id] && (
+                          <div className="border-t border-gray-100 dark:border-sky-900/40 p-4 bg-gray-50/50 dark:bg-sky-950/40 space-y-3">
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Écrire un commentaire..."
+                                value={commentTexts[post._id] || ''}
+                                onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post._id]: e.target.value }))}
+                                className="w-full bg-white dark:bg-sky-950 rounded-xl p-2.5 text-xs focus:outline-none text-gray-900 dark:text-zinc-100 placeholder-gray-400"
                               />
-
-                              <span
-                                className="
-                                  text-[11px]
-                                "
+                              <button
+                                onClick={() => handleAddComment(post._id)}
+                                className="bg-sky-600 hover:bg-sky-500 text-white px-4 rounded-xl text-xs font-bold shadow-sm"
                               >
-                                {post.likes
-                                  ?.length ||
-                                  0}
-                              </span>
+                                Envoyer
+                              </button>
+                            </div>
 
-                            </button>
-
-                            <button
-                              onClick={() =>
-                                setShowComments(
-                                  (prev) => ({
-                                    ...prev,
-                                    [post._id]:
-                                      !prev[
-                                      post._id
-                                      ]
-                                  })
-                                )
-                              }
-                              className="
-                                flex
-                                items-center
-                                gap-1.5
-                                px-3
-                                py-1.5
-                                rounded-xl
-                                border
-                                border-gray-200
-                                dark:border-sky-900/40
-                                text-gray-700
-                                dark:text-sky-200
-                              "
-                            >
-
-                              <MessageCircle
-                                size={15}
-                              />
-
-                              <span
-                                className="
-                                  text-[11px]
-                                "
-                              >
-                                {post.comments
-                                  ?.length ||
-                                  0}
-                              </span>
-
-                            </button>
-
-                          </div>
-
-                          {/* =================================================
-                              COMMENTS
-                          ================================================= */}
-
-                          {showComments[
-                            post._id
-                          ] && (
-
-                              <div
-                                className="
-                                border-t
-                                border-gray-200
-                                dark:border-sky-900/40
-                                p-4
-                                bg-gray-50
-                                dark:bg-sky-950/60
-                              "
-                              >
-
-                                <div
-                                  className="
-                                  flex
-                                  gap-2
-                                  mb-3
-                                "
-                                >
-
-                                  <input
-                                    type="text"
-                                    placeholder="
-                                    Écrire un commentaire...
-                                  "
-                                    value={
-                                      commentTexts[
-                                      post._id
-                                      ] || ''
-                                    }
-                                    onChange={(e) =>
-                                      setCommentTexts(
-                                        (prev) => ({
-                                          ...prev,
-                                          [post._id]:
-                                            e.target.value
-                                        })
-                                      )
-                                    }
-                                    className="
-                                    w-full
-                                    bg-white
-                                    dark:bg-sky-950
-                                    border
-                                    border-gray-300
-                                    dark:border-sky-800
-                                    rounded-xl
-                                    p-2.5
-                                    text-xs
-                                    focus:outline-none
-                                    text-gray-900
-                                    dark:text-zinc-100
-                                  "
-                                  />
-
-                                  <button
-                                    onClick={() =>
-                                      handleAddComment(
-                                        post._id
-                                      )
-                                    }
-                                    className="
-                                    bg-gradient-to-r
-                                    from-sky-600
-                                    to-blue-600
-                                    text-white
-                                    px-4
-                                    rounded-xl
-                                    text-xs
-                                    font-bold
-                                  "
+                            <div className="space-y-2 max-h-56 overflow-y-auto">
+                              {post.comments?.map((comment, i) => {
+                                const commentAvatarPath = comment.avatar || (comment.user && typeof comment.user === 'object' ? comment.user.avatar : null);
+                                return (
+                                  <Link
+                                    key={i}
+                                    to={`/profile/${getUserId(comment.user)}`}
+                                    className="bg-white dark:bg-sky-950 p-2.5 rounded-xl flex gap-2.5 items-start"
                                   >
-                                    Envoyer
-                                  </button>
-
-                                </div>
-
-                                <div
-                                  className="
-                                  space-y-2
-                                  max-h-[280px]
-                                  overflow-y-auto
-                                "
-                                >
-
-                                  {post.comments?.map(
-                                    (
-                                      comment,
-                                      i
-                                    ) => {
-
-                                      const commentAvatarPath =
-                                        comment.avatar ||
-                                        (
-                                          comment.user &&
-                                            typeof comment.user ===
-                                            'object'
-                                            ? comment
-                                              .user
-                                              .avatar
-                                            : null
-                                        );
-
-                                      return (
-
-                                        <Link
-                                          key={i}
-                                          to={`/profile/${getUserId(
-                                            comment.user
-                                          )}`}
-                                          className="
-                                          bg-white/80
-                                          dark:bg-sky-950/80
-                                          p-3
-                                          rounded-xl
-                                          border
-                                          border-gray-200
-                                          dark:border-sky-900/40
-                                          flex
-                                          gap-3
-                                        "
-                                        >
-
-                                          <div
-                                            className="
-                                            w-7
-                                            h-7
-                                            flex-shrink-0
-                                            relative
-                                          "
-                                          >
-
-                                            {commentAvatarPath ? (
-
-                                              <img
-                                                src={formatMediaUrl(
-                                                  commentAvatarPath
-                                                )}
-                                                alt="Author"
-                                                className="
-                                                w-full
-                                                h-full
-                                                rounded-full
-                                                object-cover
-                                              "
-                                              />
-
-                                            ) : (
-
-                                              <div
-                                                className="
-                                                w-full
-                                                h-full
-                                                rounded-full
-                                                bg-sky-100
-                                                dark:bg-sky-900
-                                                text-sky-700
-                                                dark:text-sky-200
-                                                flex
-                                                items-center
-                                                justify-center
-                                                font-bold
-                                                text-[9px]
-                                              "
-                                              >
-                                                {comment.firstName?.[0] ||
-                                                  'U'}
-                                              </div>
-
-                                            )}
-
-                                          </div>
-
-                                          <div
-                                            className="
-                                            flex-1
-                                            min-w-0
-                                          "
-                                          >
-
-                                            <p
-                                              className="
-                                              font-bold
-                                              text-xs
-                                              text-gray-900
-                                              dark:text-zinc-200
-                                            "
-                                            >
-                                              {
-                                                comment.firstName
-                                              }{' '}
-                                              {
-                                                comment.lastName
-                                              }
-                                            </p>
-
-                                            <p
-                                              className="
-                                              text-xs
-                                              text-gray-600
-                                              dark:text-sky-100
-                                              leading-relaxed
-                                            "
-                                            >
-                                              {
-                                                comment.text
-                                              }
-                                            </p>
-
-                                          </div>
-
-                                        </Link>
-
-                                      );
-                                    }
-                                  )}
-
-                                </div>
-
-                              </div>
-                            )}
-
-                        </>
-                      )}
-
-                    </div>
-                  );
-                }
-              )
+                                    <div className="w-6 h-6 flex-shrink-0 relative">
+                                      {commentAvatarPath ? (
+                                        <img src={formatMediaUrl(commentAvatarPath)} alt="" className="w-full h-full rounded-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full rounded-full bg-sky-100 dark:bg-sky-900 text-sky-700 dark:text-sky-200 flex items-center justify-center font-bold text-[9px]">
+                                          {comment.firstName?.[0] || 'U'}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="font-bold text-[11px] text-gray-900 dark:text-zinc-200">
+                                        {comment.firstName} {comment.lastName}
+                                      </p>
+                                      <p className="text-[11px] text-gray-600 dark:text-sky-100 leading-relaxed">
+                                        {comment.text}
+                                      </p>
+                                    </div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                );
+              })
             )}
-
           </div>
         )}
-
       </div>
     </div>
   );
