@@ -25,7 +25,6 @@ function Register() {
     setError('');
     setSuccess('');
 
-    // Validation de correspondance des mots de passe
     if (formData.password !== formData.confirmPassword) {
       setError('Les mots de passe ne correspondent pas.');
       return;
@@ -34,24 +33,16 @@ function Register() {
     setLoading(true);
 
     try {
-      // Exclure confirmPassword lors de l'envoi au backend
       const { email, password } = formData;
-      const response = await API.post('/auth/register', { email, password });
+      // Call register endpoint (do not auto-login if approval is required)
+      await API.post('/auth/register', { email, password });
 
-      // Enregistrement du token
-      localStorage.setItem('token', response.data.token);
+      setSuccess('Compte créé avec succès ! Il est en attente de validation par l’administration.');
 
-      // Récupération et stockage optionnel du userId s'il est renvoyé par l'API
-      const userId = response.data.userId || response.data.user?.id || response.data.user?._id;
-      if (userId) {
-        localStorage.setItem('userId', userId);
-      }
-
-      setSuccess('Compte créé avec succès ! Préparation de votre espace...');
+      // Optionally redirect to login after a few seconds instead of home
       setTimeout(() => {
-        // Redirige directement vers l'intérieur de l'application (/home)
-        navigate('/home');
-      }, 2000);
+        navigate('/login');
+      }, 4000);
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur lors de la création du compte.');
     } finally {
