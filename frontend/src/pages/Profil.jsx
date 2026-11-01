@@ -533,7 +533,7 @@ function Profil() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-sky-300/70 mb-1.5">Promotion *</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-sky-300/70 mb-1.5">Promotion (Année d'obtention du diplôme) *</label>
                         <input type="text" name="promotion" list="promotions-list" required value={formData.promotion} onChange={handleChange} placeholder="Ex: 2026" className="w-full px-4 py-3 bg-gray-50/50 dark:bg-sky-900/30 rounded-xl text-gray-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/50 transition-all" />
                         <datalist id="promotions-list">
                           {presetPromotions.map((p, i) => <option key={i} value={p} />)}
