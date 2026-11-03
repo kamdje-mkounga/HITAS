@@ -266,7 +266,7 @@ const WelcomeIntro = () => {
 
                             {selectedUniversity.media.length > 1 && (
                                 <div className="media-thumbnails">
-                                    {selectedUniversity.media.map((media, index) => (
+                                    {selectedUniversity.media.media?.map ? null : selectedUniversity.media.map((media, index) => (
                                         <button
                                             type="button"
                                             key={index}
@@ -282,6 +282,20 @@ const WelcomeIntro = () => {
                     </div>
                 )
             }
+
+            {/* Floating WhatsApp Button */}
+            <a
+                href="https://whatsapp.com/channel/0029Vaz3MjK8KMqeUyqak146"
+                target="_blank"
+                rel="noreferrer"
+                className="whatsapp-float-btn"
+                title="Join our WhatsApp Channel"
+            >
+                <svg viewBox="0 0 500 500" className="whatsapp-svg-icon" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#25D366" d="M0 250C0 111.929 111.929 0 250 0s250 111.929 250 250-111.929 250-250 250S0 388.071 0 250Z" />
+                    <path fill="#FFF" d="M356.541 319.467c-5.596-2.798-33.092-16.322-38.221-18.196-5.129-1.874-8.859-2.798-12.589 2.798-3.729 5.596-14.423 18.196-17.683 21.925-3.26 3.73-6.52 4.192-12.115 1.394-35.795-17.892-59.227-32.11-82.659-71.554-6.223-10.518 6.223-9.76 17.892-32.482 1.874-3.73.937-6.99-.468-9.788-1.405-2.798-12.589-30.344-17.221-41.564-4.524-10.932-9.135-9.444-12.589-9.615-3.26-.164-6.99-.164-10.72-.164s-9.788 1.394-14.893 6.99c-5.105 5.596-19.508 19.061-19.508 46.507 0 27.447 19.977 53.957 22.775 57.687 2.798 3.73 39.317 60.038 95.27 84.148 13.336 5.759 23.738 9.208 31.848 11.789 13.35 4.242 25.495 3.642 35.105 2.206 10.706-1.597 33.092-13.528 37.755-26.586 4.664-13.057 4.664-24.277 3.26-26.586-1.404-2.309-5.129-3.729-10.724-6.526z" />
+                </svg>
+            </a>
 
             <footer className="footer glass-panel">
                 <div className="footer-brand">
@@ -550,6 +564,35 @@ const WelcomeIntro = () => {
                 .thumbnail-active { opacity: 1; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
                 .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
 
+                /* Floating WhatsApp Button (Bottom Left) */
+                .whatsapp-float-btn {
+                    position: fixed;
+                    bottom: 24px;
+                    left: 24px;
+                    z-index: 90;
+                    width: 52px;
+                    height: 52px;
+                    background: rgba(15, 23, 42, 0.85);
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                    border: 1px solid rgba(37, 211, 102, 0.3);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(37, 211, 102, 0.2);
+                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                }
+                .whatsapp-float-btn:hover {
+                    transform: scale(1.1) translateY(-3px);
+                    border-color: rgba(37, 211, 102, 0.7);
+                    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(37, 211, 102, 0.4);
+                }
+                .whatsapp-svg-icon {
+                    width: 30px;
+                    height: 30px;
+                }
+
                 /* Footer */
                 .footer { width: min(1180px, calc(100% - 40px)); margin: 0 auto 40px; padding: 20px 30px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; color: #94a3b8; font-size: 12px; font-weight: 500; }
                 .footer-brand { display: flex; align-items: center; gap: 8px; color: #38bdf8; }
@@ -561,6 +604,8 @@ const WelcomeIntro = () => {
                 }
                 @media (max-width: 600px) {
                     .universities-grid { grid-template-columns: 1fr; }
+                    .whatsapp-float-btn { bottom: 16px; left: 16px; width: 46px; height: 46px; }
+                    .whatsapp-svg-icon { width: 26px; height: 26px; }
                 }
             `}</style>
         </main >
