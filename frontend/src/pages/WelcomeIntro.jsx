@@ -445,7 +445,7 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(1.1) contrast(1.05);
+                    filter: brightness(1.35) contrast(1.2);
                 }
                 @keyframes slideAnimation {
                     0% { transform: translateX(0); }
@@ -462,7 +462,8 @@ const WelcomeIntro = () => {
                     text-align: center;
                     padding: 60px 20px 40px;
                     z-index: 2;
-                    background: linear-gradient(180deg, rgba(3, 7, 18, 0.6) 0%, rgba(3, 7, 18, 0.85) 100%);
+                    /* Reduced the dark opacities so the background images pop through brighter */
+                    background: linear-gradient(180deg, rgba(3, 7, 18, 0.3) 0%, rgba(3, 7, 18, 0.55) 100%);
                 }
                 .hero-subtitle {
                     color: #38bdf8;
