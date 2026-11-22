@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     ChevronLeft,
@@ -10,7 +10,18 @@ import {
 } from 'lucide-react';
 
 import hitas from '../assets/hitas.png';
-const allUniversities = [
+
+const optimizeCloudinaryUrl = (src, width = 800) => {
+    if (typeof src !== 'string' || !src.includes('res.cloudinary.com') || !src.includes('/image/upload/')) {
+        return src;
+    }
+    return src.replace(
+        '/image/upload/',
+        `/image/upload/f_auto,q_auto:eco,w_${width},c_limit/`
+    );
+};
+
+const rawUniversities = [
     {
         id: 1,
         name: 'HITAS — SOA INDIA',
@@ -99,10 +110,37 @@ const allUniversities = [
     }
 ];
 
+const rawSliderImages = [
+    'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp',
+    'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png',
+    'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png',
+    'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png',
+    'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png'
+];
+
 const WelcomeIntro = () => {
     const navigate = useNavigate();
     const [selectedUniversity, setSelectedUniversity] = useState(null);
     const [activeMedia, setActiveMedia] = useState(0);
+
+    const allUniversities = useMemo(
+        () =>
+            rawUniversities.map((uni) => ({
+                ...uni,
+                cardImage: optimizeCloudinaryUrl(uni.image, 640),
+                media: uni.media.map((item) => ({
+                    ...item,
+                    fullSrc: optimizeCloudinaryUrl(item.src, 1200),
+                    thumbSrc: optimizeCloudinaryUrl(item.src, 180),
+                })),
+            })),
+        []
+    );
+
+    const sliderImages = useMemo(
+        () => rawSliderImages.map((src) => optimizeCloudinaryUrl(src, 1280)),
+        []
+    );
 
     const goToHitas = () => {
         navigate('/login');
@@ -114,23 +152,23 @@ const WelcomeIntro = () => {
         document.body.style.overflow = 'hidden';
     };
 
-    const closeUniversity = () => {
+    const closeUniversity = useCallback(() => {
         setSelectedUniversity(null);
         setActiveMedia(0);
         document.body.style.overflow = '';
-    };
+    }, []);
 
-    const nextMedia = () => {
+    const nextMedia = useCallback(() => {
         if (!selectedUniversity) return;
         const total = selectedUniversity.media.length;
         setActiveMedia((current) => (current === total - 1 ? 0 : current + 1));
-    };
+    }, [selectedUniversity]);
 
-    const presi = () => {
+    const presi = useCallback(() => {
         if (!selectedUniversity) return;
         const total = selectedUniversity.media.length;
         setActiveMedia((current) => (current === 0 ? total - 1 : current - 1));
-    };
+    }, [selectedUniversity]);
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -144,15 +182,13 @@ const WelcomeIntro = () => {
             window.removeEventListener('keydown', handleKeyDown);
             document.body.style.overflow = '';
         };
-    }, [selectedUniversity]);
-
-    const sliderImages = ['https://res.cloudinary.com/dvpqzjpe/image/upload/v1788981262/gem5.webp', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978041/president.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978042/oxford1.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978040/family.png', 'https://res.cloudinary.com/dvpqzjpe/image/upload/v1788978038/isfa3.png'];
+    }, [selectedUniversity, closeUniversity, nextMedia, presi]);
 
     return (
         <main className="hitas-page">
             <header className="hitas-header glass-panel">
                 <div className="header-inner">
-                    <a href="https://hitas.org/" target='_blank' rel="noreferrer" className="hitas-logo">
+                    <a href="https://hitas.org/" target="_blank" rel="noreferrer" className="hitas-logo">
                         <div className="logo-mark">
                             <GraduationCap size={22} />
                         </div>
@@ -164,13 +200,18 @@ const WelcomeIntro = () => {
                 </div>
             </header>
 
-            {/* Hero lumineux, effet verre et slider infini */}
             <section id="top" className="hero-classic">
                 <div className="hero-slider-container">
                     <div className="hero-slider-track">
                         {[...sliderImages, ...sliderImages].map((imgSrc, index) => (
                             <div className="hero-slide-item" key={index}>
-                                <img src={imgSrc} alt={`Slide ${index}`} />
+                                <img
+                                    src={imgSrc}
+                                    alt={`Slide ${index + 1}`}
+                                    loading={index === 0 ? 'eager' : 'lazy'}
+                                    decoding={index === 0 ? 'sync' : 'async'}
+                                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                                />
                             </div>
                         ))}
                     </div>
@@ -187,7 +228,6 @@ const WelcomeIntro = () => {
                 </div>
             </section>
 
-            {/* Grille unifiée de toutes les universités sans section par région */}
             <div id="campuses" className="campuses-container">
                 <div className="section-title-wrapper">
                     <h2>Nos Campus Partenaires</h2>
@@ -202,7 +242,12 @@ const WelcomeIntro = () => {
                             onClick={() => openUniversity(university)}
                         >
                             <div className="card-image">
-                                <img src={university.image} alt={university.name} />
+                                <img
+                                    src={university.cardImage}
+                                    alt={university.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                />
                                 <div className="image-shade" />
                                 <div className="card-location">
                                     <MapPin size={12} />
@@ -226,64 +271,73 @@ const WelcomeIntro = () => {
                 </div>
             </div>
 
-            {
-                selectedUniversity && (
-                    <div className="modal-backdrop" onClick={closeUniversity}>
-                        <div className="media-modal glass-panel" onClick={(e) => e.stopPropagation()}>
-                            <button type="button" className="close-button glass-btn" onClick={closeUniversity}>
-                                <X size={20} />
-                            </button>
+            {selectedUniversity && (
+                <div className="modal-backdrop" onClick={closeUniversity}>
+                    <div className="media-modal glass-panel" onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className="close-button glass-btn" onClick={closeUniversity}>
+                            <X size={20} />
+                        </button>
 
-                            <div className="modal-header">
-                                <span className="modal-kicker">STUDENT EXPERIENCE</span>
-                                <h2><a href={selectedUniversity.lien} target="_blank" rel="noreferrer">{selectedUniversity.name}</a></h2>
-                                <p><MapPin size={13} /> {selectedUniversity.city}, {selectedUniversity.country}</p>
-                            </div>
-
-                            <div className="media-viewer">
-                                <img
-                                    src={selectedUniversity.media[activeMedia]?.src}
-                                    alt={selectedUniversity.media[activeMedia]?.caption}
-                                />
-                                {selectedUniversity.media.length > 1 && (
-                                    <>
-                                        <button type="button" className="media-nav media-prev glass-btn" onClick={presi}>
-                                            <ChevronLeft size={22} />
-                                        </button>
-                                        <button type="button" className="media-nav media-next glass-btn" onClick={nextMedia}>
-                                            <ChevronRight size={22} />
-                                        </button>
-                                    </>
-                                )}
-                                <div className="media-counter">
-                                    {activeMedia + 1} / {selectedUniversity.media.length}
-                                </div>
-                            </div>
-
-                            <div className="media-info">
-                                <p>{selectedUniversity.media[activeMedia]?.caption}</p>
-                            </div>
-
-                            {selectedUniversity.media.length > 1 && (
-                                <div className="media-thumbnails">
-                                    {selectedUniversity.media.media?.map ? null : selectedUniversity.media.map((media, index) => (
-                                        <button
-                                            type="button"
-                                            key={index}
-                                            className={`thumbnail ${index === activeMedia ? 'thumbnail-active' : ''}`}
-                                            onClick={() => setActiveMedia(index)}
-                                        >
-                                            <img src={media.src} alt="" />
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
+                        <div className="modal-header">
+                            <span className="modal-kicker">STUDENT EXPERIENCE</span>
+                            <h2>
+                                <a href={selectedUniversity.lien} target="_blank" rel="noreferrer">
+                                    {selectedUniversity.name}
+                                </a>
+                            </h2>
+                            <p>
+                                <MapPin size={13} /> {selectedUniversity.city}, {selectedUniversity.country}
+                            </p>
                         </div>
-                    </div>
-                )
-            }
 
-            {/* Floating WhatsApp Button */}
+                        <div className="media-viewer">
+                            <img
+                                src={selectedUniversity.media[activeMedia]?.fullSrc}
+                                alt={selectedUniversity.media[activeMedia]?.caption}
+                                decoding="async"
+                            />
+                            {selectedUniversity.media.length > 1 && (
+                                <>
+                                    <button type="button" className="media-nav media-prev glass-btn" onClick={presi}>
+                                        <ChevronLeft size={22} />
+                                    </button>
+                                    <button type="button" className="media-nav media-next glass-btn" onClick={nextMedia}>
+                                        <ChevronRight size={22} />
+                                    </button>
+                                </>
+                            )}
+                            <div className="media-counter">
+                                {activeMedia + 1} / {selectedUniversity.media.length}
+                            </div>
+                        </div>
+
+                        <div className="media-info">
+                            <p>{selectedUniversity.media[activeMedia]?.caption}</p>
+                        </div>
+
+                        {selectedUniversity.media.length > 1 && (
+                            <div className="media-thumbnails">
+                                {selectedUniversity.media.map((media, index) => (
+                                    <button
+                                        type="button"
+                                        key={index}
+                                        className={`thumbnail ${index === activeMedia ? 'thumbnail-active' : ''}`}
+                                        onClick={() => setActiveMedia(index)}
+                                    >
+                                        <img
+                                            src={media.thumbSrc}
+                                            alt=""
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
             <a
                 href="https://whatsapp.com/channel/0029Vaz3MjK8KMqeUyqak146"
                 target="_blank"
@@ -300,7 +354,7 @@ const WelcomeIntro = () => {
             <footer className="footer glass-panel">
                 <div className="footer-brand">
                     <GraduationCap size={16} />
-                    <strong><a href='https://hitas.org/' target='_blank' rel="noreferrer">HITAS</a></strong>
+                    <strong><a href="https://hitas.org/" target="_blank" rel="noreferrer">HITAS</a></strong>
                 </div>
                 <span>Universities & student experiences</span>
                 <span>© {new Date().getFullYear()}</span>
@@ -312,7 +366,7 @@ const WelcomeIntro = () => {
                 @layer base {
                   :root {
                     --bg-base: #030712;
-                    --surface-glass: rgba(15, 23, 42, 0.65);
+                    --surface-glass: rgba(15, 23, 42, 0.72);
                     --border-glass: rgba(255, 255, 255, 0.08);
                     --accent-glow: rgba(56, 189, 248, 0.15);
                   }
@@ -331,32 +385,15 @@ const WelcomeIntro = () => {
                   }
                 }
 
-                /* Modern atmospheric background with organic lighting instead of rigid grids */
                 body {
                   background-image:
                     radial-gradient(circle at 80% 10%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
                     radial-gradient(circle at 10% 90%, rgba(3, 105, 161, 0.18) 0%, transparent 50%),
                     linear-gradient(180deg, #020617 0%, #090d16 50%, #030712 100%);
-                  background-attachment: fixed;
                   background-size: cover;
                   background-position: center;
                   position: relative;
                   font-family: 'Inter', sans-serif;
-                }
-
-                /* Ambient light leak effect that feels alive and organic */
-                body::after {
-                  content: "";
-                  position: fixed;
-                  top: -20vh;
-                  left: 50%;
-                  transform: translateX(-50%);
-                  width: 70vw;
-                  height: 50vh;
-                  background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.08) 0%, rgba(14, 165, 233, 0.03) 40%, transparent 70%);
-                  pointer-events: none;
-                  z-index: 0;
-                  filter: blur(60px);
                 }
 
                 #root {
@@ -368,35 +405,34 @@ const WelcomeIntro = () => {
                   z-index: 1;
                 }
 
-                /* Custom utility helpers for modern UI cards */
                 .glass-panel {
-                  background: rgba(15, 23, 42, 0.7);
-                  backdrop-filter: blur(16px);
-                  -webkit-backdrop-filter: blur(16px);
-                  border: 1px solid rgba(255, 255, 255, 0.06);
-                  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                  background: rgba(15, 23, 42, 0.78);
+                  backdrop-filter: blur(10px);
+                  -webkit-backdrop-filter: blur(10px);
+                  border: 1px solid rgba(255, 255, 255, 0.07);
+                  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08);
                 }
 
-                * { box-sizing: border-box; }
+                *, *::before, *::after { box-sizing: border-box; }
                 html { scroll-behavior: smooth; }
 
-                .hitas-page { 
-                    min-height: 100vh; 
-                    overflow-x: hidden; 
-                    color: #f1f5f9; 
+                .hitas-page {
+                    min-height: 100vh;
+                    overflow-x: hidden;
+                    color: #f1f5f9;
                     background: transparent;
                 }
 
                 .glass-btn {
-                    background: rgba(56, 189, 248, 0.1);
-                    backdrop-filter: blur(8px);
+                    background: rgba(56, 189, 248, 0.12);
+                    backdrop-filter: blur(6px);
                     border: 1px solid rgba(56, 189, 248, 0.25);
                     color: #38bdf8;
-                    transition: all 0.25s ease;
+                    transition: background-color 0.2s ease, border-color 0.2s ease;
                 }
                 .glass-btn:hover {
-                    background: rgba(56, 189, 248, 0.2);
-                    border-color: rgba(56, 189, 248, 0.4);
+                    background: rgba(56, 189, 248, 0.22);
+                    border-color: rgba(56, 189, 248, 0.45);
                 }
 
                 /* Header */
@@ -404,7 +440,7 @@ const WelcomeIntro = () => {
                     position: sticky; top: 0; z-index: 80;
                 }
                 .header-inner {
-                    width: min(1180px, calc(100% - 40px)); height: 76px; 
+                    width: min(1180px, calc(100% - 40px)); height: 76px;
                     margin: 0 auto; display: flex; align-items: center; justify-content: space-between;
                 }
                 .hitas-logo { display: flex; align-items: center; gap: 10px; color: #f1f5f9; text-decoration: none; }
@@ -412,7 +448,7 @@ const WelcomeIntro = () => {
                     width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
                     background: rgba(56, 189, 248, 0.1); border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2);
                 }
-                
+
                 .desktop-nav { display: flex; align-items: center; gap: 24px; }
                 .desktop-nav a { color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 700; transition: color 0.2s; }
                 .desktop-nav a:hover { color: #38bdf8; }
@@ -434,7 +470,8 @@ const WelcomeIntro = () => {
                     display: flex;
                     width: max-content;
                     height: 100%;
-                    animation: slideAnimation 40s linear infinite;
+                    will-change: transform;
+                    animation: slideAnimation 45s linear infinite;
                 }
                 .hero-slide-item {
                     width: 100vw;
@@ -445,11 +482,11 @@ const WelcomeIntro = () => {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    filter: brightness(1.35) contrast(1.2);
+                    filter: brightness(1.25) contrast(1.15);
                 }
                 @keyframes slideAnimation {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50%); }
+                    0% { transform: translate3d(0, 0, 0); }
+                    100% { transform: translate3d(-50%, 0, 0); }
                 }
 
                 .hero-overlay-light {
@@ -462,8 +499,7 @@ const WelcomeIntro = () => {
                     text-align: center;
                     padding: 60px 20px 40px;
                     z-index: 2;
-                    /* Reduced the dark opacities so the background images pop through brighter */
-                    background: linear-gradient(180deg, rgba(3, 7, 18, 0.3) 0%, rgba(3, 7, 18, 0.55) 100%);
+                    background: linear-gradient(180deg, rgba(3, 7, 18, 0.35) 0%, rgba(3, 7, 18, 0.6) 100%);
                 }
                 .hero-subtitle {
                     color: #38bdf8;
@@ -480,7 +516,7 @@ const WelcomeIntro = () => {
                     text-transform: uppercase;
                 }
                 .hero-classic p {
-                    color: #94a3b8;
+                    color: #cbd5e1;
                     font-size: 14px;
                     line-height: 1.6;
                     margin: 0 auto 28px;
@@ -507,7 +543,7 @@ const WelcomeIntro = () => {
                 .btn-sub {
                     font-size: 9px;
                     font-weight: 600;
-                    opacity: 0.8;
+                    opacity: 0.85;
                     margin-bottom: 3px;
                     letter-spacing: normal;
                 }
@@ -521,19 +557,18 @@ const WelcomeIntro = () => {
                 .universities-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
                 .university-card {
                     border-radius: 24px; overflow: hidden; cursor: pointer;
-                    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+                    transition: transform 0.25s ease, border-color 0.25s ease;
                 }
-                .university-card:hover { 
-                    transform: translateY(-6px); 
-                    border-color: rgba(56, 189, 248, 0.4); 
-                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.15);
+                .university-card:hover {
+                    transform: translateY(-5px);
+                    border-color: rgba(56, 189, 248, 0.4);
                 }
 
                 .card-image { position: relative; height: 210px; background: #0f172a; }
                 .card-image img { width: 100%; height: 100%; object-fit: cover; }
                 .image-shade { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(3, 7, 18, 0.85)); }
                 .card-location { position: absolute; left: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; color: #e2e8f0; }
-                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); border-radius: 6px; font-size: 10px; font-weight: 700; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
+                .media-badge { position: absolute; right: 14px; bottom: 14px; display: flex; align-items: center; gap: 5px; padding: 5px 9px; background: rgba(15, 23, 42, 0.8); border-radius: 6px; font-size: 10px; font-weight: 700; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); }
 
                 .card-content { padding: 22px; }
                 .card-content h3 { margin: 0 0 8px; font-size: 17px; font-weight: 700; color: #f8fafc; }
@@ -541,8 +576,8 @@ const WelcomeIntro = () => {
                 .card-action { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 14px; color: #38bdf8; font-size: 12px; font-weight: 700; }
 
                 /* Modal */
-                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.8); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; padding: 20px; }
-                .media-modal { position: relative; width: min(850px, 100%); border-radius: 24px; overflow: hidden; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+                .modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(3, 7, 18, 0.82); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+                .media-modal { position: relative; width: min(850px, 100%); border-radius: 24px; overflow: hidden; background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(255, 255, 255, 0.1); }
                 .close-button { position: absolute; top: 16px; right: 16px; z-index: 5; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #f8fafc; }
                 .modal-header { padding: 24px 24px 16px; }
                 .modal-kicker { color: #38bdf8; font-size: 9px; font-weight: 800; letter-spacing: 0.12em; }
@@ -556,16 +591,16 @@ const WelcomeIntro = () => {
                 .media-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; z-index: 10; }
                 .media-prev { left: 14px; }
                 .media-next { right: 14px; }
-                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.75); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); color: #fff; z-index: 10; }
+                .media-counter { position: absolute; bottom: 12px; right: 12px; background: rgba(15, 23, 42, 0.8); padding: 5px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); color: #fff; z-index: 10; }
 
                 .media-info { padding: 14px 24px; }
                 .media-info p { margin: 0; color: #e2e8f0; font-size: 12px; font-weight: 600; }
                 .media-thumbnails { display: flex; gap: 8px; padding: 0 24px 20px; overflow-x: auto; }
-                .thumbnail { width: 64px; height: 46px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; padding: 0; background: none; cursor: pointer; opacity: 0.5; transition: opacity 0.2s, border-color 0.2s; }
-                .thumbnail-active { opacity: 1; border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+                .thumbnail { width: 64px; height: 46px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); overflow: hidden; padding: 0; background: none; cursor: pointer; opacity: 0.55; transition: opacity 0.2s, border-color 0.2s; flex-shrink: 0; }
+                .thumbnail-active { opacity: 1; border-color: #38bdf8; }
                 .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
 
-                /* Floating WhatsApp Button (Bottom Left) */
+                /* Floating WhatsApp Button */
                 .whatsapp-float-btn {
                     position: fixed;
                     bottom: 24px;
@@ -573,21 +608,18 @@ const WelcomeIntro = () => {
                     z-index: 90;
                     width: 52px;
                     height: 52px;
-                    background: rgba(15, 23, 42, 0.85);
-                    backdrop-filter: blur(12px);
-                    -webkit-backdrop-filter: blur(12px);
-                    border: 1px solid rgba(37, 211, 102, 0.3);
+                    background: rgba(15, 23, 42, 0.9);
+                    border: 1px solid rgba(37, 211, 102, 0.35);
                     border-radius: 50%;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(37, 211, 102, 0.2);
-                    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+                    transition: transform 0.2s ease, border-color 0.2s ease;
                 }
                 .whatsapp-float-btn:hover {
-                    transform: scale(1.1) translateY(-3px);
+                    transform: scale(1.08) translateY(-2px);
                     border-color: rgba(37, 211, 102, 0.7);
-                    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(37, 211, 102, 0.4);
                 }
                 .whatsapp-svg-icon {
                     width: 30px;
@@ -609,7 +641,7 @@ const WelcomeIntro = () => {
                     .whatsapp-svg-icon { width: 26px; height: 26px; }
                 }
             `}</style>
-        </main >
+        </main>
     );
 };
 
