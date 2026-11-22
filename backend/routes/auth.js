@@ -86,7 +86,7 @@ router.post('/register', async (req, res) => {
 
         // 9. Return response (No JWT before admin approval)
         return res.status(201).json({
-            message: "Inscription enregistrée avec succès ! Votre compte est en attente de validation par l'administration de HITAS.",
+            message: "Inscription enregistrée avec succès ! Votre compte est en attente de validation",
             user: {
                 id: user.id,
                 email: user.email,
@@ -160,7 +160,7 @@ router.post('/login', async (req, res) => {
         // 4. Check account verification
         if (!user.isVerified && user.role !== 'admin') {
             return res.status(403).json({
-                message: "Votre compte est en attente de validation par l'administration de HITAS. Vous ne pouvez pas encore vous connecter."
+                message: "Votre compte est en attente de validation. Vous ne pouvez pas encore vous connecter."
             });
         }
 
