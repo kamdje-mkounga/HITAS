@@ -14,7 +14,7 @@ const isAdmin = async (req, res, next) => {
 
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_temporaire');
-        
+
         // Chercher l'utilisateur pour valider son rôle
         const user = await User.findById(decoded.userId);
         if (!user || user.role !== 'admin') {
@@ -56,9 +56,9 @@ router.put('/verify-user/:id', isAdmin, async (req, res) => {
         }
 
         const statusText = isVerified ? "validé" : "bloqué/suspendu";
-        res.json({ 
-            message: `Le compte de l'étudiant a été ${statusText} avec succès. ✨`, 
-            user: updatedUser 
+        res.json({
+            message: `Le compte de l'étudiant a été ${statusText} avec succès. `,
+            user: updatedUser
         });
     } catch (error) {
         res.status(500).json({ message: "Erreur lors de la mise à jour de l'utilisateur." });

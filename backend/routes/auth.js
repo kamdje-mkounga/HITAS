@@ -1,15 +1,18 @@
-
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendResetEmail } = require('../utils/mailer');
 
 // Helper: Normalize email
 const normalizeEmail = (email) => {
     return email.trim().toLowerCase();
 };
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // @route   POST api/auth/register
 // @desc    Register a new student/alumni (Pending admin approval)
@@ -34,8 +37,6 @@ router.post('/register', async (req, res) => {
         const normalizedEmail = normalizeEmail(email);
 
         // 2. Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
         if (!emailRegex.test(normalizedEmail)) {
             return res.status(400).json({
                 message: "Veuillez fournir une adresse email valide."
@@ -43,7 +44,7 @@ router.post('/register', async (req, res) => {
         }
 
         // 3. Validate password length
-        if (password.length < 6) {
+        if (password.length < 6 || !password.trim()) {
             return res.status(400).json({
                 message: "Le mot de passe doit faire au moins 6 caractères."
             });
@@ -203,6 +204,119 @@ router.post('/login', async (req, res) => {
 
         return res.status(500).json({
             message: "Erreur serveur lors de la connexion."
+        });
+    }
+});
+
+
+// @route   POST api/auth/forgot-password
+// @desc    Send password reset link via email
+// @access  Public
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    const genericResponse = {
+        message: "Si un compte existe avec cette adresse email, un lien de réinitialisation a été envoyé."
+    };
+
+    try {
+        if (!email || typeof email !== 'string') {
+            return res.status(400).json({
+                message: "L'adresse email est obligatoire."
+            });
+        }
+
+        const normalizedEmail = normalizeEmail(email);
+
+        if (!emailRegex.test(normalizedEmail)) {
+            return res.status(400).json({
+                message: "Veuillez fournir une adresse email valide."
+            });
+        }
+
+        const user = await User.findOne({ email: normalizedEmail });
+
+        if (user) {
+            const rawToken = crypto.randomBytes(32).toString('hex');
+            const hashedToken = crypto
+                .createHash('sha256')
+                .update(rawToken)
+                .digest('hex');
+
+            user.resetPasswordToken = hashedToken;
+            user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+            await user.save();
+
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+            try {
+                await sendResetEmail(user.email, resetUrl);
+            } catch (mailError) {
+                console.error("Reset email delivery error:", mailError);
+            }
+        }
+
+        return res.status(200).json(genericResponse);
+
+    } catch (error) {
+        console.error("Forgot password error:", error);
+
+        return res.status(500).json({
+            message: "Erreur serveur lors de la demande de réinitialisation."
+        });
+    }
+});
+
+
+// @route   POST api/auth/reset-password
+// @desc    Reset user password using valid token
+// @access  Public
+router.post('/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+
+    try {
+        if (!token || typeof token !== 'string' || !password || typeof password !== 'string') {
+            return res.status(400).json({
+                message: "Le token et le nouveau mot de passe sont obligatoires."
+            });
+        }
+
+        if (password.length < 6 || !password.trim()) {
+            return res.status(400).json({
+                message: "Le mot de passe doit faire au moins 6 caractères."
+            });
+        }
+
+        const hashedToken = crypto
+            .createHash('sha256')
+            .update(token.trim())
+            .digest('hex');
+
+        const user = await User.findOne({
+            resetPasswordToken: hashedToken,
+            resetPasswordExpires: { $gt: new Date() }
+        });
+
+        if (!user) {
+            return res.status(400).json({
+                message: "Le lien de réinitialisation est invalide ou a expiré."
+            });
+        }
+
+        user.password = await bcrypt.hash(password, 12);
+        user.resetPasswordToken = null;
+        user.resetPasswordExpires = null;
+        await user.save();
+
+        return res.status(200).json({
+            message: "Mot de passe réinitialisé avec succès ! Vous pouvez maintenant vous connecter."
+        });
+
+    } catch (error) {
+        console.error("Reset password error:", error);
+
+        return res.status(500).json({
+            message: "Erreur serveur lors de la réinitialisation du mot de passe."
         });
     }
 });

@@ -7,13 +7,13 @@ function AutoLogout({ children }) {
   const timerRef = useRef(null);
 
   // Temps avant déconnexion : 5 minutes (5 * 60 * 1000 ms)
-  const INACTIVITY_TIMEOUT = 5 * 60 * 1000; 
+  const INACTIVITY_TIMEOUT = 5 * 60 * 1000;
 
   const handleLogout = () => {
     // Nettoyage des données de session
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
-    
+
     alert("🔒 Votre session a expiré pour cause d'inactivité. Veuillez vous reconnecter.");
     navigate('/login');
   };
@@ -24,8 +24,8 @@ function AutoLogout({ children }) {
   };
 
   useEffect(() => {
-    // On n'active pas la surveillance sur les pages d'authentification
-    const publicPages = ['/login', '/register'];
+    // On n'active pas la surveillance sur les pages d'authentification et de reset
+    const publicPages = ['/login', '/register', '/forgot-password', '/reset-password'];
     if (publicPages.includes(location.pathname)) {
       if (timerRef.current) clearTimeout(timerRef.current);
       return;
@@ -33,7 +33,7 @@ function AutoLogout({ children }) {
 
     // Liste des événements qui prouvent que l'utilisateur est actif
     const events = [
-      'mousedown', 'mousemove', 'keypress', 
+      'mousedown', 'mousemove', 'keypress',
       'scroll', 'touchstart', 'click'
     ];
 

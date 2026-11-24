@@ -119,6 +119,18 @@ function Login() {
           </p>
         </div>
 
+        {/*Lien pour ajouter mot de passe oubliee*/}
+        <br></br>
+        <hr></hr>
+        <div className="text-right">
+          <Link
+            to="/forgot-password"
+            className="text-sky-200 dark:text-sky-200 hover:text-sky-9000 dark:hover:text-white text-xs font-semibold hover:underline transition-colors"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
+
       </div>
     </div>
   );

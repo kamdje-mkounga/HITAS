@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import WelcomeIntro from './pages/WelcomeIntro';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
 import Annuaire from './pages/Annuaire';
 import Blog from './pages/Blog';
@@ -107,6 +109,8 @@ function App() {
             <Route path="/" element={<WelcomeIntro />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
             <Route path="/profil" element={<PrivateRoute><Profil /></PrivateRoute>} />
             <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />

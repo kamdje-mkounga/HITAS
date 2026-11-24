@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. INITIALISATION DE L'API D'ABORD
 const API = axios.create({
-  baseURL: 'https://hitas.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://hitas.onrender.com/api',
 });
 
 // 2. CONFIGURATION DE L'INTERCEPTEUR AUTOMATIQUE
@@ -10,12 +10,12 @@ const API = axios.create({
 API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    
+
     // On s'assure que le token existe et n'est pas une chaîne fantôme
     if (token && token !== 'null' && token !== 'undefined') {
       config.headers['x-auth-token'] = token;
     }
-    
+
     return config;
   },
   (error) => {
@@ -39,6 +39,18 @@ export const getPosts = async () => {
 // Récupération des projets
 export const getProjects = async () => {
   const response = await API.get('/project');
+  return response.data;
+};
+
+// Demande de lien de réinitialisation de mot de passe
+export const forgotPassword = async (email) => {
+  const response = await API.post('/auth/forgot-password', { email });
+  return response.data;
+};
+
+// Réinitialisation du mot de passe avec token
+export const resetPassword = async ({ token, password }) => {
+  const response = await API.post('/auth/reset-password', { token, password });
   return response.data;
 };
 

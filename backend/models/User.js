@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
@@ -30,6 +29,18 @@ const UserSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+
+    // Password reset token (stored as SHA-256 hash)
+    resetPasswordToken: {
+        type: String,
+        default: null
+    },
+
+    // Password reset expiration timestamp
+    resetPasswordExpires: {
+        type: Date,
+        default: null
     },
 
     // Firebase Cloud Messaging tokens
