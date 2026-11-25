@@ -4,41 +4,49 @@ const ProfileSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
+    unique: true
   },
 
   firstName: {
     type: String,
-    required: true
+    required: function () { return this.isNew; },
+    trim: true
   },
 
   lastName: {
     type: String,
-    required: true
+    required: function () { return this.isNew; },
+    trim: true
   },
 
   promotion: {
     type: String,
-    required: true
+    required: function () { return this.isNew; },
+    trim: true
   },
 
   specialty: {
     type: String,
-    required: true
+    required: function () { return this.isNew; },
+    trim: true
   },
 
   // --- LOCALISATION ---
   currentLocation: {
     type: String,
-    required: true
+    required: function () { return this.isNew; },
+    trim: true
   },
   country: {
     type: String,
-    default: ''
+    default: '',
+    trim: true
   },
   city: {
     type: String,
-    default: ''
+    default: '',
+    trim: true
   },
 
   // --- PARCOURS ACADÉMIQUE & PROFESSIONNEL ---
@@ -56,22 +64,37 @@ const ProfileSchema = new mongoose.Schema({
 
   currentCompany: {
     type: String,
-    default: '' // Entreprise ou Université / Établissement actuel
+    default: '', // Entreprise ou Université / Établissement actuel
+    trim: true
   },
 
   jobTitle: {
     type: String,
-    default: '' // Intitulé du poste ou de la formation
+    default: '', // Intitulé du poste ou de la formation
+    trim: true
   },
 
   // --- INFOS GÉNÉRALES & MÉDIAS ---
-  bio: String,
+  bio: {
+    type: String,
+    default: '',
+    trim: true
+  },
 
-  skills: [String],
+  skills: {
+    type: [String],
+    default: []
+  },
 
-  avatar: String,
+  avatar: {
+    type: String,
+    default: ''
+  },
 
-  avatarPath: String,
+  avatarPath: {
+    type: String,
+    default: ''
+  },
 
   // --- RÉSEAUX SOCIAUX & CONTACT (Optionnel pour un annuaire complet) ---
   socials: {

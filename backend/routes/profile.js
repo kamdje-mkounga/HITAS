@@ -8,7 +8,7 @@ const auth = require('../middleware/auth');
 const Profile = require('../models/Profile');
 const User = require('../models/User');
 const Post = require('../models/Post');
-const Project = require('../models/Project'); // Assure-toi que le modèle Project est bien importé
+const Project = require('../models/Project');
 const { uploadFile, deleteFile } = require('../utils/supabaseStorage');
 
 // Local upload dir setup
@@ -35,13 +35,21 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 } // 5MB max
 });
 
+const isUserApprovedForPublic = (user) => {
+  if (!user) return false;
+  if (user.role === 'admin') return true;
+  // Legacy users without approvalStatus default to approved
+  return !user.approvalStatus || user.approvalStatus === 'approved';
+};
+
 // @route    GET api/profile
-// @desc     Récupérer tous les profils pour l'Annuaire de la Diaspora
+// @desc     Récupérer tous les profils approuvés pour l'Annuaire de la Diaspora
 // @access   Public
 router.get('/', async (req, res) => {
   try {
-    const profiles = await Profile.find().populate('user', ['email', 'role']);
-    res.json(profiles);
+    const profiles = await Profile.find().populate('user', ['email', 'role', 'approvalStatus']);
+    const approvedProfiles = profiles.filter((p) => isUserApprovedForPublic(p.user));
+    res.json(approvedProfiles);
   } catch (err) {
     console.error("Erreur lors de la récupération des membres :", err.message);
     res.status(500).send('Erreur Serveur');
@@ -49,14 +57,23 @@ router.get('/', async (req, res) => {
 });
 
 // @route    GET api/profile/me
-// @desc     Obtenir le profil de l'utilisateur connecté
+// @desc     Obtenir le profil et l'état d'approbation de l'utilisateur connecté
 // @access   Private
 router.get('/me', auth, async (req, res) => {
   try {
-    const profile = await Profile.findOne({ user: req.user.userId || req.user.id });
+    const userId = req.user.userId || req.user.id;
+    const profile = await Profile.findOne({ user: userId }).populate('user', [
+      'email',
+      'role',
+      'isVerified',
+      'approvalStatus',
+      'rejectionReason'
+    ]);
+
     if (!profile) {
       return res.status(400).json({ message: "Aucun profil trouvé pour cet utilisateur." });
     }
+
     res.json(profile);
   } catch (err) {
     console.error(err.message);
@@ -109,7 +126,6 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
   try {
     let profile = await Profile.findOne({ user: userId });
 
-    // Handle Avatar Upload to Supabase Storage with Sharp
     if (req.file) {
       if (profile && profile.avatarPath) {
         try {
@@ -145,7 +161,7 @@ router.post('/', auth, upload.single('avatar'), async (req, res) => {
       { user: userId },
       { $set: profileFields },
       { new: true, upsert: true }
-    );
+    ).populate('user', ['email', 'role', 'isVerified', 'approvalStatus', 'rejectionReason']);
 
     res.json(profile);
 
@@ -169,13 +185,9 @@ router.delete('/', auth, async (req, res) => {
       return res.status(400).json({ message: "Identifiant utilisateur introuvable dans le jeton." });
     }
 
-    // 1. Supprimer toutes les publications de l'utilisateur
     await Post.deleteMany({ user: userId });
-
-    // 2. Supprimer tous les projets de l'utilisateur
     await Project.deleteMany({ user: userId });
 
-    // 3. Nettoyer les fichiers Supabase si un avatar existe
     const profile = await Profile.findOne({ user: userId });
 
     if (profile) {
@@ -194,10 +206,8 @@ router.delete('/', auth, async (req, res) => {
       }
     }
 
-    // 4. Supprimer le profil de la base de données
     await Profile.findOneAndDelete({ user: userId });
 
-    // 5. Supprimer le compte utilisateur de la collection Users
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
@@ -216,9 +226,13 @@ router.delete('/', auth, async (req, res) => {
 // @access   Public
 router.get('/:id', async (req, res) => {
   try {
-    const profile = await Profile.findOne({ user: req.params.id }).populate('user', ['email']);
+    const profile = await Profile.findOne({ user: req.params.id }).populate('user', [
+      'email',
+      'role',
+      'approvalStatus'
+    ]);
 
-    if (!profile) {
+    if (!profile || !isUserApprovedForPublic(profile.user)) {
       return res.status(404).json({ message: "Le profil de cet étudiant n'existe pas." });
     }
 

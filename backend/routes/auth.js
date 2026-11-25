@@ -4,27 +4,67 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Profile = require('../models/Profile');
 const auth = require('../middleware/auth');
 const { sendResetEmail } = require('../utils/mailer');
 
 // Helper: Normalize email
-const normalizeEmail = (email) => {
-    return email.trim().toLowerCase();
-};
+const normalizeEmail = (email) => email.trim().toLowerCase();
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Helper: Normalize string array (from array or comma-separated string)
+const normalizeSkills = (skills) => {
+    if (Array.isArray(skills)) {
+        return skills.map((s) => String(s).trim()).filter(Boolean);
+    }
+    if (typeof skills === 'string') {
+        return skills.split(',').map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
+};
+
 // @route   POST api/auth/register
-// @desc    Register a new student/alumni (Pending admin approval)
+// @desc    Register a new student/alumni with full profile info in one step (Pending admin approval)
 // @access  Public
 router.post('/register', async (req, res) => {
-    const { email, password, role } = req.body;
+    const {
+        email,
+        password,
+        role,
+        firstName,
+        lastName,
+        promotion,
+        specialty,
+        currentLocation,
+        country,
+        city,
+        status,
+        degreeLevel,
+        currentCompany,
+        jobTitle,
+        bio,
+        skills,
+        avatar,
+        avatarPath,
+        socials
+    } = req.body;
+
+    let createdUser = null;
 
     try {
-        // 1. Validate required fields
-        if (!email || !password) {
+        // 1. Validate required account & profile fields
+        if (
+            !email ||
+            !password ||
+            !firstName ||
+            !lastName ||
+            !promotion ||
+            !specialty ||
+            !currentLocation
+        ) {
             return res.status(400).json({
-                message: "L'adresse email et le mot de passe sont obligatoires."
+                message: "Veuillez remplir tous les champs obligatoires (email, mot de passe, prénom, nom, promotion, spécialité et localisation)."
             });
         }
 
@@ -54,56 +94,97 @@ router.post('/register', async (req, res) => {
         const assignedRole = role === 'alumni' ? 'alumni' : 'student';
 
         // 5. Check if user already exists
-        const existingUser = await User.findOne({
-            email: normalizedEmail
-        });
-
+        const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
             return res.status(400).json({
                 message: "Cet utilisateur existe déjà."
             });
         }
 
-        // 6. Hash password
+        // 6. Hash password & create User (pending admin verification)
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // 7. Create user
-        const user = new User({
+        createdUser = new User({
             email: normalizedEmail,
             password: hashedPassword,
             role: assignedRole,
-
-            // Account verification
             isVerified: false,
-
-            // Registration tracking
+            approvalStatus: 'pending',
+            rejectionReason: null,
+            profileSubmitted: true,
+            reviewedBy: null,
+            reviewedAt: null,
             createdBy: null,
             registrationSource: 'public_signup',
             registrationIP: req.ip
         });
 
-        // 8. Save user
-        await user.save();
+        await createdUser.save();
 
-        // 9. Return response (No JWT before admin approval)
+        // 7. Create complete Profile linked to User
+        const profile = new Profile({
+            user: createdUser._id,
+            firstName: String(firstName).trim(),
+            lastName: String(lastName).trim(),
+            promotion: String(promotion).trim(),
+            specialty: String(specialty).trim(),
+            currentLocation: String(currentLocation).trim(),
+            country: country ? String(country).trim() : '',
+            city: city ? String(city).trim() : '',
+            status: status || (assignedRole === 'alumni' ? 'En poste' : 'Étudiant'),
+            degreeLevel: degreeLevel || (assignedRole === 'alumni' ? 'Alumni' : 'Licence'),
+            currentCompany: currentCompany ? String(currentCompany).trim() : '',
+            jobTitle: jobTitle ? String(jobTitle).trim() : '',
+            bio: bio ? String(bio).trim() : '',
+            skills: normalizeSkills(skills),
+            avatar: avatar || '',
+            avatarPath: avatarPath || '',
+            socials: {
+                linkedin: socials?.linkedin ? String(socials.linkedin).trim() : '',
+                github: socials?.github ? String(socials.github).trim() : '',
+                website: socials?.website ? String(socials.website).trim() : ''
+            }
+        });
+
+        await profile.save();
+
+        // 8. Return response (No JWT before admin approval)
         return res.status(201).json({
-            message: "Inscription enregistrée avec succès ! Votre compte est en attente de validation",
+            message: "Inscription complète enregistrée ! Votre profil est en attente de validation par l'administrateur.",
             user: {
-                id: user.id,
-                email: user.email,
-                role: user.role,
-                isVerified: user.isVerified,
-                registrationSource: user.registrationSource,
-                createdAt: user.createdAt
+                id: createdUser._id,
+                email: createdUser.email,
+                role: createdUser.role,
+                approvalStatus: createdUser.approvalStatus,
+                profileSubmitted: createdUser.profileSubmitted,
+                createdAt: createdUser.createdAt
+            },
+            profile: {
+                id: profile._id,
+                firstName: profile.firstName,
+                lastName: profile.lastName,
+                promotion: profile.promotion,
+                specialty: profile.specialty,
+                currentLocation: profile.currentLocation
             }
         });
 
     } catch (error) {
+        // Roll back orphan User if Profile creation/validation fails
+        if (createdUser && createdUser._id) {
+            await User.findByIdAndDelete(createdUser._id).catch(() => { });
+        }
 
-        // Handle duplicate email race condition
         if (error.code === 11000) {
             return res.status(400).json({
                 message: "Cet utilisateur existe déjà."
+            });
+        }
+
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map((err) => err.message);
+            return res.status(400).json({
+                message: messages[0] || "Données d'inscription invalides."
             });
         }
 
@@ -117,7 +198,7 @@ router.post('/register', async (req, res) => {
 
 
 // @route   POST api/auth/login
-// @desc    Login student/alumni and generate JWT if verified
+// @desc    Login student/alumni and generate JWT if approved by admin
 // @access  Public
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -139,9 +220,7 @@ router.post('/login', async (req, res) => {
         const normalizedEmail = normalizeEmail(email);
 
         // 2. Find user
-        const user = await User.findOne({
-            email: normalizedEmail
-        });
+        const user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
             return res.status(400).json({
@@ -158,10 +237,23 @@ router.post('/login', async (req, res) => {
             });
         }
 
-        // 4. Check account verification
-        if (!user.isVerified && user.role !== 'admin') {
+        // 4. Check admin approval status (default to 'approved' for legacy users without field)
+        const effectiveStatus = user.approvalStatus || 'approved';
+
+        if (user.role !== 'admin' && effectiveStatus !== 'approved') {
+            if (effectiveStatus === 'rejected') {
+                return res.status(403).json({
+                    message: user.rejectionReason
+                        ? `Votre demande d'inscription a été refusée : ${user.rejectionReason}`
+                        : "Votre demande d'inscription a été refusée par l'administrateur.",
+                    approvalStatus: 'rejected',
+                    rejectionReason: user.rejectionReason || null
+                });
+            }
+
             return res.status(403).json({
-                message: "Votre compte est en attente de validation. Vous ne pouvez pas encore vous connecter."
+                message: "Votre compte est en attente de validation par l'administrateur. Vous ne pouvez pas encore vous connecter.",
+                approvalStatus: 'pending'
             });
         }
 
@@ -176,7 +268,7 @@ router.post('/login', async (req, res) => {
 
         // 6. Generate JWT
         const payload = {
-            userId: user.id,
+            userId: user._id,
             role: user.role
         };
 
@@ -186,20 +278,23 @@ router.post('/login', async (req, res) => {
             { expiresIn: '24h' }
         );
 
+        const profile = await Profile.findOne({ user: user._id }).lean();
+
         // 7. Return authenticated user
         return res.json({
             message: "Connexion réussie !",
             token,
             user: {
-                id: user.id,
+                id: user._id,
                 email: user.email,
                 role: user.role,
-                isVerified: user.isVerified
-            }
+                isVerified: user.isVerified,
+                approvalStatus: effectiveStatus
+            },
+            profile: profile || null
         });
 
     } catch (error) {
-
         console.error("Login error:", error);
 
         return res.status(500).json({
@@ -326,11 +421,9 @@ router.post('/reset-password', async (req, res) => {
 // @desc    Register Firebase token for authenticated user
 // @access  Private
 router.put('/fcm-token', auth, async (req, res) => {
-
     try {
         const { token } = req.body;
 
-        // 1. Validate token
         if (!token || typeof token !== 'string' || !token.trim()) {
             return res.status(400).json({
                 message: "Token Firebase invalide."
@@ -338,8 +431,6 @@ router.put('/fcm-token', auth, async (req, res) => {
         }
 
         const cleanToken = token.trim();
-
-        // 2. Find authenticated user
         const user = await User.findById(req.user.userId);
 
         if (!user) {
@@ -348,10 +439,8 @@ router.put('/fcm-token', auth, async (req, res) => {
             });
         }
 
-        // 3. Prevent duplicate tokens
         if (!user.fcmTokens.includes(cleanToken)) {
             user.fcmTokens.push(cleanToken);
-
             await user.save();
         }
 
@@ -361,7 +450,6 @@ router.put('/fcm-token', auth, async (req, res) => {
         });
 
     } catch (error) {
-
         console.error("FCM token error:", error);
 
         return res.status(500).json({

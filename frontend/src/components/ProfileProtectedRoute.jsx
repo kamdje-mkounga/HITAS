@@ -6,26 +6,41 @@ const ProfileProtectedRoute = () => {
   const token = localStorage.getItem('token');
   const [checking, setChecking] = useState(true);
   const [isComplete, setIsComplete] = useState(false);
+  const [isApproved, setIsApproved] = useState(true);
 
   useEffect(() => {
-    const verifyProfileStatus = async () => {
+    const verifyAccessAndProfile = async () => {
       if (!token) {
         setChecking(false);
         return;
       }
 
       try {
-        // On demande directement au backend l'état du profil
-        const response = await API.get('/profile/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'x-auth-token': token
-          }
-        });
-
-        // 🎯 Condition stricte : l'utilisateur doit avoir rempli TOUS les champs obligatoires
+        const response = await API.get('/profile/me');
         const p = response.data;
-        if (p && p.firstName && p.lastName && p.promotion && p.specialty && p.currentLocation && p.bio) {
+
+        const userObj = p?.user && typeof p.user === 'object' ? p.user : null;
+        const role = userObj?.role || localStorage.getItem('userRole');
+        const approvalStatus = userObj?.approvalStatus || localStorage.getItem('approvalStatus') || 'approved';
+
+        if (role === 'admin' || approvalStatus === 'approved') {
+          setIsApproved(true);
+        } else {
+          setIsApproved(false);
+          localStorage.removeItem('token');
+          localStorage.setItem('approvalStatus', approvalStatus);
+        }
+
+        const hasRequiredFields = Boolean(
+          p &&
+          p.firstName &&
+          p.lastName &&
+          p.promotion &&
+          p.specialty &&
+          p.currentLocation
+        );
+
+        if (hasRequiredFields) {
           setIsComplete(true);
           localStorage.setItem('isProfileComplete', 'true');
         } else {
@@ -33,40 +48,44 @@ const ProfileProtectedRoute = () => {
           localStorage.removeItem('isProfileComplete');
         }
       } catch (err) {
-        console.error("Erreur vérification profil", err);
-        setIsComplete(false);
-        localStorage.removeItem('isProfileComplete');
+        if (err.response?.status === 403 && err.response?.data?.approvalStatus) {
+          setIsApproved(false);
+          localStorage.removeItem('token');
+          localStorage.setItem('approvalStatus', err.response.data.approvalStatus);
+        } else {
+          console.error('Erreur vérification profil', err);
+          setIsComplete(false);
+          localStorage.removeItem('isProfileComplete');
+        }
       } finally {
         setChecking(false);
       }
     };
 
-    verifyProfileStatus();
+    verifyAccessAndProfile();
   }, [token]);
 
-  // Pendant la vérification avec le serveur, on affiche un écran d'attente propre
   if (checking) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">Chargement du profil...</span>
+          <span className="text-zinc-400 text-xs font-semibold tracking-widest uppercase">
+            Chargement du profil...
+          </span>
         </div>
       </div>
     );
   }
 
-  // Si pas de jeton, redirection vers le login
-  if (!token) {
+  if (!token || !isApproved) {
     return <Navigate to="/login" replace />;
   }
 
-  // 🔥 Si le profil n'est pas strictement complet, REDIRECTION FORCÉE ET INDÉPASSABLE
   if (!isComplete) {
     return <Navigate to="/profil?reason=incomplete" replace />;
   }
 
-  // Si tout est validé par le serveur, on ouvre l'accès aux pages (Blog, Annuaire, etc.)
   return <Outlet />;
 };
 

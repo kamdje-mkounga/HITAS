@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { User, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Eye, EyeOff } from 'lucide-react';
 import API from '../services/api';
 
 function Login() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [statusNotice, setStatusNotice] = useState(null); // { type: 'pending' | 'rejected', text: string }
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setStatusNotice(null);
 
     try {
       setLoading(true);
@@ -26,20 +28,38 @@ function Login() {
 
       const userId = response.data.userId || response.data.user?.id || response.data.user?._id;
       const userRole = response.data.user?.role;
+      const approvalStatus = response.data.user?.approvalStatus || 'approved';
 
       if (userId) {
         localStorage.setItem('userId', userId);
-      } else {
-        console.warn("L'ID utilisateur n'a pas pu être extrait.");
       }
-
       if (userRole) {
         localStorage.setItem('userRole', userRole);
       }
+      localStorage.setItem('approvalStatus', approvalStatus);
 
       navigate('/Home');
     } catch (err) {
-      setError(err.response?.data?.message || 'Identifiants incorrects ou erreur serveur.');
+      const statusCode = err.response?.status;
+      const data = err.response?.data;
+
+      if (statusCode === 403 && data?.approvalStatus === 'pending') {
+        setStatusNotice({
+          type: 'pending',
+          text:
+            data.message ||
+            "Votre compte est en attente de validation par l'administrateur. Vous pourrez vous connecter dès qu'il sera approuvé.",
+        });
+      } else if (statusCode === 403 && data?.approvalStatus === 'rejected') {
+        setStatusNotice({
+          type: 'rejected',
+          text:
+            data.message ||
+            "Votre demande d'inscription a été refusée par l'administrateur.",
+        });
+      } else {
+        setError(data?.message || 'Identifiants incorrects ou erreur serveur.');
+      }
     } finally {
       setLoading(false);
     }
@@ -49,22 +69,33 @@ function Login() {
     <div className="w-full min-h-screen text-gray-900 dark:text-zinc-100 antialiased relative flex items-center justify-center px-4 font-sans">
       <div className="w-full max-w-md p-8 sm:p-10 bg-white/80 dark:bg-sky-950/85 backdrop-blur-xl border border-gray-200 dark:border-sky-800/40 rounded-[2.5rem] shadow-xl relative z-10">
 
-        {/* En-tête */}
         <div className="text-center mb-8">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-gray-900 dark:text-white">
             Connexion
           </h2>
-          <p className="text-gray-600 dark:text-sky-100 text-xs sm:text-sm mt-2 font-medium">Heureux de te revoir sur HITAS Connect</p>
+          <p className="text-gray-600 dark:text-sky-100 text-xs sm:text-sm mt-2 font-medium">
+            Heureux de te revoir sur HITAS Connect
+          </p>
         </div>
 
-        {/* Message d'erreur */}
+        {statusNotice && (
+          <div
+            className={`mb-5 p-3.5 text-xs font-medium rounded-xl leading-relaxed border ${statusNotice.type === 'rejected'
+                ? 'bg-red-500/10 border-red-500/30 text-red-500 dark:text-red-400'
+                : 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300'
+              }`}
+          >
+            {statusNotice.type === 'rejected' ? '🚫 ' : '⏳ '}
+            {statusNotice.text}
+          </div>
+        )}
+
         {error && (
           <div className="mb-5 p-3.5 bg-red-500/10 border border-red-500/30 text-red-500 dark:text-red-400 text-xs font-medium rounded-xl leading-relaxed backdrop-blur-md">
             ⚠️ {error}
           </div>
         )}
 
-        {/* Formulaire */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="relative">
             <input
@@ -109,7 +140,6 @@ function Login() {
           </button>
         </form>
 
-        {/* Lien vers inscription */}
         <div className="text-center mt-6">
           <p className="text-gray-500 dark:text-sky-100 text-xs font-medium">
             Pas encore de compte ?{' '}
@@ -119,9 +149,8 @@ function Login() {
           </p>
         </div>
 
-        {/*Lien pour ajouter mot de passe oubliee*/}
-        <br></br>
-        <hr></hr>
+        <br />
+        <hr />
         <div className="text-right">
           <Link
             to="/forgot-password"
@@ -130,7 +159,6 @@ function Login() {
             Mot de passe oublié ?
           </Link>
         </div>
-
       </div>
     </div>
   );

@@ -15,19 +15,27 @@ import AutoLogout from './components/AutoLogout';
 import PublicProfile from './pages/PublicProfile';
 import AdminDashboard from './pages/AdminDashboard';
 import ProfileProtectedRoute from './components/ProfileProtectedRoute';
-import NotificationPermission from "./components/NotificationPermission";
+import NotificationPermission from './components/NotificationPermission';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   return token ? children : <Navigate to="/login" replace />;
 };
 
-const BACKEND_URL = "https://hitas.onrender.com";
+const BACKEND_URL = 'https://hitas.onrender.com';
 
 function App() {
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const token = localStorage.getItem('token');
   const loggedInUserId = localStorage.getItem('userId');
+  const userRole = localStorage.getItem('userRole');
+  const approvalStatus = localStorage.getItem('approvalStatus') || 'approved';
+
+  const canConnectSocket = Boolean(
+    token &&
+    loggedInUserId &&
+    (userRole === 'admin' || approvalStatus === 'approved')
+  );
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -55,7 +63,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!token || !loggedInUserId) return;
+    if (!canConnectSocket) return;
 
     const socket = io(BACKEND_URL, {
       transports: ['websocket', 'polling'],
@@ -76,7 +84,7 @@ function App() {
       socket.off('article_published');
       socket.disconnect();
     };
-  }, [token, loggedInUserId]);
+  }, [canConnectSocket, loggedInUserId]);
 
   return (
     <Router>
@@ -86,7 +94,7 @@ function App() {
           width: '100%',
           position: 'relative',
           filter: 'brightness(var(--bg-brightness)) contrast(var(--bg-contrast))',
-          transition: 'filter 0.3s ease'
+          transition: 'filter 0.3s ease',
         }}
       >
         <div
@@ -94,11 +102,10 @@ function App() {
             position: 'fixed',
             inset: 0,
             zIndex: -1,
-
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
           }}
         />
 
@@ -111,15 +118,55 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/admin" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
-            <Route path="/profil" element={<PrivateRoute><Profil /></PrivateRoute>} />
-            <Route path="/profile/:id" element={<PrivateRoute><PublicProfile /></PrivateRoute>} />
+
+            <Route
+              path="/admin"
+              element={
+                <PrivateRoute>
+                  <AdminDashboard />
+                </PrivateRoute>
+              }
+            />
 
             <Route element={<ProfileProtectedRoute />}>
-              <Route path="/home" element={<PrivateRoute><Home hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-              <Route path="/annuaire" element={<PrivateRoute><Annuaire hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-              <Route path="/blog" element={<PrivateRoute><Blog hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
-              <Route path="/showcase" element={<PrivateRoute><Showcase hasNewNotification={hasNewNotification} clearNotifications={() => setHasNewNotification(false)} /></PrivateRoute>} />
+              <Route path="/profil" element={<Profil />} />
+              <Route path="/profile/:id" element={<PublicProfile />} />
+              <Route
+                path="/home"
+                element={
+                  <Home
+                    hasNewNotification={hasNewNotification}
+                    clearNotifications={() => setHasNewNotification(false)}
+                  />
+                }
+              />
+              <Route
+                path="/annuaire"
+                element={
+                  <Annuaire
+                    hasNewNotification={hasNewNotification}
+                    clearNotifications={() => setHasNewNotification(false)}
+                  />
+                }
+              />
+              <Route
+                path="/blog"
+                element={
+                  <Blog
+                    hasNewNotification={hasNewNotification}
+                    clearNotifications={() => setHasNewNotification(false)}
+                  />
+                }
+              />
+              <Route
+                path="/showcase"
+                element={
+                  <Showcase
+                    hasNewNotification={hasNewNotification}
+                    clearNotifications={() => setHasNewNotification(false)}
+                  />
+                }
+              />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />
